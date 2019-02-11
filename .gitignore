@@ -1,0 +1,9 @@
+node_modules
+
+# Build artifacts
+/.tscache
+
+# Test artifacts
+/dist/src
+/dist/test
+/dist/spec
