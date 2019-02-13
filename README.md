@@ -1,9 +1,10 @@
-## PCP JSON Datasource - a Performance Co-Pilot backend datasource
+## PCP JSON Datasource - a Performance Co-Pilot backend datasource for Grafana
 
 PCP JSON Datasource is based on [simpod-JSON-datasource](https://github.com/simPod/grafana-json-datasource),
 which (in turn) is based on the [Simple JSON Datasource](https://github.com/grafana/simple-json-datasource).
 
-The PCP JSON datasource executes JSON requests against arbitrary backends. To work with this datasource the backend needs to implement 4 urls:
+The PCP JSON datasource executes JSON requests against a pmproxy(1) backend.
+To work with this datasource the pmproxy backend needs to implement 4 urls:
 
  * `/grafana/test` should return 200 ok. Used for "Test connection" on the datasource config page.
  * `/grafana/query` should return metrics based on input. See below for syntax examples.

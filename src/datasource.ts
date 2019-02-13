@@ -1,4 +1,5 @@
 ///<reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
+import _ from 'lodash';
 import map from 'lodash/map';
 import isObject from 'lodash/isObject';
 import isUndefined from 'lodash/isUndefined';
@@ -14,7 +15,7 @@ export class PCPDatasource {
   headers: any;
 
   /** @ngInject **/
-  constructor(instanceSettings, $q, backendSrv, templateSrv) {
+  constructor(instanceSettings, private $q, backendSrv, templateSrv) {
     this.name = instanceSettings.name;
     this.url = instanceSettings.url;
     this.q = $q;
@@ -27,7 +28,8 @@ export class PCPDatasource {
     }
   }
 
-  query(options) {
+  queryPost(options) {
+    // query using a POST - has query for all panel refIDs in the one POST request
     const query = options;
     query.targets = this.buildQueryTargets(options);
 
@@ -41,7 +43,7 @@ export class PCPDatasource {
       query.adhocFilters = [];
     }
 
-    options.scopedVars = { ...this.getVariables(), ...options.scopedVars };
+    // options.scopedVars = { ...this.getVariables(), ...options.scopedVars };
 
     return this.doRequest({
       url: this.url + '/grafana/query',
@@ -50,9 +52,53 @@ export class PCPDatasource {
     });
   }
 
+  query(options) {
+    // query using an array of GETs, one panel refId per URL
+    const queries: any = [];
+    const query = options;
+    query.targets = this.buildQueryTargets(options);
+
+    if (query.targets.length <= 0) {
+      return this.q.when({ data: [] });
+    }
+    console.log("DEBUG query.targets.length="+query.targets.length);
+    for (let i=0; i < query.targets.length; i++) {
+      console.log("-->> DEBUG query.targets[" + i + "] refId="+query.targets[i].refId+",target="+query.targets[i].target);
+      queries.push(query.targets[i]);
+    }
+
+    if (this.templateSrv.getAdhocFilters) {
+      query.adhocFilters = this.templateSrv.getAdhocFilters(this.name);
+    } else {
+      query.adhocFilters = [];
+    }
+
+    const allQueryPromise = _.map(queries, query => {
+      return this.doRequest({
+	url: this.url + '/grafana/query' + '?refId=' + query.refId +
+	  // '&start=' + query.range.from + '&finish='+query.range.to + '&interval=' + query.interval +
+	  '&expr=' + query.target,
+	method: 'GET',
+      });
+    });
+
+    // now harvest the responses
+    return this.$q.all(allQueryPromise).then(responseList => {
+      let result: any = [];
+
+      _.each(responseList, (response, index) => {
+	  result[index] = response;
+          console.log('DEBUG response index=' + index + ' response.data=' + response.data);
+      });
+
+      // this isn't quite right .. working on it
+      return { result }; 
+    });
+  }
+
   testDatasource() {
     return this.doRequest({
-      url: this.url + '/grafana/test',
+      url: this.url + '/grafana',
       method: 'GET',
     }).then((response) => {
       if (response.status === 200) {
@@ -61,8 +107,7 @@ export class PCPDatasource {
 
       return {
         status: 'error',
-        message: 'PCP Data source is not working: ' + response.message,
-        title: 'Error',
+        message: 'PCP Data source is not working: ' + response.message, title: 'Error',
       };
     });
   }
