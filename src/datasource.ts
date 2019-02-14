@@ -74,20 +74,26 @@ export class PCPDatasource {
     }
 
     if (query.targets.length === 1) {
-      // single refId - this works
+      // single refId - this works - but you can only have one query per panel
       return this.doRequest({
 	// note: time window options not currently supported by pmproxy back-end
 	url: this.url + '/grafana/query' + '?refId=' + query.targets[0].refId +
-	  // '&start=' + query.range.from + '&finish='+query.range.to + '&interval=' + query.interval +
-	  '&expr=' + query.targets[0].target,
+	  '&panelId=' + query.panelId + '&dashboardId=' + query.dashboardId +
+	  '&timezone=' + query.timezone + '&maxdatapoints=' + query.maxDataPoints +
+	  '&start=' + Math.round(query.range.from/1000) + '&finish=' + Math.round(query.range.to/1000) +
+	  '&startraw=' + query.rangeRaw.from + '&finishraw=' + query.rangeRaw.to +
+	  '&intervalms=' + query.intervalMs + '&interval=' + query.interval + '&expr=' + query.targets[0].target,
 	method: 'GET',
       });
 
     } else {
-
-      // multiple refIds (panel queries) - this doesn't work yet
+      //
+      // TODO multiple refIds (panel queries) - this doesn't work yet.
+      //
       const allQueryPromise = _.map(queries, query => {
-	const url: string = this.url + '/grafana/query' + '?refId=' + query.refId + '&expr=' + query.target;
+	const url: string = this.url + '/grafana/query' + '?refId=' + query.refId +
+	  '&start=' + query.range.from + '&finish='+query.range.to + '&interval=' + query.interval +
+	  '&expr=' + query.target;
 	console.log('DEBUG QUERY allQueryPromise url=' + url);
 	return this.doRequest({
 	  url: url,
