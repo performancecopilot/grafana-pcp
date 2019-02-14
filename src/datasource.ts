@@ -73,27 +73,31 @@ export class PCPDatasource {
       query.adhocFilters = [];
     }
 
-    const allQueryPromise = _.map(queries, query => {
+    if (query.targets.length === 1) {
+      // single refId - this works
       return this.doRequest({
-	url: this.url + '/grafana/query' + '?refId=' + query.refId +
+	// note: time window options not currently supported by pmproxy back-end
+	url: this.url + '/grafana/query' + '?refId=' + query.targets[0].refId +
 	  // '&start=' + query.range.from + '&finish='+query.range.to + '&interval=' + query.interval +
-	  '&expr=' + query.target,
+	  '&expr=' + query.targets[0].target,
 	method: 'GET',
       });
-    });
 
-    // now harvest the responses
-    return this.$q.all(allQueryPromise).then(responseList => {
-      let result: any = [];
+    } else {
 
-      _.each(responseList, (response, index) => {
-	  result[index] = response;
-          console.log('DEBUG response index=' + index + ' response.data=' + response.data);
+      // multiple refIds (panel queries) - this doesn't work yet
+      const allQueryPromise = _.map(queries, query => {
+	const url: string = this.url + '/grafana/query' + '?refId=' + query.refId + '&expr=' + query.target;
+	console.log('DEBUG QUERY allQueryPromise url=' + url);
+	return this.doRequest({
+	  url: url,
+	  data: [], // TODO what goes here?
+	  method: 'GET',
+	}).then((response) => {
+	  return response.data;
+	});
       });
-
-      // this isn't quite right .. working on it
-      return { result }; 
-    });
+    }
   }
 
   testDatasource() {

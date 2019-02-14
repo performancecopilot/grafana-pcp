@@ -18,23 +18,27 @@
     </div>
 
     <div ng-if="!ctrl.target.rawQuery">
-      <div class="gf-form">
+      <div class="gf-form gf-form--grow right" width-12>
         <label class="gf-form-label width-5 query-keyword">Query</label>
-        <gf-form-dropdown model="ctrl.target.target"
+	<input type="text" class="gf-form-input" ng-model="ctrl.target.target" spellcheck='false'
           allow-custom="true"
           lookup-text="true"
           get-options="ctrl.getOptions($query)"
           on-change="ctrl.onChangeInternal()">
-        </gf-form-dropdown>
+	</input>
+	<info-popover mode="right-absolute">
+        Specify a PCP metric name or pmseries query expression. Do not include the time-window parameters. [TODO add some examples]
+      </info-popover>
       </div>
     </div>
 
-    <div class="gf-form gf-form--grow right">
-      <label class="gf-form-label gf-form-label--grow query-keyword" ng-click="ctrl.showJSON = !ctrl.showJSON">Query Labels
+    <div class="gf-form">
+      <label class="gf-form-label gf-form-label--grow query-keyword" ng-click="ctrl.showJSON = !ctrl.showJSON">Filter Labels
         <i class="fa fa-caret-down" ng-show="ctrl.showJSON"></i>
         <i class="fa fa-caret-right" ng-hide="ctrl.showJSON"></i>
       </label>
     </div>
+
   </div>
 
   <div class="gf-form-inline" ng-show="ctrl.showJSON">
