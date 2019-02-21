@@ -52,18 +52,17 @@ export class PCPDatasource {
     });
   }
 
-  query(options) {
+  async query(options) {
     // query using an array of GETs, one panel refId per URL
     const queries: any = [];
     const query = options;
     query.targets = this.buildQueryTargets(options);
+    var tzparam = "UTC";
 
     if (query.targets.length <= 0) {
       return this.q.when({ data: [] });
     }
-    console.log("DEBUG query.targets.length="+query.targets.length);
     for (let i=0; i < query.targets.length; i++) {
-      console.log("-->> DEBUG query.targets[" + i + "] refId="+query.targets[i].refId+",target="+query.targets[i].target);
       queries.push(query.targets[i]);
     }
 
@@ -73,37 +72,48 @@ export class PCPDatasource {
       query.adhocFilters = [];
     }
 
-    if (query.targets.length === 1) {
-      // single refId - this works - but you can only have one query per panel
-      return this.doRequest({
-	// note: time window options not currently supported by pmproxy back-end
-	url: this.url + '/grafana/query' + '?refId=' + query.targets[0].refId +
-	  '&panelId=' + query.panelId + '&dashboardId=' + query.dashboardId +
-	  '&timezone=' + query.timezone + '&maxdatapoints=' + query.maxDataPoints +
-	  '&start=' + Math.round(query.range.from/1000) + '&finish=' + Math.round(query.range.to/1000) +
-	  '&startraw=' + query.rangeRaw.from + '&finishraw=' + query.rangeRaw.to +
-	  '&intervalms=' + query.intervalMs + '&interval=' + query.interval + '&expr=' + query.targets[0].target,
-	method: 'GET',
-      });
+    if (query.timezone == "browser")
+    	tzparam = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    } else {
-      //
-      // TODO multiple refIds (panel queries) - this doesn't work yet.
-      //
-      const allQueryPromise = _.map(queries, query => {
-	const url: string = this.url + '/grafana/query' + '?refId=' + query.refId +
-	  '&start=' + query.range.from + '&finish='+query.range.to + '&interval=' + query.interval +
-	  '&expr=' + query.target;
-	console.log('DEBUG QUERY allQueryPromise url=' + url);
-	return this.doRequest({
-	  url: url,
-	  data: [], // TODO what goes here?
-	  method: 'GET',
-	}).then((response) => {
-	  return response.data;
-	});
-      });
+    //
+    // refIds (panel queries)
+    //
+    var urls = new Array(query.targets.length);
+    for (let i=0; i < query.targets.length; i++) {
+      urls[i] = this.url + '/grafana/query' + '?refId=' + query.targets[i].refId +
+	'&panelId=' + query.panelId + '&dashboardId=' + query.dashboardId +
+	'&timezone=' + tzparam + '&maxdatapoints=' + query.maxDataPoints +
+	'&start=' + Math.round(query.range.from/1000) + '&finish=' + Math.round(query.range.to/1000) +
+	// '&intervalms=' + query.intervalMs +
+	// '&interval=' + query.interval + '&expr=' + encodeURIComponent(query.targets[i].target);
+	'&interval=' + query.interval + '&expr=' + query.targets[i].target;
     }
+
+    // Promise.all returns when all async URL fetches have completed, at which
+    // time the results array is available to pass back to grafana.
+    let results: any = []
+    let requests = urls.map(url => this.fetchURL(url));
+    let sts = await Promise.all(requests)
+    .then(responses => {
+	for (let response of responses) {
+	  results.push(response[0]);
+	}
+      })
+
+    console.log("results len="+results.length+" value=" + JSON.stringify(results));
+    return { data: results }
+  }
+
+  fetchURL(url: string) {
+    var sts;
+    console.log("fetchURL=" + url);
+    sts = this.doRequest({
+      url: url,
+      method: 'GET',
+    }).then((result) => {
+      return result.data;
+    });
+    return sts;
   }
 
   testDatasource() {
@@ -153,10 +163,11 @@ export class PCPDatasource {
     };
 
     return this.doRequest({
-      url: this.url + '/grafana/search',
-      data: interpolated,
-      method: 'POST',
-    }).then(this.mapToTextValue);
+      url: this.url + '/grafana/search?target='+query+'*',
+      method: 'GET',
+    }).then((result) => {
+      return result.data;
+    });
   }
 
   mapToTextValue(result) {
