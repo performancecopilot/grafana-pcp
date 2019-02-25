@@ -64,6 +64,7 @@ export class PCPDatasource {
     }
     for (let i=0; i < query.targets.length; i++) {
       queries.push(query.targets[i]);
+      console.log("DEBUG query.targets["+i+"]="+JSON.stringify(query.targets[i]));
     }
 
     if (this.templateSrv.getAdhocFilters) {
@@ -100,7 +101,28 @@ export class PCPDatasource {
 	}
       })
 
-    console.log("results len="+results.length+" value=" + JSON.stringify(results));
+    // console.log("DEBUG RESULTS len="+results.length+" value=" + JSON.stringify(results));
+
+    //
+    for (let r=0; r < results.length; r++) {
+      if (query.targets[r].isCounter) {
+	// Client side rate conversion for counters
+	console.log("RATE CONVERTING query["+r+"] target="+query.targets[r].target);
+	let pd = results[r].datapoints[0][0];
+	let pt = results[r].datapoints[0][1];
+	for (let i=1; i < results[r].datapoints.length; i++) {
+	  let d = results[r].datapoints[i][0];
+	  let t = results[r].datapoints[i][1];
+	  // timestamps are ms
+	  results[r].datapoints[i][0] = 1000.0 * (d - pd) / (t - pt);
+	  pd = d;
+	  pt = t;
+	  // console.log("RESULTS " +results[r].target +"[" +r +"][" +i +"][" +d +"," +t +"] = " + results[r].datapoints[i][0]);
+	}
+	results[r].datapoints[0][0] = null;
+      }
+    }
+
     return { data: results }
   }
 
@@ -213,6 +235,7 @@ export class PCPDatasource {
           refId: target.refId,
           hide: target.hide,
           type: target.type,
+	  isCounter: target.isCounter,
         };
       });
   }

@@ -1,26 +1,14 @@
 <query-editor-row query-ctrl="ctrl" class="generic-datasource-query-row" has-text-edit-mode="true">
   <div class="gf-form-inline">
-    <div class="gf-form">
-      <label class="gf-form-label width-6 query-keyword">Format as</label>
-      <div class="gf-form-select-wrapper">
-        <select
-          class="gf-form-input gf-size-auto"
-          ng-model="ctrl.target.type"
-          ng-options="f.value as f.text for f in ctrl.types"
-          ng-change="ctrl.onChangeInternal()"
-        >
-        </select>
-      </div>
-    </div>
 
     <div class="gf-form" ng-if="ctrl.target.rawQuery">
       <textarea class="gf-form-input" rows="5" ng-model="ctrl.target.target" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
     </div>
 
     <div ng-if="!ctrl.target.rawQuery">
-      <div class="gf-form gf-form--grow right" width-12>
+      <div class="gf-form right" width-18>
         <label class="gf-form-label width-5 query-keyword">Query</label>
-	<input type="text" class="gf-form-input" ng-model="ctrl.target.target" spellcheck='false'
+	<input type="text" width-16 class="gf-form-input" ng-model="ctrl.target.target" spellcheck='false'
           allow-custom="true"
           lookup-text="true"
           get-options="ctrl.getOptions($query)"
@@ -33,6 +21,10 @@
     </div>
 
     <div class="gf-form">
+      <gf-form-switch
+      class="gf-form" label="Rate Convert" label-class="width-8" ng-model="ctrl.target.isCounter" checked="ctrl.target.isCounter" on-change="ctrl.refresh()">
+      </gf-form-switch>
+
       <label class="gf-form-label gf-form-label--grow query-keyword" ng-click="ctrl.showJSON = !ctrl.showJSON">Filter Labels
         <i class="fa fa-caret-down" ng-show="ctrl.showJSON"></i>
         <i class="fa fa-caret-right" ng-hide="ctrl.showJSON"></i>
