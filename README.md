@@ -1,163 +1,82 @@
-## PCP JSON Datasource - a Performance Co-Pilot backend datasource for Grafana
+## PCP Grafana Datasource - a native Performance Co-Pilot datasource for Grafana
 
-PCP JSON Datasource is based on [simpod-JSON-datasource](https://github.com/simPod/grafana-json-datasource),
-which (in turn) is based on the [Simple JSON Datasource](https://github.com/grafana/simple-json-datasource).
+The PCP Grafana datasource makes REST API query requests to the PCP pmproxy(1) service,
+which can be running either locally or on a remote host. Note: this is still under
+development, so the installation and configuration instructions are more convoluted
+than they will be once this has been released for general use.
 
-The PCP JSON datasource executes JSON requests against a pmproxy(1) backend.
-To work with this datasource the pmproxy backend needs to implement 4 urls:
+### Grafana Installation and configuration on Fedora FC29 or later:
+ * enable the Grafana YUM repo: `dnf copr enable mgoodwin/grafana`
+ * install grafana: `dnf install grafana`
+ * enable and start the grafana service: `systemctl enable grafana-server; systemctl start grafana-server`
+
+### Install Redis v5 or later:
+ * on Fedora FC29 or later: `dnf install redis`
+ * enable and start the redis service: `systemctl enable redis.service; systemctl start redis.service`
+
+### Install PCP pcp-4.3.2 or later, and enable the pmcd, pmlogger and pmproxy services
+ * build and install pcp-4.3.2 or later (currently un-released at https://github.com/performancecopilot/pcp [master branch])
+ * enable PCP services: `systemctl enable pmcd; systemctl enable pmlogger; systemctl enable pmproxy`
+ * edit `/etc/pcp/pmproxy/pmproxy.options` and set the `-t` and `-D http` options under the "timeseries with debug for http requests/response" section. THis configures pmproxy to scrape performance data from PCP archive logs, and load it into Redis.
+ * start the 3 PCP services: `systemctl start pmcd; systemctl start pmlogger; systemctl start pmproxy`
+
+### PCP Grafana datasource installation:
+The 'dist' directory for this datasource is pre-built, committed to the git repo and ready for use, but still under development.
+As a developer, the easiest way to install this as a datasource plugin for grafana is as follows.
+ * clone the github source: `git clone https://github.com/performancecopilot/pcp-grafana-datasource`
+ * change directory to the just-cloned datasource: `cd pcp-grafana-datasource`
+ * symlink the dist directory into the grafana plugins directory: `ln -sf \`pwd\`/dist /var/lib/grafana/data/plugins/pcp`
+ * re-start grafana: `systemctl restart grafana-server`
+
+### Using the PCP Grafana datasource:
+The PCP datasource can now be configured and enabled in the Grafana UI for use by various Grafana panels:
+ * login to grafana using a web browser: http://localhost:3000 (or whatever host is running grafana-server if your browser is not running on that host)
+ * The default initial user and password is `admin/admin`. You will be prompted to change this on the first login.
+ * Under the gear icon on the left hand side, click on the 'datasources' menu item and then select 'Performance Co-Pilot'
+ * In the URL text box, enter the host and port of the pmproxy service, as configured above, e.g. `http://localhost:44322`
+ * Click on the green 'Save & Test' button. If everything is working, you'll see a message that `PCP Data source is working`
+   and that the configuration has been saved in the local Grafana configuration database.
+
+### Create a new dashboard and panels
+ * use the grafana web UI to create a new dashboard, and then create a panel within that dashboard, e.g. a `single-stat` panel.
+ * in the new panel, click on it's title at the top, and select Edit
+ * in the panel editor select `Performance Co-Pilot` in the drop-down menu as the datasource for this panel. Note that different panels in the same dashboard can use different datasources, but all Queries in the **same** panel always use the same datasource.
+ * It is possible to configure more than one Performance Co-Pilot datasource - just give each one a unique name and URL. This allows different panels to retrieve data from different servers (each of which must be running the pmproxy service), e.g. in different datacenters.
+ * Now enter the Query text, i.e. choose a PCP metric name, e.g. `kernel.all.cpu.user`. If the metric you have chosen is a counter type, then select the 'Rate Convert' tick-box, so that returned time-series values will be rate converted (e.g. count/second) before being passed to the Grafana panel display handler.
+
+## Implementation details
+To work with this datasource the pmproxy backend implements 4 URLs:
 
  * `/grafana/test` should return 200 ok. Used for "Test connection" on the datasource config page.
- * `/grafana/query` should return metrics based on input. See below for syntax examples.
+ * `/grafana/query` should return time-series data based on the query text. See below for syntax examples.
  * `/grafana/annotations` should return annotations.
  * `/grafana/search` is used by the query tab in panels. It should just return "{}" for now.
 
-This datasource would normally be configured with a pmproxy back-end at `http://localhost:44322`.
-For more details, see pmproxy(1) and pmwebapi(3).
+At the present time, only `/grafana/test` and `/grafana/query` are implemented. The `/grafana/search` end-point will be used for auto-completion of metric names and other 'helper' functionality when entering queries. Annotations are not yet implemented.
 
-These two urls are optional:
+Two addtional urls are optional (once implemented):
 
  * `/grafana/tag-keys` should return tag keys for ad hoc filters.
  * `/grafana/tag-values` should return tag values for ad hoc filters.
 
-### Search API - currently not implemented
-/grafana/search
-This is used to provide hints in the Query editor, and will be called whenever the
-'Query' text box in a panel is changed/edited. It is currently not implemented.
-The back-end currently should always return an empty json string "{}" for search requests.
+### Build and Development
 
-### Query API
-
-/grafana//query
-
-Example `timeseries` request - currently using POST but will be converted to GET
-``` text
-```
-
-Example `timeseries` response
-``` javascript
-[
-    TODO
-]
-```
-
-Example `table` response
-``` javascript
-```
-``` json
-[
-  {
-    "columns":[
-      {"text":"Time","type":"time"},
-      {"text":"Country","type":"string"},
-      {"text":"Number","type":"number"}
-    ],
-    "rows":[
-      [1234567,"SE",123],
-      [1234567,"DE",231],
-      [1234567,"US",321]
-    ],
-    "type":"table"
-  }
-]
-```
-
-### Annotation API
-
-The annotation request from the Simple JSON Datasource is a POST request to
-the `/annotations` endpoint in your datasource. The JSON request body looks like this:
-``` json
-{
-  "range": {
-    "from": "2016-04-15T13:44:39.070Z",
-    "to": "2016-04-15T14:44:39.070Z"
-  },
-  "rangeRaw": {
-    "from": "now-1h",
-    "to": "now"
-  },
-  "annotation": {
-    "name": "deploy",
-    "datasource": "JSON Datasource",
-    "iconColor": "rgba(255, 96, 96, 1)",
-    "enable": true,
-    "query": "#deploy",
-  },
-   "variables" []
-}
-```
-
-Grafana expects a response containing an array of annotation objects in the
-following format:
-
-``` javascript
-[
-  {
-    "text": "text shown in body" // Text for the annotation. (required)
-    "title": "Annotation Title", // The title for the annotation tooltip. (optional)
-    "isRegion": true, // Whether is region. (optional) (http://docs.grafana.org/reference/annotations/#adding-regions-events)
-    "time": "timestamp", // Time since UNIX Epoch in milliseconds. (required)
-    "timeEnd": "timestamp", // Time since UNIX Epoch in milliseconds (required if `isRegion` is true )
-    "tags": ["tag1"], // Tags for the annotation. (optional)
-  }
-]
-```
-
-Note: If the datasource is configured to connect directly to the backend, you
-also need to implement an OPTIONS endpoint at `/annotations` that responds
-with the correct CORS headers:
-
-```
-Access-Control-Allow-Headers:accept, content-type
-Access-Control-Allow-Methods:POST
-Access-Control-Allow-Origin:*
-```
-
-### Tag Keys API
-
-Example request
-``` json
-{ }
-```
-
-The tag keys api returns:
-``` json
-[
-    {"type":"string","text":"City"},
-    {"type":"string","text":"Country"}
-]
-```
-
-### Tag Values API
-
-Example request
-``` json
-{"key": "City"}
-```
-
-The tag values api returns:
-``` json
-[
-    {"text": "Eins!"},
-    {"text": "Zwei"},
-    {"text": "Drei!"}
-]
-```
-
-## Installation
-
-To install this plugin using the `grafana-cli` tool:
-```sh
- grafana-cli plugins install pcp-json-datasource
- ```
-
-See [here](https://grafana.com/plugins/pcp-json-datasource/installation) for more
-information.
-
-### Development setup
-
-This plugin requires node 6.10.0. To build use of [Yarn](https://yarnpkg.com/lang/en/docs/install/) is encouraged.
+The PCP grafana datasource is based on [simpod-JSON-datasource](https://github.com/simPod/grafana-json-datasource),
+which (in turn) is based on the [Simple JSON Datasource](https://github.com/grafana/simple-json-datasource).
+To build this plugin, you need node version 6.10.0 or later (on Fedora, this is packaged in the 'nodejs' RPM). To build,
+use [Yarn](https://yarnpkg.com/lang/en/docs/install/) as follows:
 
 ```
 yarn install
 yarn run build
 ```
+
+Subsequent builds would normally not need the install step - just `yarn run build` should suffice.
+After building, the `dist` directory should be installed into the Grafana plugins location.
+This is normally `/var/lib/grafana/data/plugins`.
+If you used a symbolic link (as described above in the setup instructions), than after building
+a new version of the datasource, all you will need to do is restart the grafana-server service
+(and possibly logout/login to the grafana web UI).
+
+In future work, this datasource plugin will probably be packaged as an RPM with run-time
+dependencies on both PCP and Grafana - so just installing / the RPM should suffice.

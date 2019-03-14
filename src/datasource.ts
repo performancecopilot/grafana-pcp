@@ -114,8 +114,9 @@ export class PCPDatasource {
 	  let d = results[r].datapoints[i][0];
 	  let t = results[r].datapoints[i][1];
 	  // timestamps are in ms, we dont know the data units though.
+	  // For now, we assume count/second
 	  // TODO, use correct scaling from the metric metadata
-	  let delta = t - pt;
+	  let delta = (t - pt) / 1000.0; // time delta in seconds
 	  if (delta > 0.0)
 	      results[r].datapoints[i][0] = (d - pd) / delta;
 	    else
