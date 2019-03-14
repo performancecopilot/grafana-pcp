@@ -25,7 +25,7 @@ The 'dist' directory for this datasource is pre-built, committed to the git repo
 As a developer, the easiest way to install this as a datasource plugin for grafana is as follows.
  * clone the github source: `git clone https://github.com/performancecopilot/pcp-grafana-datasource`
  * change directory to the just-cloned datasource: `cd pcp-grafana-datasource`
- * symlink the dist directory into the grafana plugins directory: `ln -sf \`pwd\`/dist /var/lib/grafana/data/plugins/pcp`
+ * symlink the dist directory into the grafana plugins directory: `ln -sf $PWD/dist /var/lib/grafana/data/plugins/pcp`
  * re-start grafana: `systemctl restart grafana-server`
 
 ### Using the PCP Grafana datasource:
@@ -72,6 +72,7 @@ yarn run build
 ```
 
 Subsequent builds would normally not need the install step - just `yarn run build` should suffice.
+When committing changes, all modified files **including** those below the dist directory should be committed.
 After building, the `dist` directory should be installed into the Grafana plugins location.
 This is normally `/var/lib/grafana/data/plugins`.
 If you used a symbolic link (as described above in the setup instructions), than after building
