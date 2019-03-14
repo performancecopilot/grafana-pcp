@@ -113,13 +113,18 @@ export class PCPDatasource {
 	for (let i=1; i < results[r].datapoints.length; i++) {
 	  let d = results[r].datapoints[i][0];
 	  let t = results[r].datapoints[i][1];
-	  // timestamps are ms
-	  results[r].datapoints[i][0] = 1000.0 * (d - pd) / (t - pt);
+	  // timestamps are in ms, we dont know the data units though.
+	  // TODO, use correct scaling from the metric metadata
+	  let delta = t - pt;
+	  if (delta > 0.0)
+	      results[r].datapoints[i][0] = (d - pd) / delta;
+	    else
+	      results[r].datapoints[i][0] = null; // undefined
 	  pd = d;
 	  pt = t;
 	  // console.log("RESULTS " +results[r].target +"[" +r +"][" +i +"][" +d +"," +t +"] = " + results[r].datapoints[i][0]);
 	}
-	results[r].datapoints[0][0] = null;
+	results[r].datapoints[0][0] = null; // no previous sample
       }
     }
 
