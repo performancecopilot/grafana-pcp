@@ -1,9 +1,14 @@
 ## PCP Grafana Datasource - a native Performance Co-Pilot datasource for Grafana
 
-The PCP Grafana datasource makes REST API query requests to the PCP pmproxy(1) service,
-which can be running either locally or on a remote host. Note: this is still under
-development, so the installation and configuration instructions are more convoluted
-than they will be once this has been released for general use.
+The PCP Grafana datasource plugin provides a native interface between [Grafana](http://grafana.org)
+and [Performance Co-Pilot](https://pcp.io) (PCP), allowing PCP metric data to be
+presented in Grafana panels, such as graphs, tables, heatmaps, etc. Under the hood, the
+datasource makes REST API query requests to the PCP pmproxy(1) service, which can be running
+either locally or on a remote host.
+
+_Please note: this datasource plugin is under development, so the installation and
+configuration instructions are more convoluted than they will be once this has been
+released for general use._
 
 ### Grafana Installation and configuration on Fedora FC29 or later:
  * enable the Grafana YUM repo: `dnf copr enable mgoodwin/grafana`
@@ -15,9 +20,9 @@ than they will be once this has been released for general use.
  * enable and start the redis service: `systemctl enable redis.service; systemctl start redis.service`
 
 ### Install PCP pcp-4.3.2 or later, and enable the pmcd, pmlogger and pmproxy services
- * build and install pcp-4.3.2 or later (currently un-released at https://github.com/performancecopilot/pcp [master branch])
+ * build and install pcp-4.3.2 or later (this version of PCP is currently un-released at https://github.com/performancecopilot/pcp [master branch])
  * enable PCP services: `systemctl enable pmcd; systemctl enable pmlogger; systemctl enable pmproxy`
- * edit `/etc/pcp/pmproxy/pmproxy.options` and set the `-t` and `-D http` options under the "timeseries with debug for http requests/response" section. THis configures pmproxy to scrape performance data from PCP archive logs, and load it into Redis.
+ * edit `/etc/pcp/pmproxy/pmproxy.options` and set the `-t` and `-D http` options under the "timeseries with debug for http requests/response" section. This configures pmproxy to scrape performance data from PCP archive logs, and load it into Redis.
  * start the 3 PCP services: `systemctl start pmcd; systemctl start pmlogger; systemctl start pmproxy`
 
 ### PCP Grafana datasource installation:
@@ -71,8 +76,9 @@ yarn install
 yarn run build
 ```
 
-Subsequent builds would normally not need the install step - just `yarn run build` should suffice.
-When committing changes, all modified files **including** those below the dist directory should be committed.
+Subsequent builds would normally not need the install step (it will be a no-op because the ``node_modules``
+directory will already be populated with the requires nodejs modules), so just `yarn run build` should suffice.
+When committing changes, all modified files **including** those below the ``dist`` directory should be committed.
 After building, the `dist` directory should be installed into the Grafana plugins location.
 This is normally `/var/lib/grafana/data/plugins`.
 If you used a symbolic link (as described above in the setup instructions), than after building
@@ -80,4 +86,7 @@ a new version of the datasource, all you will need to do is restart the grafana-
 (and possibly logout/login to the grafana web UI).
 
 In future work, this datasource plugin will probably be packaged as an RPM with run-time
-dependencies on both PCP and Grafana - so just installing / the RPM should suffice.
+dependencies on both PCP and Grafana - so just installing the RPM will suffice. The Grafana
+tools for installing plugins such as ``grafana-cli`` should also work because this datasource
+is hosted on github and the ``dist`` directory containing the compiled datasource and it's
+webpack are committed as part of the project.
