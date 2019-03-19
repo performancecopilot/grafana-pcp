@@ -1,6 +1,6 @@
 {
-  "name": "pcp-json",
-  "description": "PCP JSON datasource",
+  "name": "PCP",
+  "description": "PCP Grafana datasource plugin",
   "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack.config.prod.js",
@@ -11,12 +11,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/goodwinos/pcp-json-datasource.git"
+    "url": "git+https://github.com/performancecopilot/pcp-grafana-datasource.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/goodwinos/pcp-json-datasource/issues"
+    "url": "https://github.com/performancecopilot/pcp-grafana-datasource/issues"
   },
   "engineStrict": true,
   "devDependencies": {
@@ -55,5 +55,5 @@
     "lodash": "^4.17.11",
     "uglifyjs-webpack-plugin": "^2.1.2"
   },
-  "homepage": "https://github.com/goodwinos/pcp-json-datasource#readme"
+  "homepage": "https://github.com/performancecopilot/pcp-grafana-datasource#readme"
 }

@@ -1,27 +1,38 @@
 {
   "name": "Performance Co-Pilot",
-  "id": "pcp-json-datasource",
+  "id": "pcp",
   "type": "datasource",
+  "metrics": true,
+  "tables": false,
+  "annotations": false,
+  "alerting": false,
+
+  "queryOptions": {
+    "maxDataPoints": true,
+    "minInterval": true,
+    "cacheTimeout": true
+  },
 
   "partials": {
     "config": "partials/config.html"
   },
 
-  "metrics": true,
-  "annotations": false,
-
   "info": {
-    "description": "Performance Co-Pilot over HTTP datasource",
+    "description": "Performance Co-Pilot Data Source Plugin for Grafana",
+    "author": {
+      "name": "Performance Co-Pilot Project",
+      "url": "https://pcp.io"
+    },
     "logos": {
       "small": "img/pcpicon.png",
       "large": "img/pcp.png"
     },
     "links": [
-      {"name": "GitHub", "url": "https://github.com/goodwinos/pcp-json-datasource"},
-      {"name": "MIT License", "url": "https://github.com/goodwinos/pcp-json-datasource/blob/master/LICENSE"}
+      {"name": "GitHub", "url": "https://github.com/performancecopilot/pcp-grafana-datasource"},
+      {"name": "MIT License", "url": "https://github.com/performancecopilot/pcp-grafana-datasource/blob/master/LICENSE"}
     ],
     "version": "0.0.1",
-    "updated": "2019-02-11"
+    "updated": "2019-03-20"
   },
 
   "dependencies": {
