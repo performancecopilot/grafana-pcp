@@ -2,6 +2,7 @@ node_modules
 
 # Build artifacts
 /.tscache
+/packaging/rpm/*.rpm
 
 # Test artifacts
 /dist/src
