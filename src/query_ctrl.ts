@@ -17,6 +17,7 @@ export class PCPDatasourceQueryCtrl extends QueryCtrl {
     }
     this.target.data = this.target.data || '';
 
+    // tables not implemented yet
     this.types = [
       { text: 'Time series', value: 'timeseries' },
       { text: 'Table', value: 'table' },
