@@ -1,6 +1,10 @@
 #! /bin/sh
 
-echo DEBUG `pwd`
+if ! which rpmbuild >/dev/null 2>&1; then
+  echo "Error: rpmbuild not installed. This script only supports RPM packaging"
+  exit 1
+fi
+
 [ ! -f "VERSION" -o ! -f .gitignore -o ! -d .git ] && \
 echo "run this script at the top directory of your git repo" && exit 1
 . ./VERSION

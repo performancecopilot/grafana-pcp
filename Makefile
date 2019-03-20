@@ -4,14 +4,14 @@
 YARN=/usr/bin/nodejs-yarn
 SPEC=packaging/rpm/pcp-grafana-datasource.spec
 
-default: node_modules dist/module.js.map rpm
+default: node_modules dist/module.js.map
 
 node_modules: package.json
 	$(YARN) install
 
-dist/module.js.map : src/module.ts src/plugin.json src/query_ctrl.ts
+dist/module.js.map: src/module.ts src/plugin.json src/query_ctrl.ts
 	$(YARN) run build
-	@echo 'Note: all changes in "dist" directory must be committed'
+	@echo 'Note: all changes in "dist" directory must be committed. git status :'
 	@git status
 
 rpm: $(SPEC)
