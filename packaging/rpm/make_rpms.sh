@@ -28,5 +28,5 @@ rpmbuild -ba \
 mv $TAR $tmpdir/*.rpm $tmpdir/output/*/*.rpm packaging/rpm
 rm -rf $tmpdir
 
-echo;echo "=== created packages ===";ls -1 packaging/rpm/*.{rpm,tar.gz}
+echo;echo "=== created packages ===";ls -1 packaging/rpm/*$VER*.{rpm,tar.gz}
 exit 0
