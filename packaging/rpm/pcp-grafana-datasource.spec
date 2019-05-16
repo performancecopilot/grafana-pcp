@@ -6,6 +6,8 @@ Summary:        PCP Grafana Data Source Plugin
 %global         github https://github.com/performancecopilot
 %global         install_dir %{_sharedstatedir}/grafana/plugins/pcp
 %global         _debugsource_template %{nil} # avoid empty debugsourcefiles.list
+
+BuildArch:      noarch
 ExclusiveArch:  %{nodejs_arches}
 
 License:        GPLv2+ and MIT
