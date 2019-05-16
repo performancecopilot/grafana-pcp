@@ -11,7 +11,7 @@ echo "run this script at the top directory of your git repo" && exit 1
 
 SPEC="packaging/rpm/pcp-grafana-datasource.spec"
 tmpdir=$(mktemp -d $PWD/rpm-build.XXXXXX)
-TAR="$tmpdir/pcp-grafana-datasource-$VER.src.tar.gz"
+TAR="$tmpdir/pcp-grafana-datasource-$VER.tar.gz"
 
 git archive --format=tar --prefix=pcp-grafana-datasource-$VER/ master | gzip -9 >$TAR
 [ ! -f "$TAR" ] && echo 'Failed to create "$TAR"' && exit 1

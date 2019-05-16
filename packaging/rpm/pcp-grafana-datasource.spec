@@ -11,8 +11,7 @@ BuildArch:      noarch
 ExclusiveArch:  %{nodejs_arches}
 
 License:        GPLv2+ and MIT
-URL:            %{github}/pcp-grafana-datasource
-Source0:        https://github.com/performancecopilot/pcp-grafana-datasource/archive/v%{version}/%{name}-%{version}.src.tar.gz
+Source0:        %{github}/pcp-grafana-datasource/archive/v%{version}/%{name}-%{version}.tar.gz
 
 Requires:       pcp >= 4.3.2
 Requires:       grafana >= 6.1.3
