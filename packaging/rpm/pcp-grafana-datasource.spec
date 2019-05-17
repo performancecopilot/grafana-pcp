@@ -11,6 +11,8 @@ BuildArch:      noarch
 ExclusiveArch:  %{nodejs_arches}
 
 License:        GPLv2+ and MIT
+URL:            %{github}
+
 Source0:        %{github}/archive/v%{version}/%{name}-%{version}.tar.gz
 
 Requires:       pcp >= 4.3.2
