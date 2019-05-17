@@ -1,0 +1,43 @@
+{
+  "name": "pcp-live",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "./node_modules/grunt-cli/bin/grunt",
+    "test": "./node_modules/grunt-cli/bin/grunt mochaTest"
+  },
+  "repository": {
+    "type": "git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {},
+  "engineStrict": true,
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "chai": "~3.5.0",
+    "grunt": "^1.0.1",
+    "grunt-babel": "^7.0.0",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-clean": "^1.1.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-uglify": "^2.3.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-execute": "~0.2.2",
+    "grunt-mocha-test": "^0.13.2",
+    "grunt-systemjs-builder": "^1.0.0",
+    "jsdom": "~9.12.0",
+    "load-grunt-tasks": "^3.5.2",
+    "mocha": "^3.2.0",
+    "prunk": "^1.3.0",
+    "q": "^1.5.0"
+  },
+  "dependencies": {
+    "expr-eval": "^1.2.2",
+    "lodash": "^4.17.4"
+  }
+}

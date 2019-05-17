@@ -1,0 +1,35 @@
+{
+  "name": "PCP Live",
+  "id": "pcp-live",
+  "type": "datasource",
+
+  "partials": {
+    "config": "public/app/plugins/datasource/pcp-live/partials/config.html"
+  },
+
+  "metrics": true,
+  "annotations": false,
+
+  "info": {
+    "description": "PCP Live Datasource",
+    "author": {
+      "name": "Netflix",
+      "url": "https://github.com/netflix"
+    },
+    "logos": {
+      "small": "img/pcp-logo.png",
+      "large": "img/pcp-logo.png"
+    },
+    "links": [
+      {"name": "GitHub", "url": "https://github.com/jasonk000"},
+      {"name": "MIT License", "url": "https://github.com/grafana/simple-json-datasource/blob/master/LICENSE"}
+    ],
+    "version": "0.0.1",
+    "updated": "2019-04-25"
+  },
+
+  "dependencies": {
+    "grafanaVersion": "3.x.x",
+    "plugins": [ ]
+  }
+}
