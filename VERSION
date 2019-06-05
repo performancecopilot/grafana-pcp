@@ -1,3 +1,3 @@
-# keep this up-to-date with packaging/rpm/pcp-grafana-datasource.spec
+# keep this up-to-date with packaging/rpm/grafana-pcp-datasource.spec
 # and the "version" setting in src/plugin.json
-VER=0.0.4
+VER=0.0.5

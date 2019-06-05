@@ -1,9 +1,9 @@
-Name:           pcp-grafana-datasource
-Version:        0.0.4
+Name:           grafana-pcp-datasource
+Version:        0.0.5
 Release:        1%{?dist}
 Summary:        PCP Grafana Data Source Plugin
 
-%global         github https://github.com/performancecopilot/pcp-grafana-datasource
+%global         github https://github.com/performancecopilot/grafana-pcp-datasource
 %global         install_dir %{_sharedstatedir}/grafana/plugins/pcp
 %global         _debugsource_template %{nil} # avoid empty debugsourcefiles.list
 
@@ -16,7 +16,7 @@ URL:            %{github}
 Source0:        %{github}/archive/v%{version}/%{name}-%{version}.tar.gz
 
 Requires:       pcp >= 4.3.2
-Requires:       grafana >= 6.1.3
+Requires:       grafana >= 6.2.1
 Suggests:       redis >= 5.0.4
 
 %description
@@ -42,6 +42,9 @@ cp -a dist/* %{buildroot}/%{install_dir}
 %doc README.md
 
 %changelog
+* Wed Jun 05 2019 Mark Goodwin <mgoodwin@redhat.com> 0.0.5-1
+- renamed package to grafana-pcp-datasource, README, etc
+
 * Fri May 17 2019 Mark Goodwin <mgoodwin@redhat.com> 0.0.4-1
 - add suggested pmproxy URL in config html
 - updated instructions and README.md now that grafana is in Fedora

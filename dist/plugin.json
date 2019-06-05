@@ -28,11 +28,11 @@
       "large": "img/pcp.png"
     },
     "links": [
-      {"name": "GitHub", "url": "https://github.com/performancecopilot/pcp-grafana-datasource"},
-      {"name": "MIT License", "url": "https://github.com/performancecopilot/pcp-grafana-datasource/blob/master/LICENSE"}
+      {"name": "GitHub", "url": "https://github.com/performancecopilot/grafana-pcp-datasource"},
+      {"name": "MIT License", "url": "https://github.com/performancecopilot/grafana-pcp-datasource/blob/master/LICENSE"}
     ],
-    "version": "0.0.4",
-    "updated": "2019-05-17"
+    "version": "0.0.5",
+    "updated": "2019-06-05"
   },
 
   "dependencies": {

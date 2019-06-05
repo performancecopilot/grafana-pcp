@@ -11,12 +11,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/performancecopilot/pcp-grafana-datasource.git"
+    "url": "git+https://github.com/performancecopilot/grafana-pcp-datasource.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/performancecopilot/pcp-grafana-datasource/issues"
+    "url": "https://github.com/performancecopilot/grafana-pcp-datasource/issues"
   },
   "engineStrict": true,
   "devDependencies": {
@@ -55,5 +55,5 @@
     "lodash": "^4.17.11",
     "uglifyjs-webpack-plugin": "^2.1.2"
   },
-  "homepage": "https://github.com/performancecopilot/pcp-grafana-datasource#readme"
+  "homepage": "https://github.com/performancecopilot/grafana-pcp-datasource#readme"
 }

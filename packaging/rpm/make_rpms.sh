@@ -9,11 +9,11 @@ fi
 echo "run this script at the top directory of your git repo" && exit 1
 . ./VERSION
 
-SPEC="packaging/rpm/pcp-grafana-datasource.spec"
+SPEC="packaging/rpm/grafana-pcp-datasource.spec"
 tmpdir=$(mktemp -d $PWD/rpm-build.XXXXXX)
-TAR="$tmpdir/pcp-grafana-datasource-$VER.tar.gz"
+TAR="$tmpdir/grafana-pcp-datasource-$VER.tar.gz"
 
-git archive --format=tar --prefix=pcp-grafana-datasource-$VER/ master | gzip -9 >$TAR
+git archive --format=tar --prefix=grafana-pcp-datasource-$VER/ master | gzip -9 >$TAR
 [ ! -f "$TAR" ] && echo 'Failed to create "$TAR"' && exit 1
 
 rpmbuild -ba \

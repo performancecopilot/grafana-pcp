@@ -1,8 +1,8 @@
 #
-# build pcp-grafana-datasource
+# build grafana-pcp-datasource
 #
 YARN=/usr/bin/nodejs-yarn
-SPEC=packaging/rpm/pcp-grafana-datasource.spec
+SPEC=packaging/rpm/grafana-pcp-datasource.spec
 
 default: node_modules dist/module.js.map
 

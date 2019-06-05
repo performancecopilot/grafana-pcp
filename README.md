@@ -28,11 +28,11 @@ released for general use._
 ### PCP Grafana datasource installation:
 The 'dist' directory for this datasource is pre-built, committed to the git repo and ready for use, but still under development.
 The easiest way to install this as a datasource plugin for grafana is as follows.
- * clone the github source: `git clone https://github.com/performancecopilot/pcp-grafana-datasource`
- * change directory to the just-cloned datasource: `cd pcp-grafana-datasource`
+ * clone the github source: `git clone https://github.com/performancecopilot/grafana-pcp-datasource`
+ * change directory to the just-cloned datasource: `cd grafana-pcp-datasource`
  * symlink the dist directory into the grafana plugins directory: `ln -sf $PWD/dist /var/lib/grafana/data/plugins/pcp`
  * re-start grafana: `systemctl restart grafana-server`
- * alternatively, you can build the plugin and package it as an RPM and install that: `make; make rpm; dnf install packaging/rpm/pcp-grafana-datasource*.noarch.rpm`
+ * alternatively, you can build the plugin and package it as an RPM and install that: `make; make rpm; dnf install packaging/rpm/grafana-pcp-datasource*.noarch.rpm`
 
 ### Using the PCP Grafana datasource:
 The PCP datasource can now be configured and enabled in the Grafana UI for use by various Grafana panels:
@@ -78,7 +78,7 @@ make rpm
 ```
 
 When building and testing, all modified files **including** those below the ``dist`` directory should be committed.
-After building, rebuild the RPM and reinstall it `dnf reinstall packaging/rpm/pcp-grafana-datasource*.noarch.rpm`.
+After building, rebuild the RPM and reinstall it `dnf reinstall packaging/rpm/grafana-pcp-datasource*.noarch.rpm`.
 If you used a symbolic link (as described above in the setup instructions), than after building
 a new version of the datasource, all you will need to do is restart the grafana-server service
 (and possibly logout/login to the grafana web UI).
