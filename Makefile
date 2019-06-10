@@ -6,6 +6,9 @@ SPEC=packaging/rpm/grafana-pcp-datasource.spec
 
 default: node_modules dist/module.js.map
 
+clean:
+	rm -f packaging/rpm/*.{rpm,tgz}
+
 node_modules: package.json
 	$(YARN) install
 
