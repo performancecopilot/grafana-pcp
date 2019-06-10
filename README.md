@@ -27,12 +27,12 @@ released for general use._
 
 ### PCP Grafana datasource installation:
 The 'dist' directory for this datasource is pre-built, committed to the git repo and ready for use, but still under development.
-The easiest way to install this as a datasource plugin for grafana is as follows.
+ * for RPM platforms such as Fedora, you can build the plugin and package it as an RPM and install that: `make; make rpm; sudo dnf install packaging/rpm/grafana-pcp-datasource*.noarch.rpm`
+Otherwise, install this as a datasource plugin manually as follows.
  * clone the github source: `git clone https://github.com/performancecopilot/grafana-pcp-datasource`
  * change directory to the just-cloned datasource: `cd grafana-pcp-datasource`
- * symlink the dist directory into the grafana plugins directory: `ln -sf $PWD/dist /var/lib/grafana/data/plugins/pcp`
+ * symlink the dist directory into the grafana plugins directory: `sudo ln -sf $PWD/dist /var/lib/grafana/plugins/pcp`
  * re-start grafana: `systemctl restart grafana-server`
- * alternatively, you can build the plugin and package it as an RPM and install that: `make; make rpm; dnf install packaging/rpm/grafana-pcp-datasource*.noarch.rpm`
 
 ### Using the PCP Grafana datasource:
 The PCP datasource can now be configured and enabled in the Grafana UI for use by various Grafana panels:
