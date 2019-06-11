@@ -3,6 +3,7 @@ import { Parser } from 'plugins/pcp-live/expr-eval.js'
 
 const Poller = require('./poller')
 const utils = require('./utils')
+const extensions = require('./extensions')
 
 export class PcpLiveDatasource {
 
@@ -207,50 +208,56 @@ export class PcpLiveDatasource {
         const metricsToPoll = utils.flatMap(e => e.variables({ withMembers: true }), expressions)
         this.poller.ensurePolling(endpoint, metricsToPoll)
 
-        const collected = this.poller.collectData(endpoint, metricsToPoll)
+        const rawCollected = this.poller.collectData(endpoint, metricsToPoll)
+        const collected = extensions.transformAfterCollected(rawCollected, _container && _container.value)
 
         const collectApplied = []
 
         // oh the for loops
 
-        for(const t of targets) {
-            // for now we just take the first timeslot as the reference for the series
-            const applied = []
-            const expr = parser.parse(t.target)
-            if (!collected[0]) continue
-            for(const data of collected[0].datas) {
-                const ts = data[0]
-                const ivout = []
-                for(const ivToCollect of data[1]) {
-                    // look up all available data for this ts/instance combo
-                    const valuesAtTimestampForInstance = collected.map(c => {
-                        const valuesAtTs = c.datas.find(data => data[0] === ts)
-                        return {
-                            metric: c.metric,
-                            value: valuesAtTs && valuesAtTs[1].find(civ => civ.instance === ivToCollect.instance).value,
-                        }
-                    })
-                    // provide a default 0, load in all of the values
-                    const variables = {}
-                    metricsToPoll.forEach(
-                        v => _.set(variables, v, 0))
-                    valuesAtTimestampForInstance.forEach(
-                        v => _.set(variables, v.metric, v.value))
-                    const calculated = expr.evaluate(variables)
-                    ivout.push({
-                        instance: ivToCollect.instance,
-                        instanceName: ivToCollect.instanceName,
-                        value: calculated,
-                    })
-                }
-                applied.push([ts, ivout])
-            }
+        if (collected[0]) {
+            for(const t of targets) {
+                // for now we just take the first timeslot as the reference for the series
+                const applied = []
+                const expr = parser.parse(t.target)
+                for(const data of collected[0].datas) {
+                    const ts = data[0]
+                    const ivout = []
+                    for(const ivToCollect of data[1]) {
+                        // look up all available data for this ts/instance combo
+                        const valuesAtTimestampForInstance = collected.map(c => {
+                            const valuesAtTs = c.datas.find(data => data[0] === ts)
+                            const v = valuesAtTs
+                                    && valuesAtTs[1]
+                                    && valuesAtTs[1].find(civ => civ.instance === ivToCollect.instance)
+                            return {
+                                metric: c.metric,
+                                value: v && v.value,
+                            }
+                        })
 
-            collectApplied.push({
-                datas: applied,
-                endpoint,
-                metric: t.displayName || t.target,
-            })
+                        // provide a default 0, load in all of the values
+                        const variables = {}
+                        metricsToPoll.forEach(
+                            v => _.set(variables, v, 0))
+                        valuesAtTimestampForInstance.forEach(
+                            v => _.set(variables, v.metric, v.value))
+                        const calculated = expr.evaluate(variables)
+                        ivout.push({
+                            instance: ivToCollect.instance,
+                            instanceName: ivToCollect.instanceName,
+                            value: calculated,
+                        })
+                    }
+                    applied.push([ts, ivout])
+                }
+
+                collectApplied.push({
+                    datas: applied,
+                    endpoint,
+                    metric: t.displayName || t.target,
+                })
+            }
         }
 
         // flatten the metric instance data out
@@ -259,10 +266,9 @@ export class PcpLiveDatasource {
         for(const data of collectApplied) {
             // TODO this looping is a bit O(n^2) but should be ok for proof of concept
 
-            // get a list of all unique instances
+            // get a list of all unique instances and carry forward the instance name
             const instances = {}
-            // carry forward the instance name
-            data.datas.map(d => d[1]).forEach(d => d.forEach(iv => instances[iv.instance] = iv.instanceName))
+            data.datas.forEach(d => d[1].forEach(iv => instances[iv.instance] = iv.instanceName))
 
             for(const instance of Object.keys(instances)) {
                 const target = this.targetName(instances, instance, targets, data.metric)
@@ -287,70 +293,23 @@ export class PcpLiveDatasource {
             }
         }
 
-        // TODO this should happen a lot earlier in the process, near data poll
-        // special handling for titus pcp metrics that need container filter
-        // until it can do a proper filter on the server side
-        const plotted2 = plotted.filter(p => {
-            if (_container && p.metric.startsWith('titustc.')) {
-                return (p.target || []).includes(_container.value) || p.instance.includes(_container.value)
-            } else if (_container && p.metric === 'titustc.read.bytes_per_sec') {
-                return (p.target || []).includes(_container.value) || p.instance.includes(_container.value)
-            } else if (_container && p.metric === 'titustc.write.bytes_per_sec') {
-                return (p.target || []).includes(_container.value) || p.instance.includes(_container.value)
-            } else {
-                return true
-            }
-        })
-
-        // TODO this should happen a lot earlier in the process, near data poll
-        // titus ovfs latencies are provided as containername:latency in a string
-        // we need to filter for container name and remove it, so that the only
-        // presented value is latency
-        const plotted3 = plotted2.map(p => {
-            const TO_TRANSFORM = [
-                'titusovfs.read.latency',
-                'titusovfs.write.latency',
-                'titusovfs.open.latency',
-                'titusovfs.fsync.latency',
-            ]
-            // all other metrics pass through
-            if (!TO_TRANSFORM.includes(p.metric)) {
-                return p
-            }
-            // force a filter here otherwise it is broken
-            if (!_container) {
-                return null
-            }
-            // it should start with the container name and a colon
-            // toString as it could be an int if we haven't done indom mapping yet
-            const targetSplit = p.target.toString().split(':')
-            if (targetSplit.length !== 2 || targetSplit[0] !== _container.value) {
-                return null
-            }
-            return {
-                ...p,
-                target: targetSplit[1].split('-')[1],
-            }
-        }).filter(p => !!p) // remove nulls
-
         // most data is for a request of type 'timeserie'[sic]
         // if the user requests everything of type 'table'
         // then let's make them a table
         let output
         if (targets.every(t => t.type === 'table')) {
             // for a table, we are going to assume just take the LATEST of the dataset
-            // and output everything as a string
-            // each metric is a column
-            // each instance is a row
+            // output everything as a string:
+            // each metric is a column, each instance is a row
             const type = 'table'
             const columns = targets.map(t => ({ text: t.target, type: 'string' }))
             const rows = []
-            plotted3.forEach(p => rows.push([]))
+            plotted.forEach(p => rows.push([]))
             for (let i = 0; i < rows.length; i++) {
                 for (let j = 0; j < columns.length; j++) {
                     const instanceAsString = `${i}`
                     const colName = columns[j].text
-                    const foundPoints = plotted3.find(p => p.instance === instanceAsString && p.metric === colName)
+                    const foundPoints = plotted.find(p => p.instance === instanceAsString && p.metric === colName)
                     if (foundPoints) {
                         const points = foundPoints.datapoints
                         rows[i][j] = points[points.length - 1][0]
@@ -363,7 +322,7 @@ export class PcpLiveDatasource {
                 type,
             }]
         } else {
-            output = plotted3.map(p => ({ target: p.target, datapoints: p.datapoints }))
+            output = plotted.map(p => ({ target: p.target, datapoints: p.datapoints }))
         }
 
         return {

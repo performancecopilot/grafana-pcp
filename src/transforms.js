@@ -16,8 +16,7 @@ const unaccumulate = (datas) => {
         // the accumulated value will include increments from
         // some period of time, which may or may not be exactly
         // matching the poll interval
-        // so, really, the rate should be divided by the
-        // interval
+        // TODO really, the rate should be divided by the interval
         const deltaSec = (currentTs - previousTs) / 1000
 
         const newIvs = currentIvs.map(iv => {
@@ -44,11 +43,9 @@ metricInfo
 
 const applyTransforms = (collected) => {
     return collected.map(hmd => {
+        const fns = transforms[hmd.metric] || []
         let out = hmd.datas
-        const fns = transforms[hmd.metric]
-        if (fns) {
-            fns.forEach(fn => out = fn(out))
-        }
+        fns.forEach(fn => out = fn(out))
         return {
             endpoint: hmd.endpoint,
             metric: hmd.metric,

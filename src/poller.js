@@ -42,9 +42,7 @@ module.exports = (backendSrv) => {
 
         const keepExpiry = new Date().getTime() - OLDEST_DATA_MS
         for (const c of collected) {
-            const before = c.datas
             c.datas = c.datas.filter(tsv => tsv[0] > keepExpiry)
-            const after = c.datas
         }
     }
 
@@ -55,6 +53,7 @@ module.exports = (backendSrv) => {
             try {
                 // first thing we do is set this up, so that future polls
                 // do not try to connect, since endpoint will be set
+                // lucky js is single threaded
                 contexts[endpoint] = { context: null, pmids: [], indoms: {}, missingMetrics: [] }
 
                 const { url, container } = parseEndpoint(endpoint)
@@ -63,9 +62,7 @@ module.exports = (backendSrv) => {
                 const contextUrl = container
                     ? `${url}/pmapi/context?hostspec=127.0.0.1&polltimeout=30&container=${container}`
                     : `${url}/pmapi/context?hostspec=127.0.0.1&polltimeout=30`
-                const contextResponse = await backendSrv.datasourceRequest({
-                    url: contextUrl,
-                })
+                const contextResponse = await backendSrv.datasourceRequest({ url: contextUrl })
                 console.log('** contextResponse:', contextResponse)
 
                 const context = contextResponse.data.context
@@ -99,6 +96,76 @@ module.exports = (backendSrv) => {
         }
     }
 
+    const doPollOne = async (endpoint, metrics) => {
+        if (!await ensureContext(endpoint, false)) {
+            // not ready for polling or failed, skip it
+            return
+        }
+
+        const { url } = parseEndpoint(endpoint)
+        const context = contexts[endpoint]
+
+        // extract pmid for metric name
+        const pmids = metrics.map(m => lookupPmidForMetric(context, m)).filter(m => !!m)
+        if (! pmids.length) return
+
+        // by now we have a context, the pmids to fetch, so lets do it
+        let fetchResponse
+        try {
+            fetchResponse = await backendSrv.datasourceRequest({
+                url: `${url}/pmapi/${context.context}/_fetch?pmids=${pmids.join(',')}`
+            })
+        } catch (err) {
+            // context will be dropped pretty quickly by pmwebd after we abandon polling
+            // so we need to reconnect and wait for next poll iteration
+            console.log('err fetching pmids', err)
+            ensureContext(endpoint, true)
+            return
+        }
+
+        appendFetchResultDataToCollection(endpoint, fetchResponse.data)
+    }
+
+    const appendFetchResultDataToCollection = (endpoint, fetchResponseData) => {
+        const pollTimeEpochMs = fetchResponseData.timestamp.s * 1000 + fetchResponseData.timestamp.us / 1000
+
+        // add the data to that already collected for the endpoint/metric
+        for(const v of fetchResponseData.values) {
+            const data = [pollTimeEpochMs, renameIndoms(endpoint, v.name, v.instances)]
+
+            const existing = collected.find(c => c.endpoint === endpoint && c.metric === v.name)
+            if (existing) {
+                existing.datas.push(data)
+            } else {
+                // unless this is the first result for the endpoint/metric, in this case: create one
+                collected.push({ endpoint, metric: v.name, datas: [data] })
+            }
+        }
+    }
+
+    const renameIndoms = (endpoint, metric, data) => {
+        let needsRefresh = false
+        const context = contexts[endpoint]
+
+        let output = []
+        for(const iv of data) {
+            if (iv.instance === -1) {
+                output.push(iv)
+            } else {
+                const mapping = (context.indoms[metric] || []).find(indom => indom.instance === iv.instance)
+                output.push({
+                    ...iv,
+                    instanceName: mapping ? mapping.name : iv.instance,
+                })
+                needsRefresh |= (!mapping)
+            }
+        }
+        if (needsRefresh) {
+            refreshIndoms(endpoint, metric)
+        }
+        return output
+    }
+
     const refreshIndoms = async (endpoint, metric) => {
         if (!await ensureContext(endpoint, false)) {
             // not ready for polling or failed, skip it
@@ -125,103 +192,43 @@ module.exports = (backendSrv) => {
         context.indoms[metric] = fetchResponse.data.instances
     }
 
-    const renameIndoms = (endpoint, metric, data) => {
-        let needsRefresh = false
-        const context = contexts[endpoint]
-
-        let output = []
-        for(const iv of data) {
-            if (iv.instance === -1) {
-                output.push(iv)
-            } else {
-                const mapping = (context.indoms[metric] || []).find(indom => indom.instance === iv.instance)
-                output.push({
-                    ...iv,
-                    instanceName: mapping ? mapping.name : iv.instance,
-                })
-                needsRefresh |= (!mapping)
+    const lookupPmidForMetric = (context, m) => {
+        const pmidentry = context.pmids.find(p => p.name === m)
+        if (pmidentry) {
+            return pmidentry.pmid
+        } else { // no pmid found
+            if (!context.missingMetrics.includes(m)) {
+                context.missingMetrics.push(m)
+                console.log('is pmda enabled? missing pmid for:', m)
             }
+            return null
         }
-        if (needsRefresh) {
-            refreshIndoms(endpoint, metric)
-        }
-        return output
     }
 
-    const doPollOne = async (endpoint, metrics) => {
-        if (!await ensureContext(endpoint, false)) {
-            // not ready for polling or failed, skip it
-            return
-        }
-
-        const { url } = parseEndpoint(endpoint)
-        const context = contexts[endpoint]
-
-        // extract pmid for each metric name
-        const pmids = metrics.map(m => {
-            const pmidentry = context.pmids.find(p => p.name === m)
-            if (pmidentry) {
-                return pmidentry.pmid
-            } else { // no pmid found
-                if (!context.missingMetrics.includes(m)) {
-                    context.missingMetrics.push(m)
-                    console.log('is pmda enabled? missing pmid for:', m)
-                }
-                return
-            }
-        }).filter(m => !!m) // filter empty entries
-
-        if (! pmids.length) return
-
-        // by now we have a context, the pmids to fetch, so lets do it
-        let fetchResponse
-        try {
-            fetchResponse = await backendSrv.datasourceRequest({
-                url: `${url}/pmapi/${context.context}/_fetch?pmids=${pmids.join(',')}`
-            })
-        } catch (err) {
-            // context will be dropped pretty quickly by pmwebd after we abandon polling
-            // so we need to reconnect and wait for next poll iteration
-            console.log('err fetching pmids', err)
-            ensureContext(endpoint, true)
-            return
-        }
-
-        const pollTimeEpochMs = fetchResponse.data.timestamp.s * 1000 + fetchResponse.data.timestamp.us / 1000
-
-        for(const v of fetchResponse.data.values) {
-            const data = [pollTimeEpochMs, renameIndoms(endpoint, v.name, v.instances)]
-
-            const existing = collected.find(c => c.endpoint === endpoint && c.metric === v.name)
-            if (existing) {
-                existing.datas.push(data)
+    const ensurePolling = (endpoint, metrics) => {
+        const now = new Date().getTime()
+        for (const metric of metrics) {
+            // TODO replace with reduce?
+            const existing = required.find(r => r.endpoint === endpoint && r.metric === metric)
+            if (!existing) {
+                required.push({ endpoint, metric, lastRequested: now })
             } else {
-                collected.push({ endpoint, metric: v.name, datas: [data] })
+                existing.lastRequested = now
             }
         }
+    }
+
+    const collectData = (endpoint, metrics) => {
+        const targeted = collected.filter(c => c.endpoint === endpoint && metrics.includes(c.metric))
+        const output = applyTransforms(targeted)
+        return output
     }
 
     setInterval(doPollAll, POLL_INTERVAL_MS)
 
     return {
         metricNames,
-
-        ensurePolling: (endpoint, metrics) => {
-            const now = new Date().getTime()
-            for (const metric of metrics) {
-                // TODO replace with reduce
-                const existing = required.find(r => r.endpoint === endpoint && r.metric === metric)
-                if (!existing) {
-                    required.push({ endpoint, metric, lastRequested: now })
-                } else {
-                    existing.lastRequested = now
-                }
-            }
-        },
-     
-        collectData: (endpoint, metrics) => {
-            return applyTransforms(
-                collected.filter(c => c.endpoint === endpoint && metrics.includes(c.metric)))
-        },
+        ensurePolling,
+        collectData,
     }
 }
