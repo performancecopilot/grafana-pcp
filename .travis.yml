@@ -1,4 +1,11 @@
 language: node_js
 script:
   - npm run build
-  - npm run test
+after_script:
+  - ln -s dist grafana-pcp-live
+  - zip -r grafana-pcp-live.zip grafana-pcp-live/
+#deploy:
+#  provider: releases
+#  file: "grafana-pcp-live.zip"
+#  skip_cleanup: true
+#  draft: true
