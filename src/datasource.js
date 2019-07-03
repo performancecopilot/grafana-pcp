@@ -1,26 +1,30 @@
 import _ from "lodash";
 import { Parser } from 'plugins/pcp-live/expr-eval.js'
 
-const Poller = require('./poller')
+import Poller from './poller'
 const utils = require('./utils')
 const extensions = require('./extensions')
 
 export class PcpLiveDatasource {
 
-  constructor(instanceSettings, $q, backendSrv, templateSrv) {
+  constructor(instanceSettings, $q, backendSrv, templateSrv, variableSrv) {
     this.type = instanceSettings.type;
-    this.url = instanceSettings.url;
+    this.instanceSettings = instanceSettings;
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
     this.templateSrv = templateSrv;
+    this.variableSrv = variableSrv;
     this.withCredentials = instanceSettings.withCredentials;
     this.headers = {'Content-Type': 'application/json'};
     if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
       this.headers['Authorization'] = instanceSettings.basicAuth;
     }
 
-    this.poller = Poller(backendSrv);
+    this.poller = new Poller(backendSrv);
+
+    const UUID_REGEX = /[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/
+    this.container_name_filter = name => true // name => name.match(UUID_REGEX)
   }
 
   buildQueryTargets(options) {
@@ -63,11 +67,13 @@ export class PcpLiveDatasource {
   }
 
   getVariables() {
-    const index = _.isUndefined(this.templateSrv.index) ? {} : this.templateSrv.index;
     const variables = {};
-    Object.keys(index).forEach((key) => {
-      const variable = index[key];
+    if (!this.variableSrv.variables) {
+        // variables are not defined on the datasource settings page
+        return {};
+    }
 
+    this.variableSrv.variables.forEach((variable) => {
       let variableValue = variable.current.value;
       if (variableValue === '$__all' || _.isEqual(variableValue, ['$__all'])) {
         if (variable.allValue === null) {
@@ -77,7 +83,7 @@ export class PcpLiveDatasource {
         }
       }
 
-      variables[key] = {
+      variables[variable.name] = {
         text: variable.current.text,
         value: variableValue,
       };
@@ -85,6 +91,25 @@ export class PcpLiveDatasource {
 
     return variables;
   }
+
+  getConfiguredEndpoint() {
+      const variables = this.getVariables();
+      if ('_proto' in variables && '_host' in variables && '_port' in variables) {
+          let endpoint = `${variables._proto.value}://${variables._host.value}:${variables._port.value}`;
+          if ('_container' in variables) {
+              endpoint += `::${variables._container.value}`;
+          }
+          return endpoint;
+      }
+      else {
+          let endpoint = this.instanceSettings.url;
+          if (this.instanceSettings.jsonData.container) {
+            endpoint += `::${this.instanceSettings.jsonData.container}`;
+        }
+        return endpoint;
+      }
+  }
+
 // above here, standard simple json datasource
 /////////////////////////
 // below here, pcp specific stuff
@@ -130,10 +155,23 @@ export class PcpLiveDatasource {
     }
 
     async testDatasource() {
-        return {
-            status: 'success',
-            title: 'Success',
-            message: 'Data source configured, use _host, _port, _proto, [and _container] variables to connect.',
+        const metrics = await this.poller.getMetrics(this.getConfiguredEndpoint(), ["pmcd.version"])
+
+        if (metrics) {
+            return {
+                status: 'success',
+                title: 'Success',
+                message: 'Data source configured successfully. If you wish to override the PCP endpoint for specific dashboards, '+
+                         'you can use the  _host, _port, _proto, (and optionally _container) variables.'
+            }
+        }
+        else {
+            return {
+                status: 'error',
+                title: 'Additional configuration required',
+                message: 'Could not connect to the specified url. To use this data source, '+
+                         'please configure the _host, _port, _proto, (and optionally _container) dashboard variables.',
+            }
         }
     }
 
@@ -141,39 +179,27 @@ export class PcpLiveDatasource {
         return []
     }
 
+    /**
+     * called by the query editor for auto completion of metric names
+     * also used by the templating engine (dashboard variables with type = query)
+     */
     async metricFindQuery(query) {
-        let variables = this.getVariables()
-        let result = []
+        let target = this.templateSrv.replace(query, null, 'regex');
 
         // if the query is for containers.name, return the containers
         // otherwise, default to providing a list of all metrics
-        if (query === 'containers.name') {
-            // TODO move this to somewhere else
-            const { _proto, _host, _port } = this.getVariables()
-            const endpoint = `${_proto.value}://${_host.value}:${_port.value}`
-
-            const contextResponse = await this.backendSrv.datasourceRequest({
-                url: `${endpoint}/pmapi/context?exclusive=1&hostspec=127.0.0.1&polltimeout=10`
-            })
-            const context = contextResponse.data.context
-            const metricsResponse = await this.backendSrv.datasourceRequest({
-                url: `${endpoint}/pmapi/${context}/_fetch?names=containers.name`
-            })
-            const UUID_REGEX = /[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/
-            result = metricsResponse.data.values[0].instances
+        if (target === 'containers.name') {
+            const metricsResponse = await this.poller.getMetrics(this.getConfiguredEndpoint(), [query])
+            return metricsResponse.data.values[0].instances
                 .map(iv => iv.value)
-                .filter(i => i.match(UUID_REGEX))
+                .filter(this.container_name_filter)
                 .map(i => ({ text: i, value: i }))
         } else {
-            const target = this.templateSrv.replace(query, null, 'regex')
-            const allowAll = !target
             const filteredMetrics = this.poller.metricNames
-                .filter(mn => allowAll || mn.includes(target))
-            result = filteredMetrics
+                .filter(mn => !target || mn.includes(target))
+            return filteredMetrics
                 .map(mn => ({ text: mn, value: mn }))
         }
-
-        return result
     }
 
     async query(options) {
@@ -193,23 +219,15 @@ export class PcpLiveDatasource {
         options.scopedVars = { ...this.getVariables(), ...options.scopedVars };
 
         const { targets } = options
-        const { _host, _port, _proto, _container } = options.scopedVars
-
-        if (! _host || ! _port || ! _proto ) {
-            console.log('_host, _port, or _proto variable not set in options, skipping query')
-            return
-        }
-
-        const endpoint = _container
-            ? `${_proto.value}://${_host.value}:${_port.value}::${_container.value}`
-            : `${_proto.value}://${_host.value}:${_port.value}`
+        const endpoint = this.getConfiguredEndpoint();
+        const container = endpoint.split('::')[1] || null
 
         const expressions = targets.map(t => t.target).map(t => parser.parse(t))
         const metricsToPoll = utils.flatMap(e => e.variables({ withMembers: true }), expressions)
         this.poller.ensurePolling(endpoint, metricsToPoll)
 
         const rawCollected = this.poller.collectData(endpoint, metricsToPoll)
-        const collected = extensions.transformAfterCollected(rawCollected, _container && _container.value)
+        const collected = extensions.transformAfterCollected(rawCollected, container)
 
         const collectApplied = []
 

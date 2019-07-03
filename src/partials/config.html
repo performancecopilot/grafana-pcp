@@ -1,2 +1,19 @@
-<datasource-http-settings current="ctrl.current">
+<datasource-http-settings current="ctrl.current" suggest-url="http://127.0.0.1:44323">
 </datasource-http-settings>
+
+<h3 class="page-heading">PCP Settings</h3>
+<div class="gf-form-group">
+    <div class="gf-form-inline">
+        <div class="gf-form">
+        <span class="gf-form-label width-10">Container</span>
+        <input
+            type="text"
+            class="gf-form-input width-10 gf-form-input--has-help-icon"
+            ng-model="ctrl.current.jsonData.container"
+        ></input>
+        <info-popover mode="right-absolute">
+            Specify an individual container to be queried. Leave blank to query the host system.
+        </info-popover>
+        </div>
+    </div>
+</div>

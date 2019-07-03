@@ -1,11 +1,5 @@
 const { groupBy, objectMap } = require('./utils')
-const { applyTransforms } = require('./transforms')
-
-// reload with:
-// curl http://100.72.36.31:7402/pmapi/74083770/_metric | jq '.metrics'
-const metricInfo = require('./data/metrics.js')
-const metricNames = metricInfo.map(m => m.name)
-metricNames.sort()
+import Transformations from './transforms'
 
 // poll metric sources every X ms
 const POLL_INTERVAL_MS = 1000
@@ -14,138 +8,154 @@ const KEEP_POLLING_MS = 20000
 // age out time
 const OLDEST_DATA_MS = 5*60*1000
 
-const contexts = {} // endpoint -> { context, pmidMap, indomMap } // pmidMap is metrictext -> number, indomMap is metrictext -> { num : text }
-let required = [] // list of { endpoint, metric text, lastRequested }
-const collected = [] // list of { endpoint, metric text, datas[[ts,value],..] }
-
 const parseEndpoint = (endpoint) => ({
     url: endpoint.split('::')[0],
     container: endpoint.split('::')[1] || null,
 })
 
-module.exports = (backendSrv) => {
-    const doPollAll = () => {
+export default class Poller {
+
+    constructor(backendSrv) {
+        this.backendSrv = backendSrv;
+        this.transformations = new Transformations();
+        this.metricInfo = null;
+        this.metricNames = [];
+        this.contexts = {} // endpoint -> Promise { context, pmidMap, indomMap } // pmidMap is metrictext -> number, indomMap is metrictext -> { num : text }
+        this.required = [] // list of { endpoint, metric text, lastRequested }
+        this.collected = [] // list of { endpoint, metric text, datas[[ts,value],..] }
+
+        setInterval(this.doPollAll.bind(this), POLL_INTERVAL_MS)
+    }
+
+    doPollAll() {
         // clean up any not required metrics before we poll
         const pollExpiry = new Date().getTime() - KEEP_POLLING_MS
-        required = required.filter(r => r.lastRequested > pollExpiry)
+        this.required = this.required.filter(r => r.lastRequested > pollExpiry)
 
         // group each metric to be polled by endpoint 
-        const pollsGrouped = groupBy(required, 'endpoint')
+        const pollsGrouped = groupBy(this.required, 'endpoint')
         const polls = objectMap(pollsGrouped, v => v.map(r => r.metric))
 
         const requests = []
         for (const endpoint of Object.keys(polls)) {
-            requests.push(doPollOne(endpoint, polls[endpoint]))
+            requests.push(this.doPollOne(endpoint, polls[endpoint]))
         }
 
-        const results = Promise.all(requests)
-
-        const keepExpiry = new Date().getTime() - OLDEST_DATA_MS
-        for (const c of collected) {
-            c.datas = c.datas.filter(tsv => tsv[0] > keepExpiry)
-        }
-    }
-
-    const ensureContext = async (endpoint, force) => {
-        if (!force && endpoint in contexts) {
-            return !!(contexts[endpoint].context && contexts[endpoint].pmids.length)
-        } else {
-            try {
-                // first thing we do is set this up, so that future polls
-                // do not try to connect, since endpoint will be set
-                // lucky js is single threaded
-                contexts[endpoint] = { context: null, pmids: [], indoms: {}, missingMetrics: [] }
-
-                const { url, container } = parseEndpoint(endpoint)
-
-                console.log('** making request for context')
-                const contextUrl = container
-                    ? `${url}/pmapi/context?hostspec=127.0.0.1&polltimeout=30&container=${container}`
-                    : `${url}/pmapi/context?hostspec=127.0.0.1&polltimeout=30`
-                const contextResponse = await backendSrv.datasourceRequest({ url: contextUrl })
-                console.log('** contextResponse:', contextResponse)
-
-                const context = contextResponse.data.context
-                contexts[endpoint] = { context, pmids: [], indoms: {}, missingMetrics: [] }
-
-                if (container) {
-                    console.log('selecting container..')
-                    const containerResponse = await backendSrv.datasourceRequest({
-                        url: `${url}/pmapi/${context}/_store?name=pmcd.client.container&value=${container}`
-                    })
-                    console.log('selected', containerResponse)
-                }
-
-                // fetch pmids
-                console.log('** making request for metrics')
-                const metricsResponse = await backendSrv.datasourceRequest({
-                    url: `${url}/pmapi/${context}/_metric`
-                })
-                console.log('** metricsResponse:', metricsResponse)
-                const pmids = metricsResponse.data.metrics.map(m => ({ name: m.name, pmid: m.pmid }))
-
-                contexts[endpoint] = { context, pmids, indoms: {}, missingMetrics: [] }
-
-                return true
-            } catch (err) {
-                console.log('could not connect to endpoint', endpoint)
-                // TODO never connect? or wipe and try again?
-                console.log(err)
-                return false
+        Promise.all(requests).then(() => {
+            const keepExpiry = new Date().getTime() - OLDEST_DATA_MS
+            for (const c of this.collected) {
+                c.datas = c.datas.filter(tsv => tsv[0] > keepExpiry)
             }
-        }
+        })
     }
 
-    const doPollOne = async (endpoint, metrics) => {
-        if (!await ensureContext(endpoint, false)) {
+    async getContext(endpoint, refresh) {
+        const { url, container } = parseEndpoint(endpoint)
+
+        //console.log('** making request for context')
+        let contextUrl = `${url}/pmapi/context?hostspec=127.0.0.1&polltimeout=30`
+        if (container)
+            contextUrl += `&container=${container}`
+
+        const contextResponse = await this.backendSrv.datasourceRequest({ url: contextUrl })
+        //console.log('** contextResponse:', contextResponse)
+        const context = contextResponse.data.context
+
+        if (container) {
+            //console.log('selecting container..')
+            const containerResponse = await this.backendSrv.datasourceRequest({
+                url: `${url}/pmapi/${context}/_store?name=pmcd.client.container&value=${container}`
+            })
+            //console.log('selected', containerResponse)
+        }
+
+        // fetch pmids
+        //console.log('** making request for metrics')
+        const metricsResponse = await this.backendSrv.datasourceRequest({
+            url: `${url}/pmapi/${context}/_metric`
+        })
+        //console.log('** metricsResponse:', metricsResponse)
+        const pmids = metricsResponse.data.metrics.map(m => ({ name: m.name, pmid: m.pmid }))
+
+        // fetch metric info (if not already done)
+        if (!this.metricInfo) {
+            // TODO: instead of loading metric name on context creation, load them on dropdown click
+            const metricsResponse = await this.backendSrv.datasourceRequest({
+                url: `${url}/pmapi/${context}/_metric`
+            })
+            this.metricInfo = metricsResponse.data.metrics;
+            this.metricNames = this.metricInfo.map(m => m.name);
+            this.metricNames.sort()
+            this.transformations.init(this.metricInfo);
+        }
+
+        return { context, pmids, indoms: {}, missingMetrics: [] }
+    }
+
+    ensureContext(endpoint, refresh) {
+        if (!refresh && endpoint in this.contexts) {
+            return this.contexts[endpoint]
+        }
+
+        this.contexts[endpoint] = this.getContext(endpoint, refresh)
+        return this.contexts[endpoint].catch(e => {
+            console.log("error acquiring context", e);
+            return false;
+        })
+    }
+
+    async getMetrics(endpoint, metrics) {
+        const { url } = parseEndpoint(endpoint)
+        const context = await this.ensureContext(endpoint, false)
+        if (!context) {
             // not ready for polling or failed, skip it
             return
         }
 
-        const { url } = parseEndpoint(endpoint)
-        const context = contexts[endpoint]
-
         // extract pmid for metric name
-        const pmids = metrics.map(m => lookupPmidForMetric(context, m)).filter(m => !!m)
-        if (! pmids.length) return
+        const pmids = metrics.map(m => this.lookupPmidForMetric(context, m)).filter(m => !!m)
+        if (!pmids.length) return
 
         // by now we have a context, the pmids to fetch, so lets do it
-        let fetchResponse
         try {
-            fetchResponse = await backendSrv.datasourceRequest({
+            return await this.backendSrv.datasourceRequest({
                 url: `${url}/pmapi/${context.context}/_fetch?pmids=${pmids.join(',')}`
             })
         } catch (err) {
             // context will be dropped pretty quickly by pmwebd after we abandon polling
             // so we need to reconnect and wait for next poll iteration
             console.log('err fetching pmids', err)
-            ensureContext(endpoint, true)
+            this.ensureContext(endpoint, true)
+            // TODO: try again
             return
         }
-
-        appendFetchResultDataToCollection(endpoint, fetchResponse.data)
     }
 
-    const appendFetchResultDataToCollection = (endpoint, fetchResponseData) => {
+    async doPollOne(endpoint, metrics) {
+        const fetchResponse = await this.getMetrics(endpoint, metrics);
+        await this.appendFetchResultDataToCollection(endpoint, fetchResponse.data);
+    }
+
+    async appendFetchResultDataToCollection(endpoint, fetchResponseData) {
         const pollTimeEpochMs = fetchResponseData.timestamp.s * 1000 + fetchResponseData.timestamp.us / 1000
 
         // add the data to that already collected for the endpoint/metric
         for(const v of fetchResponseData.values) {
-            const data = [pollTimeEpochMs, renameIndoms(endpoint, v.name, v.instances)]
+            const data = [pollTimeEpochMs, await this.renameIndoms(endpoint, v.name, v.instances)]
 
-            const existing = collected.find(c => c.endpoint === endpoint && c.metric === v.name)
+            const existing = this.collected.find(c => c.endpoint === endpoint && c.metric === v.name)
             if (existing) {
                 existing.datas.push(data)
             } else {
                 // unless this is the first result for the endpoint/metric, in this case: create one
-                collected.push({ endpoint, metric: v.name, datas: [data] })
+                this.collected.push({ endpoint, metric: v.name, datas: [data] })
             }
         }
     }
 
-    const renameIndoms = (endpoint, metric, data) => {
+    async renameIndoms(endpoint, metric, data) {
         let needsRefresh = false
-        const context = contexts[endpoint]
+        const context = await this.ensureContext(endpoint, false)
 
         let output = []
         for(const iv of data) {
@@ -161,23 +171,22 @@ module.exports = (backendSrv) => {
             }
         }
         if (needsRefresh) {
-            refreshIndoms(endpoint, metric)
+            this.refreshIndoms(endpoint, metric)
         }
         return output
     }
 
-    const refreshIndoms = async (endpoint, metric) => {
-        if (!await ensureContext(endpoint, false)) {
+    async refreshIndoms(endpoint, metric) {
+        const { url } = parseEndpoint(endpoint)
+        const context = await this.ensureContext(endpoint, false)
+        if (!context) {
             // not ready for polling or failed, skip it
             return
         }
 
-        const { url } = parseEndpoint(endpoint)
-        const context = contexts[endpoint]
-
         let fetchResponse
         try {
-            fetchResponse = await backendSrv.datasourceRequest({
+            fetchResponse = await this.backendSrv.datasourceRequest({
                 url: `${url}/pmapi/${context.context}/_indom?name=${metric}`
             })
         } catch (err) {
@@ -192,7 +201,7 @@ module.exports = (backendSrv) => {
         context.indoms[metric] = fetchResponse.data.instances
     }
 
-    const lookupPmidForMetric = (context, m) => {
+    lookupPmidForMetric(context, m) {
         const pmidentry = context.pmids.find(p => p.name === m)
         if (pmidentry) {
             return pmidentry.pmid
@@ -205,30 +214,22 @@ module.exports = (backendSrv) => {
         }
     }
 
-    const ensurePolling = (endpoint, metrics) => {
+    ensurePolling(endpoint, metrics) {
         const now = new Date().getTime()
         for (const metric of metrics) {
             // TODO replace with reduce?
-            const existing = required.find(r => r.endpoint === endpoint && r.metric === metric)
+            const existing = this.required.find(r => r.endpoint === endpoint && r.metric === metric)
             if (!existing) {
-                required.push({ endpoint, metric, lastRequested: now })
+                this.required.push({ endpoint, metric, lastRequested: now })
             } else {
                 existing.lastRequested = now
             }
         }
     }
 
-    const collectData = (endpoint, metrics) => {
-        const targeted = collected.filter(c => c.endpoint === endpoint && metrics.includes(c.metric))
-        const output = applyTransforms(targeted)
+    collectData(endpoint, metrics) {
+        const targeted = this.collected.filter(c => c.endpoint === endpoint && metrics.includes(c.metric))
+        const output = this.transformations.applyTransforms(targeted)
         return output
-    }
-
-    setInterval(doPollAll, POLL_INTERVAL_MS)
-
-    return {
-        metricNames,
-        ensurePolling,
-        collectData,
     }
 }
