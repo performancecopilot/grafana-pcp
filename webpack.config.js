@@ -10,6 +10,7 @@ module.exports = {
   context: path.join(__dirname, 'src'),
   entry: {
     'module': './module.ts',
+    './datasources/redis/module': './datasources/redis/module.ts'
   },
   devtool: 'source-map',
   output: {
@@ -31,11 +32,12 @@ module.exports = {
     new CleanWebpackPlugin('dist', {allowExternal: true}),
     new webpack.optimize.OccurrenceOrderPlugin(),
     new CopyWebpackPlugin([
-      {from: 'plugin.json', to: '.'},
       {from: '../README.md', to: '.'},
       {from: '../LICENSE', to: '.'},
-      {from: 'img/*', to: '.'},
-      {from: 'partials/*', to: '.'},
+      {from: '**/*.md', to: '.'},
+      {from: '**/plugin.json', to: '.'},
+      {from: '**/*.html', to: '.'},
+      {from: '**/img/*', to: '.'},
     ]),
   ],
   resolve: {

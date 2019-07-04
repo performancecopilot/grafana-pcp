@@ -1,0 +1,38 @@
+{
+  "name": "PCP Redis",
+  "id": "pcp-redis-datasource",
+  "type": "datasource",
+  "metrics": true,
+  "tables": false,
+  "annotations": false,
+  "alerting": false,
+
+  "queryOptions": {
+    "maxDataPoints": true,
+    "minInterval": true,
+    "cacheTimeout": true
+  },
+
+  "info": {
+    "description": "Performance Co-Pilot Data Source Plugin for Grafana",
+    "author": {
+      "name": "Performance Co-Pilot Project",
+      "url": "https://pcp.io"
+    },
+    "logos": {
+      "small": "../performancecopilot-pcp-app/datasources/redis/img/pcp.png",
+      "large": "../performancecopilot-pcp-app/datasources/redis/img/pcp.png"
+    },
+    "links": [
+      {"name": "GitHub", "url": "https://github.com/performancecopilot/grafana-pcp-redis"},
+      {"name": "MIT License", "url": "https://github.com/performancecopilot/grafana-pcp-redis/blob/master/LICENSE"}
+    ],
+    "version": "0.0.6",
+    "updated": "2019-06-11"
+  },
+
+  "dependencies": {
+    "grafanaVersion": "6.x.x",
+    "plugins": [ ]
+  }
+}

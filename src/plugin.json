@@ -1,42 +1,34 @@
 {
+  "type": "app",
   "name": "Performance Co-Pilot",
-  "id": "pcp",
-  "type": "datasource",
-  "metrics": true,
-  "tables": false,
-  "annotations": false,
-  "alerting": false,
-
-  "queryOptions": {
-    "maxDataPoints": true,
-    "minInterval": true,
-    "cacheTimeout": true
-  },
-
-  "partials": {
-    "config": "partials/config.html"
-  },
+  "id": "performancecopilot-pcp-app",
 
   "info": {
-    "description": "Performance Co-Pilot Data Source Plugin for Grafana",
+    "description": "Performance Co-Pilot app for Grafana",
     "author": {
-      "name": "Performance Co-Pilot Project",
+      "name": "Performance Co-Pilot and Netflix",
       "url": "https://pcp.io"
     },
+    "keywords": ["performancecopilot", "pcp", "bpftrace"],
     "logos": {
-      "small": "img/pcpicon.png",
+      "small": "img/pcp.png",
       "large": "img/pcp.png"
     },
     "links": [
-      {"name": "GitHub", "url": "https://github.com/performancecopilot/grafana-pcp-redis"},
-      {"name": "MIT License", "url": "https://github.com/performancecopilot/grafana-pcp-redis/blob/master/LICENSE"}
+      {"name": "GitHub", "url": "https://github.com/performancecopilot/grafana-pcp"},
+      {"name": "License", "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/LICENSE"},
+      {"name": "License PCP Live", "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/src/datasources/live/LICENSE"}
     ],
-    "version": "0.0.6",
-    "updated": "2019-06-11"
+    "version": "0.0.1",
+    "updated": "2019-07-04"
   },
+
+  "includes": [
+    {"type": "datasource", "name": "PCP Redis"}
+  ],
 
   "dependencies": {
     "grafanaVersion": "6.x.x",
-    "plugins": [ ]
+    "plugins": []
   }
 }

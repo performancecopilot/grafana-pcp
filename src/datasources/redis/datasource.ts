@@ -1,4 +1,4 @@
-///<reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
+///<reference path="../../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import _ from 'lodash';
 import map from 'lodash/map';
 import isObject from 'lodash/isObject';
@@ -59,7 +59,7 @@ export class PCPDatasource {
     //
     var urls = new Array(query.targets.length);
     for (let i=0; i < query.targets.length; i++) {
-      urls[i] = this.url + '/grafana/query' + '?refId=' + query.targets[i].refId +
+      urls[i] = this.url + '/series/query' + '?refId=' + query.targets[i].refId +
 	'&panelId=' + query.panelId + '&dashboardId=' + query.dashboardId +
 	'&timezone=' + tzparam + '&maxdatapoints=' + query.maxDataPoints +
 	'&start=' + Math.round(query.range.from/1000) + '&finish=' + Math.round(query.range.to/1000) +
@@ -130,7 +130,7 @@ export class PCPDatasource {
 
   testDatasource() {
     return this.doRequest({
-      url: this.url + '/grafana',
+      url: this.url + '/series/ping',
       method: 'GET',
     }).then((response) => {
       if (response.status === 200) {

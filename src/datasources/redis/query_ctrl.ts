@@ -1,7 +1,7 @@
 import { QueryCtrl } from 'grafana/app/plugins/sdk';
 
 export class PCPDatasourceQueryCtrl extends QueryCtrl {
-  static templateUrl = 'partials/query.editor.html';
+  static templateUrl = 'datasources/redis/partials/query.editor.html';
 
   private types: any;
   private showJSON: boolean;
