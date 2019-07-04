@@ -1,6 +1,6 @@
 {
-  "name": "PCP",
-  "description": "PCP Grafana datasource plugin",
+  "name": "pcp-grafana-app",
+  "description": "Performance Co-Pilot Grafana app",
   "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack.config.prod.js",
@@ -11,12 +11,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/performancecopilot/grafana-pcp-redis.git"
+    "url": "git+https://github.com/performancecopilot/grafana-pcp.git"
   },
-  "author": "",
-  "license": "MIT",
+  "author": "Performance Co-Pilot and Netflix",
+  "license": "MIT, Apache 2.0",
   "bugs": {
-    "url": "https://github.com/performancecopilot/grafana-pcp-redis/issues"
+    "url": "https://github.com/performancecopilot/grafana-pcp/issues"
   },
   "engineStrict": true,
   "devDependencies": {
@@ -55,5 +55,5 @@
     "lodash": "^4.17.11",
     "uglifyjs-webpack-plugin": "^2.1.2"
   },
-  "homepage": "https://github.com/performancecopilot/grafana-pcp-redis#readme"
+  "homepage": "https://github.com/performancecopilot/grafana-pcp"
 }
