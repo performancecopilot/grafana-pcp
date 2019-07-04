@@ -28,30 +28,6 @@ export class PCPDatasource {
     }
   }
 
-  queryPost(options) {
-    // query using a POST - has query for all panel refIDs in the one POST request
-    const query = options;
-    query.targets = this.buildQueryTargets(options);
-
-    if (query.targets.length <= 0) {
-      return this.q.when({ data: [] });
-    }
-
-    if (this.templateSrv.getAdhocFilters) {
-      query.adhocFilters = this.templateSrv.getAdhocFilters(this.name);
-    } else {
-      query.adhocFilters = [];
-    }
-
-    // options.scopedVars = { ...this.getVariables(), ...options.scopedVars };
-
-    return this.doRequest({
-      url: this.url + '/grafana/query',
-      data: query,
-      method: 'POST',
-    });
-  }
-
   async query(options) {
     // query using an array of GETs, one panel refId per URL
     const queries: any = [];
@@ -62,6 +38,8 @@ export class PCPDatasource {
     if (query.targets.length <= 0) {
       return this.q.when({ data: [] });
     }
+
+    console.log("DEBUG ENTIRE query="+JSON.stringify(query));
     for (let i=0; i < query.targets.length; i++) {
       queries.push(query.targets[i]);
       console.log("DEBUG query.targets["+i+"]="+JSON.stringify(query.targets[i]));
@@ -90,6 +68,7 @@ export class PCPDatasource {
 	'&interval=' + query.interval + '&expr=' + query.targets[i].target;
     }
 
+
     // Promise.all returns when all async URL fetches have completed, at which
     // time the results array is available to pass back to grafana.
     let results: any = []
@@ -101,7 +80,12 @@ export class PCPDatasource {
 	}
       })
 
-    // console.log("DEBUG RESULTS len="+results.length+" value=" + JSON.stringify(results));
+    console.log("DEBUG RESULTS len="+results.length+" value=" + JSON.stringify(results));
+
+    for (let r=0; r < results.length; r++) {
+    	if (query.targets[r].legend)
+	    results[r].target = query.targets[r].legend; // TODO template subs
+    }
 
     //
     for (let r=0; r < results.length; r++) {
@@ -242,6 +226,7 @@ export class PCPDatasource {
           hide: target.hide,
           type: target.type,
 	  isCounter: target.isCounter,
+	  legend: target.legend, // TODO replace each {{label}} with the label value
         };
       });
   }

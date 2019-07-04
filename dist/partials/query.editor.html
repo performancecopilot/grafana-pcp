@@ -6,16 +6,16 @@
     </div>
 
     <div ng-if="!ctrl.target.rawQuery">
-      <div class="gf-form right" width-18>
+      <div class="gf-form right" width-64>
         <label class="gf-form-label width-5 query-keyword">Query</label>
-	<input type="text" width-16 class="gf-form-input" ng-model="ctrl.target.target" spellcheck='false'
+	<input type="text" class="gf-form-input width-32" ng-model="ctrl.target.target" spellcheck='false'
           allow-custom="true"
           lookup-text="true"
           get-options="ctrl.getOptions($query)"
           on-change="ctrl.onChangeInternal()">
 	</input>
 	<info-popover mode="right-absolute">
-        Specify a PCP metric name or pmseries query expression. Do not include the time-window parameters. [TODO add some examples]
+        Specify a pmseries query expression. This can simply be a PCP metric name (e.g. kernel.all.load), or a full query including hostname, instance name and label patterns. See pmseries(1) and pmwebapi(3). Do not include any time-window parameters since these are automatically added by Grafana.
       </info-popover>
       </div>
     </div>
@@ -24,19 +24,17 @@
       <gf-form-switch
       class="gf-form" label="Rate Convert" label-class="width-8" ng-model="ctrl.target.isCounter" checked="ctrl.target.isCounter" on-change="ctrl.refresh()">
       </gf-form-switch>
+      <label class="gf-form-label width-5 legend-keyword">Legend</label>
+      <input type="text" width-16 class="gf-form-input" ng-model="ctrl.target.legend" spellcheck='false'
+	allow-custom="true"
+	lookup-text="true"
+	on-change="ctrl.refresh()"
+      </input>
+      <info-popover mode="right-absolute">
+      Specify a legend template. If empty, this defaults to the query string. Substrings enclosed in double curly braces are interpreted as label names and will be substituted with their label value string. Grafana template variable names can also be specified (also in double curly braces) and will also be substituted with their respective value - template variable substitution occurs after label substitution.
+    </info-popover>
 
-      <label class="gf-form-label gf-form-label--grow query-keyword" ng-click="ctrl.showJSON = !ctrl.showJSON">Filter Labels
-        <i class="fa fa-caret-down" ng-show="ctrl.showJSON"></i>
-        <i class="fa fa-caret-right" ng-hide="ctrl.showJSON"></i>
-      </label>
     </div>
 
-  </div>
-
-  <div class="gf-form-inline" ng-show="ctrl.showJSON">
-    <div class="gf-form gf-form--grow">
-      <code-editor content="ctrl.target.data" data-mode="json" on-change="ctrl.onChangeInternal()" data-max-lines=30>
-      </code-editor>
-    </div>
   </div>
 </query-editor-row>
