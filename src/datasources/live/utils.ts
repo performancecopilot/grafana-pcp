@@ -46,7 +46,7 @@ function expandDottedStringToObject(str, value)
     return output // return the full object
 }
 
-module.exports = {
+export {
     groupBy,
     objectMap,
     sharedPrefixLength,

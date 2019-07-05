@@ -1,7 +1,9 @@
-import {QueryCtrl} from 'app/plugins/sdk';
-import './css/query-editor.css!'
+import { QueryCtrl } from 'grafana/app/plugins/sdk';
 
 export class GenericDatasourceQueryCtrl extends QueryCtrl {
+  static templateUrl = 'datasources/live/partials/query.editor.html'
+
+  scope: any;
 
   constructor($scope, $injector)  {
     super($scope, $injector);
@@ -24,5 +26,3 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     this.panelCtrl.refresh(); // Asks the panel to refresh data.
   }
 }
-
-GenericDatasourceQueryCtrl.templateUrl = 'partials/query.editor.html';

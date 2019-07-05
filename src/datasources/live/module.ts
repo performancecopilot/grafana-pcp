@@ -1,14 +1,17 @@
 import {PcpLiveDatasource} from './datasource';
 import {GenericDatasourceQueryCtrl} from './query_ctrl';
 
-class GenericConfigCtrl {}
-GenericConfigCtrl.templateUrl = 'partials/config.html';
+class GenericConfigCtrl {
+  static templateUrl = 'datasources/live/partials/config.html'
+}
 
-class GenericQueryOptionsCtrl {}
-GenericQueryOptionsCtrl.templateUrl = 'partials/query.options.html';
+class GenericQueryOptionsCtrl {
+  static templateUrl = 'datasources/live/partials/query.options.html'
+}
 
-class GenericAnnotationsQueryCtrl {}
-GenericAnnotationsQueryCtrl.templateUrl = 'partials/annotations.editor.html'
+class GenericAnnotationsQueryCtrl {
+  static templateUrl = 'datasources/live/partials/annotations.editor.html'
+}
 
 export {
   PcpLiveDatasource as Datasource,

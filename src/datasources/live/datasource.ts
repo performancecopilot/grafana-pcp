@@ -1,14 +1,25 @@
 import _ from "lodash";
-import { Parser } from 'plugins/pcp-live/expr-eval.js'
+import { Parser } from 'expr-eval'
 
 import Poller from './poller'
-const utils = require('./utils')
-const extensions = require('./extensions')
+import * as utils from './utils'
+import * as extensions from './extensions'
 
 export class PcpLiveDatasource {
 
+  instanceSettings: any;
+  name: string;
+  url: string;
+  q: any;
+  backendSrv: any;
+  templateSrv: any;
+  variableSrv: any;
+  withCredentials: boolean;
+  headers: any;
+  poller: any;
+  container_name_filter: any;
+
   constructor(instanceSettings, $q, backendSrv, templateSrv, variableSrv) {
-    this.type = instanceSettings.type;
     this.instanceSettings = instanceSettings;
     this.name = instanceSettings.name;
     this.q = $q;
@@ -66,7 +77,7 @@ export class PcpLiveDatasource {
       });
   }
 
-  getVariables() {
+  getVariables(): any {
     const variables = {};
     if (!this.variableSrv.variables) {
         // variables are not defined on the datasource settings page
@@ -229,18 +240,18 @@ export class PcpLiveDatasource {
         const rawCollected = this.poller.collectData(endpoint, metricsToPoll)
         const collected = extensions.transformAfterCollected(rawCollected, container)
 
-        const collectApplied = []
+        const collectApplied = [] as any
 
         // oh the for loops
 
         if (collected[0]) {
             for(const t of targets) {
                 // for now we just take the first timeslot as the reference for the series
-                const applied = []
+                const applied = [] as any
                 const expr = parser.parse(t.target)
                 for(const data of collected[0].datas) {
                     const ts = data[0]
-                    const ivout = []
+                    const ivout = [] as any
                     for(const ivToCollect of data[1]) {
                         // look up all available data for this ts/instance combo
                         const valuesAtTimestampForInstance = collected.map(c => {
@@ -279,7 +290,7 @@ export class PcpLiveDatasource {
         }
 
         // flatten the metric instance data out
-        const plotted = []
+        const plotted : any[] = [];
 
         for(const data of collectApplied) {
             // TODO this looping is a bit O(n^2) but should be ok for proof of concept
@@ -291,7 +302,7 @@ export class PcpLiveDatasource {
             for(const instance of Object.keys(instances)) {
                 const target = this.targetName(instances, instance, targets, data.metric)
 
-                const datapoints = [] // array of: [ value, unix_epoch_ms ]
+                const datapoints = [] as any // array of: [ value, unix_epoch_ms ]
                 for (const tsiv of data.datas) {
                     const ts = tsiv[0]
                     const iv = tsiv[1]
@@ -321,7 +332,7 @@ export class PcpLiveDatasource {
             // each metric is a column, each instance is a row
             const type = 'table'
             const columns = targets.map(t => ({ text: t.target, type: 'string' }))
-            const rows = []
+            const rows = [] as any
             plotted.forEach(p => rows.push([]))
             for (let i = 0; i < rows.length; i++) {
                 for (let j = 0; j < columns.length; j++) {

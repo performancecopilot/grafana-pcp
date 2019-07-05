@@ -1,4 +1,4 @@
-function cleanTitusOvfsLatencyCollected(c, containerName) {
+export function cleanTitusOvfsLatencyCollected(c, containerName) {
     const TO_FILTER = [
         'titusovfs.read.latency',
         'titusovfs.write.latency',
@@ -95,13 +95,10 @@ function removeTitusTcCollected(c, containerName) {
     }
 }
 
-module.exports = {
-    cleanTitusOvfsLatencyCollected: cleanTitusOvfsLatencyCollected,
-    transformAfterCollected: (collected, containerName) => {
-        return collected
-            .map(c => removeTitusTcCollected(c, containerName))
-            .map(c => removeTitusOvfsBytesCollected(c, containerName))
-            .map(c => cleanTitusOvfsLatencyCollected(c, containerName))
-            .filter(c => c.datas.length > 0)
-    }
+export function transformAfterCollected(collected, containerName) {
+    return collected
+        .map(c => removeTitusTcCollected(c, containerName))
+        .map(c => removeTitusOvfsBytesCollected(c, containerName))
+        .map(c => cleanTitusOvfsLatencyCollected(c, containerName))
+        .filter(c => c.datas.length > 0)
 }

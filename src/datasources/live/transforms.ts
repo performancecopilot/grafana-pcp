@@ -1,5 +1,7 @@
 export default class Transformations {
 
+    transforms: any;
+
     constructor() {
         this.transforms = {};
     }
@@ -31,7 +33,7 @@ export default class Transformations {
         // sort by timestamp, just to be sure
         datas = datas.sort((a, b) => a[0] - b[0])
 
-        const output = []
+        const output = [] as any
         // start at 1, not zero, so we will always have a previous
         for(let i = 1; i < datas.length; i++) {
             const previousTs = datas[i - 1][0]

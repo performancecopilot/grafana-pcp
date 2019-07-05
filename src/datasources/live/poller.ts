@@ -1,4 +1,4 @@
-const { groupBy, objectMap } = require('./utils')
+import { groupBy, objectMap } from './utils'
 import Transformations from './transforms'
 
 // poll metric sources every X ms
@@ -14,6 +14,14 @@ const parseEndpoint = (endpoint) => ({
 })
 
 export default class Poller {
+
+    backendSrv: any;
+    transformations: any;
+    metricInfo: any;
+    metricNames: any;
+    contexts: any;
+    required: any;
+    collected: any;
 
     constructor(backendSrv) {
         this.backendSrv = backendSrv;
@@ -36,7 +44,7 @@ export default class Poller {
         const pollsGrouped = groupBy(this.required, 'endpoint')
         const polls = objectMap(pollsGrouped, v => v.map(r => r.metric))
 
-        const requests = []
+        const requests = [] as any
         for (const endpoint of Object.keys(polls)) {
             requests.push(this.doPollOne(endpoint, polls[endpoint]))
         }
@@ -157,7 +165,7 @@ export default class Poller {
         let needsRefresh = false
         const context = await this.ensureContext(endpoint, false)
 
-        let output = []
+        let output = [] as any
         for(const iv of data) {
             if (iv.instance === -1) {
                 output.push(iv)
@@ -167,7 +175,8 @@ export default class Poller {
                     ...iv,
                     instanceName: mapping ? mapping.name : iv.instance,
                 })
-                needsRefresh |= (!mapping)
+                if (!mapping)
+                    needsRefresh = true;
             }
         }
         if (needsRefresh) {
