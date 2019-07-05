@@ -4,7 +4,7 @@
   "id": "performancecopilot-pcp-app",
 
   "info": {
-    "description": "Performance Co-Pilot app for Grafana",
+    "description": "Performance Co-Pilot Application for Grafana",
     "author": {
       "name": "Performance Co-Pilot and Netflix",
       "url": "https://pcp.io"
@@ -19,8 +19,8 @@
       {"name": "License", "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/LICENSE"},
       {"name": "License PCP Live", "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/src/datasources/live/LICENSE"}
     ],
-    "version": "0.0.1",
-    "updated": "2019-07-04"
+    "version": "0.0.7",
+    "updated": "2019-07-05"
   },
 
   "includes": [

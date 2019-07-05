@@ -1,6 +1,6 @@
 {
   "name": "pcp-grafana-app",
-  "description": "Performance Co-Pilot Grafana app",
+  "description": "PCP Grafana Application",
   "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack.config.prod.js",
@@ -26,7 +26,7 @@
     "babel": "^6.23.0",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
-    "babel-jest": "^23.4.2",
+    "babel-jest": "^24.8.0",
     "babel-loader": "^7.1.5",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
@@ -35,9 +35,9 @@
     "copy-webpack-plugin": "^4.5.2",
     "css-loader": "^1.0.0",
     "grafana-sdk-mocks": "github:grafana/grafana-sdk-mocks",
-    "jest": "^23.5.0",
+    "jest": "^24.8.0",
     "jsdom": "~9.12.0",
-    "mocha": "^3.2.0",
+    "mocha": "^6.1.4",
     "ng-annotate-webpack-plugin": "^0.3.0",
     "prunk": "^1.3.1",
     "q": "^1.5.0",
@@ -52,6 +52,7 @@
     "webpack-cli": "^3.2.3"
   },
   "dependencies": {
+    "handlebars": "^4.1.2",
     "lodash": "^4.17.11",
     "uglifyjs-webpack-plugin": "^2.1.2",
     "expr-eval": "^1.2.2"

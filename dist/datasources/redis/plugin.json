@@ -24,10 +24,10 @@
       "large": "../performancecopilot-pcp-app/datasources/redis/img/pcp.png"
     },
     "links": [
-      {"name": "GitHub", "url": "https://github.com/performancecopilot/grafana-pcp-redis"},
-      {"name": "MIT License", "url": "https://github.com/performancecopilot/grafana-pcp-redis/blob/master/LICENSE"}
+      {"name": "GitHub", "url": "https://github.com/performancecopilot/grafana-pcp"},
+      {"name": "MIT License", "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/LICENSE"}
     ],
-    "version": "0.0.6",
+    "version": "0.0.7",
     "updated": "2019-06-11"
   },
 

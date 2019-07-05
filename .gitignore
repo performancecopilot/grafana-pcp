@@ -10,6 +10,9 @@ node_modules
 /dist/test
 /dist/spec
 
+# Packaging
+/rpm-build.*
+
 npm-debug.log
 coverage/
 .aws-config.json

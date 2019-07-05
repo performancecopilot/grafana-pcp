@@ -1,9 +1,9 @@
-Name:           grafana-pcp-redis
-Version:        0.0.6
+Name:           grafana-pcp
+Version:        0.0.7
 Release:        1%{?dist}
-Summary:        PCP Grafana Data Source Plugin with Redis Storage
+Summary:        PCP Grafana Application
 
-%global         github https://github.com/performancecopilot/grafana-pcp-redis
+%global         github https://github.com/performancecopilot/grafana-pcp
 %global         install_dir %{_sharedstatedir}/grafana/plugins/pcp
 %global         _debugsource_template %{nil} # avoid empty debugsourcefiles.list
 
@@ -15,14 +15,15 @@ URL:            %{github}
 
 Source0:        %{github}/archive/v%{version}/%{name}-%{version}.tar.gz
 
-Requires:       pcp >= 4.3.3
+Requires:       pcp >= 4.3.4
 Requires:       grafana >= 6.2.2
 Suggests:       redis >= 5.0.4
 
 Obsoletes:      grafana-pcp-datasource
+Obsoletes:      grafana-pcp-redis
 
 %description
-Native PCP data source plugin for Grafana with Redis storage back-end.
+Native PCP application plugin for Grafana with several data sources and dashboards.
 
 
 %prep
@@ -44,6 +45,11 @@ cp -a dist/* %{buildroot}/%{install_dir}
 %doc README.md
 
 %changelog
+* Fri Jul 05 2019 Mark Goodwin <mgoodwin@redhat.com> 0.0.7-1
+- converted into a grafana application with multiple datasources
+- reworked datasources to use pmproxy /series REST API
+- renamed package to grafana-pcp, updated README, etc
+
 * Tue Jun 11 2019 Mark Goodwin <mgoodwin@redhat.com> 0.0.6-1
 - renamed package to grafana-pcp-redis, updated README, etc
 
