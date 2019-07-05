@@ -9,3 +9,6 @@ node_modules
 /dist/src
 /dist/test
 /dist/spec
+
+# Packaging
+/rpm-build.*
