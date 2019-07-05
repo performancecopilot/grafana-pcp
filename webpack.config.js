@@ -10,7 +10,8 @@ module.exports = {
   context: path.join(__dirname, 'src'),
   entry: {
     'module': './module.ts',
-    './datasources/redis/module': './datasources/redis/module.ts'
+    './datasources/redis/module': './datasources/redis/module.ts',
+    './datasources/live/module': './datasources/live/module.ts'
   },
   devtool: 'source-map',
   output: {
@@ -38,6 +39,7 @@ module.exports = {
       {from: '**/plugin.json', to: '.'},
       {from: '**/*.html', to: '.'},
       {from: '**/img/*', to: '.'},
+      {from: '**/css/*', to: '.'},
     ]),
   ],
   resolve: {

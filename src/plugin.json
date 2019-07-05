@@ -24,7 +24,8 @@
   },
 
   "includes": [
-    {"type": "datasource", "name": "PCP Redis"}
+    {"type": "datasource", "name": "PCP Redis"},
+    {"type": "datasource", "name": "PCP Live"}
   ],
 
   "dependencies": {

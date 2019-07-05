@@ -31,3 +31,12 @@ before_install:
 before_script: yarn install
 
 script: yarn run $TARGET
+
+after_script:
+  - ln -s dist grafana-pcp
+  - zip -r grafana-pcp.zip grafana-pcp/
+#deploy:
+#  provider: releases
+#  file: "grafana-pcp-live.zip"
+#  skip_cleanup: true
+#  draft: true

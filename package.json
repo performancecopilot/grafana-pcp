@@ -1,5 +1,5 @@
 {
-  "name": "PCP",
+  "name": "pcp-grafana-app",
   "description": "PCP Grafana Application",
   "main": "index.js",
   "scripts": {
@@ -13,8 +13,8 @@
     "type": "git",
     "url": "git+https://github.com/performancecopilot/grafana-pcp.git"
   },
-  "author": "",
-  "license": "MIT",
+  "author": "Performance Co-Pilot and Netflix",
+  "license": "MIT, Apache 2.0",
   "bugs": {
     "url": "https://github.com/performancecopilot/grafana-pcp/issues"
   },
@@ -54,7 +54,8 @@
   "dependencies": {
     "handlebars": "^4.1.2",
     "lodash": "^4.17.11",
-    "uglifyjs-webpack-plugin": "^2.1.2"
+    "uglifyjs-webpack-plugin": "^2.1.2",
+    "expr-eval": "^1.2.2"
   },
-  "homepage": "https://github.com/performancecopilot/grafana-pcp#readme"
+  "homepage": "https://github.com/performancecopilot/grafana-pcp"
 }
