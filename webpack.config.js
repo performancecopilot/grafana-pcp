@@ -52,7 +52,6 @@ module.exports = {
         loaders: [
           {
             loader: 'babel-loader',
-            options: {presets: ['env']}
           },
           'ts-loader'
         ],

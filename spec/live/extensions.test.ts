@@ -1,5 +1,4 @@
-import extensions from "../extensions";
-import Q from "q";
+import * as extensions from "../../src/datasources/live/extensions";
 
 describe('extensions', function() {
 
@@ -161,7 +160,7 @@ describe('extensions', function() {
             const input = DATA_OTHER
             const expected = DATA_OTHER
             const output = extensions.cleanTitusOvfsLatencyCollected(input, '1a4027b2f3aa')
-            expect(output).to.deep.equal(expected)
+            expect(output).toEqual(expected)
             return done()
         })
 
@@ -174,7 +173,7 @@ describe('extensions', function() {
                     "datas": []
                 }
                 const output = extensions.cleanTitusOvfsLatencyCollected(input, '1a4027b2f3aa')
-                expect(output).to.deep.equal(expected)
+                expect(output).toEqual(expected)
                 return done()
             })
         })
@@ -183,7 +182,7 @@ describe('extensions', function() {
             it('allows only container name', function(done) {
                 const input = DATA_OVFS_INDOM
                 const output = extensions.cleanTitusOvfsLatencyCollected(input, '07fbdc6a-a1ce-4032-99d3-65fefc9e33e4')
-                expect(output).to.deep.equal(DATA_OVFS_INDOM_EXPECTED)
+                expect(output).toEqual(DATA_OVFS_INDOM_EXPECTED)
                 return done()
             })
         })

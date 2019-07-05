@@ -1,5 +1,4 @@
-import utils from "../utils";
-import Q from "q";
+import * as utils from "../../src/datasources/live/utils";
 
 describe('utils', function() {
     describe('sharedPrefixLength', function() {
@@ -7,7 +6,7 @@ describe('utils', function() {
             var input = [ 'abc', 'abd' ]
 
             var length = utils.sharedPrefixLength(input)
-            expect(length).to.equal(2)
+            expect(length).toEqual(2)
             done()
         })
     })

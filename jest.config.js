@@ -1,28 +1,25 @@
 module.exports = {
   verbose: true,
-  "globals": {
+  globals: {
     "ts-jest": {
-      "tsConfigFile": "tsconfig.jest.json",
-      "useBabelrc": true
-    }
+      tsConfig: "tsconfig.jest.json",
+      babelConfig: true,
+      isolatedModules: true
+    },
   },
-  "moduleNameMapper": {
-    // 'app/core/utils/datemath': '<rootDir>/node_modules/grafana-sdk-mocks/app/core/utils/datemath.ts',
-    // 'app/core/utils/kbn': '<rootDir>/src/__mocks__/kbn.ts',
-    'app/plugins/sdk': '<rootDir>/node_modules/grafana-sdk-mocks/app/plugins/sdk.ts',
+  moduleNameMapper: {
+    "app/plugins/sdk": "<rootDir>/node_modules/grafana-sdk-mocks/app/plugins/sdk.ts",
   },
-  "transformIgnorePatterns": [
-    "node_modules/(?!(grafana-sdk-mocks))"
+  transformIgnorePatterns: [
+    "node_modules/(?!(grafana-sdk-mocks))",
   ],
-  "transform": {
-    "^.+\\.tsx?$": "ts-jest"
-  },
-  "testRegex": "(\\.|/)([jt]est)\\.ts$",
-  "moduleFileExtensions": [
+  testRegex: "(\\.|/)([jt]est)\\.ts$",
+  moduleFileExtensions: [
+    "js",
+    "json",
+    "jsx",
     "ts",
     "tsx",
-    "js",
-    "jsx",
-    "json"
-  ]
+  ],
+  preset: "ts-jest",
 };

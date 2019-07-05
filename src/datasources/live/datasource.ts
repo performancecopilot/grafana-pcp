@@ -19,6 +19,7 @@ export class PcpLiveDatasource {
   poller: any;
   container_name_filter: any;
 
+  /** @ngInject **/
   constructor(instanceSettings, $q, backendSrv, templateSrv, variableSrv) {
     this.instanceSettings = instanceSettings;
     this.name = instanceSettings.name;
