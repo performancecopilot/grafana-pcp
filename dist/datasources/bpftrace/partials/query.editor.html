@@ -1,0 +1,21 @@
+<query-editor-row query-ctrl="ctrl" can-collapse="true" has-text-edit-mode="false">
+  <div class="gf-form-inline">
+    <div class="gf-form gf-form--grow">
+      <code-editor content="ctrl.target.script" on-change="ctrl.refreshMetricData()">
+      </code-editor>
+    </div>
+  </div>
+
+  <div class="gf-form-inline">
+    <div class="gf-form">
+      <label class="gf-form-label">Legend</label>
+      <input type="text" class="gf-form-input gf-form-input--has-help-icon" ng-model="ctrl.target.legendFormat" spellcheck='false' placeholder="legend format"
+        data-min-length=0 data-items=1000 ng-model-onblur ng-change="ctrl.refreshMetricData()">
+      </input>
+      <info-popover mode="right-absolute">
+        Controls the name of the time series, using name or pattern. For example
+        <span ng-non-bindable>{{hostname}}</span> will be replaced with label value for the label hostname.
+      </info-popover>
+    </div>
+  </div>
+</query-editor-row>

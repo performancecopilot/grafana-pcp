@@ -107,7 +107,7 @@ export default class Poller {
 
         this.contexts[endpoint] = this.getContext(endpoint, refresh)
         return this.contexts[endpoint].catch(e => {
-            console.log("error acquiring context", e);
+            console.log(`error acquiring context for ${endpoint}`, e);
             return false;
         })
     }

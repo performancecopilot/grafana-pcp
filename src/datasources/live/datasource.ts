@@ -16,7 +16,7 @@ export class PcpLiveDatasource {
   variableSrv: any;
   withCredentials: boolean;
   headers: any;
-  poller: any;
+  poller: Poller;
   container_name_filter: any;
 
   /** @ngInject **/

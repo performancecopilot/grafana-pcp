@@ -25,7 +25,8 @@
 
   "includes": [
     {"type": "datasource", "name": "PCP Redis"},
-    {"type": "datasource", "name": "PCP Live"}
+    {"type": "datasource", "name": "PCP Live"},
+    {"type": "datasource", "name": "PCP bpftrace"}
   ],
 
   "dependencies": {
