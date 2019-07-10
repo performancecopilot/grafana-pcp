@@ -1,7 +1,7 @@
-import PCPContext from './PCPContext';
+import Context from './context';
 
-describe('PCPContext', () => {
-  let ctx: PCPContext;
+describe('Context', () => {
+  let ctx: Context;
 
   beforeEach(() => {
     let dummyrequest = (options) => {
@@ -14,7 +14,7 @@ describe('PCPContext', () => {
       }
       return Promise.resolve({});
     }
-    ctx = new PCPContext("http://localhost:44323");
+    ctx = new Context("http://localhost:44323");
   });
   
   it('should get a context', (done) => {

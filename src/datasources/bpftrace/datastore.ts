@@ -1,19 +1,17 @@
+import { Datapoint, Target } from './datasource';
+
 export default class DataStore {
-    private store: Record<string, Record<string, Record<string, [number,number][]>>> = {}; // store[url][metric][instance] = [val,ts]
+    private store: Record<string, Record<string, Datapoint[]>> = {}; // store[metric][instance] = [val,ts]
 
     constructor() {
     }
 
-    ingest(url: string, data: any) {
-        if (!(url in this.store)) {
-            this.store[url] = {};
-        }
-
+    ingest(data: any) {
         const pollTimeEpochMs = data.timestamp.s * 1000 + data.timestamp.us / 1000;
         for(const metric of data.values) {
-            let metricStore = this.store[url][metric.name];
+            let metricStore = this.store[metric.name];
             if (!metricStore) {
-                metricStore = this.store[url][metric.name] = {};
+                metricStore = this.store[metric.name] = {};
             }
 
             for (const instance of metric.instances) {
@@ -25,20 +23,17 @@ export default class DataStore {
         }
     }
 
-    query(url: string, metrics: string[]) {
-        if (!(url in this.store))
-            return [];
-
-        let targets = [] as any;
+    query(metrics: string[]) {
+        let targets : Target[] = [];
         for(const metric of metrics) {
-            if (!(metric in this.store[url]))
+            if (!(metric in this.store))
                 continue;
 
-            for(const instance in this.store[url][metric]) {
+            for(const instance in this.store[metric]) {
                 targets.push({
                     // for metrics without instance domains, show metric name
                     target: instance === "null" ? metric : instance,
-                    datapoints: this.store[url][metric][instance]
+                    datapoints: this.store[metric][instance]
                 });
             }
         }
