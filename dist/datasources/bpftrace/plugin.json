@@ -11,8 +11,8 @@
         },
         "description": "Grafana datasource for the PCP bpftrace PMDA",
         "logos": {
-            "small": "../performancecopilot-pcp-app/datasources/redis/img/pcp.png",
-            "large": "../performancecopilot-pcp-app/datasources/redis/img/pcp.png"
+            "small": "../performancecopilot-pcp-app/datasources/bpftrace/img/pcp.png",
+            "large": "../performancecopilot-pcp-app/datasources/bpftrace/img/pcp.png"
         },
         "links": [
             {"name": "GitHub", "url": "https://github.com/performancecopilot/grafana-pcp"},

@@ -19,7 +19,7 @@ export default class Context {
     }
 
     private async _createContext() {
-        console.debug('** making request for context')
+        //console.debug('** making request for context')
         let contextUrl = `${this.url}/pmapi/context?hostspec=127.0.0.1&polltimeout=30`
         if (this.container)
             contextUrl += `&container=${this.container}`
@@ -75,21 +75,21 @@ export default class Context {
         });
     }
 
+    findMetricMetadata(metric: string) {
+        return this.metricMetadataCache.find(p => p.name === metric);
+    }
+
     findPmidForMetric(metric: string) {
-        const pmidentry = this.metricMetadataCache.find(p => p.name === metric)
-        if (pmidentry) {
-            return pmidentry.pmid
+        const metadata = this.findMetricMetadata(metric);
+        if (metadata) {
+            return metadata.pmid
         } else { // no pmid found
             if (!this.missingMetrics.includes(metric)) {
                 this.missingMetrics.push(metric)
-                console.log(`Cannot find pmid for ${metric}. Is this PMDA enabled?`)
+                console.debug(`Cannot find pmid for ${metric}. Is this PMDA enabled?`)
             }
             return null
         }
-    }
-
-    findMetricMetadata(metric: string) {
-        return this.metricMetadataCache.find(p => p.name === metric);
     }
 
     async refreshIndoms(metric: string) {

@@ -3,13 +3,10 @@ import { Target, TargetFormat, Datapoint } from './datasource';
 import Context from './context';
 import Transformations from './transformations';
 
-// age out time
-const OLDEST_DATA_MS = 5 * 60 * 1000
-
 export default class DataStore {
     private store: Record<string, Record<string, Datapoint[]>> = {}; // store[metric][instance] = [val,ts,origVal]
 
-    constructor(private context: Context) {
+    constructor(private context: Context, private oldest_data_ms: number) {
     }
 
     ingest(data: any) {
@@ -47,7 +44,7 @@ export default class DataStore {
         }
     }
 
-    query(metrics: string[], format: TargetFormat) {
+    query(metrics: string[], format: TargetFormat, from: number, to: number) {
         let targets: Target[] = [];
         for (const metric of metrics) {
             if (!(metric in this.store))
@@ -57,7 +54,9 @@ export default class DataStore {
                 let target = {
                     // for metrics without instance domains, show metric name
                     target: instance === "null" ? metric : instance,
-                    datapoints: this.store[metric][instance].filter((dataPoint: Datapoint) => dataPoint[1] > 0)
+                    datapoints: this.store[metric][instance].filter((dataPoint: Datapoint) => (
+                        from <= dataPoint[1] && dataPoint[1] <= to
+                    ))
                 };
 
                 if (format === "heatmap")
@@ -70,7 +69,7 @@ export default class DataStore {
     }
 
     cleanExpiredMetrics() {
-        const keepExpiry = new Date().getTime() - OLDEST_DATA_MS
+        const keepExpiry = new Date().getTime() - this.oldest_data_ms
         for (const metric in this.store) {
             for (const instance in this.store[metric]) {
                 this.store[metric][instance] = this.store[metric][instance].filter(

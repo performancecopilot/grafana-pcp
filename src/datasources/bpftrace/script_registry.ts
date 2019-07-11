@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import Context from "./context";
-import { objectProperty } from '@babel/types';
-import { EndpointPoller } from './endpoint';
+import Poller from './poller';
 
 export interface BPFtraceScript {
     name: string;
@@ -15,21 +14,35 @@ export default class ScriptRegistry {
 
     readonly scripts: Record<string, BPFtraceScript> = {}; // {name: BPFtraceScript}
 
-    constructor(private context: Context, private poller: EndpointPoller) {
-        setInterval(this.syncState.bind(this), 10000);
+    constructor(private context: Context, private poller: Poller) {
     }
 
     findByCode(code: string) {
         return _.find(Object.values(this.scripts), (script: BPFtraceScript) => script.code === code);
     }
 
-    async register(context: Context, code: string) {
+    async register(code: string) {
         console.debug("registering script", code);
-        let uuid = Math.floor(Math.random() * 1000);
-        await context.store("bpftrace.control.register", `${uuid}#${code}`);
 
-        const responses = await context.fetch(["bpftrace.control.register"]);
-        const script: BPFtraceScript = JSON.parse(responses.values[0].instances[0].value)[uuid];
+        // create temporary context, required so that the PMDA can identify
+        // the client who sent the pmStore message
+        const context = new Context(this.context.url);
+        try {
+            await context.store("bpftrace.control.register", code);
+        }
+        catch (error) {
+            if (error.data && error.data.includes("-12400")) {
+                // PMDA returned PM_ERR_BADSTORE
+                // next fetch will show error reason
+            }
+            else {
+                // other error
+                throw error;
+            }
+        }
+        const response = await context.fetch(["bpftrace.control.register"]);
+
+        const script: BPFtraceScript = JSON.parse(response.values[0].instances[0].value);
         script.code = code;
         this.scripts[script.name] = script;
 
@@ -52,9 +65,14 @@ export default class ScriptRegistry {
                 metrics.push(status_metric, output_metric);
             }
             else {
-                console.info(`script ${script.name} is missing on the PMDA`);
+                console.info(`script ${script.name} is missing on the PMDA ${script.status}`);
                 const script_metrics = script.vars.map(var_ => `bpftrace.scripts.${script.name}.data.${var_}`);
-                delete this.scripts[script.name];
+                if (script.status !== "stopped") {
+                    // TODO: status == stopped *probably* means that the script failed
+                    // don't delete it from the registry, otherwise the datasource
+                    // tries to re-register it on every panel refresh
+                    delete this.scripts[script.name];
+                }
                 this.poller.removeMetricsFromPolling(script_metrics);
             }
         }

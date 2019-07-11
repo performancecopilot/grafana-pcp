@@ -1,9 +1,15 @@
 ///<reference path="../../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import _ from 'lodash';
 import Context from './context';
-import Poller from './poller';
-import { EndpointRegistry } from './endpoint';
+import EndpointRegistry from './endpoint_registry';
 import { BPFtraceScript } from './script_registry';
+
+// poll metric sources every X ms
+const POLL_INTERVAL_MS = 1000
+// we will keep polling a metric for up to X ms after it was last requested
+const KEEP_POLLING_MS = 20000
+// age out time
+const OLDEST_DATA_MS = 5 * 60 * 1000
 
 export type Datapoint = [number, number, number?];
 export interface Target {
@@ -29,7 +35,6 @@ export class PCPBPFtraceDatasource {
     headers: any;
 
     endpointRegistry: EndpointRegistry;
-    poller: Poller;
 
     /** @ngInject **/
     constructor(instanceSettings, $q, backendSrv, templateSrv, variableSrv) {
@@ -47,7 +52,21 @@ export class PCPBPFtraceDatasource {
 
         Context.datasourceRequest = this.doRequest.bind(this);
         this.endpointRegistry = new EndpointRegistry();
-        this.poller = new Poller(this.endpointRegistry, 1000);
+        setInterval(this.doPollAll.bind(this), POLL_INTERVAL_MS);
+        setInterval(this.syncScriptStates.bind(this), 2000);
+    }
+
+    doPollAll() {
+        for (const endpoint of this.endpointRegistry.list()) {
+            endpoint.poller.cleanup();
+            endpoint.poller.poll(); // poll() is async, but we don't wait for a result
+        }
+    }
+
+    syncScriptStates() {
+        for (const endpoint of this.endpointRegistry.list()) {
+            endpoint.scriptRegistry.syncState();
+        }
     }
 
     async query(options: any) {
@@ -63,20 +82,25 @@ export class PCPBPFtraceDatasource {
         }
 
         const vars = this.getVariables();
+
         // TODO: url of target => url variable of dashboard => url setting of datasource
         const data: Target[] = [];
         for (const target of query.targets) {
             if (target.hide)
                 continue;
 
-            const endpoint = this.endpointRegistry.find_or_create(this.url);
+            let endpoint = this.endpointRegistry.find(this.url);
+            if (!endpoint) {
+                endpoint = this.endpointRegistry.create(this.url, null, KEEP_POLLING_MS, OLDEST_DATA_MS);
+            }
+
             let script: BPFtraceScript = endpoint.scriptRegistry.findByCode(target.script);
             if (!script) {
                 // script not found, let's register it
                 try {
                     // we need to wait for the promise to resolve,
                     // because we need to throw the error in this function (and not async)
-                    script = await endpoint.scriptRegistry.register(endpoint.context, target.script);
+                    script = await endpoint.scriptRegistry.register(target.script);
                 }
                 catch (error) {
                     this.handleError(error, target);
@@ -85,11 +109,10 @@ export class PCPBPFtraceDatasource {
 
             if (script.status === "started" || script.status === "starting") {
                 let metrics = script.vars.map(var_ => `bpftrace.scripts.${script.name}.data.${var_}`);
-                endpoint.endpointPoller.ensurePolling(metrics);
-                data.push(...endpoint.datastore.query(metrics, target.format));
+                endpoint.poller.ensurePolling(metrics);
+                data.push(...endpoint.datastore.query(metrics, target.format, options.range.from.valueOf(), options.range.to.valueOf()));
             }
             else {
-                console.error("query failed", script);
                 this.handleError({ message: `BPFtrace error:\n\n${script.output}` }, target);
             }
         }
