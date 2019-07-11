@@ -3,11 +3,18 @@ import _ from 'lodash';
 import Context from './context';
 import Poller from './poller';
 import { EndpointRegistry } from './endpoint';
+import { BPFtraceScript } from './script_registry';
 
-export type Datapoint = [number, number];
+export type Datapoint = [number, number, number?];
 export interface Target {
     target: string;
     datapoints: Datapoint[]
+}
+
+export enum TargetFormat {
+    TimeSeries = "time_series",
+    Table = "table",
+    Heatmap = "heatmap",
 }
 
 export class PCPBPFtraceDatasource {
@@ -63,23 +70,27 @@ export class PCPBPFtraceDatasource {
                 continue;
 
             const endpoint = this.endpointRegistry.find_or_create(this.url);
-            let script = endpoint.scriptRegistry.find(target.script);
-
-            if (script && script.status === "started") {
-                let metrics = script.vars.map(var_ => `bpftrace.scripts.${script.name}.data.${var_}`);
-                endpoint.ensurePolling(metrics);
-                data.push(...endpoint.datastore.query(metrics));
-            }
-            else if (script && script.status !== "started") {
-                this.handleError({ message: script.output }, target);
-            }
-            else {
+            let script: BPFtraceScript = endpoint.scriptRegistry.findByCode(target.script);
+            if (!script) {
+                // script not found, let's register it
                 try {
-                    await endpoint.scriptRegistry.register(endpoint.context, target.script)
+                    // we need to wait for the promise to resolve,
+                    // because we need to throw the error in this function (and not async)
+                    script = await endpoint.scriptRegistry.register(endpoint.context, target.script);
                 }
                 catch (error) {
                     this.handleError(error, target);
                 }
+            }
+
+            if (script.status === "started" || script.status === "starting") {
+                let metrics = script.vars.map(var_ => `bpftrace.scripts.${script.name}.data.${var_}`);
+                endpoint.endpointPoller.ensurePolling(metrics);
+                data.push(...endpoint.datastore.query(metrics, target.format));
+            }
+            else {
+                console.error("query failed", script);
+                this.handleError({ message: `BPFtrace error:\n\n${script.output}` }, target);
             }
         }
 

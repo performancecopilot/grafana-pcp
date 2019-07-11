@@ -2,7 +2,8 @@ import _ from 'lodash';
 
 interface MetricMetadata {
     name: string,
-    pmid: number
+    pmid: number,
+    sem: string
 }
 
 export default class Context {
@@ -18,7 +19,7 @@ export default class Context {
     }
 
     private async _createContext() {
-        console.log('** making request for context')
+        console.debug('** making request for context')
         let contextUrl = `${this.url}/pmapi/context?hostspec=127.0.0.1&polltimeout=30`
         if (this.container)
             contextUrl += `&container=${this.container}`
@@ -87,6 +88,10 @@ export default class Context {
         }
     }
 
+    findMetricMetadata(metric: string) {
+        return this.metricMetadataCache.find(p => p.name === metric);
+    }
+
     async refreshIndoms(metric: string) {
         const indoms = await this.ensureContext(async () => {
             const response = await Context.datasourceRequest({
@@ -111,7 +116,7 @@ export default class Context {
             .filter((metric: number | null) => metric) // filter out nulls from findPmidForMetric
 
         if (!queryPmids.length)
-            return []
+            return {}
 
         // by now we have a context, the pmids to fetch, so lets do it
 

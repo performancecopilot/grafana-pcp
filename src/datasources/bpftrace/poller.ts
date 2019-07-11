@@ -8,8 +8,8 @@ export default class Poller {
 
     doPollAll() {
         for (const endpoint of this.endpointRegistry.list()) {
-            endpoint.cleanup();
-            endpoint.poll();
+            endpoint.endpointPoller.cleanup();
+            endpoint.endpointPoller.poll(); // poll() is async, but we don't wait for a result
         }
     }
 }

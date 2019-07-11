@@ -13,13 +13,21 @@ const OLDEST_DATA_MS = 5 * 60 * 1000
 export class Endpoint {
     context: Context;
     scriptRegistry: ScriptRegistry;
+    endpointPoller: EndpointPoller;
     datastore: DataStore;
-    private requestedMetrics: Record<string, number> = {}; // {metric: lastRequested}
 
     constructor(private url: string, private container: string | null = null) {
         this.context = new Context(url, container);
-        this.scriptRegistry = new ScriptRegistry();
-        this.datastore = new DataStore();
+        this.datastore = new DataStore(this.context);
+        this.endpointPoller = new EndpointPoller(this.context, this.datastore);
+        this.scriptRegistry = new ScriptRegistry(this.context, this.endpointPoller);
+    }
+}
+
+export class EndpointPoller {
+    private requestedMetrics: Record<string, number> = {}; // {metric: lastRequested}
+
+    constructor(private context: Context, private datastore: DataStore) {
     }
 
     async poll() {
@@ -38,6 +46,12 @@ export class Endpoint {
         }
     }
 
+    removeMetricsFromPolling(metrics: string[]) {
+        for (const metric of metrics) {
+            delete this.requestedMetrics[metric];
+        }
+    }
+
     cleanup() {
         // clean up any not required metrics
         const pollExpiry = new Date().getTime() - KEEP_POLLING_MS;
@@ -46,7 +60,6 @@ export class Endpoint {
         // clean expired metrics
         this.datastore.cleanExpiredMetrics();
     }
-
 }
 
 export class EndpointRegistry {
