@@ -1,7 +1,7 @@
 <query-editor-row query-ctrl="ctrl" can-collapse="true" has-text-edit-mode="false">
   <div class="gf-form-inline">
     <div class="gf-form gf-form--grow">
-      <code-editor content="ctrl.target.script" on-change="ctrl.refreshMetricData()">
+      <code-editor content="ctrl.target.code" on-change="ctrl.refreshMetricData()">
       </code-editor>
     </div>
   </div>
@@ -14,7 +14,7 @@
       </input>
       <info-popover mode="right-absolute">
         Controls the name of the time series, using name or pattern. For example
-        <span ng-non-bindable>{{hostname}}</span> will be replaced with label value for the label hostname.
+        <span ng-non-bindable>${instance}</span> will be replaced with the instance name.
       </info-popover>
     </div>
 

@@ -10,7 +10,7 @@ export class PCPBPFtraceDatasourceQueryCtrl extends QueryCtrl {
   constructor($scope, $injector) {
     super($scope, $injector);
 
-    this.target.script = this.target.script || "";
+    this.target.code = this.target.code || "";
     this.target.format = this.target.format || this.getDefaultFormat();
 
     this.formats = [

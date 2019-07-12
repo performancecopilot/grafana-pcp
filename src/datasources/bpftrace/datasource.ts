@@ -73,29 +73,46 @@ export class PCPBPFtraceDatasource {
         }
     }
 
+    getTargetLabel(target: string, legendFormat: string, options: any) {
+        if (_.isEmpty(legendFormat)) {
+            return target;
+        }
+        else {
+            let vars = {
+                instance: { value: target }
+            };
+            return this.templateSrv.replace(legendFormat, vars);
+        }
+    }
+
     async query(options: any) {
         const query = options;
         if (query.targets.length == 0) {
             return { data: [] };
         }
 
-        if (this.templateSrv.getAdhocFilters) {
-            query.adhocFilters = this.templateSrv.getAdhocFilters(this.name);
-        } else {
-            query.adhocFilters = [];
-        }
-
-        const vars = this.getVariables();
-
-        // TODO: url of target => url variable of dashboard => url setting of datasource
+        const dashboardVariables = this.getVariables();
         const data: Target[] = [];
         for (const target of query.targets) {
             if (target.hide)
                 continue;
 
-            let endpoint = this.endpointRegistry.find(this.url);
+            // TODO: allow templating of bpftrace script code?
+            // possible clashes of grafana templating syntax with bpftrace syntax
+            const code = target.code.trim();
+            if (code.length === 0)
+                continue;
+
+            // TODO: also allow overriding of url in query editor
+            let url: string;
+            if (dashboardVariables.url && dashboardVariables.url.value.length > 0)
+                url = dashboardVariables.url.value;
+            else
+                url = this.url;
+
+            let endpoint = this.endpointRegistry.find(url);
             if (!endpoint) {
-                endpoint = this.endpointRegistry.create(this.url, null, KEEP_POLLING_MS, OLDEST_DATA_MS);
+                endpoint = this.endpointRegistry.create(url, null, KEEP_POLLING_MS, OLDEST_DATA_MS);
             }
 
             let script: BPFtraceScript;
@@ -103,7 +120,7 @@ export class PCPBPFtraceDatasource {
                 // ensureActive registers the script (if required)
                 // need to wait for the promise to resolve, because the error
                 // has to be returned in the query() promise to show up in the panel
-                script = await endpoint.scriptRegistry.ensureActive(target.script);
+                script = await endpoint.scriptRegistry.ensureActive(code);
             }
             catch (error) {
                 this.handleError(error, target);
@@ -113,7 +130,12 @@ export class PCPBPFtraceDatasource {
             if (script.status === "started" || script.status === "starting") {
                 let metrics = script.vars.map(var_ => `bpftrace.scripts.${script.name}.data.${var_}`);
                 endpoint.poller.ensurePolling(metrics);
-                data.push(...endpoint.datastore.query(metrics, target.format, options.range.from.valueOf(), options.range.to.valueOf()));
+
+                let targetData = endpoint.datastore.query(metrics, target.format, options.range.from.valueOf(), options.range.to.valueOf());
+                targetData = targetData.map((t: Target) => {
+                    return { target: this.getTargetLabel(t.target, target.legendFormat, options), datapoints: t.datapoints }
+                });
+                data.push(...targetData);
             }
             else {
                 this.handleError({ message: `BPFtrace error:\n\n${script.output}` }, target);

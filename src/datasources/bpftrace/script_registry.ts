@@ -117,7 +117,12 @@ export default class ScriptRegistry {
             const metric_field = metric_split[3];
 
             const script = this.scripts[script_name];
-            if (metric_field === "status") {
+            if (!script) {
+                // script got removed by cleanupExpiredScripts()
+                // while waiting for values from the PMDA
+                continue;
+            }
+            else if (metric_field === "status") {
                 script.status = metric.instances[0].value;
             }
             else if (metric_field === "output") {
