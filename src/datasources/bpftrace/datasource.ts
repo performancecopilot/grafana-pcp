@@ -3,6 +3,7 @@ import _ from 'lodash';
 import Context from './context';
 import EndpointRegistry from './endpoint_registry';
 import { BPFtraceScript } from './script_registry';
+import Transformations from './transformations';
 
 // poll metric sources every X ms
 const POLL_INTERVAL_MS = 1000
@@ -14,10 +15,19 @@ const KEEP_POLLING_MS = 20000
 const OLDEST_DATA_MS = 5 * 60 * 1000
 
 export type Datapoint = [number, number, number?];
-export interface Target {
+
+export interface TimeSeriesResult {
     target: string;
     datapoints: Datapoint[]
 }
+
+export interface TableResult {
+    columns: any[]
+    rows: any[]
+    type: string
+}
+
+export type TargetResult = TimeSeriesResult | TableResult;
 
 export enum TargetFormat {
     TimeSeries = "time_series",
@@ -37,6 +47,7 @@ export class PCPBPFtraceDatasource {
     headers: any;
 
     endpointRegistry: EndpointRegistry;
+    transformations: Transformations;
 
     /** @ngInject **/
     constructor(instanceSettings, $q, backendSrv, templateSrv, variableSrv) {
@@ -54,6 +65,7 @@ export class PCPBPFtraceDatasource {
 
         Context.datasourceRequest = this.doRequest.bind(this);
         this.endpointRegistry = new EndpointRegistry();
+        this.transformations = new Transformations(this.templateSrv);
         setInterval(this.doPollAll.bind(this), POLL_INTERVAL_MS);
         setInterval(this.syncScriptStates.bind(this), SCRIPT_SYNC_INTERVAL_MS);
     }
@@ -73,18 +85,6 @@ export class PCPBPFtraceDatasource {
         }
     }
 
-    getTargetLabel(target: string, legendFormat: string, options: any) {
-        if (_.isEmpty(legendFormat)) {
-            return target;
-        }
-        else {
-            let vars = {
-                instance: { value: target }
-            };
-            return this.templateSrv.replace(legendFormat, vars);
-        }
-    }
-
     async query(options: any) {
         const query = options;
         if (query.targets.length == 0) {
@@ -92,9 +92,9 @@ export class PCPBPFtraceDatasource {
         }
 
         const dashboardVariables = this.getVariables();
-        const data: Target[] = [];
+        const targetResults: TargetResult[] = [];
         for (const target of query.targets) {
-            if (target.hide)
+            if (target.hide || !target.code)
                 continue;
 
             // TODO: allow templating of bpftrace script code?
@@ -131,18 +131,26 @@ export class PCPBPFtraceDatasource {
                 let metrics = script.vars.map(var_ => `bpftrace.scripts.${script.name}.data.${var_}`);
                 endpoint.poller.ensurePolling(metrics);
 
-                let targetData = endpoint.datastore.query(metrics, target.format, options.range.from.valueOf(), options.range.to.valueOf());
-                targetData = targetData.map((t: Target) => {
-                    return { target: this.getTargetLabel(t.target, target.legendFormat, options), datapoints: t.datapoints }
-                });
-                data.push(...targetData);
+                let result: TimeSeriesResult[] | string | number;
+                if (target.format === TargetFormat.Table) {
+                    let printfMetric = metrics.filter((metric: string) => metric.endsWith('.printf'));
+                    if (printfMetric.length === 0)
+                        throw { message: "Table format is only supported with printf() BPFtrace scripts" };
+                    // instanceName is "null" for single values (without instance domains)
+                    result = endpoint.datastore.queryLastMetric(printfMetric[0], "null");
+                }
+                else {
+                    result = endpoint.datastore.queryTimeSeries(metrics, options.range.from.valueOf(), options.range.to.valueOf());
+                }
+
+                targetResults.push(...this.transformations.transform(result, target));
             }
             else {
                 this.handleError({ message: `BPFtrace error:\n\n${script.output}` }, target);
             }
         }
 
-        return { data: data };
+        return { data: targetResults };
     }
 
     handleError(error: any, target: any) {

@@ -1,7 +1,6 @@
 import _ from 'lodash';
-import { Target, TargetFormat, Datapoint } from './datasource';
+import { Datapoint, TimeSeriesResult } from './datasource';
 import Context from './context';
-import Transformations from './transformations';
 
 export default class DataStore {
     private store: Record<string, Record<string, Datapoint[]>> = {}; // store[metric][instance] = [val,ts,origVal]
@@ -44,8 +43,8 @@ export default class DataStore {
         }
     }
 
-    query(metrics: string[], format: TargetFormat, from: number, to: number) {
-        let targets: Target[] = [];
+    queryTimeSeries(metrics: string[], from: number, to: number) {
+        let targetResults: TimeSeriesResult[] = [];
         for (const metric of metrics) {
             if (!(metric in this.store))
                 continue;
@@ -59,13 +58,21 @@ export default class DataStore {
                     ))
                 };
 
-                if (format === "heatmap")
-                    target = Transformations.toHeatmap(target);
-
-                targets.push(target);
+                targetResults.push(target);
             }
         }
-        return targets;
+        return targetResults;
+    }
+
+    queryLastMetric(metric: string, instanceName: string) {
+        if (!(metric in this.store))
+            return "";
+
+        const vals = this.store[metric][instanceName];
+        if (!vals || vals.length === 0)
+            return "";
+
+        return vals[vals.length - 1][0];
     }
 
     cleanExpiredMetrics() {
