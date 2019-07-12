@@ -84,6 +84,7 @@ export default class Context {
         if (metadata) {
             return metadata.pmid
         } else { // no pmid found
+            // TODO: script is starting and has no registered metrics yet / error
             if (!this.missingMetrics.includes(metric)) {
                 this.missingMetrics.push(metric)
                 console.debug(`Cannot find pmid for ${metric}. Is this PMDA enabled?`)
@@ -110,6 +111,8 @@ export default class Context {
     }
 
     async fetch(metrics: string[], instanceNames: boolean = false) {
+        console.debug("fetching metrics", metrics);
+
         // extract pmid for metric name
         const queryPmids = metrics
             .map((metric: string) => this.findPmidForMetric(metric))
@@ -119,7 +122,6 @@ export default class Context {
             return {}
 
         // by now we have a context, the pmids to fetch, so lets do it
-
         const data = await this.ensureContext(async () => {
             const response = await Context.datasourceRequest({
                 url: `${this.url}/pmapi/${this.context}/_fetch`,

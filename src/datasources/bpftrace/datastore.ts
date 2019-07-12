@@ -6,7 +6,7 @@ import Transformations from './transformations';
 export default class DataStore {
     private store: Record<string, Record<string, Datapoint[]>> = {}; // store[metric][instance] = [val,ts,origVal]
 
-    constructor(private context: Context, private oldest_data_ms: number) {
+    constructor(private context: Context, private oldestDataMs: number) {
     }
 
     ingest(data: any) {
@@ -26,7 +26,7 @@ export default class DataStore {
                 if (!isExistingMetric)
                     metricStore[instance.instanceName] = [];
 
-                if (metadata.sem === "counter" ) {
+                if (metadata.sem === "counter") {
                     const instanceStore = metricStore[instance.instanceName];
                     if (isExistingMetric) {
                         let [, prevTimeMs, prevOrigVal] = instanceStore[instanceStore.length - 1];
@@ -69,7 +69,7 @@ export default class DataStore {
     }
 
     cleanExpiredMetrics() {
-        const keepExpiry = new Date().getTime() - this.oldest_data_ms
+        const keepExpiry = new Date().getTime() - this.oldestDataMs
         for (const metric in this.store) {
             for (const instance in this.store[metric]) {
                 this.store[metric][instance] = this.store[metric][instance].filter(

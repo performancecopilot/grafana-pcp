@@ -5,7 +5,7 @@ import DataStore from "./datastore";
 export default class Poller {
     private requestedMetrics: Record<string, number> = {}; // {metric: lastRequested}
 
-    constructor(private context: Context, private datastore: DataStore, private keep_polling_ms: number) {
+    constructor(private context: Context, private datastore: DataStore, private keepPollingMs: number) {
     }
 
     async poll() {
@@ -19,8 +19,9 @@ export default class Poller {
     }
 
     ensurePolling(metrics: string[]) {
+        const now = new Date().getTime()
         for (const metric of metrics) {
-            this.requestedMetrics[metric] = new Date().getTime()
+            this.requestedMetrics[metric] = now
         }
     }
 
@@ -30,12 +31,9 @@ export default class Poller {
         }
     }
 
-    cleanup() {
+    cleanupExpiredMetrics() {
         // clean up any not required metrics
-        const pollExpiry = new Date().getTime() - this.keep_polling_ms;
+        const pollExpiry = new Date().getTime() - this.keepPollingMs;
         this.requestedMetrics = _.pickBy(this.requestedMetrics, (lastRequested: number) => lastRequested > pollExpiry);
-
-        // clean expired metrics
-        this.datastore.cleanExpiredMetrics();
     }
 }

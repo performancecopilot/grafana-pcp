@@ -22,12 +22,12 @@ export default class EndpointRegistry {
         return this.endpoints[id];
     }
 
-    create(url: string, container: string | null, keep_polling_ms: number, oldest_data_ms: number) {
+    create(url: string, container: string | null, keepPollingMs: number, oldestDataMs: number) {
         const id = this.generateId(url, container);
         const context = new Context(url, container);
-        const datastore = new DataStore(context, oldest_data_ms);
-        const poller = new Poller(context, datastore, keep_polling_ms);
-        const scriptRegistry = new ScriptRegistry(context, poller);
+        const datastore = new DataStore(context, oldestDataMs);
+        const poller = new Poller(context, datastore, keepPollingMs);
+        const scriptRegistry = new ScriptRegistry(context, poller, keepPollingMs);
 
         this.endpoints[id] = { context, datastore, poller, scriptRegistry };
         return this.endpoints[id];

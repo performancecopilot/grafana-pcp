@@ -6,6 +6,8 @@ import { BPFtraceScript } from './script_registry';
 
 // poll metric sources every X ms
 const POLL_INTERVAL_MS = 1000
+// script sync interval
+const SCRIPT_SYNC_INTERVAL_MS = 2000
 // we will keep polling a metric for up to X ms after it was last requested
 const KEEP_POLLING_MS = 20000
 // age out time
@@ -53,18 +55,20 @@ export class PCPBPFtraceDatasource {
         Context.datasourceRequest = this.doRequest.bind(this);
         this.endpointRegistry = new EndpointRegistry();
         setInterval(this.doPollAll.bind(this), POLL_INTERVAL_MS);
-        setInterval(this.syncScriptStates.bind(this), 2000);
+        setInterval(this.syncScriptStates.bind(this), SCRIPT_SYNC_INTERVAL_MS);
     }
 
     doPollAll() {
         for (const endpoint of this.endpointRegistry.list()) {
-            endpoint.poller.cleanup();
+            endpoint.datastore.cleanExpiredMetrics();
+            endpoint.poller.cleanupExpiredMetrics();
             endpoint.poller.poll(); // poll() is async, but we don't wait for a result
         }
     }
 
     syncScriptStates() {
         for (const endpoint of this.endpointRegistry.list()) {
+            endpoint.scriptRegistry.cleanupExpiredScripts();
             endpoint.scriptRegistry.syncState();
         }
     }
@@ -94,17 +98,16 @@ export class PCPBPFtraceDatasource {
                 endpoint = this.endpointRegistry.create(this.url, null, KEEP_POLLING_MS, OLDEST_DATA_MS);
             }
 
-            let script: BPFtraceScript = endpoint.scriptRegistry.findByCode(target.script);
-            if (!script) {
-                // script not found, let's register it
-                try {
-                    // we need to wait for the promise to resolve,
-                    // because we need to throw the error in this function (and not async)
-                    script = await endpoint.scriptRegistry.register(target.script);
-                }
-                catch (error) {
-                    this.handleError(error, target);
-                }
+            let script: BPFtraceScript;
+            try {
+                // ensureActive registers the script (if required)
+                // need to wait for the promise to resolve, because the error
+                // has to be returned in the query() promise to show up in the panel
+                script = await endpoint.scriptRegistry.ensureActive(target.script);
+            }
+            catch (error) {
+                this.handleError(error, target);
+                continue;
             }
 
             if (script.status === "started" || script.status === "starting") {
