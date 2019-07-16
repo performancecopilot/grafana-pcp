@@ -37,7 +37,11 @@ export default class Transformations {
         return targetResults;
     }
 
-    transformToTable(tableText: string) {
+    transformToTable(targetResults: TimeSeriesResult[]) {
+        let tableText = "";
+        if (targetResults.length > 0)
+            tableText = targetResults[0].datapoints[0][0] as string;
+
         let table: TableResult = { columns: [], rows: [], type: 'table' };
         let lines = tableText.split('\n');
         let columnSizes: [number, number | undefined][] = [];
@@ -64,7 +68,7 @@ export default class Transformations {
         return [table];
     }
 
-    transform(targetResults: any, target: any) {
+    transform(targetResults: TimeSeriesResult[], target: any) {
         if (target.format === TargetFormat.TimeSeries)
             return this.updateLabels(targetResults, target);
         else if (target.format === TargetFormat.Heatmap)

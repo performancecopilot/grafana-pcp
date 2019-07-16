@@ -74,7 +74,7 @@ export default class ScriptRegistry {
         else {
             this.scripts[script.name] = script;
             // script has registered new metric names, fetch them
-            await this.context.fetchMetricMetadata();
+            await this.context.fetchMetricMetadata("bpftrace");
         }
 
         return script;
@@ -91,7 +91,7 @@ export default class ScriptRegistry {
             return;
         }
 
-        await this.context.fetchMetricMetadata();
+        await this.context.fetchMetricMetadata("bpftrace");
 
         let metrics: string[] = [];
         for (const script of Object.values(this.scripts)) {

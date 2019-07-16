@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "expr-eval": "^1.2.2",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.14",
     "uglifyjs-webpack-plugin": "^2.1.2"
   },
   "homepage": "https://github.com/performancecopilot/grafana-pcp"

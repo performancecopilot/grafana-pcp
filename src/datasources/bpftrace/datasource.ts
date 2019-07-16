@@ -14,7 +14,7 @@ const KEEP_POLLING_MS = 20000
 // age out time
 const OLDEST_DATA_MS = 5 * 60 * 1000
 
-export type Datapoint = [number, number, number?];
+export type Datapoint = [number | string, number, number?];
 
 export interface TimeSeriesResult {
     target: string;
@@ -85,6 +85,37 @@ export class PCPBPFtraceDatasource {
         }
     }
 
+    getMetricNameForMetricType(context: Context, script: BPFtraceScript, metrictype: string) {
+        for (const var_ of script.vars) {
+            const metric = `bpftrace.scripts.${script.name}.data.${var_}`;
+            const metricMetadata = context.findMetricMetadata(metric);
+            if (metricMetadata.labels && metricMetadata.labels.metrictype === metrictype)
+                return metric;
+        }
+        return null;
+    }
+
+    getMetricNamesForTarget(context: Context, target: any, script: BPFtraceScript) {
+        if (target.format === TargetFormat.TimeSeries) {
+            return script.vars.map(var_ => `bpftrace.scripts.${script.name}.data.${var_}`);
+        }
+        else if (target.format === TargetFormat.Heatmap) {
+            const metric = this.getMetricNameForMetricType(context, script, "histogram");
+            if (metric)
+                return [metric];
+            else
+                throw { message: "Cannot find any histogram in this BPFtrace script." };
+        }
+        else if (target.format === TargetFormat.Table) {
+            const metric = this.getMetricNameForMetricType(context, script, "output");
+            if (metric)
+                return [metric];
+            else
+                throw { message: "Table format is only supported with printf() BPFtrace scripts." };
+        }
+        return [];
+    }
+
     async query(options: any) {
         const query = options;
         if (query.targets.length == 0) {
@@ -121,32 +152,22 @@ export class PCPBPFtraceDatasource {
                 // need to wait for the promise to resolve, because the error
                 // has to be returned in the query() promise to show up in the panel
                 script = await endpoint.scriptRegistry.ensureActive(code);
-            }
-            catch (error) {
-                this.handleError(error, target);
-                continue;
-            }
 
-            if (script.status === "started" || script.status === "starting") {
-                let metrics = script.vars.map(var_ => `bpftrace.scripts.${script.name}.data.${var_}`);
-                endpoint.poller.ensurePolling(metrics);
+                if (script.status === "started" || script.status === "starting") {
+                    const metrics = this.getMetricNamesForTarget(endpoint.context, target, script);
+                    endpoint.poller.ensurePolling(metrics);
 
-                let result: TimeSeriesResult[] | string | number;
-                if (target.format === TargetFormat.Table) {
-                    let printfMetric = metrics.filter((metric: string) => metric.endsWith('.printf'));
-                    if (printfMetric.length === 0)
-                        throw { message: "Table format is only supported with printf() BPFtrace scripts" };
-                    // instanceName is "null" for single values (without instance domains)
-                    result = endpoint.datastore.queryLastMetric(printfMetric[0], "null");
+                    let result = endpoint.datastore.queryTimeSeries(metrics, options.range.from.valueOf(), options.range.to.valueOf());
+                    targetResults.push(...this.transformations.transform(result, target));
                 }
                 else {
-                    result = endpoint.datastore.queryTimeSeries(metrics, options.range.from.valueOf(), options.range.to.valueOf());
+                    throw { message: `BPFtrace error:\n\n${script.output}` };
                 }
-
-                targetResults.push(...this.transformations.transform(result, target));
             }
-            else {
-                this.handleError({ message: `BPFtrace error:\n\n${script.output}` }, target);
+            catch (error) {
+                // catch all exceptions and handle them gracefully (by adding the refId of the panel)
+                this.handleError(error, target);
+                continue;
             }
         }
 

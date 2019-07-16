@@ -3,7 +3,8 @@ import _ from 'lodash';
 interface MetricMetadata {
     name: string,
     pmid: number,
-    sem: string
+    sem: string,
+    labels: Record<string, any>
 }
 
 export default class Context {
@@ -11,7 +12,7 @@ export default class Context {
     static datasourceRequest: (options: any) => any;
     private context: string;
     private contextPromise: Promise<void> | null = null;
-    private metricMetadataCache: MetricMetadata[] = [];
+    private metricMetadataCache: Record<string, MetricMetadata> = {};
     private missingMetrics: string[] = [];
     private indomCache: Record<string, Record<number, string>> = {}; // indomCache[metric][instance_id] = instance_name
 
@@ -19,25 +20,17 @@ export default class Context {
     }
 
     private async _createContext() {
-        //console.debug('** making request for context')
         let contextUrl = `${this.url}/pmapi/context?hostspec=127.0.0.1&polltimeout=30`
-        if (this.container)
-            contextUrl += `&container=${this.container}`
 
         const contextResponse = await Context.datasourceRequest({ url: contextUrl })
-        //console.log('** contextResponse:', contextResponse)
         this.context = contextResponse.data.context
 
-        if (this.container) {
-            //console.log('selecting container..')
-            const containerResponse = await Context.datasourceRequest({
-                url: `${this.url}/pmapi/${this.context}/_store?name=pmcd.client.container&value=${this.container}`
-            })
-            //console.log('selected', containerResponse)
-        }
 
-        if (_.isEmpty(this.metricMetadataCache)) {
-            await this.fetchMetricMetadata();
+        if (this.container) {
+            const containerResponse = await Context.datasourceRequest({
+                url: `${this.url}/pmapi/${this.context}/_store`,
+                params: { name: "pmcd.client.container", value: this.container }
+            })
         }
     }
 
@@ -65,32 +58,26 @@ export default class Context {
         }
     }
 
-    async fetchMetricMetadata() {
-        //console.log('** making request for metrics')
+    async fetchMetricMetadata(prefix: string | null) {
         await this.ensureContext(async () => {
+            let params: any = {};
+            if (prefix)
+                params.prefix = prefix;
+
             const metricsResponse = await Context.datasourceRequest({
-                url: `${this.url}/pmapi/${this.context}/_metric`
+                url: `${this.url}/pmapi/${this.context}/_metric`,
+                params
             });
-            this.metricMetadataCache = metricsResponse.data.metrics;
+
+            this.metricMetadataCache = {};
+            for (const metric of metricsResponse.data.metrics) {
+                this.metricMetadataCache[metric.name] = metric;
+            }
         });
     }
 
     findMetricMetadata(metric: string) {
-        return this.metricMetadataCache.find(p => p.name === metric);
-    }
-
-    findPmidForMetric(metric: string) {
-        const metadata = this.findMetricMetadata(metric);
-        if (metadata) {
-            return metadata.pmid
-        } else { // no pmid found
-            // TODO: script is starting and has no registered metrics yet / error
-            if (!this.missingMetrics.includes(metric)) {
-                this.missingMetrics.push(metric)
-                console.debug(`Cannot find pmid for ${metric}. Is this PMDA enabled?`)
-            }
-            return null
-        }
+        return this.metricMetadataCache[metric];
     }
 
     async refreshIndoms(metric: string) {
@@ -103,29 +90,20 @@ export default class Context {
         });
 
         // convert [{instance: X, name: Y}] to {instance: name}
-        this.indomCache[metric] = indoms.reduce((cache: any, indom: any) => {
-            cache[indom.instance] = indom.name;
-            return cache;
-        }, {});
+        this.indomCache[metric] = {};
+        for (const indom of indoms) {
+            this.indomCache[metric][indom.instance] = indom.name;
+        }
         return this.indomCache[metric];
     }
 
     async fetch(metrics: string[], instanceNames: boolean = false) {
         console.debug("fetching metrics", metrics);
 
-        // extract pmid for metric name
-        const queryPmids = metrics
-            .map((metric: string) => this.findPmidForMetric(metric))
-            .filter((metric: number | null) => metric) // filter out nulls from findPmidForMetric
-
-        if (!queryPmids.length)
-            return {}
-
-        // by now we have a context, the pmids to fetch, so lets do it
         const data = await this.ensureContext(async () => {
             const response = await Context.datasourceRequest({
                 url: `${this.url}/pmapi/${this.context}/_fetch`,
-                params: { pmids: queryPmids.join(',') }
+                params: { names: metrics.join(',') }
             });
             return response.data;
         });
