@@ -89,7 +89,7 @@ export class PCPBPFtraceDatasource {
         for (const var_ of script.vars) {
             const metric = `bpftrace.scripts.${script.name}.data.${var_}`;
             const metricMetadata = context.findMetricMetadata(metric);
-            if (metricMetadata.labels && metricMetadata.labels.metrictype === metrictype)
+            if (metricMetadata && metricMetadata.labels && metricMetadata.labels.metrictype === metrictype)
                 return metric;
         }
         return null;

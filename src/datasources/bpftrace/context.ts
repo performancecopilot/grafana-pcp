@@ -13,33 +13,39 @@ export default class Context {
     private context: string;
     private contextPromise: Promise<void> | null = null;
     private metricMetadataCache: Record<string, MetricMetadata> = {};
-    private missingMetrics: string[] = [];
     private indomCache: Record<string, Record<number, string>> = {}; // indomCache[metric][instance_id] = instance_name
+    private d: string = '';
 
     constructor(readonly url: string, readonly container: string | null = null) {
+        // if port != 44322, use pmwebd API with underscore
+        // TODO: remove once transition to pmproxy is done
+        if (!url.includes(":44322")) {
+            this.d = '_';
+        }
     }
 
     private async _createContext() {
-        let contextUrl = `${this.url}/pmapi/context?hostspec=127.0.0.1&polltimeout=30`
+        let contextUrl = `${this.url}/pmapi/context?hostspec=127.0.0.1&polltimeout=30`;
 
-        const contextResponse = await Context.datasourceRequest({ url: contextUrl })
-        this.context = contextResponse.data.context
-
+        const contextResponse = await Context.datasourceRequest({ url: contextUrl });
+        this.context = contextResponse.data.context;
 
         if (this.container) {
-            const containerResponse = await Context.datasourceRequest({
-                url: `${this.url}/pmapi/${this.context}/_store`,
+            await Context.datasourceRequest({
+                url: `${this.url}/pmapi/${this.context}/${this.d}store`,
                 params: { name: "pmcd.client.container", value: this.container }
-            })
+            });
         }
     }
 
     // this method ensures that only one context request will be sent at a time
     // if there are 2 simultaneous calls to createContext(), the second call
-    // will wait until the promise of the first call is resolved
+    // will return the promise of the first call
     async createContext() {
-        if (!this.contextPromise)
-            this.contextPromise = this._createContext();
+        if (this.contextPromise)
+            return this.contextPromise;
+
+        this.contextPromise = this._createContext();
         await this.contextPromise;
         this.contextPromise = null;
     }
@@ -51,29 +57,36 @@ export default class Context {
 
         try {
             return await fn();
-        } catch (err) {
-            console.log("error", err, "creating new context...");
-            await this.createContext();
-            return await fn();
+        } catch (error) {
+            if (error.data && error.data.includes("unknown context identifier")) {
+                console.debug("context expired, creating new context...");
+                await this.createContext();
+                return await fn();
+            }
+            else {
+                throw error;
+            }
         }
     }
 
     async fetchMetricMetadata(prefix: string | null) {
-        await this.ensureContext(async () => {
-            let params: any = {};
-            if (prefix)
-                params.prefix = prefix;
+        let params: any = {};
+        if (prefix)
+            params.prefix = prefix;
 
-            const metricsResponse = await Context.datasourceRequest({
-                url: `${this.url}/pmapi/${this.context}/_metric`,
+        const metrics = await this.ensureContext(async () => {
+            // TODO: use this.url again
+            const response = await Context.datasourceRequest({
+                url: `http://localhost:44322/pmapi/metric`,
                 params
             });
-
-            this.metricMetadataCache = {};
-            for (const metric of metricsResponse.data.metrics) {
-                this.metricMetadataCache[metric.name] = metric;
-            }
+            return response.data.metrics;
         });
+
+        this.metricMetadataCache = {};
+        for (const metric of metrics) {
+            this.metricMetadataCache[metric.name] = metric;
+        }
     }
 
     findMetricMetadata(metric: string) {
@@ -83,7 +96,7 @@ export default class Context {
     async refreshIndoms(metric: string) {
         const indoms = await this.ensureContext(async () => {
             const response = await Context.datasourceRequest({
-                url: `${this.url}/pmapi/${this.context}/_indom`,
+                url: `${this.url}/pmapi/${this.context}/${this.d}indom`,
                 params: { name: metric }
             });
             return response.data.instances;
@@ -98,11 +111,9 @@ export default class Context {
     }
 
     async fetch(metrics: string[], instanceNames: boolean = false) {
-        console.debug("fetching metrics", metrics);
-
         const data = await this.ensureContext(async () => {
             const response = await Context.datasourceRequest({
-                url: `${this.url}/pmapi/${this.context}/_fetch`,
+                url: `${this.url}/pmapi/${this.context}/${this.d}fetch`,
                 params: { names: metrics.join(',') }
             });
             return response.data;
@@ -141,7 +152,7 @@ export default class Context {
     async store(metric: string, value: string) {
         return await this.ensureContext(() => {
             return Context.datasourceRequest({
-                url: `${this.url}/pmapi/${this.context}/_store`,
+                url: `${this.url}/pmapi/${this.context}/${this.d}store`,
                 params: { name: metric, value: value }
             })
         });

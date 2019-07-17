@@ -110,6 +110,9 @@ export default class ScriptRegistry {
             }
         }
 
+        if (metrics.length === 0)
+            return;
+
         const response = await this.context.fetch(metrics);
         for (const metric of response.values) {
             const metric_split = metric.name.split('.');

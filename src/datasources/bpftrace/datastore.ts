@@ -10,21 +10,20 @@ export default class DataStore {
 
     ingestMetric(metricStore: any, metric: any, pollTimeEpochMs: number) {
         const metadata = this.context.findMetricMetadata(metric.name);
+        if (!metadata) {
+            console.info(`skipping ingestion of ${metric.name}: metadata not available`);
+        }
+
         for (const instance of metric.instances) {
             let instanceStore = metricStore[instance.instanceName];
-            let isExistingMetric = true;
-            if (!instanceStore) {
-                isExistingMetric = false;
+
+            // for the bpftrace output variable, always recreate the metric store (do not store history)
+            if (!instanceStore || (metadata.labels && metadata.labels.metrictype === "output")) {
                 instanceStore = metricStore[instance.instanceName] = [];
             }
 
-            if (metadata.labels && metadata.labels.metrictype === "output") {
-                // do not store history of the output of bpftrace scripts
-                instanceStore = [];
-            }
-
             if (metadata.sem === "counter") {
-                if (isExistingMetric) {
+                if (instanceStore.length > 0) {
                     let [, prevTimeMs, prevOrigVal] = instanceStore[instanceStore.length - 1];
                     const deltaSec = (pollTimeEpochMs - prevTimeMs) / 1000;
                     instanceStore.push([(instance.value - prevOrigVal!) / deltaSec, pollTimeEpochMs, instance.value]);
