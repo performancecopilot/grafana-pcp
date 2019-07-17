@@ -13,6 +13,9 @@ module.exports = {
     transformIgnorePatterns: [
         "node_modules/(?!(grafana-sdk-mocks))",
     ],
+    setupFiles: [
+        "jest-date-mock"
+    ],
     testRegex: "(\\.|/)([jt]est)\\.ts$",
     moduleFileExtensions: [
         "js",

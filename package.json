@@ -35,6 +35,7 @@
     "css-loader": "^1.0.0",
     "grafana-sdk-mocks": "github:grafana/grafana-sdk-mocks",
     "jest": "^24.8.0",
+    "jest-date-mock": "^1.0.7",
     "jsdom": "~9.12.0",
     "mocha": "^6.1.4",
     "ng-annotate-webpack-plugin": "^0.3.0",

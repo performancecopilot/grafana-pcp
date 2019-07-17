@@ -1,7 +1,7 @@
 import DataStore from "../datastore";
 
 describe("DataStore", () => {
-    let ctx: any = {};
+    let ctx: { context: any, datastore: DataStore } = {} as any;
 
     beforeEach(() => {
         ctx.context = {
