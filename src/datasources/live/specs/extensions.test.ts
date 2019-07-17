@@ -1,4 +1,4 @@
-import * as extensions from "../../src/datasources/live/extensions";
+import * as extensions from "../extensions";
 
 describe('extensions', function() {
 

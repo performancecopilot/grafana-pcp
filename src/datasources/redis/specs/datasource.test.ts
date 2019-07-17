@@ -1,6 +1,6 @@
 // import { beforeEach, describe, expect, it } from './lib/common';
-import TemplateSrvStub from '../lib/TemplateSrvStub';
-import { Datasource } from '../../src/datasources/redis/module';
+import TemplateSrvStub from '../../lib/specs/TemplateSrvStub';
+import { Datasource } from '../module';
 import q from 'q';
 
 describe('GenericDatasource', () => {

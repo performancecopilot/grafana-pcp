@@ -1,4 +1,4 @@
-import {sinon} from '../lib/common';
+import {sinon} from './common';
 import dateMath from 'app/core/utils/datemath';
 
 export default class TimeSrvStub {

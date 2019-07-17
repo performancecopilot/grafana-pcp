@@ -1,4 +1,4 @@
-///<reference path="../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
+///<reference path="../../../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 
 var _global = <any>(window);
 var beforeEach = _global.beforeEach;

@@ -14,7 +14,7 @@ const KEEP_POLLING_MS = 20000
 // age out time
 const OLDEST_DATA_MS = 5 * 60 * 1000
 
-export type Datapoint = [number | string, number, number?];
+export type Datapoint = [number | string | undefined, number, number?];
 
 export interface TimeSeriesResult {
     target: string;

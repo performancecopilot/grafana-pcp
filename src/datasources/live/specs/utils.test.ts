@@ -1,4 +1,4 @@
-import * as utils from "../../src/datasources/live/utils";
+import * as utils from "../utils";
 
 describe('utils', function() {
     describe('sharedPrefixLength', function() {
