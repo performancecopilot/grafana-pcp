@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Datapoint, TargetFormat, TimeSeriesResult, TableResult } from "./datasource";
+import { TimeSeriesResult, Datapoint, TableResult, TargetFormat } from './types';
 
 export default class Transformations {
 

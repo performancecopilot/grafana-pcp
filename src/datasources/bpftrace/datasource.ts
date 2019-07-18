@@ -1,9 +1,11 @@
 ///<reference path="../../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import _ from 'lodash';
-import Context from './context';
-import EndpointRegistry from './endpoint_registry';
-import { BPFtraceScript } from './script_registry';
-import Transformations from './transformations';
+import Context from '../lib/context';
+import EndpointRegistry from '../lib/endpoint_registry';
+import ScriptRegistry, { BPFtraceScript } from './script_registry';
+import Transformations from '../lib/transformations';
+import BPFtraceEndpoint from './bpftrace_endpoint';
+import { TargetFormat, TargetResult } from '../lib/types';
 
 // poll metric sources every X ms
 const POLL_INTERVAL_MS = 1000
@@ -13,27 +15,6 @@ const SCRIPT_SYNC_INTERVAL_MS = 2000
 const KEEP_POLLING_MS = 20000
 // age out time
 const OLDEST_DATA_MS = 5 * 60 * 1000
-
-export type Datapoint = [number | string | undefined, number, number?];
-
-export interface TimeSeriesResult {
-    target: string;
-    datapoints: Datapoint[]
-}
-
-export interface TableResult {
-    columns: any[]
-    rows: any[]
-    type: string
-}
-
-export type TargetResult = TimeSeriesResult | TableResult;
-
-export enum TargetFormat {
-    TimeSeries = "time_series",
-    Table = "table",
-    Heatmap = "heatmap",
-}
 
 export class PCPBPFtraceDatasource {
 
@@ -46,7 +27,7 @@ export class PCPBPFtraceDatasource {
     withCredentials: boolean;
     headers: any;
 
-    endpointRegistry: EndpointRegistry;
+    endpointRegistry: EndpointRegistry<BPFtraceEndpoint>;
     transformations: Transformations;
 
     /** @ngInject **/
@@ -144,6 +125,7 @@ export class PCPBPFtraceDatasource {
             let endpoint = this.endpointRegistry.find(url);
             if (!endpoint) {
                 endpoint = this.endpointRegistry.create(url, null, KEEP_POLLING_MS, OLDEST_DATA_MS);
+                endpoint.scriptRegistry = new ScriptRegistry(endpoint.context, endpoint.poller, KEEP_POLLING_MS);
             }
 
             let script: BPFtraceScript;

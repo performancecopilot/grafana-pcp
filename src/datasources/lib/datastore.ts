@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { Datapoint, TimeSeriesResult } from './datasource';
 import Context from './context';
+import { Datapoint, TimeSeriesResult } from './types';
 
 export default class DataStore {
     private store: Record<string, Record<string, Datapoint[]>> = {}; // store[metric][instance] = [val,ts,origVal]

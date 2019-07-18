@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import Context from "./context";
-import Poller from './poller';
+import Context from "../lib/context";
+import Poller from '../lib/poller';
 
 export interface BPFtraceScript {
     // from PMDA

@@ -1,17 +1,15 @@
 import Context from "./context";
 import DataStore from "./datastore";
-import ScriptRegistry from "./script_registry";
 import Poller from './poller';
 
-interface Endpoint {
+export interface Endpoint {
     context: Context;
-    scriptRegistry: ScriptRegistry;
     poller: Poller;
     datastore: DataStore;
 }
 
-export default class EndpointRegistry {
-    private endpoints: Record<string, Endpoint> = {};
+export default class EndpointRegistry<T extends Endpoint> {
+    private endpoints: Record<string, T> = {};
 
     private generateId(url: string, container: string | null = null) {
         return `${url}::${container}`;
@@ -27,9 +25,8 @@ export default class EndpointRegistry {
         const context = new Context(url, container);
         const datastore = new DataStore(context, oldestDataMs);
         const poller = new Poller(context, datastore, keepPollingMs);
-        const scriptRegistry = new ScriptRegistry(context, poller, keepPollingMs);
 
-        this.endpoints[id] = { context, datastore, poller, scriptRegistry };
+        this.endpoints[id] = { context, datastore, poller } as T;
         return this.endpoints[id];
     }
 

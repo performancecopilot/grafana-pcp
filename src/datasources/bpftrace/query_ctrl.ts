@@ -1,5 +1,5 @@
 import { QueryCtrl } from 'grafana/app/plugins/sdk';
-import { TargetFormat } from './datasource';
+import { TargetFormat } from '../lib/types';
 
 export class PCPBPFtraceDatasourceQueryCtrl extends QueryCtrl {
   static templateUrl = 'datasources/bpftrace/partials/query.editor.html';

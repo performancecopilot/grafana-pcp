@@ -1,5 +1,5 @@
 import Transformations from "../transformations";
-import { TargetFormat, TimeSeriesResult, TargetResult } from "../datasource";
+import { TimeSeriesResult, TargetFormat, TargetResult } from "../types";
 
 describe("Transformations", () => {
     let ctx: { templateSrv: any, transformations: Transformations } = {} as any;

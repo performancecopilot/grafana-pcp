@@ -1,32 +1,22 @@
-import Poller from "../poller";
-import DataStore from "../datastore";
+import Poller from "../../lib/poller";
+import DataStore from "../../lib/datastore";
 import ScriptRegistry, { BPFtraceScript } from "../script_registry";
-import Context from "../context";
 import * as dateMock from 'jest-date-mock';
+import * as Context_ from "../../lib/context";
 
-const mockContextFetchMetricMetadata = jest.fn();
-const mockContextFindMetricMetadata = jest.fn();
-const mockContextFetch = jest.fn();
-const mockContextStore = jest.fn();
-jest.mock('../context', () => {
-    return jest.fn().mockImplementation(() => {
-        return {
-            fetchMetricMetadata: mockContextFetchMetricMetadata,
-            findMetricMetadata: mockContextFindMetricMetadata,
-            fetch: mockContextFetch,
-            store: mockContextStore
-        };
-    });
-});
+const Context = Context_.default;
+const ContextMock: { fetchMetricMetadata: jest.Mock, findMetricMetadata: jest.Mock, fetch: jest.Mock, store: jest.Mock } = Context_ as any;
+jest.mock("../../lib/context");
 
 describe("ScriptRegistry", () => {
     let ctx: { context: any, datastore: DataStore, poller: Poller, scriptRegistry: ScriptRegistry } = {} as any;
 
     beforeEach(() => {
         (Context as any).mockClear();
-        mockContextFetchMetricMetadata.mockClear();
-        mockContextFetch.mockClear();
-        mockContextStore.mockClear();
+        ContextMock.fetchMetricMetadata.mockClear();
+        ContextMock.findMetricMetadata.mockClear();
+        ContextMock.fetch.mockClear();
+        ContextMock.store.mockClear();
         dateMock.clear();
 
         ctx.context = new Context("http://localhost:44323");
@@ -36,7 +26,7 @@ describe("ScriptRegistry", () => {
     });
 
     let registerScript = async () => {
-        mockContextFetch.mockReturnValueOnce({
+        ContextMock.fetch.mockReturnValueOnce({
             "timestamp": {
                 "s": 5,
                 "us": 2000
@@ -58,11 +48,11 @@ describe("ScriptRegistry", () => {
     it("should register a script only once", async () => {
         await registerScript();
         await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
-        expect(mockContextStore).toHaveBeenCalledTimes(1);
+        expect(ContextMock.store).toHaveBeenCalledTimes(1);
     });
 
     it("should register a failed script only once", async () => {
-        mockContextFetch.mockReturnValueOnce({
+        ContextMock.fetch.mockReturnValueOnce({
             "timestamp": {
                 "s": 5,
                 "us": 2000
@@ -90,14 +80,14 @@ describe("ScriptRegistry", () => {
             "status": "stopped",
             "output": "no variable found"
         });
-        expect(mockContextStore).toHaveBeenCalledTimes(1);
+        expect(ContextMock.store).toHaveBeenCalledTimes(1);
     });
 
     it("should handle a failed script, after the script started", async () => {
         await registerScript();
 
-        mockContextFindMetricMetadata.mockReturnValue({});
-        mockContextFetch.mockReturnValueOnce({
+        ContextMock.findMetricMetadata.mockReturnValue({});
+        ContextMock.fetch.mockReturnValueOnce({
             "timestamp": {
                 "s": 5,
                 "us": 2000
@@ -136,18 +126,18 @@ describe("ScriptRegistry", () => {
             "output": "syntax error",
             "exit_code": 1
         });
-        expect(mockContextStore).toHaveBeenCalledTimes(1);
+        expect(ContextMock.store).toHaveBeenCalledTimes(1);
     });
 
     it("should restart a stopped script", async () => {
         await registerScript();
 
         // sync state: set status to stopped, exit_code to 0
-        mockContextFindMetricMetadata
+        ContextMock.findMetricMetadata
             .mockReturnValueOnce({})
             .mockReturnValueOnce({})
             .mockReturnValueOnce({});
-        mockContextFetch.mockReturnValueOnce({
+        ContextMock.fetch.mockReturnValueOnce({
             "timestamp": {
                 "s": 5,
                 "us": 2000
@@ -181,7 +171,7 @@ describe("ScriptRegistry", () => {
         await ctx.scriptRegistry.syncState();
 
         // ensureActive should call register again, to restart the script
-        mockContextFetch.mockReturnValueOnce({
+        ContextMock.fetch.mockReturnValueOnce({
             "timestamp": {
                 "s": 5,
                 "us": 2000
@@ -200,34 +190,34 @@ describe("ScriptRegistry", () => {
         expect(script).toMatchObject({
             "status": "started"
         });
-        expect(mockContextStore).toHaveBeenCalledTimes(2);
+        expect(ContextMock.store).toHaveBeenCalledTimes(2);
     });
 
     it("should remove a script which doesn't exist on the PMDA anymore", async () => {
         await registerScript();
-        expect(mockContextFetch).toHaveBeenCalledTimes(1);
+        expect(ContextMock.fetch).toHaveBeenCalledTimes(1);
 
         // metric metadata for script23.status, .exit_code, .output
-        mockContextFindMetricMetadata.mockReturnValue(undefined)
+        ContextMock.findMetricMetadata.mockReturnValue(undefined)
 
         await ctx.scriptRegistry.syncState();
         // fetch wasn't called, as the script doesn't exist on the PMDA anymore
-        expect(mockContextFetch).toHaveBeenCalledTimes(1);
+        expect(ContextMock.fetch).toHaveBeenCalledTimes(1);
         await ctx.scriptRegistry.syncState();
 
         // fetch wasn't called, as there are no scripts registered anymore
-        expect(mockContextFetch).toHaveBeenCalledTimes(1);
+        expect(ContextMock.fetch).toHaveBeenCalledTimes(1);
     });
 
     it("should remove scripts which weren't requested in a specified time period", async () => {
         await registerScript();
         await registerScript();
-        expect(mockContextStore).toHaveBeenCalledTimes(1);
+        expect(ContextMock.store).toHaveBeenCalledTimes(1);
 
         dateMock.advanceBy(15000);
         ctx.scriptRegistry.cleanupExpiredScripts();
 
         await registerScript();
-        expect(mockContextStore).toHaveBeenCalledTimes(2);
+        expect(ContextMock.store).toHaveBeenCalledTimes(2);
     });
 });
