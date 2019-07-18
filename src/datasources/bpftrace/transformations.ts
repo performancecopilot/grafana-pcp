@@ -24,14 +24,14 @@ export default class Transformations {
         });
     }
 
-    transformToHistogram(targetResults: TimeSeriesResult[]) {
+    transformToHeatmap(targetResults: TimeSeriesResult[]) {
         for (const target of targetResults) {
             // target name is the upper bound
             target.target = target.target.split('-')[1];
 
             // round timestamps to one second - the heatmap panel calculates the x-axis size accordingly
             target.datapoints = target.datapoints.map(
-                (dataPoint: Datapoint) => [dataPoint[0], Math.ceil(dataPoint[1] / 1000) * 1000, dataPoint[2]]
+                (dataPoint: Datapoint) => [dataPoint[0], Math.floor(dataPoint[1] / 1000) * 1000]
             );
         }
         return targetResults;
@@ -72,7 +72,7 @@ export default class Transformations {
         if (target.format === TargetFormat.TimeSeries)
             return this.updateLabels(targetResults, target);
         else if (target.format === TargetFormat.Heatmap)
-            return this.transformToHistogram(targetResults);
+            return this.transformToHeatmap(targetResults);
         else if (target.format == TargetFormat.Table)
             return this.transformToTable(targetResults);
         else

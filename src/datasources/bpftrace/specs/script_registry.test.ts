@@ -94,31 +94,9 @@ describe("ScriptRegistry", () => {
     });
 
     it("should handle a failed script, after the script started", async () => {
-        mockContextFetch.mockReturnValueOnce({
-            "timestamp": {
-                "s": 5,
-                "us": 2000
-            },
-            "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.control.register",
-                "instances": [{
-                    "instance": -1,
-                    "value": '{"name": "script1", "vars": ["usecs"], "status": "starting", "output": ""}',
-                    "instanceName": null
-                }]
-            }]
-        });
+        await registerScript();
 
-        let script: BPFtraceScript;
-        script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
-        expect(script).toMatchObject({
-            "status": "starting"
-        });
-
-        mockContextFindMetricMetadata
-            .mockReturnValueOnce({})
-            .mockReturnValueOnce({});
+        mockContextFindMetricMetadata.mockReturnValue({});
         mockContextFetch.mockReturnValueOnce({
             "timestamp": {
                 "s": 5,
@@ -140,26 +118,29 @@ describe("ScriptRegistry", () => {
                     "value": "syntax error",
                     "instanceName": null
                 }]
+            }, {
+                "pmid": 633356299,
+                "name": "bpftrace.scripts.script1.exit_code",
+                "instances": [{
+                    "instance": -1,
+                    "value": 1,
+                    "instanceName": null
+                }]
             }]
         });
         await ctx.scriptRegistry.syncState();
 
-        script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
+        let script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
         expect(script).toMatchObject({
             "status": "stopped",
-            "output": "syntax error"
+            "output": "syntax error",
+            "exit_code": 1
         });
         expect(mockContextStore).toHaveBeenCalledTimes(1);
     });
 
     it("should restart a stopped script", async () => {
         await registerScript();
-
-        let script: BPFtraceScript;
-        script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
-        expect(script).toMatchObject({
-            "status": "started"
-        });
 
         // sync state: set status to stopped, exit_code to 0
         mockContextFindMetricMetadata
@@ -215,7 +196,7 @@ describe("ScriptRegistry", () => {
                 }]
             }]
         });
-        script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
+        let script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
         expect(script).toMatchObject({
             "status": "started"
         });
