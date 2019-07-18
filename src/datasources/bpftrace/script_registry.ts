@@ -3,10 +3,14 @@ import Context from "./context";
 import Poller from './poller';
 
 export interface BPFtraceScript {
-    name: string;
-    vars: string[];
+    // from PMDA
+    readonly name: string;
+    readonly vars: string[];
     status: string;
+    exit_code: number | null;
     output: string;
+
+    // additional properties by ScriptRegistry
     code: string;
     lastRequested: number;
 }
@@ -30,13 +34,15 @@ export default class ScriptRegistry {
             return this.failedScripts[code];
         }
 
-        const script = _.find(Object.values(this.scripts), (script: BPFtraceScript) => script.code === code);
-        if (script) {
-            script.lastRequested = new Date().getTime();
-            return script;
+        const script: BPFtraceScript = _.find(Object.values(this.scripts), (script: BPFtraceScript) => script.code === code);
+        if (!script || (script.status === "stopped" && script.exit_code == 0)) {
+            // if script doesn't exist or script got stopped gracefully (exit_code == 0)
+            // register script
+            return await this.register(code);
         }
         else {
-            return await this.register(code);
+            script.lastRequested = new Date().getTime();
+            return script;
         }
     }
 
@@ -69,7 +75,6 @@ export default class ScriptRegistry {
         if (script.status === "stopped") {
             // script failed due to no variables found, invalid name etc.
             this.failedScripts[code] = script;
-            throw { message: `BPFtrace error:\n\n${script.output}` };
         }
         else {
             this.scripts[script.name] = script;
@@ -81,7 +86,8 @@ export default class ScriptRegistry {
     }
 
     cleanupExpiredScripts() {
-        // clean up any not required metrics
+        // clean up any not required scripts
+        // otherwise they get synced forever
         const scriptExpiry = new Date().getTime() - this.keepPollingMs;
         this.scripts = _.pickBy(this.scripts, (script: BPFtraceScript) => script.lastRequested > scriptExpiry);
     }
@@ -91,18 +97,27 @@ export default class ScriptRegistry {
             return;
         }
 
+        // sync available metrics on the PMDA
         await this.context.fetchMetricMetadata("bpftrace");
 
         let metrics: string[] = [];
         for (const script of Object.values(this.scripts)) {
-            const status_metric = `bpftrace.scripts.${script.name}.status`;
-            const output_metric = `bpftrace.scripts.${script.name}.output`;
+            const state_metrics = [
+                `bpftrace.scripts.${script.name}.status`,
+                `bpftrace.scripts.${script.name}.exit_code`,
+                `bpftrace.scripts.${script.name}.output`
+            ];
 
-            if (this.context.findMetricMetadata(status_metric) && this.context.findMetricMetadata(output_metric)) {
-                metrics.push(status_metric, output_metric);
+            let found_all_metrics = true;
+            for (const state_metric of state_metrics) {
+                if (this.context.findMetricMetadata(state_metric))
+                    metrics.push(state_metric);
+                else
+                    found_all_metrics = false;
             }
+
             // don't remove scripts which are currently starting and don't have their metrics registered yet
-            else if (script.status !== "starting") {
+            if (!found_all_metrics && script.status !== "starting") {
                 console.info(`script ${script.name} is missing on the PMDA ${script.status}`);
                 const script_metrics = script.vars.map(var_ => `bpftrace.scripts.${script.name}.data.${var_}`);
                 delete this.scripts[script.name];
@@ -125,11 +140,8 @@ export default class ScriptRegistry {
                 // while waiting for values from the PMDA
                 continue;
             }
-            else if (metric_field === "status") {
-                script.status = metric.instances[0].value;
-            }
-            else if (metric_field === "output") {
-                script.output = metric.instances[0].value;
+            else if (["status", "exit_code", "output"].includes(metric_field)) {
+                script[metric_field] = metric.instances[0].value;
             }
         }
     }

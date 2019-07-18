@@ -149,8 +149,7 @@ export class PCPBPFtraceDatasource {
             let script: BPFtraceScript;
             try {
                 // ensureActive registers the script (if required)
-                // need to wait for the promise to resolve, because the error
-                // has to be returned in the query() promise to show up in the panel
+                // register is async
                 script = await endpoint.scriptRegistry.ensureActive(code);
 
                 if (script.status === "started" || script.status === "starting") {
