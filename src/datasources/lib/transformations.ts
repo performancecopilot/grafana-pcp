@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { TimeSeriesResult, Datapoint, TableResult, TargetFormat, HeatmapResult } from './types';
+import { TimeSeriesResult, Datapoint, TableResult, TargetFormat } from './types';
 
 export default class Transformations {
 
@@ -29,7 +29,7 @@ export default class Transformations {
             // target name is the upper bound
             const match = target.target.match(/^(.+?)\-(.+?)$/);
             if (match) {
-                (target as unknown as HeatmapResult).target = match[2] === "inf" ? Infinity : parseInt(match[2]);
+                target.target = match[2];
             }
 
             // round timestamps to one second - the heatmap panel calculates the x-axis size accordingly

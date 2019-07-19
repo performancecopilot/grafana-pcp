@@ -1,7 +1,7 @@
 import q from 'q';
 import { PCPBPFtraceDatasource } from "../datasource";
 import request from "request";
-import { TargetFormat, TargetResult, TimeSeriesResult, HeatmapResult } from '../../lib/types';
+import { TargetFormat, TargetResult, TimeSeriesResult } from '../../lib/types';
 
 function datasourceRequestHttp(options) {
     return new Promise((resolve, reject) => {
@@ -62,7 +62,7 @@ describe.skip("DataSource", () => {
         expect((result2.data[0] as TimeSeriesResult).datapoints).toHaveLength(1);
     });
 
-    it.skip("should do legend transformation for timeseries", async () => {
+    it("should do legend transformation for timeseries", async () => {
         const query = {
             range: {
                 from: new Date(0),
@@ -91,7 +91,7 @@ describe.skip("DataSource", () => {
         expect((result2.data[0] as TimeSeriesResult).target).toBe("a bpftrace.scripts.scriptX.data.scalar b");
     });
 
-    it.skip("should query heatmaps", async () => {
+    it("should query heatmaps", async () => {
         const query = {
             range: {
                 from: new Date(0),
@@ -113,7 +113,7 @@ describe.skip("DataSource", () => {
 
         const result2 = await ctx.datasource.query(query);
         expect(result2.data.length).toBeGreaterThan(0);
-        expect((result2.data[0] as HeatmapResult).datapoints).toHaveLength(1);
-        expect((result2.data[0] as HeatmapResult).target).toEqual(expect.any(Number));
+        expect((result2.data[0] as TimeSeriesResult).datapoints).toHaveLength(1);
+        expect((result2.data[0] as TimeSeriesResult).target).not.toContain("-");
     });
 });

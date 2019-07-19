@@ -42,6 +42,7 @@ module.exports = {
       {from: '**/*.html', to: '.'},
       {from: '**/img/*', to: '.'},
       {from: '**/css/*', to: '.'},
+      {from: 'dashboards/*', to: '.'},
     ]),
   ],
   resolve: {

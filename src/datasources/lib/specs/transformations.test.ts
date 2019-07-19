@@ -45,11 +45,11 @@ describe("Transformations", () => {
 
         const result = ctx.transformations.transform(targetResults, target);
         const expected: TargetResult[] = [
-            { target: -1, datapoints: [[1, 1000]] },
-            { target: 3, datapoints: [[1, 1000]] },
-            { target: 7, datapoints: [[2, 2000]] },
-            { target: 15, datapoints: [[3, 5000]] },
-            { target: Infinity, datapoints: [[3, 5000]] }
+            { target: "-1", datapoints: [[1, 1000]] },
+            { target: "3", datapoints: [[1, 1000]] },
+            { target: "7", datapoints: [[2, 2000]] },
+            { target: "15", datapoints: [[3, 5000]] },
+            { target: "inf", datapoints: [[3, 5000]] }
         ];
         expect(result).toStrictEqual(expected);
     });
