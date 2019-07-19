@@ -155,22 +155,17 @@ export class PCPBPFtraceDatasource {
                 }
             }
             catch (error) {
-                // catch all exceptions and handle them gracefully (by adding the refId of the panel)
-                this.handleError(error, target);
-                continue;
+                // catch all exceptions and add the refId of the panel
+                error.refId = target.refId;
+                throw error;
             }
         }
 
         return { data: targetResults };
     }
 
-    handleError(error: any, target: any) {
-        error.refId = target.refId;
-        throw error;
-    }
-
     async testDatasource() {
-        let context = new Context(this.url, null);
+        let context = new Context(this.url);
         try {
             await context.createContext();
             return { status: 'success', message: "Data source is working", title: "Success" };

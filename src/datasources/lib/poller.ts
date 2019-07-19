@@ -21,6 +21,8 @@ export default class Poller {
     ensurePolling(metrics: string[]) {
         const now = new Date().getTime()
         for (const metric of metrics) {
+            if (!this.context.findMetricMetadata(metric))
+                throw { message: `Cannot find metric ${metric} on PMDA.` };
             this.requestedMetrics[metric] = now
         }
     }

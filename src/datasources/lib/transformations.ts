@@ -11,8 +11,10 @@ export default class Transformations {
             return target;
         }
         else {
+            const targetSpl = target.split('.');
             let vars = {
-                instance: { value: target }
+                instance: { value: target },
+                metric0: { value: targetSpl[targetSpl.length - 1] }
             };
             return this.templateSrv.replace(legendFormat, vars);
         }
@@ -79,7 +81,7 @@ export default class Transformations {
         else if (target.format == TargetFormat.Table)
             return this.transformToTable(targetResults);
         else
-            throw { message: `Invalid target format, possible options: ${TargetFormat.TimeSeries}, ${TargetFormat.Heatmap}, ${TargetFormat.Table}` };
+            throw { message: `Invalid target format '${target.format}', possible options: ${TargetFormat.TimeSeries}, ${TargetFormat.Heatmap}, ${TargetFormat.Table}` };
     }
 
 

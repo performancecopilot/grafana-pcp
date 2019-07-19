@@ -27,7 +27,8 @@ describe("Transformations", () => {
             target: "a abc b",
             datapoints: []
         }];
-        expect(ctx.templateSrv.replace).toHaveBeenCalledWith("a $instance b", { instance: { value: "abc" } });
+        expect(ctx.templateSrv.replace.mock.calls[0][0]).toBe("a $instance b");
+        expect(ctx.templateSrv.replace.mock.calls[0][1]).toMatchObject({ instance: { value: "abc" } });
         expect(result).toStrictEqual(expected);
     });
 

@@ -11,18 +11,20 @@ export interface Endpoint {
 export default class EndpointRegistry<T extends Endpoint> {
     private endpoints: Record<string, T> = {};
 
-    private generateId(url: string, container: string | null = null) {
+    private generateId(url: string, container?: string) {
+        if (!container)
+            container = "";
         return `${url}::${container}`;
     }
 
-    find(url: string, container: string | null = null) {
+    find(url: string, container?: string) {
         const id = this.generateId(url, container);
         return this.endpoints[id];
     }
 
     create(url: string, container: string | null, keepPollingMs: number, oldestDataMs: number) {
-        const id = this.generateId(url, container);
-        const context = new Context(url, container);
+        const id = this.generateId(url, container!);
+        const context = new Context(url, container!);
         const datastore = new DataStore(context, oldestDataMs);
         const poller = new Poller(context, datastore, keepPollingMs);
 

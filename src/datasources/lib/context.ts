@@ -16,7 +16,7 @@ export default class Context {
     private indomCache: Record<string, Record<number, string>> = {}; // indomCache[metric][instance_id] = instance_name
     private d: string = '';
 
-    constructor(readonly url: string, readonly container: string | null = null) {
+    constructor(readonly url: string, readonly container?: string) {
         // if port != 44322, use pmwebd API with underscore
         // TODO: remove once transition to pmproxy is done
         if (!url.includes(":44322")) {
@@ -58,7 +58,7 @@ export default class Context {
         try {
             return await fn();
         } catch (error) {
-            if (error.data && error.data.includes("unknown context identifier")) {
+            if (_.isString(error.data) && (error.data.includes("12376") || error.data.includes("unknown context identifier"))) {
                 console.debug("context expired, creating new context...");
                 await this.createContext();
                 return await fn();
@@ -69,7 +69,7 @@ export default class Context {
         }
     }
 
-    async fetchMetricMetadata(prefix: string | null) {
+    async fetchMetricMetadata(prefix?: string) {
         let params: any = {};
         if (prefix)
             params.prefix = prefix;
@@ -77,7 +77,8 @@ export default class Context {
         const metrics = await this.ensureContext(async () => {
             // TODO: use this.url again
             const response = await Context.datasourceRequest({
-                url: `http://localhost:44322/pmapi/metric`,
+                url: `${this.url}/pmapi/${this.context}/_metric`,
+                //url: `http://localhost:44322/pmapi/metric`,
                 params
             });
             return response.data.metrics;
@@ -91,6 +92,10 @@ export default class Context {
 
     findMetricMetadata(metric: string) {
         return this.metricMetadataCache[metric];
+    }
+
+    getAllMetricNames() {
+        return Object.keys(this.metricMetadataCache);
     }
 
     async refreshIndoms(metric: string) {

@@ -47,6 +47,7 @@ describe("Poller", () => {
     });
 
     it("should add and remove metrics to poll", async () => {
+        ctx.context.findMetricMetadata.mockReturnValue({});
         ctx.poller.ensurePolling(["metric1", "metric2", "metric3"]);
         ctx.poller.removeMetricsFromPolling(["metric2", "metric3"]);
         await ctx.poller.poll();
@@ -55,6 +56,7 @@ describe("Poller", () => {
     });
 
     it("should remove metrics which weren't requested in a specified time period", async () => {
+        ctx.context.findMetricMetadata.mockReturnValue({});
         ctx.poller.ensurePolling(["metric1", "metric2", "metric3"]);
         dateMock.advanceBy(7000);
         ctx.poller.ensurePolling(["metric1"]);
