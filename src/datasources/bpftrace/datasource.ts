@@ -7,15 +7,6 @@ import Transformations from '../lib/transformations';
 import BPFtraceEndpoint from './bpftrace_endpoint';
 import { TargetFormat, TargetResult } from '../lib/types';
 
-// poll metric sources every X ms
-const POLL_INTERVAL_MS = 1000
-// script sync interval
-const SCRIPT_SYNC_INTERVAL_MS = 2000
-// we will keep polling a metric for up to X ms after it was last requested
-const KEEP_POLLING_MS = 20000
-// age out time
-const OLDEST_DATA_MS = 5 * 60 * 1000
-
 export class PCPBPFtraceDatasource {
 
     name: string;
@@ -26,6 +17,11 @@ export class PCPBPFtraceDatasource {
     variableSrv: any;
     withCredentials: boolean;
     headers: any;
+
+    pollIntervalMs: number; // poll metric sources every X ms
+    scriptSyncIntervalMs: number; // // script sync interval
+    keepPollingMs: number; // we will keep polling a metric for up to X ms after it was last requested
+    olderstDataMs: number; // // age out time
 
     endpointRegistry: EndpointRegistry<BPFtraceEndpoint>;
     transformations: Transformations;
@@ -44,26 +40,39 @@ export class PCPBPFtraceDatasource {
             this.headers['Authorization'] = instanceSettings.basicAuth;
         }
 
+
+        this.pollIntervalMs = instanceSettings.jsonData.pollIntervalMs || 1000;
+        this.scriptSyncIntervalMs = instanceSettings.jsonData.scriptSyncIntervalMs || 2000;
+        this.keepPollingMs = instanceSettings.jsonData.keepPollingMs || 20000;
+        this.olderstDataMs = instanceSettings.jsonData.olderstDataMs || 5 * 60 * 1000;
+
         Context.datasourceRequest = this.doRequest.bind(this);
         this.endpointRegistry = new EndpointRegistry();
         this.transformations = new Transformations(this.templateSrv);
-        setInterval(this.doPollAll.bind(this), POLL_INTERVAL_MS);
-        setInterval(this.syncScriptStates.bind(this), SCRIPT_SYNC_INTERVAL_MS);
+
+        if (this.pollIntervalMs > 0)
+            setInterval(this.doPollAll.bind(this), this.pollIntervalMs);
+        if (this.scriptSyncIntervalMs > 0)
+            setInterval(this.syncScriptStates.bind(this), this.scriptSyncIntervalMs);
     }
 
     doPollAll() {
+        let promises: Promise<void>[] = [];
         for (const endpoint of this.endpointRegistry.list()) {
             endpoint.datastore.cleanExpiredMetrics();
             endpoint.poller.cleanupExpiredMetrics();
-            endpoint.poller.poll(); // poll() is async, but we don't wait for a result
+            promises.push(endpoint.poller.poll());
         }
+        return Promise.all(promises);
     }
 
     syncScriptStates() {
+        let promises: Promise<void>[] = [];
         for (const endpoint of this.endpointRegistry.list()) {
             endpoint.scriptRegistry.cleanupExpiredScripts();
-            endpoint.scriptRegistry.syncState();
+            promises.push(endpoint.scriptRegistry.syncState());
         }
+        return Promise.all(promises);
     }
 
     getMetricNameForMetricType(context: Context, script: BPFtraceScript, metrictype: string) {
@@ -124,8 +133,8 @@ export class PCPBPFtraceDatasource {
 
             let endpoint = this.endpointRegistry.find(url);
             if (!endpoint) {
-                endpoint = this.endpointRegistry.create(url, null, KEEP_POLLING_MS, OLDEST_DATA_MS);
-                endpoint.scriptRegistry = new ScriptRegistry(endpoint.context, endpoint.poller, KEEP_POLLING_MS);
+                endpoint = this.endpointRegistry.create(url, null, this.keepPollingMs, this.olderstDataMs);
+                endpoint.scriptRegistry = new ScriptRegistry(endpoint.context, endpoint.poller, this.keepPollingMs);
             }
 
             let script: BPFtraceScript;

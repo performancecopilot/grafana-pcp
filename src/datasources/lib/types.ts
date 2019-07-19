@@ -5,13 +5,18 @@ export interface TimeSeriesResult {
     datapoints: Datapoint[]
 }
 
+export interface HeatmapResult {
+    target: number;
+    datapoints: Datapoint[]
+}
+
 export interface TableResult {
     columns: any[]
     rows: any[]
     type: string
 }
 
-export type TargetResult = TimeSeriesResult | TableResult;
+export type TargetResult = TimeSeriesResult | HeatmapResult | TableResult;
 
 export enum TargetFormat {
     TimeSeries = "time_series",

@@ -33,9 +33,11 @@ describe("Transformations", () => {
 
     it("should transform histograms", () => {
         const targetResults: TimeSeriesResult[] = [
+            { target: "-inf--1", datapoints: [[1, 1400]] },
             { target: "2-3", datapoints: [[1, 1400]] },
             { target: "4-7", datapoints: [[2, 2300]] },
-            { target: "8-15", datapoints: [[3, 5000]] }
+            { target: "8-15", datapoints: [[3, 5000]] },
+            { target: "8-inf", datapoints: [[3, 5000]] },
         ];
         const target: any = {
             format: TargetFormat.Heatmap,
@@ -43,9 +45,11 @@ describe("Transformations", () => {
 
         const result = ctx.transformations.transform(targetResults, target);
         const expected: TargetResult[] = [
-            { target: "3", datapoints: [[1, 1000]] },
-            { target: "7", datapoints: [[2, 2000]] },
-            { target: "15", datapoints: [[3, 5000]] }
+            { target: -1, datapoints: [[1, 1000]] },
+            { target: 3, datapoints: [[1, 1000]] },
+            { target: 7, datapoints: [[2, 2000]] },
+            { target: 15, datapoints: [[3, 5000]] },
+            { target: Infinity, datapoints: [[3, 5000]] }
         ];
         expect(result).toStrictEqual(expected);
     });

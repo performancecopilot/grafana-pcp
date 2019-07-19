@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { TimeSeriesResult, Datapoint, TableResult, TargetFormat } from './types';
+import { TimeSeriesResult, Datapoint, TableResult, TargetFormat, HeatmapResult } from './types';
 
 export default class Transformations {
 
@@ -27,7 +27,10 @@ export default class Transformations {
     transformToHeatmap(targetResults: TimeSeriesResult[]) {
         for (const target of targetResults) {
             // target name is the upper bound
-            target.target = target.target.split('-')[1];
+            const match = target.target.match(/^(.+?)\-(.+?)$/);
+            if (match) {
+                (target as unknown as HeatmapResult).target = match[2] === "inf" ? Infinity : parseInt(match[2]);
+            }
 
             // round timestamps to one second - the heatmap panel calculates the x-axis size accordingly
             target.datapoints = target.datapoints.map(
@@ -39,7 +42,7 @@ export default class Transformations {
 
     transformToTable(targetResults: TimeSeriesResult[]) {
         let tableText = "";
-        if (targetResults.length > 0)
+        if (targetResults.length > 0 && targetResults[0].datapoints.length > 0)
             tableText = targetResults[0].datapoints[0][0] as string;
 
         let table: TableResult = { columns: [], rows: [], type: 'table' };
@@ -76,7 +79,7 @@ export default class Transformations {
         else if (target.format == TargetFormat.Table)
             return this.transformToTable(targetResults);
         else
-            throw { message: "Invalid target format" };
+            throw { message: `Invalid target format, possible options: ${TargetFormat.TimeSeries}, ${TargetFormat.Heatmap}, ${TargetFormat.Table}` };
     }
 
 
