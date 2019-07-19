@@ -4,6 +4,10 @@ import { Parser } from 'expr-eval'
 import Poller from './poller'
 import * as utils from './utils'
 import * as extensions from './extensions'
+import { TargetResult } from "../lib/types";
+import EndpointRegistry, { Endpoint } from "../lib/endpoint_registry";
+import Transformations from "../lib/transformations";
+import Context from "../lib/context";
 
 export class PcpLiveDatasource {
 
@@ -19,10 +23,18 @@ export class PcpLiveDatasource {
   poller: Poller;
   container_name_filter: any;
 
+  pollIntervalMs: number; // poll metric sources every X ms
+  keepPollingMs: number; // we will keep polling a metric for up to X ms after it was last requested
+  olderstDataMs: number; // age out time
+
+  endpointRegistry: EndpointRegistry<Endpoint>;
+  transformations: Transformations;
+
   /** @ngInject **/
   constructor(instanceSettings, $q, backendSrv, templateSrv, variableSrv) {
     this.instanceSettings = instanceSettings;
     this.name = instanceSettings.name;
+    this.url = instanceSettings.url;
     this.q = $q;
     this.backendSrv = backendSrv;
     this.templateSrv = templateSrv;
@@ -33,10 +45,32 @@ export class PcpLiveDatasource {
       this.headers['Authorization'] = instanceSettings.basicAuth;
     }
 
-    this.poller = new Poller(backendSrv);
+    //this.poller = new Poller(backendSrv);
 
     const UUID_REGEX = /[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/
     this.container_name_filter = name => true // name => name.match(UUID_REGEX)
+
+
+    this.pollIntervalMs = instanceSettings.jsonData.pollIntervalMs || 1000;
+    this.keepPollingMs = instanceSettings.jsonData.keepPollingMs || 20000;
+    this.olderstDataMs = instanceSettings.jsonData.olderstDataMs || 5 * 60 * 1000;
+
+    Context.datasourceRequest = this.doRequest.bind(this);
+    this.endpointRegistry = new EndpointRegistry();
+    this.transformations = new Transformations(this.templateSrv);
+
+    if (this.pollIntervalMs > 0)
+      setInterval(this.doPollAll.bind(this), this.pollIntervalMs);
+  }
+
+  doPollAll() {
+    let promises: Promise<void>[] = [];
+    for (const endpoint of this.endpointRegistry.list()) {
+        endpoint.datastore.cleanExpiredMetrics();
+        endpoint.poller.cleanupExpiredMetrics();
+        promises.push(endpoint.poller.poll());
+    }
+    return Promise.all(promises);
   }
 
   buildQueryTargets(options) {
@@ -167,23 +201,23 @@ export class PcpLiveDatasource {
     }
 
     async testDatasource() {
-        const metrics = await this.poller.getMetrics(this.getConfiguredEndpoint(), ["pmcd.version"])
-
-        if (metrics) {
+        let context = new Context(this.url);
+        try {
+            await context.createContext();
             return {
-                status: 'success',
-                title: 'Success',
-                message: 'Data source configured successfully. If you wish to override the PCP endpoint for specific dashboards, '+
-                         'you can use the  _host, _port, _proto, (and optionally _container) variables.'
-            }
+              status: 'success',
+              title: 'Success',
+              message: 'Data source configured successfully. If you wish to override the PCP endpoint for specific dashboards, '+
+                       'you can use the  _host, _port, _proto, (and optionally _container) variables.'
+          }
         }
-        else {
-            return {
-                status: 'error',
-                title: 'Additional configuration required',
-                message: 'Could not connect to the specified url. To use this data source, '+
-                         'please configure the _host, _port, _proto, (and optionally _container) dashboard variables.',
-            }
+        catch (error) {
+          return {
+            status: 'error',
+            title: 'Additional configuration required',
+            message: 'Could not connect to the specified url. To use this data source, '+
+                     'please configure the _host, _port, _proto, (and optionally _container) dashboard variables.',
+           }
         }
     }
 
@@ -196,25 +230,85 @@ export class PcpLiveDatasource {
      * also used by the templating engine (dashboard variables with type = query)
      */
     async metricFindQuery(query) {
-        let target = this.templateSrv.replace(query, null, 'regex');
+        let endpoint = await this.findOrCreateEndpoint();
 
         // if the query is for containers.name, return the containers
         // otherwise, default to providing a list of all metrics
-        if (target === 'containers.name') {
-            const metricsResponse = await this.poller.getMetrics(this.getConfiguredEndpoint(), [query])
-            return metricsResponse.data.values[0].instances
+        if (query === 'containers.name') {
+          const metricsResponse = await endpoint.context.fetch(["containers.name"]);
+            return metricsResponse.values[0].instances
                 .map(iv => iv.value)
                 .filter(this.container_name_filter)
                 .map(i => ({ text: i, value: i }))
         } else {
-            const filteredMetrics = this.poller.metricNames
-                .filter(mn => !target || mn.includes(target))
+            const filteredMetrics = endpoint.context.getAllMetricNames()
+                .filter(mn => !query || mn.includes(query))
             return filteredMetrics
                 .map(mn => ({ text: mn, value: mn }))
         }
     }
 
+    async findOrCreateEndpoint() {
+      const dashboardVariables = this.getVariables();
+
+      // TODO: also allow overriding of url in query editor
+      let url: string;
+      if (dashboardVariables.url && dashboardVariables.url.value.length > 0)
+          url = dashboardVariables.url.value;
+      else
+          url = this.url;
+
+      let endpoint = this.endpointRegistry.find(url);
+      if (!endpoint) {
+          endpoint = this.endpointRegistry.create(url, null, this.keepPollingMs, this.olderstDataMs);
+          await endpoint.context.fetchMetricMetadata(); // TODO: where?
+      }
+      return endpoint;
+    }
+
     async query(options) {
+        const query = options;
+        if (query.targets.length == 0) {
+            return { data: [] };
+        }
+
+        const targetResults: TargetResult[] = [];
+        for (const target of query.targets) {
+            if (target.hide || !target.target)
+                continue;
+
+            // TODO: remove me: workaround for old dashboards
+            if (!target.expr)
+              target.expr = target.target;
+            if (!target.format && (target.type === "timeseries" || target.type === "timeserie"))
+              target.format = "time_series";
+
+            // TODO: allow templating
+            const expr:string = target.expr.trim();
+            if (expr.length === 0)
+                continue;
+
+            let endpoint = await this.findOrCreateEndpoint();
+            try {
+                //const parser = new Parser();
+                //const expressions = parser.parse(expr);
+                //const metricsToPoll = expressions.variables({ withMembers: true });
+
+                endpoint.poller.ensurePolling([expr]);
+                let result = endpoint.datastore.queryTimeSeries([expr], options.range.from.valueOf(), options.range.to.valueOf());
+                targetResults.push(...this.transformations.transform(result, target));
+            }
+            catch (error) {
+                // catch all exceptions and add the refId of the panel
+                error.refId = target.refId;
+                throw error;
+            }
+        }
+
+        return { data: targetResults };
+
+/*
+
         // TODO all this is generic boilerplate, we can probably get rid of it
         // by cutting down to only what we need
         const query = options
@@ -357,7 +451,7 @@ export class PcpLiveDatasource {
 
         return {
             data: output
-        }
+        }*/
     }
 //////////
 }

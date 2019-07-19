@@ -1,29 +1,33 @@
-<query-editor-row query-ctrl="ctrl" class="generic-datasource-query-row" has-text-edit-mode="true">
+<query-editor-row query-ctrl="ctrl" can-collapse="true" has-text-edit-mode="false">
+  <gf-form-dropdown model="ctrl.target.expr" allow-custom="true" lookup-text="true"
+    get-options="ctrl.getAllMetrics($query)" on-change="ctrl.refreshMetricData()">
+  </gf-form-dropdown>
   <div class="gf-form-inline">
-    <div class="gf-form max-width-8">
-      <select class="gf-form-input" ng-model="ctrl.target.type" ng-options="f as f for f in ['table', 'timeserie']"></select>
-    </div>
-
-    <div class="gf-form" ng-if="ctrl.target.rawQuery">
-      Expression:
-      <textarea class="gf-form-input" rows="5" ng-model="ctrl.target.target" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
-      Name:
-      <textarea class="gf-form-input" rows="1" ng-model="ctrl.target.displayName" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
-    </div>
-
-    <div ng-if="!ctrl.target.rawQuery">
-      <div class="gf-form">
-        <gf-form-dropdown model="ctrl.target.target"
-          allow-custom="true"
-          lookup-text="true"
-          get-options="ctrl.getOptions($query)"
-          on-change="ctrl.onChangeInternal()">
-      </gf-form-dropdown>
-      </div>
-    </div>
-
     <div class="gf-form gf-form--grow">
-      <div class="gf-form-label gf-form-label--grow"></div>
+      <code-editor content="ctrl.target.expr" on-change="ctrl.refreshMetricData()">
+      </code-editor>
+    </div>
+  </div>
+
+  <div class="gf-form-inline">
+    <div class="gf-form">
+      <label class="gf-form-label">Legend</label>
+      <input type="text" class="gf-form-input gf-form-input--has-help-icon" ng-model="ctrl.target.legendFormat"
+        spellcheck='false' placeholder="legend format" data-min-length=0 data-items=1000 ng-model-onblur
+        ng-change="ctrl.refreshMetricData()">
+      </input>
+      <info-popover mode="right-absolute">
+        Controls the name of the time series, using name or pattern. For example
+        <span ng-non-bindable>${instance}</span> will be replaced with the instance name.
+      </info-popover>
+    </div>
+
+    <div class="gf-form">
+      <label class="gf-form-label width-5">Format</label>
+      <div class="gf-form-select-wrapper width-8">
+        <select class="gf-form-input gf-size-auto" ng-model="ctrl.target.format"
+          ng-options="f.value as f.text for f in ctrl.formats" ng-change="ctrl.refresh()"></select>
+      </div>
     </div>
   </div>
 </query-editor-row>

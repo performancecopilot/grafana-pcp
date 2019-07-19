@@ -1,28 +1,39 @@
 import { QueryCtrl } from 'grafana/app/plugins/sdk';
+import { TargetFormat } from '../lib/types';
 
 export class GenericDatasourceQueryCtrl extends QueryCtrl {
-  static templateUrl = 'datasources/live/partials/query.editor.html'
+    static templateUrl = 'datasources/live/partials/query.editor.html'
 
-  scope: any;
+    formats: any = [];
 
-  constructor($scope, $injector)  {
-    super($scope, $injector);
+    constructor($scope, $injector) {
+        super($scope, $injector);
 
-    this.scope = $scope;
-    this.target.target = this.target.target || 'select metric';
-    this.target.displayName = this.target.displayName || this.target.target;
-    this.target.type = this.target.type || 'timeserie';
-  }
+        // TODO: remove workaround
+        this.target.expr = this.target.expr || this.target.target || "";
+        this.target.format = this.target.format || this.getDefaultFormat();
 
-  getOptions(query) {
-    return this.datasource.metricFindQuery(query || '');
-  }
+        this.formats = [
+            { text: "Time series", value: TargetFormat.TimeSeries },
+            { text: "Table", value: TargetFormat.Table },
+            { text: "Heatmap", value: TargetFormat.Heatmap },
+        ];
+    }
 
-  toggleEditorMode() {
-    this.target.rawQuery = !this.target.rawQuery;
-  }
+    getDefaultFormat() {
+        if (this.panelCtrl.panel.type === 'table') {
+            return TargetFormat.Table;
+        } else if (this.panelCtrl.panel.type === 'heatmap') {
+            return TargetFormat.Heatmap;
+        }
+        return TargetFormat.TimeSeries;
+    }
 
-  onChangeInternal() {
-    this.panelCtrl.refresh(); // Asks the panel to refresh data.
-  }
+    getAllMetrics(query) {
+        return this.datasource.metricFindQuery(query || '');
+    }
+
+    refreshMetricData() {
+        this.panelCtrl.refresh(); // Asks the panel to refresh data.
+    }
 }

@@ -21,7 +21,7 @@ export class PCPBPFtraceDatasource {
     pollIntervalMs: number; // poll metric sources every X ms
     scriptSyncIntervalMs: number; // // script sync interval
     keepPollingMs: number; // we will keep polling a metric for up to X ms after it was last requested
-    olderstDataMs: number; // // age out time
+    olderstDataMs: number; // age out time
 
     endpointRegistry: EndpointRegistry<BPFtraceEndpoint>;
     transformations: Transformations;
