@@ -1,0 +1,30 @@
+    for (let r=0; r < results.length; r++) {
+    	if (query.targets[r].legend)
+	    results[r].target = query.targets[r].legend; // TODO template subs
+    }
+
+    //
+    for (let r=0; r < results.length; r++) {
+      if (query.targets[r].isCounter) {
+	// Client side rate conversion for counters
+	console.log("RATE CONVERTING query["+r+"] target="+query.targets[r].target);
+	let pd = results[r].datapoints[0][0];
+	let pt = results[r].datapoints[0][1];
+	for (let i=1; i < results[r].datapoints.length; i++) {
+	  let d = results[r].datapoints[i][0];
+	  let t = results[r].datapoints[i][1];
+	  // timestamps are in ms, we dont know the data units though.
+	  // For now, we assume count/second
+	  // TODO, use correct scaling from the metric metadata
+	  let delta = (t - pt) / 1000.0; // time delta in seconds
+	  if (delta > 0.0)
+	      results[r].datapoints[i][0] = (d - pd) / delta;
+	    else
+	      results[r].datapoints[i][0] = null; // undefined
+	  pd = d;
+	  pt = t;
+	  // console.log("RESULTS " +results[r].target +"[" +r +"][" +i +"][" +d +"," +t +"] = " + results[r].datapoints[i][0]);
+	}
+	results[r].datapoints[0][0] = null; // no previous sample
+      }
+    }

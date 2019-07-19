@@ -39,10 +39,8 @@ export class PCPDatasource {
             return this.q.when({ data: [] });
         }
 
-        console.log("DEBUG ENTIRE query=" + JSON.stringify(query));
         for (let i = 0; i < query.targets.length; i++) {
             queries.push(query.targets[i]);
-            console.log("DEBUG query.targets[" + i + "]=" + JSON.stringify(query.targets[i]));
         }
 
         if (this.templateSrv.getAdhocFilters) {
@@ -81,20 +79,32 @@ export class PCPDatasource {
 
         const start = Math.round(query.range.from / 1000);
         const finish = Math.round(query.range.to / 1000);
+	const samples = Math.round((query.range.to - query.range.from) / query.intervalMs);
+	const interval = query.interval;
+	const refId = query.targets[0].refId; // TODO multiple targets
+	const mdp = query.maxDataPoints;
+	let url = `${this.url}/series/values?series=${seriesResults.join(',')}&refId=${refId}&start=${start}&samples=${samples}&interval=${interval}&maxdatapoints=${mdp}&zone=${tzparam}`;
+
+	console.log("DEBUG URL " + JSON.stringify(url));
+
         let metricValues = await this.doRequest({
-            url: `${this.url}/series/values?series=${seriesResults.join(',')}&start=${start}&finish=${finish}&zone=${tzparam}`
+            url: url
         });
         metricValues = metricValues.data;
 
         // TODO: multiple targets and instances
         let target = {
+	    // TODO subsitutions in target for query.targets[r].legend, template {{variable}} and {{label}}
             target: query.targets[0].target,
-            datapoints: metricValues.map(metricValue => [parseInt(metricValue.value), metricValue.timestamp])
+            datapoints: metricValues.map(metricValue => [parseFloat(metricValue.value), this.round(metricValue.timestamp,1)])
         }
 
-        return {
+	let ret = {
             data: [target]
         };
+
+        console.log("DEBUG returning " + JSON.stringify(ret));
+        return ret;
 
         /*
         console.log("DEBUG RESULTS len=" + results.length + " value=" + JSON.stringify(results));
@@ -132,6 +142,11 @@ export class PCPDatasource {
 
         return { data: results }
         */
+    }
+
+    round(value, precision) {
+	var multiplier = Math.pow(10, precision || 0);
+	return Math.round(value * multiplier) / multiplier;
     }
 
     fetchURL(url: string) {
