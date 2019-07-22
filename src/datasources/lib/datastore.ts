@@ -10,7 +10,7 @@ export default class DataStore {
     constructor(private context: Context, private oldestDataMs: number) {
     }
 
-    ingestCounterMetric(instanceStore: StoredDatapoint[], instance: any, pollTimeEpochMs: number) {
+    private ingestCounterMetric(instanceStore: StoredDatapoint[], instance: any, pollTimeEpochMs: number) {
         // first value: store it as undefined, to be filtered by queryTimeSeries()
         // subsequent values: perform rate conversation
         if (instanceStore.length > 0) {
@@ -23,7 +23,7 @@ export default class DataStore {
         }
     }
 
-    ingestMetric(metricStore: Record<string, StoredDatapoint[]>, metric: any, pollTimeEpochMs: number) {
+    private ingestMetric(metricStore: Record<string, StoredDatapoint[]>, metric: any, pollTimeEpochMs: number) {
         const metadata = this.context.findMetricMetadata(metric.name);
         if (!metadata) {
             console.info(`skipping ingestion of ${metric.name}: metadata not available`);

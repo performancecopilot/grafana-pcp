@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { synchronized } from './utils';
 
 interface MetricMetadata {
     name: string,
@@ -24,7 +25,8 @@ export default class Context {
         }
     }
 
-    private async _createContext() {
+    @synchronized
+    async createContext() {
         let contextUrl = `${this.url}/pmapi/context?hostspec=127.0.0.1&polltimeout=30`;
 
         const contextResponse = await Context.datasourceRequest({ url: contextUrl });
@@ -38,19 +40,7 @@ export default class Context {
         }
     }
 
-    // this method ensures that only one context request will be sent at a time
-    // if there are 2 simultaneous calls to createContext(), the second call
-    // will return the promise of the first call
-    async createContext() {
-        if (this.contextPromise)
-            return this.contextPromise;
-
-        this.contextPromise = this._createContext();
-        await this.contextPromise;
-        this.contextPromise = null;
-    }
-
-    async ensureContext(fn: () => any) {
+    private async ensureContext(fn: () => any) {
         if (!this.context) {
             await this.createContext();
         }
@@ -97,7 +87,7 @@ export default class Context {
         return Object.keys(this.metricMetadataCache);
     }
 
-    async refreshIndoms(metric: string) {
+    private async refreshIndoms(metric: string) {
         const indoms = await this.ensureContext(async () => {
             const response = await Context.datasourceRequest({
                 url: `${this.url}/pmapi/${this.context}/${this.d}indom`,

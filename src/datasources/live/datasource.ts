@@ -8,6 +8,8 @@ import { TargetFormat, PanelData } from "../lib/types";
 import EndpointRegistry, { Endpoint } from "../lib/endpoint_registry";
 import Transformations from "../lib/transformations";
 import Context from "../lib/context";
+import { synchronized } from "../lib/utils";
+
 
 export class PcpLiveDatasource {
 
@@ -248,6 +250,7 @@ export class PcpLiveDatasource {
         }
     }
 
+    @synchronized
     async findOrCreateEndpoint() {
       const dashboardVariables = this.getVariables();
 
