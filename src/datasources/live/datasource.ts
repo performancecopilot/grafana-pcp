@@ -274,7 +274,7 @@ export class PcpLiveDatasource {
 
         const targetResults: TargetResult[] = [];
         for (const target of query.targets) {
-            if (target.hide || !target.target)
+            if (target.hide || (!target.expr && !target.target))
                 continue;
 
             // TODO: remove me: workaround for old dashboards

@@ -77,7 +77,7 @@ export default class Context {
         const metrics = await this.ensureContext(async () => {
             // TODO: use this.url again
             const response = await Context.datasourceRequest({
-                url: `${this.url}/pmapi/${this.context}/_metric`,
+                url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
                 //url: `http://localhost:44322/pmapi/metric`,
                 params
             });
@@ -129,7 +129,7 @@ export default class Context {
             for (const metric of data.values) {
                 if (metric.instances.length == 0) {
                     continue;
-                } else if (metric.instances[0].instance === -1) { // this metric has no instances (single value)
+                } else if (metric.instances[0].instance === null || metric.instances[0].instance === -1) { // this metric has no instances (single value)
                     metric.instances[0].instanceName = null;
                     continue;
                 }

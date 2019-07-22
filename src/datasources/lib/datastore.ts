@@ -49,7 +49,7 @@ export default class DataStore {
         if (_.isEmpty(data))
             return;
 
-        const pollTimeEpochMs = data.timestamp.s * 1000 + data.timestamp.us / 1000;
+        const pollTimeEpochMs = data.timestamp.s ? data.timestamp.s * 1000 + data.timestamp.us / 1000 : data.timestamp * 1000;
         for (const metric of data.values) {
             if (!this.store[metric.name]) {
                 this.store[metric.name] = {};
