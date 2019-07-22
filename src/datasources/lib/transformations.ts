@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { TimeSeriesResult, Datapoint, TableResult, TargetFormat } from './types';
+import { Datapoint, TargetFormat, TimeSeriesData, DatastoreQueryResult, PanelData, TableData, DatastoreQueryResultRow } from './types';
 
 export default class Transformations {
 
@@ -20,13 +20,17 @@ export default class Transformations {
         }
     }
 
-    updateLabels(targetResults: TimeSeriesResult[], target: any) {
-        return targetResults.map((t: TimeSeriesResult) => {
-            return { target: this.getLabel(t.target, target.legendFormat), datapoints: t.datapoints }
-        });
+    updateLabel(target: any, targetResult: TimeSeriesData) {
+        return { target: this.getLabel(targetResult.target, target.legendFormat), datapoints: targetResult.datapoints }
     }
 
-    transformToHeatmap(targetResults: TimeSeriesResult[]) {
+    transformToTimeSeries(queryResult: DatastoreQueryResult, target: any): TimeSeriesData[] {
+        const targetResults: TimeSeriesData[] = _.flatten(queryResult.map((row: DatastoreQueryResultRow) => row.data));
+        return targetResults.map(this.updateLabel.bind(this, target));
+    }
+
+    transformToHeatmap(queryResult: DatastoreQueryResult) {
+        const targetResults: TimeSeriesData[] = queryResult[0].data;
         for (const target of targetResults) {
             // target name is the upper bound
             const match = target.target.match(/^(.+?)\-(.+?)$/);
@@ -42,12 +46,8 @@ export default class Transformations {
         return targetResults;
     }
 
-    transformToTable(targetResults: TimeSeriesResult[]) {
-        let tableText = "";
-        if (targetResults.length > 0 && targetResults[0].datapoints.length > 0)
-            tableText = targetResults[0].datapoints[0][0] as string;
-
-        let table: TableResult = { columns: [], rows: [], type: 'table' };
+    transformStringToTable(tableText: string) {
+        let table: TableData = { columns: [], rows: [], type: 'table' };
         let lines = tableText.split('\n');
         let columnSizes: [number, number | undefined][] = [];
 
@@ -70,16 +70,47 @@ export default class Transformations {
                 table.rows.push(row);
             }
         }
-        return [table];
+        return table;
     }
 
-    transform(targetResults: TimeSeriesResult[], target: any) {
+    transformMultipleMetricsToTable(queryResult: DatastoreQueryResult) {
+        let table: TableData = { columns: [], rows: [], type: 'table' };
+        table.columns = queryResult.map((queryResultRow) => ({ text: queryResultRow.metric }));
+        const instances = Object.keys(queryResult[0].data).sort((a, b) => parseInt(a) - parseInt(b));
+        for (const instance of instances) {
+            const row: (string | number)[] = [];
+            for (const queryResultRow of queryResult) {
+                const target = queryResultRow.data.find((target: TimeSeriesData) => target.target === instance);
+                if (target && target.datapoints.length > 0)
+                    row.push(target.datapoints[target.datapoints.length - 1][0]);
+                else
+                    row.push('?');
+            }
+            table.rows.push(row);
+
+        }
+        return table;
+    }
+
+    transformToTable(queryResult: DatastoreQueryResult) {
+        if (queryResult.length > 1) {
+            return this.transformMultipleMetricsToTable(queryResult);
+        }
+        else if (queryResult.length === 1) {
+            const targets = queryResult[0].data;
+            if (targets.length > 0 && targets[0].datapoints.length > 0)
+                return this.transformStringToTable(targets[0].datapoints[0][0] as string);
+        }
+        return { columns: [], rows: [], type: 'table' };
+    }
+
+    transform(queryResult: DatastoreQueryResult, target: any): PanelData[] {
         if (target.format === TargetFormat.TimeSeries)
-            return this.updateLabels(targetResults, target);
+            return this.transformToTimeSeries(queryResult, target);
         else if (target.format === TargetFormat.Heatmap)
-            return this.transformToHeatmap(targetResults);
+            return this.transformToHeatmap(queryResult);
         else if (target.format == TargetFormat.Table)
-            return this.transformToTable(targetResults);
+            return [this.transformToTable(queryResult)];
         else
             throw { message: `Invalid target format '${target.format}', possible options: ${TargetFormat.TimeSeries}, ${TargetFormat.Heatmap}, ${TargetFormat.Table}` };
     }

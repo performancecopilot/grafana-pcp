@@ -5,7 +5,7 @@ import EndpointRegistry from '../lib/endpoint_registry';
 import ScriptRegistry, { BPFtraceScript } from './script_registry';
 import Transformations from '../lib/transformations';
 import BPFtraceEndpoint from './bpftrace_endpoint';
-import { TargetFormat, TargetResult } from '../lib/types';
+import { TargetFormat, PanelData } from '../lib/types';
 
 export class PCPBPFtraceDatasource {
 
@@ -113,7 +113,7 @@ export class PCPBPFtraceDatasource {
         }
 
         const dashboardVariables = this.getVariables();
-        const targetResults: TargetResult[] = [];
+        const panelData: PanelData[] = [];
         for (const target of query.targets) {
             if (target.hide || !target.code)
                 continue;
@@ -147,8 +147,8 @@ export class PCPBPFtraceDatasource {
                     const metrics = this.getMetricNamesForTarget(endpoint.context, target, script);
                     endpoint.poller.ensurePolling(metrics);
 
-                    let result = endpoint.datastore.queryTimeSeries(metrics, options.range.from.valueOf(), options.range.to.valueOf());
-                    targetResults.push(...this.transformations.transform(result, target));
+                    let result = endpoint.datastore.queryMetrics(metrics, options.range.from.valueOf(), options.range.to.valueOf());
+                    panelData.push(...this.transformations.transform(result, target));
                 }
                 else {
                     throw { message: `BPFtrace error:\n\n${script.output}` };
@@ -161,7 +161,7 @@ export class PCPBPFtraceDatasource {
             }
         }
 
-        return { data: targetResults };
+        return { data: panelData };
     }
 
     async testDatasource() {

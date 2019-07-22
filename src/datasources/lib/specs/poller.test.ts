@@ -36,7 +36,7 @@ describe("Poller", () => {
         ctx.poller.ensurePolling(["bpftrace.scripts.script1.data.scalar"]);
         await ctx.poller.poll();
 
-        const result = ctx.datastore.queryTimeSeries(["bpftrace.scripts.script1.data.scalar"], 0, Infinity);
+        const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity);
         const expected = [{
             "target": "bpftrace.scripts.script1.data.scalar",
             "datapoints": [

@@ -68,6 +68,8 @@ export default class ScriptRegistry {
         const response = await context.fetch(["bpftrace.control.register"]);
 
         const script: BPFtraceScript = JSON.parse(response.values[0].instances[0].value);
+        if (_.isEmpty(script))
+            throw { message: "PMDA returned an empty response when registering this script." };
         script.code = code;
         script.lastRequested = new Date().getTime();
 

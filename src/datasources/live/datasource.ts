@@ -4,7 +4,7 @@ import { Parser } from 'expr-eval'
 import Poller from './poller'
 import * as utils from './utils'
 import * as extensions from './extensions'
-import { TargetResult } from "../lib/types";
+import { TargetFormat, PanelData } from "../lib/types";
 import EndpointRegistry, { Endpoint } from "../lib/endpoint_registry";
 import Transformations from "../lib/transformations";
 import Context from "../lib/context";
@@ -272,7 +272,7 @@ export class PcpLiveDatasource {
             return { data: [] };
         }
 
-        const targetResults: TargetResult[] = [];
+        const panelData: PanelData[] = [];
         for (const target of query.targets) {
             if (target.hide || (!target.expr && !target.target))
                 continue;
@@ -294,9 +294,24 @@ export class PcpLiveDatasource {
                 //const expressions = parser.parse(expr);
                 //const metricsToPoll = expressions.variables({ withMembers: true });
 
-                endpoint.poller.ensurePolling([expr]);
-                let result = endpoint.datastore.queryTimeSeries([expr], options.range.from.valueOf(), options.range.to.valueOf());
-                targetResults.push(...this.transformations.transform(result, target));
+                let metricsToPoll : string[] = [];
+                if (target.format === TargetFormat.Table) {
+                    if (!_.every(query.targets, ['format', TargetFormat.Table]))
+                        throw {message: "To use the table format, every query of this panel has to be in table format"};
+                    // note: this ignores that the endpoint could be different for each query
+                    metricsToPoll = query.targets.map((target:any) => target.expr);
+                }
+                else {
+                    metricsToPoll = [expr];
+                }
+
+                endpoint.poller.ensurePolling(metricsToPoll);
+                let queryResult = endpoint.datastore.queryMetrics(metricsToPoll, options.range.from.valueOf(), options.range.to.valueOf());
+                panelData.push(...this.transformations.transform(queryResult, target));
+
+                if (target.format === TargetFormat.Table) {
+                    break;
+                }
             }
             catch (error) {
                 // catch all exceptions and add the refId of the panel
@@ -305,7 +320,7 @@ export class PcpLiveDatasource {
             }
         }
 
-        return { data: targetResults };
+        return { data: panelData };
 
 /*
 

@@ -1,14 +1,16 @@
 import _ from 'lodash';
 import Context from './context';
-import { Datapoint, TimeSeriesResult } from './types';
+import { Datapoint, TimeSeriesData } from './types';
+
+type StoredDatapoint = [number | string | undefined, number, number?];
 
 export default class DataStore {
-    private store: Record<string, Record<string, Datapoint[]>> = {}; // store[metric][instance] = [val,ts,origVal]
+    private store: Record<string, Record<string, StoredDatapoint[]>> = {}; // store[metric][instance] = [val,ts,origVal]
 
     constructor(private context: Context, private oldestDataMs: number) {
     }
 
-    ingestCounterMetric(instanceStore: Datapoint[], instance: any, pollTimeEpochMs: number) {
+    ingestCounterMetric(instanceStore: StoredDatapoint[], instance: any, pollTimeEpochMs: number) {
         // first value: store it as undefined, to be filtered by queryTimeSeries()
         // subsequent values: perform rate conversation
         if (instanceStore.length > 0) {
@@ -21,7 +23,7 @@ export default class DataStore {
         }
     }
 
-    ingestMetric(metricStore: Record<string, Datapoint[]>, metric: any, pollTimeEpochMs: number) {
+    ingestMetric(metricStore: Record<string, StoredDatapoint[]>, metric: any, pollTimeEpochMs: number) {
         const metadata = this.context.findMetricMetadata(metric.name);
         if (!metadata) {
             console.info(`skipping ingestion of ${metric.name}: metadata not available`);
@@ -29,18 +31,16 @@ export default class DataStore {
         }
 
         for (const instance of metric.instances) {
-            let instanceStore = metricStore[instance.instanceName];
-
             // for the bpftrace output variable, always recreate the metric store (do not store history)
-            if (!instanceStore || (metadata.labels && metadata.labels.metrictype === "output")) {
-                instanceStore = metricStore[instance.instanceName] = [];
+            if (!(instance.instanceName in metricStore) || (metadata.labels && metadata.labels.metrictype === "output")) {
+                metricStore[instance.instanceName] = [];
             }
 
             if (metadata.sem === "counter") {
-                this.ingestCounterMetric(instanceStore, instance, pollTimeEpochMs);
+                this.ingestCounterMetric(metricStore[instance.instanceName], instance, pollTimeEpochMs);
             }
             else {
-                instanceStore.push([instance.value, pollTimeEpochMs]);
+                metricStore[instance.instanceName].push([instance.value, pollTimeEpochMs]);
             }
         }
     }
@@ -59,25 +59,23 @@ export default class DataStore {
         }
     }
 
-    queryTimeSeries(metrics: string[], from: number, to: number) {
-        let targetResults: TimeSeriesResult[] = [];
-        for (const metric of metrics) {
-            if (!(metric in this.store))
-                continue;
-
-            for (const instance in this.store[metric]) {
-                let target = {
-                    // for metrics without instance domains, show metric name
-                    target: instance === "null" ? metric : instance,
-                    datapoints: this.store[metric][instance].filter((dataPoint: Datapoint) => (
-                        from <= dataPoint[1] && dataPoint[1] <= to && dataPoint[0] != undefined
-                    ))
-                };
-
-                targetResults.push(target);
-            }
+    queryMetric(metric: string, from: number, to: number) {
+        const results: TimeSeriesData[] = [];
+        for (const instance in this.store[metric]) {
+            let target = {
+                // for metrics without instance domains, show metric name
+                target: instance === "null" ? metric : instance,
+                datapoints: this.store[metric][instance].filter((dataPoint: StoredDatapoint) => (
+                    from <= dataPoint[1] && dataPoint[1] <= to && dataPoint[0] != undefined
+                )) as Datapoint[]
+            };
+            results.push(target);
         }
-        return targetResults;
+        return results;
+    }
+
+    queryMetrics(metrics: string[], from: number, to: number) {
+        return metrics.map((metric: string) => ({ metric: metric, data: this.queryMetric(metric, from, to) }));
     }
 
     cleanExpiredMetrics() {

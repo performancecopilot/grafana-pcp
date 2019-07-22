@@ -43,7 +43,7 @@ describe("DataStore", () => {
             }]
         });
 
-        const result = ctx.datastore.queryTimeSeries(["bpftrace.scripts.script1.data.scalar"], 0, Infinity);
+        const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity);
         const expected = [{
             "target": "bpftrace.scripts.script1.data.scalar",
             "datapoints": [
@@ -76,7 +76,7 @@ describe("DataStore", () => {
             }]
         });
 
-        const result = ctx.datastore.queryTimeSeries(["bpftrace.scripts.script1.data.multiple"], 0, Infinity);
+        const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.multiple", 0, Infinity);
         const expected = [{
             "target": "/dev/sda1",
             "datapoints": [[45200, 5002]]
@@ -135,7 +135,7 @@ describe("DataStore", () => {
             }]
         });
 
-        const result = ctx.datastore.queryTimeSeries(["bpftrace.scripts.script1.data.scalar"], 0, Infinity);
+        const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity);
         const expected = [{
             "target": "bpftrace.scripts.script1.data.scalar",
             "datapoints": [
@@ -179,7 +179,7 @@ describe("DataStore", () => {
             }]
         });
 
-        const result = ctx.datastore.queryTimeSeries(["bpftrace.scripts.script1.data.output"], 0, Infinity);
+        const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.output", 0, Infinity);
         const expected = [{
             "target": "bpftrace.scripts.script1.data.output",
             "datapoints": [["line1\nline2\n", 6002]]
@@ -235,7 +235,7 @@ describe("DataStore", () => {
             }]
         });
 
-        expect(ctx.datastore.queryTimeSeries(["bpftrace.scripts.script1.data.scalar"], 0, Infinity))
+        expect(ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity))
             .toStrictEqual([{
                 "target": "bpftrace.scripts.script1.data.scalar",
                 "datapoints": [
@@ -245,7 +245,7 @@ describe("DataStore", () => {
                 ]
             }]);
 
-        expect(ctx.datastore.queryTimeSeries(["bpftrace.scripts.script1.data.scalar"], 6002, 6003))
+        expect(ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 6002, 6003))
             .toStrictEqual([{
                 "target": "bpftrace.scripts.script1.data.scalar",
                 "datapoints": [
@@ -309,7 +309,7 @@ describe("DataStore", () => {
         // clean metrics older than 25s
         ctx.datastore.cleanExpiredMetrics();
 
-        const result = ctx.datastore.queryTimeSeries(["bpftrace.scripts.script1.data.scalar"], 0, Infinity);
+        const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity);
         expect(result[0].datapoints).toHaveLength(2);
         const maxAge = new Date().getTime() - 25000;
         expect(result[0].datapoints[0][0]).toEqual(55200);

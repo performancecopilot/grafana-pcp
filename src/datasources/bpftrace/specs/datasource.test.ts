@@ -1,7 +1,7 @@
 import q from 'q';
 import { PCPBPFtraceDatasource } from "../datasource";
 import request from "request";
-import { TargetFormat, TargetResult, TimeSeriesResult } from '../../lib/types';
+import { TargetFormat, TimeSeriesData } from '../../lib/types';
 
 function datasourceRequestHttp(options) {
     return new Promise((resolve, reject) => {
@@ -59,7 +59,7 @@ describe.skip("DataSource", () => {
 
         const result2 = await ctx.datasource.query(query);
         expect(result2.data.length).toBeGreaterThan(0);
-        expect((result2.data[0] as TimeSeriesResult).datapoints).toHaveLength(1);
+        expect((result2.data[0] as TimeSeriesData).datapoints).toHaveLength(1);
     });
 
     it("should do legend transformation for timeseries", async () => {
@@ -88,7 +88,7 @@ describe.skip("DataSource", () => {
         expect(ctx.templateSrv.replace.mock.calls[0][0]).toBe("a $instance b");
         expect(ctx.templateSrv.replace.mock.calls[0][1].instance.value).toMatch(/^bpftrace\.scripts\.script\d+\.data\.scalar$/);
         expect(result2.data.length).toBeGreaterThan(0);
-        expect((result2.data[0] as TimeSeriesResult).target).toBe("a bpftrace.scripts.scriptX.data.scalar b");
+        expect((result2.data[0] as TimeSeriesData).target).toBe("a bpftrace.scripts.scriptX.data.scalar b");
     });
 
     it("should query heatmaps", async () => {
@@ -113,7 +113,7 @@ describe.skip("DataSource", () => {
 
         const result2 = await ctx.datasource.query(query);
         expect(result2.data.length).toBeGreaterThan(0);
-        expect((result2.data[0] as TimeSeriesResult).datapoints).toHaveLength(1);
-        expect((result2.data[0] as TimeSeriesResult).target).not.toContain("-");
+        expect((result2.data[0] as TimeSeriesData).datapoints).toHaveLength(1);
+        expect((result2.data[0] as TimeSeriesData).target).not.toContain("-");
     });
 });

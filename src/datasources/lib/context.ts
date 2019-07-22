@@ -58,7 +58,8 @@ export default class Context {
         try {
             return await fn();
         } catch (error) {
-            if (_.isString(error.data) && (error.data.includes("12376") || error.data.includes("unknown context identifier"))) {
+            if ((_.isString(error.data) && error.data.includes("12376")) ||
+                (_.isObject(error.data) && error.data.message.includes("unknown context identifier"))) {
                 console.debug("context expired, creating new context...");
                 await this.createContext();
                 return await fn();
@@ -75,10 +76,8 @@ export default class Context {
             params.prefix = prefix;
 
         const metrics = await this.ensureContext(async () => {
-            // TODO: use this.url again
             const response = await Context.datasourceRequest({
                 url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
-                //url: `http://localhost:44322/pmapi/metric`,
                 params
             });
             return response.data.metrics;

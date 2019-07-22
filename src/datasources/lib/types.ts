@@ -1,20 +1,27 @@
-export type Datapoint = [number | string | undefined, number, number?];
+export type Datapoint = [number | string, number];
 
-export interface TimeSeriesResult {
+export interface TimeSeriesData {
     target: string;
     datapoints: Datapoint[]
 }
 
-export interface TableResult {
+export interface TableData {
     columns: any[]
-    rows: any[]
+    rows: (string | number)[][]
     type: string
 }
 
-export type TargetResult = TimeSeriesResult | TableResult;
+export type PanelData = TimeSeriesData | TableData;
 
 export enum TargetFormat {
     TimeSeries = "time_series",
     Table = "table",
     Heatmap = "heatmap",
 }
+
+export interface DatastoreQueryResultRow {
+    metric: string;
+    data: TimeSeriesData[];
+}
+
+export type DatastoreQueryResult = DatastoreQueryResultRow[];
