@@ -1,6 +1,5 @@
-import q from 'q';
-import { PCPBPFtraceDatasource } from "../datasource";
 import request from "request";
+import { PCPBPFtraceDatasource } from "../datasource";
 import { TargetFormat, TimeSeriesData } from '../../lib/types';
 
 function datasourceRequestHttp(options) {
@@ -34,7 +33,7 @@ describe.skip("DataSource", () => {
             replace: jest.fn()
         };
         ctx.variableSrv = {};
-        ctx.datasource = new PCPBPFtraceDatasource(instanceSettings, q, ctx.backendSrv, ctx.templateSrv, ctx.variableSrv);
+        ctx.datasource = new PCPBPFtraceDatasource(instanceSettings, ctx.backendSrv, ctx.templateSrv, ctx.variableSrv);
     });
 
     it("should query timeseries", async () => {

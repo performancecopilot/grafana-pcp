@@ -16,12 +16,15 @@ export function synchronized(target: any, propertyKey: string, descriptor: Prope
         return this.inflightCalls[propertyKey].then((result: any) => {
             this.inflightCalls[propertyKey] = null;
             return result;
+        }, (reason: any) => {
+            this.inflightCalls[propertyKey] = null;
+            throw reason;
         });
     }
 }
 
 export function isBlank(str: string) {
-    return !str || str.trim().length === 0;
+    return !(_.isString(str) && str.trim().length > 0);
 }
 
 export function getDashboardVariables(variableSrv: any): any {
@@ -50,19 +53,26 @@ export function getDashboardVariables(variableSrv: any): any {
     return variables;
 }
 
-export function getConnectionParams(variableSrv: any, target: any, instanceSettings: any) {
-    if (!isBlank(target.url)) {
-        return [target.url, target.container];
-    }
-
+export function getConnectionParams(variableSrv: any, target: any, instanceSettings: any): [string, string?] {
     const dashboardVariables = getDashboardVariables(variableSrv);
-    if (!isBlank(dashboardVariables.url)) {
-        return [dashboardVariables.url, dashboardVariables.container];
-    }
+    let url: string = "";
+    let container: string | undefined;
 
-    if (!isBlank(instanceSettings.url)) {
-        return [instanceSettings.url, instanceSettings.jsonData.container];
-    }
+    if (!isBlank(target.url))
+        url = target.url;
+    else if (dashboardVariables.url && !isBlank(dashboardVariables.url.value))
+        url = dashboardVariables.url.value;
+    else if (!isBlank(instanceSettings.url))
+        url = instanceSettings.url;
+    else
+        throw { message: "Cannot find any connection url." };
 
-    throw { message: "Cannot find any connection parameters." };
+    if (!isBlank(target.container))
+        container = target.container;
+    else if (dashboardVariables.container && !isBlank(dashboardVariables.container.value))
+        container = dashboardVariables.container.value;
+    else if (!isBlank(instanceSettings.container))
+        container = instanceSettings.container;
+
+    return [url, container];
 }

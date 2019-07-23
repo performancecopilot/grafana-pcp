@@ -3,7 +3,9 @@
     "id": "pcp-bpftrace-datasource",
     "type": "datasource",
     "metrics": true,
+    "alerting": false,
     "annotations": false,
+    "tables": true,
     "info": {
         "author": {
             "name": "Performance Co-Pilot Project",
@@ -15,13 +17,16 @@
             "large": "../performancecopilot-pcp-app/datasources/bpftrace/img/pcp.png"
         },
         "links": [
-            {"name": "GitHub", "url": "https://github.com/performancecopilot/grafana-pcp"}
+            {
+                "name": "GitHub",
+                "url": "https://github.com/performancecopilot/grafana-pcp"
+            }
         ],
         "version": "0.0.1",
         "updated": "2019-07-05"
     },
     "dependencies": {
         "grafanaVersion": "6.x.x",
-        "plugins": [ ]
+        "plugins": []
     }
 }

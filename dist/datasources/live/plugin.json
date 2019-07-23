@@ -4,7 +4,9 @@
   "type": "datasource",
 
   "metrics": true,
+  "alerting": false,
   "annotations": false,
+  "tables": true,
 
   "info": {
     "description": "PCP Live Datasource",

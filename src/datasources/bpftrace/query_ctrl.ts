@@ -12,6 +12,7 @@ export class PCPBPFtraceDatasourceQueryCtrl extends QueryCtrl {
 
         this.target.code = this.target.code || "";
         this.target.format = this.target.format || this.getDefaultFormat();
+        this.target.url = this.target.url || null;
 
         this.formats = [
             { text: "Time series", value: TargetFormat.TimeSeries },

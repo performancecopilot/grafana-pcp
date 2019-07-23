@@ -22,10 +22,10 @@ export default class EndpointRegistry<T extends Endpoint> {
         return this.endpoints[id];
     }
 
-    create(url: string, container: string | null, keepPollingMs: number, oldestDataMs: number) {
-        const id = this.generateId(url, container!);
-        const context = new Context(url, container!);
-        const datastore = new DataStore(context, oldestDataMs);
+    create(url: string, container: string | undefined, keepPollingMs: number, localHistoryAgeMs: number) {
+        const id = this.generateId(url, container);
+        const context = new Context(url, container);
+        const datastore = new DataStore(context, localHistoryAgeMs);
         const poller = new Poller(context, datastore, keepPollingMs);
 
         this.endpoints[id] = { context, datastore, poller } as T;

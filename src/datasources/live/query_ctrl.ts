@@ -1,7 +1,7 @@
 import { QueryCtrl } from 'grafana/app/plugins/sdk';
 import { TargetFormat } from '../lib/types';
 
-export class GenericDatasourceQueryCtrl extends QueryCtrl {
+export class PcpLiveDatasourceQueryCtrl extends QueryCtrl {
     static templateUrl = 'datasources/live/partials/query.editor.html'
 
     formats: any = [];
@@ -12,6 +12,8 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
         // TODO: remove workaround
         this.target.expr = this.target.expr || this.target.target || "";
         this.target.format = this.target.format || this.getDefaultFormat();
+        this.target.url = this.target.url || null;
+        this.target.container = this.target.container || null;
 
         this.formats = [
             { text: "Time series", value: TargetFormat.TimeSeries },
@@ -29,8 +31,10 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
         return TargetFormat.TimeSeries;
     }
 
-    getAllMetrics(query) {
-        return this.datasource.metricFindQuery(query || '');
+    async getContainers() {
+        let containers = await this.datasource.metricFindQuery('containers.name');
+        containers.unshift({ text: '-', value: null });
+        return containers;
     }
 
     refreshMetricData() {

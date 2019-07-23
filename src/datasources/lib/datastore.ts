@@ -7,7 +7,7 @@ type StoredDatapoint = [number | string | undefined, number, number?];
 export default class DataStore {
     private store: Record<string, Record<string, StoredDatapoint[]>> = {}; // store[metric][instance] = [val,ts,origVal]
 
-    constructor(private context: Context, private oldestDataMs: number) {
+    constructor(private context: Context, private localHistoryAgeMs: number) {
     }
 
     private ingestCounterMetric(instanceStore: StoredDatapoint[], instance: any, pollTimeEpochMs: number) {
@@ -79,7 +79,7 @@ export default class DataStore {
     }
 
     cleanExpiredMetrics() {
-        const keepExpiry = new Date().getTime() - this.oldestDataMs
+        const keepExpiry = new Date().getTime() - this.localHistoryAgeMs
         for (const metric in this.store) {
             for (const instance in this.store[metric]) {
                 this.store[metric][instance] = this.store[metric][instance].filter(

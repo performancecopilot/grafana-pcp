@@ -1,28 +1,20 @@
 import _ from "lodash";
-
-import Poller from './poller'
-import * as extensions from './extensions'
+import kbn from "grafana/app/core/utils/kbn";
 import { TargetFormat, PanelData } from "../lib/types";
 import EndpointRegistry, { Endpoint } from "../lib/endpoint_registry";
 import Transformations from "../lib/transformations";
 import Context from "../lib/context";
 import { synchronized, getConnectionParams } from "../lib/utils";
 
-
 export class PcpLiveDatasource {
 
-    instanceSettings: any;
     name: string;
-    q: any;
-    backendSrv: any;
-    templateSrv: any;
-    variableSrv: any;
     withCredentials: boolean;
     headers: any;
 
     pollIntervalMs: number; // poll metric sources every X ms
     keepPollingMs: number; // we will keep polling a metric for up to X ms after it was last requested
-    olderstDataMs: number; // age out time
+    localHistoryAgeMs: number; // age out time
 
     endpointRegistry: EndpointRegistry<Endpoint>;
     transformations: Transformations;
@@ -30,22 +22,17 @@ export class PcpLiveDatasource {
     container_name_filter: any;
 
     /** @ngInject **/
-    constructor(instanceSettings, $q, backendSrv, templateSrv, variableSrv) {
-        this.instanceSettings = instanceSettings;
+    constructor(private instanceSettings: any, private backendSrv: any, private templateSrv: any, private variableSrv: any) {
         this.name = instanceSettings.name;
-        this.q = $q;
-        this.backendSrv = backendSrv;
-        this.templateSrv = templateSrv;
-        this.variableSrv = variableSrv;
         this.withCredentials = instanceSettings.withCredentials;
         this.headers = { 'Content-Type': 'application/json' };
         if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
             this.headers['Authorization'] = instanceSettings.basicAuth;
         }
 
-        this.pollIntervalMs = instanceSettings.jsonData.pollIntervalMs || 1000;
-        this.keepPollingMs = instanceSettings.jsonData.keepPollingMs || 20000;
-        this.olderstDataMs = instanceSettings.jsonData.olderstDataMs || 5 * 60 * 1000;
+        this.pollIntervalMs = kbn.interval_to_ms(instanceSettings.jsonData.pollInterval || '1s');
+        this.keepPollingMs = kbn.interval_to_ms(instanceSettings.jsonData.keepPolling || '20s');
+        this.localHistoryAgeMs = kbn.interval_to_ms(instanceSettings.jsonData.localHistoryAge || '5m');
 
         Context.datasourceRequest = this.doRequest.bind(this);
         this.endpointRegistry = new EndpointRegistry();
@@ -73,7 +60,7 @@ export class PcpLiveDatasource {
         const [url, container] = getConnectionParams(this.variableSrv, target, this.instanceSettings);
         let endpoint = this.endpointRegistry.find(url, container);
         if (!endpoint) {
-            endpoint = this.endpointRegistry.create(url, container, this.keepPollingMs, this.olderstDataMs);
+            endpoint = this.endpointRegistry.create(url, container, this.keepPollingMs, this.localHistoryAgeMs);
             await endpoint.context.fetchMetricMetadata(); // TODO: where?
         }
         return endpoint;
@@ -94,7 +81,7 @@ export class PcpLiveDatasource {
         }
         catch (error) {
             return {
-                status: 'success',
+                status: 'error',
                 title: 'Additional configuration required',
                 message: `Could not connect to ${url}. To use this data source, ` +
                     'please configure the url, and optionally the container dashboard variable(s).',
@@ -113,6 +100,9 @@ export class PcpLiveDatasource {
                 .map((instance: any) => instance.value)
                 .filter(this.container_name_filter)
                 .map((container: string) => ({ text: container, value: container }));
+        }
+        else {
+            return [];
         }
     }
 
