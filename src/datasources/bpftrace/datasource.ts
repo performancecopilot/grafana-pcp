@@ -6,11 +6,12 @@ import ScriptRegistry, { BPFtraceScript } from './script_registry';
 import Transformations from '../lib/transformations';
 import BPFtraceEndpoint from './bpftrace_endpoint';
 import { TargetFormat, PanelData } from '../lib/types';
+import { getConnectionParams } from '../lib/utils';
 
 export class PCPBPFtraceDatasource {
 
+    instanceSettings: any;
     name: string;
-    url: string;
     q: any;
     backendSrv: any;
     templateSrv: any;
@@ -28,8 +29,8 @@ export class PCPBPFtraceDatasource {
 
     /** @ngInject **/
     constructor(instanceSettings, $q, backendSrv, templateSrv, variableSrv) {
+        this.instanceSettings = instanceSettings;
         this.name = instanceSettings.name;
-        this.url = instanceSettings.url;
         this.q = $q;
         this.backendSrv = backendSrv;
         this.templateSrv = templateSrv;
@@ -39,7 +40,6 @@ export class PCPBPFtraceDatasource {
         if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
             this.headers['Authorization'] = instanceSettings.basicAuth;
         }
-
 
         this.pollIntervalMs = instanceSettings.jsonData.pollIntervalMs || 1000;
         this.scriptSyncIntervalMs = instanceSettings.jsonData.scriptSyncIntervalMs || 2000;
@@ -75,6 +75,42 @@ export class PCPBPFtraceDatasource {
         return Promise.all(promises);
     }
 
+    getOrCreateEndpoint(target: any) {
+        const [url, container] = getConnectionParams(this.variableSrv, target, this.instanceSettings);
+        let endpoint = this.endpointRegistry.find(url, container);
+        if (!endpoint) {
+            endpoint = this.endpointRegistry.create(url, container, this.keepPollingMs, this.olderstDataMs);
+            endpoint.scriptRegistry = new ScriptRegistry(endpoint.context, endpoint.poller, this.keepPollingMs);
+        }
+        return endpoint;
+    }
+
+    async doRequest(options: any) {
+        options.withCredentials = this.withCredentials;
+        options.headers = this.headers;
+        return await this.backendSrv.datasourceRequest(options);
+    }
+
+    async testDatasource() {
+        const [url, container] = getConnectionParams(this.variableSrv, {}, this.instanceSettings);
+        const context = new Context(url, container);
+        try {
+            await context.createContext();
+            return { status: 'success', message: "Data source is working", title: "Success" };
+        }
+        catch (error) {
+            return {
+                status: 'error',
+                message: `Cannot connect to ${context.url}`,
+                title: 'Error',
+            };
+        }
+    }
+
+    async metricFindQuery(query: any) {
+        return [];
+    }
+
     getMetricNameForMetricType(context: Context, script: BPFtraceScript, metrictype: string) {
         for (const var_ of script.vars) {
             const metric = `bpftrace.scripts.${script.name}.data.${var_}`;
@@ -106,13 +142,7 @@ export class PCPBPFtraceDatasource {
         return [];
     }
 
-    async query(options: any) {
-        const query = options;
-        if (query.targets.length == 0) {
-            return { data: [] };
-        }
-
-        const dashboardVariables = this.getVariables();
+    async query(query: any) {
         const panelData: PanelData[] = [];
         for (const target of query.targets) {
             if (target.hide || !target.code)
@@ -124,19 +154,7 @@ export class PCPBPFtraceDatasource {
             if (code.length === 0)
                 continue;
 
-            // TODO: also allow overriding of url in query editor
-            let url: string;
-            if (dashboardVariables.url && dashboardVariables.url.value.length > 0)
-                url = dashboardVariables.url.value;
-            else
-                url = this.url;
-
-            let endpoint = this.endpointRegistry.find(url);
-            if (!endpoint) {
-                endpoint = this.endpointRegistry.create(url, null, this.keepPollingMs, this.olderstDataMs);
-                endpoint.scriptRegistry = new ScriptRegistry(endpoint.context, endpoint.poller, this.keepPollingMs);
-            }
-
+            let endpoint = this.getOrCreateEndpoint(target);
             let script: BPFtraceScript;
             try {
                 // ensureActive registers the script (if required)
@@ -147,7 +165,7 @@ export class PCPBPFtraceDatasource {
                     const metrics = this.getMetricNamesForTarget(endpoint.context, target, script);
                     endpoint.poller.ensurePolling(metrics);
 
-                    let result = endpoint.datastore.queryMetrics(metrics, options.range.from.valueOf(), options.range.to.valueOf());
+                    let result = endpoint.datastore.queryMetrics(metrics, query.range.from.valueOf(), query.range.to.valueOf());
                     panelData.push(...this.transformations.transform(result, target));
                 }
                 else {
@@ -162,57 +180,5 @@ export class PCPBPFtraceDatasource {
         }
 
         return { data: panelData };
-    }
-
-    async testDatasource() {
-        let context = new Context(this.url);
-        try {
-            await context.createContext();
-            return { status: 'success', message: "Data source is working", title: "Success" };
-        }
-        catch (error) {
-            return {
-                status: 'error',
-                message: `Cannot connect to ${context.url}`,
-                title: 'Error',
-            };
-        }
-    }
-
-    async metricFindQuery(query) {
-        return [];
-    }
-
-    async doRequest(options: any) {
-        options.withCredentials = this.withCredentials;
-        options.headers = this.headers;
-
-        return await this.backendSrv.datasourceRequest(options);
-    }
-
-    getVariables(): any {
-        const variables = {};
-        if (!this.variableSrv.variables) {
-            // variables are not defined on the datasource settings page
-            return {};
-        }
-
-        for (let variable of this.variableSrv.variables) {
-            let variableValue = variable.current.value;
-            if (variableValue === '$__all' || _.isEqual(variableValue, ['$__all'])) {
-                if (variable.allValue === null) {
-                    variableValue = variable.options.slice(1).map(textValuePair => textValuePair.value);
-                } else {
-                    variableValue = variable.allValue;
-                }
-            }
-
-            variables[variable.name] = {
-                text: variable.current.text,
-                value: variableValue,
-            };
-        }
-
-        return variables;
     }
 }

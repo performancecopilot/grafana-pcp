@@ -12,7 +12,6 @@ export default class Context {
 
     static datasourceRequest: (options: any) => any;
     private context: string;
-    private contextPromise: Promise<void> | null = null;
     private metricMetadataCache: Record<string, MetricMetadata> = {};
     private indomCache: Record<string, Record<number, string>> = {}; // indomCache[metric][instance_id] = instance_name
     private d: string = '';
@@ -67,7 +66,8 @@ export default class Context {
 
         const metrics = await this.ensureContext(async () => {
             const response = await Context.datasourceRequest({
-                url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
+                //url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
+                url: `http://localhost:44322/pmapi/metric`,
                 params
             });
             return response.data.metrics;
