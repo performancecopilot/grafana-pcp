@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { Datapoint, TargetFormat, TimeSeriesData, DatastoreQueryResult, PanelData, TableData, DatastoreQueryResultRow } from './types';
+import { isBlank } from './utils';
 
 export default class Transformations {
 
@@ -7,7 +8,7 @@ export default class Transformations {
     }
 
     getLabel(target: string, legendFormat: string) {
-        if (_.isEmpty(legendFormat)) {
+        if (isBlank(legendFormat)) {
             return target;
         }
         else {
@@ -56,7 +57,7 @@ export default class Transformations {
             if (line.length === 0 || line.includes("Ctrl-C"))
                 continue;
 
-            if (_.isEmpty(table.columns)) {
+            if (table.columns.length === 0) {
                 let tableHeaders = line.split(/\s\s+/);
                 for (let i = 0; i < tableHeaders.length; i++) {
                     const colStartAt = line.indexOf(tableHeaders[i]);

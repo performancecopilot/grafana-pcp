@@ -144,11 +144,22 @@ export default class Context {
     }
 
     async store(metric: string, value: string) {
-        return await this.ensureContext(() => {
-            return Context.datasourceRequest({
+        return await this.ensureContext(async () => {
+            const response = await Context.datasourceRequest({
                 url: `${this.url}/pmapi/${this.context}/${this.d}store`,
                 params: { name: metric, value: value }
-            })
+            });
+            return response.data;
+        });
+    }
+
+    async children(prefix: string) {
+        return await this.ensureContext(async () => {
+            const response = await Context.datasourceRequest({
+                url: `${this.url}/pmapi/${this.context}/${this.d}children`,
+                params: { prefix: prefix }
+            });
+            return response.data;
         });
     }
 }

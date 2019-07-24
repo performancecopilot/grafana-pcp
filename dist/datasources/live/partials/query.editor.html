@@ -1,7 +1,8 @@
 <query-editor-row query-ctrl="ctrl" can-collapse="true" has-text-edit-mode="false">
   <div class="gf-form-inline">
     <div class="gf-form gf-form--grow">
-      <code-editor content="ctrl.target.expr" on-change="ctrl.refreshMetricData()">
+      <code-editor content="ctrl.target.expr" on-change="ctrl.refreshMetricData()" data-mode="pcp"
+        get-completer="ctrl.getCompleter()">
       </code-editor>
     </div>
   </div>
@@ -37,7 +38,8 @@
     <div class="gf-form">
       <label class="gf-form-label width-6">Container</label>
       <div class="gf-form-select-wrapper width-12">
-        <gf-form-dropdown model="ctrl.target.container" get-options="ctrl.getContainers()" on-change="ctrl.refreshMetricData()">
+        <gf-form-dropdown model="ctrl.target.container" get-options="ctrl.getContainers()"
+          on-change="ctrl.refreshMetricData()">
         </gf-form-dropdown>
       </div>
     </div>

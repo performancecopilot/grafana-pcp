@@ -1,5 +1,7 @@
 import { QueryCtrl } from 'grafana/app/plugins/sdk';
 import { TargetFormat } from '../lib/types';
+import PCPMetricCompleter from './completer';
+import './mode-pcp';
 
 export class PcpLiveDatasourceQueryCtrl extends QueryCtrl {
     static templateUrl = 'datasources/live/partials/query.editor.html'
@@ -35,6 +37,10 @@ export class PcpLiveDatasourceQueryCtrl extends QueryCtrl {
         let containers = await this.datasource.metricFindQuery('containers.name');
         containers.unshift({ text: '-', value: null });
         return containers;
+    }
+
+    getCompleter() {
+        return new PCPMetricCompleter(this.datasource, this.target);
     }
 
     refreshMetricData() {
