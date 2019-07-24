@@ -8,6 +8,7 @@ export class PcpLiveDatasourceQueryCtrl extends QueryCtrl {
 
     formats: any = [];
 
+    /** @ngInject **/
     constructor($scope, $injector) {
         super($scope, $injector);
 
