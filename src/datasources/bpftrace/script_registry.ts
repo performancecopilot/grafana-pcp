@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Context from "../lib/context";
 import Poller from '../lib/poller';
+import DataStore from '../lib/datastore';
 
 export interface BPFtraceScript {
     // from PMDA
@@ -18,32 +19,74 @@ export interface BPFtraceScript {
 export default class ScriptRegistry {
 
     // currently active (requested) scripts
-    private scripts: Record<string, BPFtraceScript> = {}; // {name: BPFtraceScript}
+    private scripts: Record<string, BPFtraceScript> = {}; // {code: BPFtraceScript}
 
-    // a script which failed once will fail every time
-    // store them in a separate object, otherwise the syncState()
-    // will clean them (as they don't exist on the PMDA)
-    // and the datasource will keep re-adding them
+    // a script which failed immediately will fail every time
+    // reasons: no variable found, invalid name, ...
     private failedScripts: Record<string, BPFtraceScript> = {}; // {code: BPFtraceScript}
 
-    constructor(private context: Context, private poller: Poller, private keepPollingMs: number) {
+    constructor(private context: Context, private poller: Poller, private datastore: DataStore, private keepPollingMs: number) {
     }
 
-    async ensureActive(code: string) {
+    hasScriptFailed(script: BPFtraceScript) {
+        return script.status === "stopped" && script.exit_code !== 0;
+    }
+
+    async ensureActive(code: string, allowRestart: boolean = true) {
         if (code in this.failedScripts) {
             return this.failedScripts[code];
         }
 
-        const script: BPFtraceScript = _.find(Object.values(this.scripts), (script: BPFtraceScript) => script.code === code);
-        if (!script || (script.status === "stopped" && script.exit_code == 0)) {
-            // if script doesn't exist or script got stopped gracefully (exit_code == 0)
-            // register script
-            return await this.register(code);
+        let script = this.scripts[code];
+        if (!script) {
+            script = await this.register(code);
+            if (this.hasScriptFailed(script)) {
+                this.failedScripts[code] = script;
+                return script;
+            }
+            else {
+                this.scripts[code] = script;
+            }
         }
-        else {
-            script.lastRequested = new Date().getTime();
-            return script;
+        script.lastRequested = new Date().getTime();
+        const controlMetrics = [
+            `bpftrace.scripts.${script.name}.status`,
+            `bpftrace.scripts.${script.name}.exit_code`,
+            `bpftrace.scripts.${script.name}.output`
+        ];
+        const validMetrics = await this.poller.ensurePolling(controlMetrics);
+
+        // missing script metrics on the PMDA and script is not starting, register again
+        if (validMetrics.length !== controlMetrics.length && script.status !== "starting") {
+            const missingMetrics = _.difference(controlMetrics, validMetrics);
+            console.debug(`script ${script.name} got deregistered on the PMDA (missing metrics: ${missingMetrics.join(',')})`);
+            delete this.scripts[code];
+            return allowRestart ? this.ensureActive(code, false) : script;
         }
+
+        const queryResult = this.datastore.queryMetrics(controlMetrics, 0, Infinity);
+        for (const metric of queryResult) {
+            if (metric.instances.length > 0 && metric.instances[0].datapoints.length > 0) {
+                const metric_field = metric.name.substring(metric.name.lastIndexOf('.') + 1);
+                script[metric_field] = metric.instances[0].datapoints[0][0];
+            }
+        }
+
+        if (script.status === "stopped") {
+            if (script.exit_code === 0) {
+                console.debug(`script ${script.name} was stopped on the server, restarting...`);
+                delete this.scripts[code];
+                return allowRestart ? this.ensureActive(code, false) : script;
+            }
+            else {
+                // script failed, move to failed scripts
+                console.debug(`script ${script.name} failed, moving to failedScripts`);
+                this.poller.removeMetricsFromPolling(controlMetrics);
+                delete this.scripts[code];
+                this.failedScripts[code] = script;
+            }
+        }
+        return script;
     }
 
     async register(code: string) {
@@ -62,6 +105,7 @@ export default class ScriptRegistry {
             }
             else {
                 // other error
+                error.message = error.data ? error.data : "unknown error";
                 throw error;
             }
         }
@@ -71,19 +115,8 @@ export default class ScriptRegistry {
         if (_.isEmpty(script))
             throw { message: "PMDA returned an empty response when registering this script." };
         script.code = code;
-        script.lastRequested = new Date().getTime();
 
-        console.debug("bpftrace.control.register response", script);
-        if (script.status === "stopped") {
-            // script failed due to no variables found, invalid name etc.
-            this.failedScripts[code] = script;
-        }
-        else {
-            this.scripts[script.name] = script;
-            // script has registered new metric names, fetch them
-            await this.context.fetchMetricMetadata("bpftrace");
-        }
-
+        console.debug("script register response", script);
         return script;
     }
 
@@ -94,57 +127,4 @@ export default class ScriptRegistry {
         this.scripts = _.pickBy(this.scripts, (script: BPFtraceScript) => script.lastRequested > scriptExpiry);
     }
 
-    async syncState() {
-        if (_.isEmpty(this.scripts)) {
-            return;
-        }
-
-        // sync available metrics on the PMDA
-        await this.context.fetchMetricMetadata("bpftrace");
-
-        let metrics: string[] = [];
-        for (const script of Object.values(this.scripts)) {
-            const state_metrics = [
-                `bpftrace.scripts.${script.name}.status`,
-                `bpftrace.scripts.${script.name}.exit_code`,
-                `bpftrace.scripts.${script.name}.output`
-            ];
-
-            let found_all_metrics = true;
-            for (const state_metric of state_metrics) {
-                if (this.context.findMetricMetadata(state_metric))
-                    metrics.push(state_metric);
-                else
-                    found_all_metrics = false;
-            }
-
-            // don't remove scripts which are currently starting and don't have their metrics registered yet
-            if (!found_all_metrics && script.status !== "starting") {
-                console.info(`script ${script.name} is missing on the PMDA ${script.status}`);
-                const script_metrics = script.vars.map(var_ => `bpftrace.scripts.${script.name}.data.${var_}`);
-                delete this.scripts[script.name];
-                this.poller.removeMetricsFromPolling(script_metrics);
-            }
-        }
-
-        if (metrics.length === 0)
-            return;
-
-        const response = await this.context.fetch(metrics);
-        for (const metric of response.values) {
-            const metric_split = metric.name.split('.');
-            const script_name = metric_split[2];
-            const metric_field = metric_split[3];
-
-            const script = this.scripts[script_name];
-            if (!script) {
-                // script got removed by cleanupExpiredScripts()
-                // while waiting for values from the PMDA
-                continue;
-            }
-            else if (["status", "exit_code", "output"].includes(metric_field)) {
-                script[metric_field] = metric.instances[0].value;
-            }
-        }
-    }
 }

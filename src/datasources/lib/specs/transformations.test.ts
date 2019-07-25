@@ -13,8 +13,8 @@ describe("Transformations", () => {
 
     it("should update labels", () => {
         const queryResult: DatastoreQueryResult = [{
-            metric: "metric",
-            data: [{
+            name: "metric",
+            instances: [{
                 target: "abc",
                 datapoints: []
             }]
@@ -37,8 +37,8 @@ describe("Transformations", () => {
 
     it("should transform histograms", () => {
         const queryResult: DatastoreQueryResult = [{
-            metric: "metric",
-            data: [
+            name: "metric",
+            instances: [
                 { target: "-inf--1", datapoints: [[1, 1400]] },
                 { target: "2-3", datapoints: [[1, 1400]] },
                 { target: "4-7", datapoints: [[2, 2300]] },
@@ -63,8 +63,8 @@ describe("Transformations", () => {
 
     it("should transform tables", () => {
         const queryResult: DatastoreQueryResult = [{
-            metric: "metric",
-            data: [{
+            name: "metric",
+            instances: [{
                 target: "bpftrace.script.script1.output",
                 datapoints: [[`
 Tracing tcp connections. Hit Ctrl-C to end.

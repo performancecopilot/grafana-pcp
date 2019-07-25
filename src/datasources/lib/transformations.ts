@@ -26,12 +26,12 @@ export default class Transformations {
     }
 
     transformToTimeSeries(queryResult: DatastoreQueryResult, target: any): TimeSeriesData[] {
-        const targetResults: TimeSeriesData[] = _.flatten(queryResult.map((row: DatastoreQueryResultRow) => row.data));
-        return targetResults.map(this.updateLabel.bind(this, target));
+        const instances: TimeSeriesData[] = _.flatten(queryResult.map((row: DatastoreQueryResultRow) => row.instances));
+        return instances.map(this.updateLabel.bind(this, target));
     }
 
     transformToHeatmap(queryResult: DatastoreQueryResult) {
-        const targetResults: TimeSeriesData[] = queryResult[0].data;
+        const targetResults: TimeSeriesData[] = queryResult[0].instances;
         for (const target of targetResults) {
             // target name is the upper bound
             const match = target.target.match(/^(.+?)\-(.+?)$/);
@@ -76,12 +76,12 @@ export default class Transformations {
 
     transformMultipleMetricsToTable(queryResult: DatastoreQueryResult) {
         let table: TableData = { columns: [], rows: [], type: 'table' };
-        table.columns = queryResult.map((queryResultRow) => ({ text: queryResultRow.metric }));
-        const instances = Object.keys(queryResult[0].data).sort((a, b) => parseInt(a) - parseInt(b));
+        table.columns = queryResult.map((queryResultRow) => ({ text: queryResultRow.name }));
+        const instances = Object.keys(queryResult[0].instances).sort((a, b) => parseInt(a) - parseInt(b));
         for (const instance of instances) {
             const row: (string | number)[] = [];
             for (const queryResultRow of queryResult) {
-                const target = queryResultRow.data.find((target: TimeSeriesData) => target.target === instance);
+                const target = queryResultRow.instances.find((target: TimeSeriesData) => target.target === instance);
                 if (target && target.datapoints.length > 0)
                     row.push(target.datapoints[target.datapoints.length - 1][0]);
                 else
@@ -98,7 +98,7 @@ export default class Transformations {
             return this.transformMultipleMetricsToTable(queryResult);
         }
         else if (queryResult.length === 1) {
-            const targets = queryResult[0].data;
+            const targets = queryResult[0].instances;
             if (targets.length > 0 && targets[0].datapoints.length > 0)
                 return this.transformStringToTable(targets[0].datapoints[0][0] as string);
         }

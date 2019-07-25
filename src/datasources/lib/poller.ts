@@ -15,16 +15,26 @@ export default class Poller {
         }
 
         const data = await this.context.fetch(metrics, true);
-        this.datastore.ingest(data);
+        await this.datastore.ingest(data);
+
+        const returnedMetrics = data.values.map((metric: any) => metric.name);
+        const missingMetrics = _.difference(metrics, returnedMetrics);
+        if (missingMetrics.length > 0) {
+            console.debug(`fetch didn't include result for ${missingMetrics.join(',')}, clearing it from requested metrics`);
+            for (const missingMetric of missingMetrics) {
+                delete this.requestedMetrics[missingMetric];
+            }
+        }
     }
 
-    ensurePolling(metrics: string[]) {
+    async ensurePolling(metrics: string[]) {
         const now = new Date().getTime()
-        for (const metric of metrics) {
-            if (!this.context.findMetricMetadata(metric))
-                throw { message: `Cannot find metric ${metric} on PMDA.` };
+        const metadatas = await this.context.metricMetadatas(metrics);
+        const validMetrics = _.intersection(metrics, Object.keys(metadatas));
+        for (const metric of validMetrics) {
             this.requestedMetrics[metric] = now
         }
+        return validMetrics;
     }
 
     removeMetricsFromPolling(metrics: string[]) {

@@ -4,7 +4,7 @@ import { TargetFormat, PanelData } from "../lib/types";
 import EndpointRegistry, { Endpoint } from "../lib/endpoint_registry";
 import Transformations from "../lib/transformations";
 import Context from "../lib/context";
-import { synchronized, getConnectionParams } from "../lib/utils";
+import { getConnectionParams } from "../lib/utils";
 
 export class PcpLiveDatasource {
 
@@ -55,13 +55,11 @@ export class PcpLiveDatasource {
         return Promise.all(promises);
     }
 
-    @synchronized
-    async getOrCreateEndpoint(target: any = {}) {
+    getOrCreateEndpoint(target: any = {}) {
         const [url, container] = getConnectionParams(this.variableSrv, target, this.instanceSettings);
         let endpoint = this.endpointRegistry.find(url, container);
         if (!endpoint) {
             endpoint = this.endpointRegistry.create(url, container, this.keepPollingMs, this.localHistoryAgeMs);
-            await endpoint.context.fetchMetricMetadata(); // TODO: where?
         }
         return endpoint;
     }
@@ -92,18 +90,11 @@ export class PcpLiveDatasource {
     /**
      * called by the templating engine (dashboard variables with type = query)
      */
-    async metricFindQuery(query) {
-        let endpoint = await this.getOrCreateEndpoint();
-        if (query === 'containers.name') {
-            const metricsResponse = await endpoint.context.fetch(["containers.name"]);
-            return metricsResponse.values[0].instances
-                .map((instance: any) => instance.value)
-                .filter(this.container_name_filter)
-                .map((container: string) => ({ text: container, value: container }));
-        }
-        else {
-            return [];
-        }
+    async metricFindQuery(query: string) {
+        let endpoint = this.getOrCreateEndpoint();
+        const metricsResponse = await endpoint.context.fetch([query]);
+        return metricsResponse.values[0].instances
+            .map((instance: any) => ({ text: instance.value, value: instance.value }));
     }
 
     async query(query: any) {
@@ -123,7 +114,7 @@ export class PcpLiveDatasource {
             if (expr.length === 0)
                 continue;
 
-            let endpoint = await this.getOrCreateEndpoint(target);
+            let endpoint = this.getOrCreateEndpoint(target);
             try {
                 //const parser = new Parser();
                 //const expressions = parser.parse(expr);
@@ -140,10 +131,14 @@ export class PcpLiveDatasource {
                     metricsToPoll = [expr];
                 }
 
-                endpoint.poller.ensurePolling(metricsToPoll);
+                const validMetrics = await endpoint.poller.ensurePolling(metricsToPoll);
+                if (validMetrics.length !== metricsToPoll.length) {
+                    const invalidMetrics = _.difference(metricsToPoll, validMetrics);
+                    throw { message: `Cannot find metric ${invalidMetrics.join(',')} on PMDA.` };
+                }
+
                 let queryResult = endpoint.datastore.queryMetrics(metricsToPoll, query.range.from.valueOf(), query.range.to.valueOf());
                 panelData.push(...this.transformations.transform(queryResult, target));
-
                 if (target.format === TargetFormat.Table) {
                     break;
                 }

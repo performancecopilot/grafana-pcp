@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import Context from './context';
-import { Datapoint, TimeSeriesData } from './types';
+import { Datapoint, TimeSeriesData, DatastoreQueryResultRow } from './types';
 
 type StoredDatapoint = [number | string | undefined, number, number?];
 
@@ -23,16 +23,17 @@ export default class DataStore {
         }
     }
 
-    private ingestMetric(metricStore: Record<string, StoredDatapoint[]>, metric: any, pollTimeEpochMs: number) {
-        const metadata = this.context.findMetricMetadata(metric.name);
+    private async ingestMetric(metricStore: Record<string, StoredDatapoint[]>, metric: any, pollTimeEpochMs: number) {
+        const metadata = await this.context.metricMetadata(metric.name);
         if (!metadata) {
             console.info(`skipping ingestion of ${metric.name}: metadata not available`);
             return;
         }
 
         for (const instance of metric.instances) {
-            // for the bpftrace output variable, always recreate the metric store (do not store history)
-            if (!(instance.instanceName in metricStore) || (metadata.labels && metadata.labels.metrictype === "output")) {
+            // do not store history for the bpftrace control and output metrics
+            if (!(instance.instanceName in metricStore) ||
+                (metadata.labels && ["control", "output"].includes(metadata.labels.metrictype))) {
                 metricStore[instance.instanceName] = [];
             }
 
@@ -45,7 +46,7 @@ export default class DataStore {
         }
     }
 
-    ingest(data: any) {
+    async ingest(data: any) {
         if (_.isEmpty(data))
             return;
 
@@ -55,7 +56,7 @@ export default class DataStore {
                 this.store[metric.name] = {};
             }
 
-            this.ingestMetric(this.store[metric.name], metric, pollTimeEpochMs);
+            await this.ingestMetric(this.store[metric.name], metric, pollTimeEpochMs);
         }
     }
 
@@ -74,8 +75,8 @@ export default class DataStore {
         return results;
     }
 
-    queryMetrics(metrics: string[], from: number, to: number) {
-        return metrics.map((metric: string) => ({ metric: metric, data: this.queryMetric(metric, from, to) }));
+    queryMetrics(metrics: string[], from: number, to: number) : DatastoreQueryResultRow[] {
+        return metrics.map((metric: string) => ({ name: metric, instances: this.queryMetric(metric, from, to) }));
     }
 
     cleanExpiredMetrics() {

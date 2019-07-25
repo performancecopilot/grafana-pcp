@@ -1,3 +1,12 @@
+export interface MetricMetadata {
+    name: string,
+    pmid: number,
+    sem: string,
+    type: string,
+    units: string,
+    labels: Record<string, any>
+}
+
 export type Datapoint = [number | string, number];
 
 export interface TimeSeriesData {
@@ -20,8 +29,8 @@ export enum TargetFormat {
 }
 
 export interface DatastoreQueryResultRow {
-    metric: string;
-    data: TimeSeriesData[];
+    name: string;
+    instances: TimeSeriesData[];
 }
 
 export type DatastoreQueryResult = DatastoreQueryResultRow[];

@@ -1,12 +1,6 @@
 import _ from 'lodash';
 import { synchronized } from './utils';
-
-interface MetricMetadata {
-    name: string,
-    pmid: number,
-    sem: string,
-    labels: Record<string, any>
-}
+import { MetricMetadata } from './types';
 
 export default class Context {
 
@@ -59,32 +53,29 @@ export default class Context {
         }
     }
 
-    async fetchMetricMetadata(prefix?: string) {
-        let params: any = {};
-        if (prefix)
-            params.prefix = prefix;
-
-        const metrics = await this.ensureContext(async () => {
-            const response = await Context.datasourceRequest({
-                //url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
-                url: `http://localhost:44322/pmapi/metric`,
-                params
+    async metricMetadatas(metrics: string[]): Promise<{ [key: string]: MetricMetadata }> {
+        const requiredMetrics = _.difference(metrics, Object.keys(this.metricMetadataCache));
+        if (requiredMetrics.length > 0) {
+            requiredMetrics.push("pmcd.control.timeout"); // TODO: remove workaround - server should return empty list if no metrics were found
+            const metadata = await this.ensureContext(async () => {
+                const response = await Context.datasourceRequest({
+                    //url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
+                    url: `http://localhost:44322/pmapi/metric`,
+                    params: { names: requiredMetrics.join(',') }
+                });
+                return response.data.metrics;
             });
-            return response.data.metrics;
-        });
 
-        this.metricMetadataCache = {};
-        for (const metric of metrics) {
-            this.metricMetadataCache[metric.name] = metric;
+            for (const metric of metadata) {
+                this.metricMetadataCache[metric.name] = metric;
+            }
         }
+        return _.pick(this.metricMetadataCache, metrics); // _.pick ignores non-existing keys
     }
 
-    findMetricMetadata(metric: string) {
-        return this.metricMetadataCache[metric];
-    }
-
-    getAllMetricNames() {
-        return Object.keys(this.metricMetadataCache);
+    async metricMetadata(metric: string) {
+        const metadata = await this.metricMetadatas([metric]);
+        return metadata[metric];
     }
 
     private async refreshIndoms(metric: string) {
@@ -104,7 +95,33 @@ export default class Context {
         return this.indomCache[metric];
     }
 
+    private async updateInstanceNames(metric: any) {
+        if (metric.instances.length == 0) {
+            return;
+        } else if (metric.instances[0].instance === null || metric.instances[0].instance === -1) {
+            // this metric has no instances (single value)
+            metric.instances[0].instanceName = null;
+            return;
+        }
+
+        if (!(metric.name in this.indomCache))
+            this.indomCache[metric.name] = await this.refreshIndoms(metric.name);
+
+        let refreshed = false;
+        for (const instance of metric.instances) {
+            instance.instanceName = this.indomCache[metric.name][instance.instance];
+            if (!instance.instanceName && !refreshed) {
+                // refresh instances at max once per metric
+                this.indomCache[metric.name] = await this.refreshIndoms(metric.name);
+                instance.instanceName = this.indomCache[metric.name][instance.instance];
+                refreshed = true;
+            }
+        }
+    }
+
     async fetch(metrics: string[], instanceNames: boolean = false) {
+        metrics.push("pmcd.control.timeout"); // TODO: remove workaround - server should return empty list if no metrics were found
+
         const data = await this.ensureContext(async () => {
             const response = await Context.datasourceRequest({
                 url: `${this.url}/pmapi/${this.context}/${this.d}fetch`,
@@ -113,30 +130,18 @@ export default class Context {
             return response.data;
         });
 
+        const returnedMetrics = data.values.map((metric: any) => metric.name);
+        const missingMetrics = _.difference(metrics, returnedMetrics);
+        if (missingMetrics.length > 0) {
+            console.debug(`fetch didn't include result for ${missingMetrics.join(',')}, clearing it from metric metadata cache`);
+            for (const missingMetric of missingMetrics) {
+                delete this.metricMetadataCache[missingMetric];
+            }
+        }
+
         if (instanceNames) {
-            // add instance names to instances
             for (const metric of data.values) {
-                if (metric.instances.length == 0) {
-                    continue;
-                } else if (metric.instances[0].instance === null || metric.instances[0].instance === -1) { // this metric has no instances (single value)
-                    metric.instances[0].instanceName = null;
-                    continue;
-                }
-
-                let indomsForMetric = this.indomCache[metric.name];
-                if (!indomsForMetric)
-                    indomsForMetric = await this.refreshIndoms(metric.name);
-
-                let refreshed = false;
-                for (const instance of metric.instances) {
-                    instance.instanceName = indomsForMetric[instance.instance];
-                    if (!instance.instanceName && !refreshed) {
-                        // refresh instances at max once per metric
-                        indomsForMetric = await this.refreshIndoms(metric.name);
-                        instance.instanceName = indomsForMetric[instance.instance];
-                        refreshed = true;
-                    }
-                }
+                await this.updateInstanceNames(metric);
             }
         }
 

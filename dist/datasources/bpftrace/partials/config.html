@@ -16,17 +16,6 @@
   </div>
   <div class="gf-form-inline">
     <div class="gf-form">
-      <span class="gf-form-label width-10">Script sync interval</span>
-      <input type="text" class="gf-form-input gf-form-input--has-help-icon width-8"
-        ng-model="ctrl.current.jsonData.scriptSyncInterval" spellcheck="false" placeholder="20s"
-        ng-pattern="/^\d+[Mwdhmsy]$/"></input>
-      <info-popover mode="right-absolute">
-        Specifies the interval how often the script status should be polled from the bpftrace PMDA.
-      </info-popover>
-    </div>
-  </div>
-  <div class="gf-form-inline">
-    <div class="gf-form">
       <span class="gf-form-label width-10">Keep polling</span>
       <input type="text" class="gf-form-input gf-form-input--has-help-icon width-8"
         ng-model="ctrl.current.jsonData.keepPolling" spellcheck="false" placeholder="20s"

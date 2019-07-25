@@ -16,7 +16,6 @@ export class PCPBPFtraceDatasource {
     headers: any;
 
     pollIntervalMs: number; // poll metric sources every X ms
-    scriptSyncIntervalMs: number; // // script sync interval
     keepPollingMs: number; // we will keep polling a metric for up to X ms after it was last requested
     localHistoryAgeMs: number; // age out time
 
@@ -33,7 +32,6 @@ export class PCPBPFtraceDatasource {
         }
 
         this.pollIntervalMs = kbn.interval_to_ms(instanceSettings.jsonData.pollInterval || '1s');
-        this.scriptSyncIntervalMs = kbn.interval_to_ms(instanceSettings.jsonData.scriptSyncInterval || '20s');
         this.keepPollingMs = kbn.interval_to_ms(instanceSettings.jsonData.keepPolling || '20s');
         this.localHistoryAgeMs = kbn.interval_to_ms(instanceSettings.jsonData.localHistoryAge || '5m');
 
@@ -43,8 +41,6 @@ export class PCPBPFtraceDatasource {
 
         if (this.pollIntervalMs > 0)
             setInterval(this.doPollAll.bind(this), this.pollIntervalMs);
-        if (this.scriptSyncIntervalMs > 0)
-            setInterval(this.syncScriptStates.bind(this), this.scriptSyncIntervalMs);
     }
 
     doPollAll() {
@@ -52,16 +48,8 @@ export class PCPBPFtraceDatasource {
         for (const endpoint of this.endpointRegistry.list()) {
             endpoint.datastore.cleanExpiredMetrics();
             endpoint.poller.cleanupExpiredMetrics();
-            promises.push(endpoint.poller.poll());
-        }
-        return Promise.all(promises);
-    }
-
-    syncScriptStates() {
-        let promises: Promise<void>[] = [];
-        for (const endpoint of this.endpointRegistry.list()) {
             endpoint.scriptRegistry.cleanupExpiredScripts();
-            promises.push(endpoint.scriptRegistry.syncState());
+            promises.push(endpoint.poller.poll());
         }
         return Promise.all(promises);
     }
@@ -71,7 +59,7 @@ export class PCPBPFtraceDatasource {
         let endpoint = this.endpointRegistry.find(url);
         if (!endpoint) {
             endpoint = this.endpointRegistry.create(url, undefined, this.keepPollingMs, this.localHistoryAgeMs);
-            endpoint.scriptRegistry = new ScriptRegistry(endpoint.context, endpoint.poller, this.keepPollingMs);
+            endpoint.scriptRegistry = new ScriptRegistry(endpoint.context, endpoint.poller, endpoint.datastore, this.keepPollingMs);
         }
         return endpoint;
     }
@@ -102,29 +90,29 @@ export class PCPBPFtraceDatasource {
         return [];
     }
 
-    getMetricNameForMetricType(context: Context, script: BPFtraceScript, metrictype: string) {
+    private async getMetricNameForMetricType(context: Context, script: BPFtraceScript, metrictype: string) {
         for (const var_ of script.vars) {
             const metric = `bpftrace.scripts.${script.name}.data.${var_}`;
-            const metricMetadata = context.findMetricMetadata(metric);
+            const metricMetadata = await context.metricMetadata(metric);
             if (metricMetadata && metricMetadata.labels && metricMetadata.labels.metrictype === metrictype)
                 return metric;
         }
         return null;
     }
 
-    getMetricNamesForTarget(context: Context, target: any, script: BPFtraceScript) {
+    private async getMetricNamesForTarget(context: Context, target: any, script: BPFtraceScript) {
         if (target.format === TargetFormat.TimeSeries) {
             return script.vars.map(var_ => `bpftrace.scripts.${script.name}.data.${var_}`);
         }
         else if (target.format === TargetFormat.Heatmap) {
-            const metric = this.getMetricNameForMetricType(context, script, "histogram");
+            const metric = await this.getMetricNameForMetricType(context, script, "histogram");
             if (metric)
                 return [metric];
             else
                 throw { message: "Cannot find any histogram in this BPFtrace script." };
         }
         else if (target.format === TargetFormat.Table) {
-            const metric = this.getMetricNameForMetricType(context, script, "output");
+            const metric = await this.getMetricNameForMetricType(context, script, "output");
             if (metric)
                 return [metric];
             else
@@ -153,7 +141,7 @@ export class PCPBPFtraceDatasource {
                 script = await endpoint.scriptRegistry.ensureActive(code);
 
                 if (script.status === "started" || script.status === "starting") {
-                    const metrics = this.getMetricNamesForTarget(endpoint.context, target, script);
+                    const metrics = await this.getMetricNamesForTarget(endpoint.context, target, script);
                     endpoint.poller.ensurePolling(metrics);
 
                     let result = endpoint.datastore.queryMetrics(metrics, query.range.from.valueOf(), query.range.to.valueOf());

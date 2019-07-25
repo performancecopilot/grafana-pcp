@@ -7,7 +7,8 @@ describe("Poller", () => {
 
     beforeEach(() => {
         ctx.context = {
-            findMetricMetadata: jest.fn(),
+            metricMetadatas: jest.fn(),
+            metricMetadata: (metric) => ctx.context.metricMetadatas()[metric],
             fetch: jest.fn()
         }
         ctx.datastore = new DataStore(ctx.context, 25000)
@@ -16,7 +17,7 @@ describe("Poller", () => {
     });
 
     it("should poll", async () => {
-        ctx.context.findMetricMetadata.mockReturnValue({});
+        ctx.context.metricMetadatas.mockReturnValue({ "bpftrace.scripts.script1.data.scalar": {} });
         ctx.context.fetch.mockReturnValue({
             "timestamp": {
                 "s": 5,
@@ -33,7 +34,7 @@ describe("Poller", () => {
             }]
         });
 
-        ctx.poller.ensurePolling(["bpftrace.scripts.script1.data.scalar"]);
+        await ctx.poller.ensurePolling(["bpftrace.scripts.script1.data.scalar"]);
         await ctx.poller.poll();
 
         const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity);
@@ -47,8 +48,20 @@ describe("Poller", () => {
     });
 
     it("should add and remove metrics to poll", async () => {
-        ctx.context.findMetricMetadata.mockReturnValue({});
-        ctx.poller.ensurePolling(["metric1", "metric2", "metric3"]);
+        ctx.context.metricMetadatas.mockReturnValue({ "metric1": {}, "metric2": {}, "metric3": {} });
+        ctx.context.fetch.mockReturnValue({
+            "timestamp": {
+                "s": 6,
+                "us": 2000
+            },
+            "values": [
+                { name: "metric1", instances: [] },
+                { name: "metric2", instances: [] },
+                { name: "metric3", instances: [] }
+            ]
+        });
+
+        await ctx.poller.ensurePolling(["metric1", "metric2", "metric3"]);
         ctx.poller.removeMetricsFromPolling(["metric2", "metric3"]);
         await ctx.poller.poll();
 
@@ -56,10 +69,22 @@ describe("Poller", () => {
     });
 
     it("should remove metrics which weren't requested in a specified time period", async () => {
-        ctx.context.findMetricMetadata.mockReturnValue({});
-        ctx.poller.ensurePolling(["metric1", "metric2", "metric3"]);
+        ctx.context.metricMetadatas.mockReturnValue({ "metric1": {}, "metric2": {}, "metric3": {} });
+        ctx.context.fetch.mockReturnValue({
+            "timestamp": {
+                "s": 6,
+                "us": 2000
+            },
+            "values": [
+                { name: "metric1", instances: [] },
+                { name: "metric2", instances: [] },
+                { name: "metric3", instances: [] }
+            ]
+        });
+
+        await ctx.poller.ensurePolling(["metric1", "metric2", "metric3"]);
         dateMock.advanceBy(7000);
-        ctx.poller.ensurePolling(["metric1"]);
+        await ctx.poller.ensurePolling(["metric1"]);
         dateMock.advanceBy(5000);
 
         // max age is 10s
