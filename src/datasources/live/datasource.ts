@@ -100,7 +100,7 @@ export class PcpLiveDatasource {
     async query(query: any) {
         const panelData: PanelData[] = [];
         for (const target of query.targets) {
-            if (target.hide || (!target.expr && !target.target))
+            if (target.hide || (!target.expr && !target.target) || target.isTyping)
                 continue;
 
             // TODO: remove me: workaround for old dashboards

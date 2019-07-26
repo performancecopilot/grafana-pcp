@@ -1,15 +1,15 @@
-import { QueryCtrl } from 'grafana/app/plugins/sdk';
 import { TargetFormat } from '../lib/types';
 import PCPMetricCompleter from './completer';
+import { PcpQueryCtrl } from "../lib/pcp_query_ctrl";
 import './mode-pcp';
 
-export class PcpLiveDatasourceQueryCtrl extends QueryCtrl {
+export class PcpLiveDatasourceQueryCtrl extends PcpQueryCtrl {
     static templateUrl = 'datasources/live/partials/query.editor.html'
 
     formats: any = [];
 
     /** @ngInject **/
-    constructor($scope, $injector) {
+    constructor($scope: any, $injector: any) {
         super($scope, $injector);
 
         // TODO: remove workaround
@@ -44,7 +44,4 @@ export class PcpLiveDatasourceQueryCtrl extends QueryCtrl {
         return new PCPMetricCompleter(this.datasource, this.target);
     }
 
-    refreshMetricData() {
-        this.panelCtrl.refresh(); // Asks the panel to refresh data.
-    }
 }

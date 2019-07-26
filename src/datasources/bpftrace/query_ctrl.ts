@@ -1,14 +1,14 @@
-import { QueryCtrl } from 'grafana/app/plugins/sdk';
 import { TargetFormat } from '../lib/types';
+import { PcpQueryCtrl } from '../lib/pcp_query_ctrl';
 
-export class PCPBPFtraceDatasourceQueryCtrl extends QueryCtrl {
+export class PCPBPFtraceDatasourceQueryCtrl extends PcpQueryCtrl {
     static templateUrl = 'datasources/bpftrace/partials/query.editor.html';
 
     formats: any = [];
 
     /** @ngInject **/
-    constructor($scope, $injector) {
-        super($scope, $injector);
+    constructor($scope: any, $injector: any) {
+        super($scope, $injector, 5000);
 
         this.target.code = this.target.code || "";
         this.target.format = this.target.format || this.getDefaultFormat();
@@ -30,7 +30,4 @@ export class PCPBPFtraceDatasourceQueryCtrl extends QueryCtrl {
         return TargetFormat.TimeSeries;
     }
 
-    refreshMetricData() {
-        this.panelCtrl.refresh(); // Asks the panel to refresh data.
-    }
 }

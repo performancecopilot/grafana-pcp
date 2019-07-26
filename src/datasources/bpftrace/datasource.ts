@@ -124,7 +124,7 @@ export class PCPBPFtraceDatasource {
     async query(query: any) {
         const panelData: PanelData[] = [];
         for (const target of query.targets) {
-            if (target.hide || !target.code)
+            if (target.hide || !target.code || target.isTyping)
                 continue;
 
             // TODO: allow templating of bpftrace script code?

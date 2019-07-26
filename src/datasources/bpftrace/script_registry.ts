@@ -59,7 +59,7 @@ export default class ScriptRegistry {
         // missing script metrics on the PMDA and script is not starting, register again
         if (validMetrics.length < controlMetrics.length && script.status !== "starting") {
             const missingMetrics = _.difference(controlMetrics, validMetrics);
-            console.debug(`script ${script.name} got deregistered on the PMDA (missing metrics: ${missingMetrics.join(',')})`);
+            console.debug(`script ${script.name} got deregistered on the PMDA (missing metrics: ${missingMetrics.join(', ')})`);
             delete this.scripts[code];
             return allowRestart ? this.ensureActive(code, false) : script;
         }

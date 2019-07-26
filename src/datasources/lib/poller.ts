@@ -20,7 +20,7 @@ export default class Poller {
         const returnedMetrics = data.values.map((metric: any) => metric.name);
         const missingMetrics = _.difference(metrics, returnedMetrics);
         if (missingMetrics.length > 0) {
-            console.debug(`fetch didn't include result for ${missingMetrics.join(',')}, clearing it from requested metrics`);
+            console.debug(`fetch didn't include result for ${missingMetrics.join(', ')}, clearing it from requested metrics`);
             for (const missingMetric of missingMetrics) {
                 delete this.requestedMetrics[missingMetric];
             }
@@ -33,7 +33,8 @@ export default class Poller {
 
         if (failOnError && validMetrics.length < metrics.length) {
             const invalidMetrics = _.difference(metrics, validMetrics);
-            throw { message: `Cannot find metric(s) ${invalidMetrics.join(',')} on PMDA.` };
+            const s = invalidMetrics.length !== 1 ? 's' : '';
+            throw { message: `Cannot find metric${s} ${invalidMetrics.join(', ')}. Please check if the PMDA is enabled.` };
         }
 
         const now = new Date().getTime()
