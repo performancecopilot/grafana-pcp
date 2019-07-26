@@ -133,9 +133,10 @@ export default class Context {
         const returnedMetrics = data.values.map((metric: any) => metric.name);
         const missingMetrics = _.difference(metrics, returnedMetrics);
         if (missingMetrics.length > 0) {
-            console.debug(`fetch didn't include result for ${missingMetrics.join(',')}, clearing it from metric metadata cache`);
+            console.debug(`fetch didn't include result for ${missingMetrics.join(',')}, clearing it from metric metadata and indom cache`);
             for (const missingMetric of missingMetrics) {
                 delete this.metricMetadataCache[missingMetric];
+                delete this.indomCache[missingMetric];
             }
         }
 

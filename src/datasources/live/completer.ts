@@ -6,6 +6,7 @@ import { MetricMetadata } from "../lib/types";
 export default class PCPMetricCompleter {
 
     identifierRegexps = [/\./, /[a-zA-Z0-9_]/];
+    childrenCache: Record<string, Record<string, { leaf: string[], nonleaf: string[] }>> = {};
 
     constructor(private datasource: PcpLiveDatasource, private target: any) {
     }
@@ -37,6 +38,18 @@ export default class PCPMetricCompleter {
             `${help}`;
     }
 
+    async getChildren(endpoint: Endpoint, prefix: string) {
+        if (endpoint.id in this.childrenCache && prefix in this.childrenCache[endpoint.id])
+            return this.childrenCache[endpoint.id][prefix];
+
+        const suggestions = await endpoint.context.children(prefix);
+        if (!(endpoint.id in this.childrenCache))
+            this.childrenCache[endpoint.id] = {};
+        this.childrenCache[endpoint.id][prefix] = { nonleaf: suggestions.nonleaf, leaf: suggestions.leaf };
+
+        return this.childrenCache[endpoint.id][prefix];
+    }
+
     async findCompletions(editor: any, session: any, pos: any, prefix: any) {
         // don't do this in constructor of PCPMetricCompleter, as the user could
         // change the endpoint settings of the query, but the constructor is only called once
@@ -49,7 +62,7 @@ export default class PCPMetricCompleter {
             metricPrefix = editorValue.substring(0, editorValue.lastIndexOf("."));
         }
 
-        const suggestions = await endpoint.context.children(metricPrefix);
+        const suggestions = await this.getChildren(endpoint, metricPrefix);
         if (prefix !== ".")
             prefix = "";
 

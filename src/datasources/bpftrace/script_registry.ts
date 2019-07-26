@@ -54,10 +54,10 @@ export default class ScriptRegistry {
             `bpftrace.scripts.${script.name}.exit_code`,
             `bpftrace.scripts.${script.name}.output`
         ];
-        const validMetrics = await this.poller.ensurePolling(controlMetrics);
+        const validMetrics = await this.poller.ensurePolling(controlMetrics, false);
 
         // missing script metrics on the PMDA and script is not starting, register again
-        if (validMetrics.length !== controlMetrics.length && script.status !== "starting") {
+        if (validMetrics.length < controlMetrics.length && script.status !== "starting") {
             const missingMetrics = _.difference(controlMetrics, validMetrics);
             console.debug(`script ${script.name} got deregistered on the PMDA (missing metrics: ${missingMetrics.join(',')})`);
             delete this.scripts[code];
@@ -122,7 +122,6 @@ export default class ScriptRegistry {
 
     cleanupExpiredScripts() {
         // clean up any not required scripts
-        // otherwise they get synced forever
         const scriptExpiry = new Date().getTime() - this.keepPollingMs;
         this.scripts = _.pickBy(this.scripts, (script: BPFtraceScript) => script.lastRequested > scriptExpiry);
     }

@@ -3,6 +3,7 @@ import DataStore from "./datastore";
 import Poller from './poller';
 
 export interface Endpoint {
+    id: string;
     context: Context;
     poller: Poller;
     datastore: DataStore;
@@ -28,7 +29,7 @@ export default class EndpointRegistry<T extends Endpoint> {
         const datastore = new DataStore(context, localHistoryAgeMs);
         const poller = new Poller(context, datastore, keepPollingMs);
 
-        this.endpoints[id] = { context, datastore, poller } as T;
+        this.endpoints[id] = { id, context, datastore, poller } as T;
         return this.endpoints[id];
     }
 

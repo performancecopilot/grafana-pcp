@@ -52,7 +52,7 @@ export default class DataStore {
 
         const pollTimeEpochMs = data.timestamp.s ? data.timestamp.s * 1000 + data.timestamp.us / 1000 : data.timestamp * 1000;
         for (const metric of data.values) {
-            if (!this.store[metric.name]) {
+            if (!(metric.name in this.store)) {
                 this.store[metric.name] = {};
             }
 

@@ -131,12 +131,7 @@ export class PcpLiveDatasource {
                     metricsToPoll = [expr];
                 }
 
-                const validMetrics = await endpoint.poller.ensurePolling(metricsToPoll);
-                if (validMetrics.length !== metricsToPoll.length) {
-                    const invalidMetrics = _.difference(metricsToPoll, validMetrics);
-                    throw { message: `Cannot find metric ${invalidMetrics.join(',')} on PMDA.` };
-                }
-
+                await endpoint.poller.ensurePolling(metricsToPoll);
                 let queryResult = endpoint.datastore.queryMetrics(metricsToPoll, query.range.from.valueOf(), query.range.to.valueOf());
                 panelData.push(...this.transformations.transform(queryResult, target));
                 if (target.format === TargetFormat.Table) {
