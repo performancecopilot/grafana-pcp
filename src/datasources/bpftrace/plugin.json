@@ -13,8 +13,8 @@
         },
         "description": "Grafana datasource for the PCP bpftrace PMDA",
         "logos": {
-            "small": "../performancecopilot-pcp-app/datasources/bpftrace/img/pcp.png",
-            "large": "../performancecopilot-pcp-app/datasources/bpftrace/img/pcp.png"
+            "small": "../performancecopilot-pcp-app/img/pcp-logo.svg",
+            "large": "../performancecopilot-pcp-app/img/pcp-logo.svg"
         },
         "links": [
             {

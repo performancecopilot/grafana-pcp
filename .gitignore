@@ -6,6 +6,7 @@ node_modules
 /packaging/rpm/*.tar.gz
 
 # Test artifacts
+/dist/img
 /dist/src
 /dist/test
 /dist/spec

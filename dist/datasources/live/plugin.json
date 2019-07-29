@@ -15,8 +15,8 @@
       "url": "https://github.com/netflix"
     },
     "logos": {
-      "small": "img/pcp-logo.png",
-      "large": "img/pcp-logo.png"
+      "small": "../performancecopilot-pcp-app/img/pcp-logo.svg",
+      "large": "../performancecopilot-pcp-app/img/pcp-logo.svg"
     },
     "links": [
       {"name": "GitHub", "url": "https://github.com/performancecopilot/grafana-pcp"}
