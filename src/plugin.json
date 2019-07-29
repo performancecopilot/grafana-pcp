@@ -9,15 +9,14 @@
       "name": "Performance Co-Pilot and Netflix",
       "url": "https://pcp.io"
     },
-    "keywords": ["performancecopilot", "pcp", "bpftrace"],
+    "keywords": ["performancecopilot", "pcp", "ebpf", "bpftrace", "containers"],
     "logos": {
       "small": "img/pcp.png",
       "large": "img/pcp.png"
     },
     "links": [
       {"name": "GitHub", "url": "https://github.com/performancecopilot/grafana-pcp"},
-      {"name": "License", "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/LICENSE"},
-      {"name": "License PCP Live", "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/src/datasources/live/LICENSE"}
+      {"name": "License", "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/LICENSE"}
     ],
     "version": "0.0.7",
     "updated": "2019-07-05"
