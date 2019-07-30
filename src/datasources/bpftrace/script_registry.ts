@@ -73,13 +73,19 @@ export default class ScriptRegistry {
             await context.store("bpftrace.control.register", code);
         }
         catch (error) {
-            if (error.data && error.data.includes("-12400")) {
-                // PMDA returned PM_ERR_BADSTORE
-                // next fetch will show error reason
+            if (_.isObject(error.data)) {
+                if (error.data.message.includes("failed to lookup metric")) {
+                    throw { message: "Please install the bpftrace PMDA to use this datasource." };
+                }
+                else if (error.data.message.includes("Bad input")) {
+                    // PMDA returned PM_ERR_BADSTORE
+                    // next fetch will show error reason from bpftrace PMDA
+                }
+                else {
+                    throw { message: error.data.message };
+                }
             }
             else {
-                // other error
-                error.message = error.data ? error.data : "unknown error";
                 throw error;
             }
         }
