@@ -1,4 +1,4 @@
-export function interval_to_ms(interval) {
+function interval_to_ms(interval) {
     if (interval.substring(interval.length - 1) === 's') {
         return interval.substring(0, interval.length - 1) * 1000;
     }
@@ -7,3 +7,5 @@ export function interval_to_ms(interval) {
     }
     return undefined;
 }
+
+export default { interval_to_ms }

@@ -1,27 +1,30 @@
-import Poller from "../../lib/poller";
-import DataStore from "../../lib/datastore";
-import ScriptRegistry, { BPFtraceScript } from "../script_registry";
+import ScriptRegistry from "../script_registry";
 import * as dateMock from 'jest-date-mock';
 import * as Context_ from "../../lib/context";
 
 const Context = Context_.default;
-const ContextMock: { fetchMetricMetadata: jest.Mock, findMetricMetadata: jest.Mock, fetch: jest.Mock, store: jest.Mock } = Context_ as any;
+const ContextMock: { metricMetadatas: jest.Mock, metricMetadata: jest.Mock, fetch: jest.Mock, store: jest.Mock } = Context_ as any;
 jest.mock("../../lib/context");
 
-describe.skip("ScriptRegistry", () => {
-    let ctx: { context: any, datastore: DataStore, poller: Poller, scriptRegistry: ScriptRegistry } = {} as any;
+describe("ScriptRegistry", () => {
+    let ctx: { context: any, datastore: any, poller: any, scriptRegistry: ScriptRegistry } = {} as any;
 
     beforeEach(() => {
         (Context as any).mockClear();
-        ContextMock.fetchMetricMetadata.mockClear();
-        ContextMock.findMetricMetadata.mockClear();
+        ContextMock.metricMetadatas.mockClear();
+        ContextMock.metricMetadata.mockClear();
         ContextMock.fetch.mockClear();
         ContextMock.store.mockClear();
         dateMock.clear();
 
-        ctx.context = new Context("http://localhost:44323");
-        ctx.datastore = new DataStore(ctx.context, 25000)
-        ctx.poller = new Poller(ctx.context, ctx.datastore, 10000);
+        ctx.context = {};
+        ctx.datastore = {
+            queryMetrics: jest.fn()
+        };
+        ctx.poller = {
+            ensurePolling: jest.fn(),
+            removeMetricsFromPolling: jest.fn()
+        };
         ctx.scriptRegistry = new ScriptRegistry(ctx.context, ctx.poller, ctx.datastore, 10000);
     });
 
@@ -41,13 +44,26 @@ describe.skip("ScriptRegistry", () => {
                 }]
             }]
         });
+        ctx.poller.ensurePolling.mockReturnValue([
+            "bpftrace.scripts.script1.status",
+            "bpftrace.scripts.script1.exit_code",
+            "bpftrace.scripts.script1.output"
+        ]);
+        ctx.datastore.queryMetrics.mockReturnValueOnce({
+            metrics: []
+        });
 
         await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
     }
 
     it("should register a script only once", async () => {
         await registerScript();
+
+        ctx.datastore.queryMetrics.mockReturnValueOnce({
+            metrics: []
+        });
         await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
+
         expect(ContextMock.store).toHaveBeenCalledTimes(1);
     });
 
@@ -68,8 +84,7 @@ describe.skip("ScriptRegistry", () => {
             }]
         });
 
-        let script: BPFtraceScript;
-        script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { bytes = hist(retval); }");
+        let script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { bytes = hist(retval); }");
         expect(script).toMatchObject({
             "status": "stopped",
             "output": "no variable found"
@@ -86,39 +101,27 @@ describe.skip("ScriptRegistry", () => {
     it("should handle a failed script, after the script started", async () => {
         await registerScript();
 
-        ContextMock.findMetricMetadata.mockReturnValue({});
-        ContextMock.fetch.mockReturnValueOnce({
-            "timestamp": {
-                "s": 5,
-                "us": 2000
-            },
-            "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.scripts.script1.status",
-                "instances": [{
-                    "instance": -1,
-                    "value": "stopped",
-                    "instanceName": null
+        ctx.datastore.queryMetrics.mockReturnValueOnce({
+            metrics: [{
+                name: "bpftrace.scripts.script1.status",
+                instances: [{
+                    name: "",
+                    values: [["stopped"]]
                 }]
             }, {
-                "pmid": 633356299,
-                "name": "bpftrace.scripts.script1.output",
-                "instances": [{
-                    "instance": -1,
-                    "value": "syntax error",
-                    "instanceName": null
+                name: "bpftrace.scripts.script1.output",
+                instances: [{
+                    name: "",
+                    values: [["syntax error"]]
                 }]
             }, {
-                "pmid": 633356299,
-                "name": "bpftrace.scripts.script1.exit_code",
-                "instances": [{
-                    "instance": -1,
-                    "value": 1,
-                    "instanceName": null
+                name: "bpftrace.scripts.script1.exit_code",
+                instances: [{
+                    name: "",
+                    values: [[1]]
                 }]
             }]
         });
-        //await ctx.scriptRegistry.syncState();
 
         let script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
         expect(script).toMatchObject({
@@ -127,48 +130,34 @@ describe.skip("ScriptRegistry", () => {
             "exit_code": 1
         });
         expect(ContextMock.store).toHaveBeenCalledTimes(1);
+        expect(ctx.poller.removeMetricsFromPolling).toHaveBeenCalledWith(["bpftrace.scripts.script1.status", "bpftrace.scripts.script1.exit_code", "bpftrace.scripts.script1.output"]);
     });
 
     it("should restart a stopped script", async () => {
         await registerScript();
 
         // sync state: set status to stopped, exit_code to 0
-        ContextMock.findMetricMetadata
-            .mockReturnValueOnce({})
-            .mockReturnValueOnce({})
-            .mockReturnValueOnce({});
-        ContextMock.fetch.mockReturnValueOnce({
-            "timestamp": {
-                "s": 5,
-                "us": 2000
-            },
-            "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.scripts.script1.status",
-                "instances": [{
-                    "instance": -1,
-                    "value": "stopped",
-                    "instanceName": null
+        ctx.datastore.queryMetrics.mockReturnValueOnce({
+            metrics: [{
+                name: "bpftrace.scripts.script1.status",
+                instances: [{
+                    name: "",
+                    values: [["stopped"]]
                 }]
             }, {
-                "pmid": 633356299,
-                "name": "bpftrace.scripts.script1.exit_code",
-                "instances": [{
-                    "instance": -1,
-                    "value": 0,
-                    "instanceName": null
+                name: "bpftrace.scripts.script1.output",
+                instances: [{
+                    name: "",
+                    values: [[""]]
                 }]
             }, {
-                "pmid": 633356299,
-                "name": "bpftrace.scripts.script1.output",
-                "instances": [{
-                    "instance": -1,
-                    "value": "",
-                    "instanceName": null
+                name: "bpftrace.scripts.script1.exit_code",
+                instances: [{
+                    name: "",
+                    values: [[0]]
                 }]
             }]
         });
-        //await ctx.scriptRegistry.syncState();
 
         // ensureActive should call register again, to restart the script
         ContextMock.fetch.mockReturnValueOnce({
@@ -186,6 +175,10 @@ describe.skip("ScriptRegistry", () => {
                 }]
             }]
         });
+        ctx.datastore.queryMetrics.mockReturnValueOnce({
+            metrics: []
+        });
+
         let script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
         expect(script).toMatchObject({
             "status": "started"
@@ -193,20 +186,36 @@ describe.skip("ScriptRegistry", () => {
         expect(ContextMock.store).toHaveBeenCalledTimes(2);
     });
 
-    it("should remove a script which doesn't exist on the PMDA anymore", async () => {
+    it("should re-register a script which doesn't exist on the PMDA anymore", async () => {
         await registerScript();
         expect(ContextMock.fetch).toHaveBeenCalledTimes(1);
 
-        // metric metadata for script23.status, .exit_code, .output
-        ContextMock.findMetricMetadata.mockReturnValue(undefined)
+        // metric doesn't exist anymore on the server
+        ctx.poller.ensurePolling.mockReturnValue([]);
 
-        //await ctx.scriptRegistry.syncState();
-        // fetch wasn't called, as the script doesn't exist on the PMDA anymore
-        expect(ContextMock.fetch).toHaveBeenCalledTimes(1);
-        //await ctx.scriptRegistry.syncState();
 
-        // fetch wasn't called, as there are no scripts registered anymore
-        expect(ContextMock.fetch).toHaveBeenCalledTimes(1);
+        // will register again
+        ContextMock.fetch.mockReturnValueOnce({
+            "timestamp": {
+                "s": 5,
+                "us": 2000
+            },
+            "values": [{
+                "pmid": 633356298,
+                "name": "bpftrace.control.register",
+                "instances": [{
+                    "instance": -1,
+                    "value": '{"name": "script1", "vars": ["usecs"], "status": "started", "output": ""}',
+                    "instanceName": null
+                }]
+            }]
+        });
+
+        let script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
+        expect(script).toMatchObject({
+            "status": "started"
+        });
+        expect(ContextMock.store).toHaveBeenCalledTimes(2);
     });
 
     it("should remove scripts which weren't requested in a specified time period", async () => {

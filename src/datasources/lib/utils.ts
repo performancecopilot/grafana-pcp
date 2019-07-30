@@ -23,8 +23,8 @@ export function synchronized(target: any, propertyKey: string, descriptor: Prope
     }
 }
 
-export function isBlank(str: string) {
-    return !(_.isString(str) && str.trim().length > 0);
+export function isBlank(str?: string) {
+    return !(str && _.isString(str) && str.trim().length > 0);
 }
 
 export function getDashboardVariables(variableSrv: any): any {
@@ -51,28 +51,4 @@ export function getDashboardVariables(variableSrv: any): any {
     });
 
     return variables;
-}
-
-export function getConnectionParams(variableSrv: any, target: any, instanceSettings: any): [string, string?] {
-    const dashboardVariables = getDashboardVariables(variableSrv);
-    let url: string = "";
-    let container: string | undefined;
-
-    if (!isBlank(target.url))
-        url = target.url;
-    else if (dashboardVariables.url && !isBlank(dashboardVariables.url.value))
-        url = dashboardVariables.url.value;
-    else if (!isBlank(instanceSettings.url))
-        url = instanceSettings.url;
-    else
-        throw { message: "Cannot find any connection url." };
-
-    if (!isBlank(target.container))
-        container = target.container;
-    else if (dashboardVariables.container && !isBlank(dashboardVariables.container.value))
-        container = dashboardVariables.container.value;
-    else if (!isBlank(instanceSettings.container))
-        container = instanceSettings.container;
-
-    return [url, container];
 }

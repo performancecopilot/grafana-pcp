@@ -6,7 +6,7 @@ export default class Context {
 
     static datasourceRequest: (options: any) => any;
     private context: string;
-    private metricMetadataCache: Record<string, MetricMetadata> = {};
+    private metricMetadataCache: Record<string, MetricMetadata> = {}; // TODO: invalidate cache
     private indomCache: Record<string, Record<number, string>> = {}; // indomCache[metric][instance_id] = instance_name
     private d: string = '';
 
@@ -100,7 +100,7 @@ export default class Context {
             return;
         } else if (metric.instances[0].instance === null || metric.instances[0].instance === -1) {
             // this metric has no instances (single value)
-            metric.instances[0].instanceName = null;
+            metric.instances[0].instanceName = "";
             return;
         }
 
@@ -109,11 +109,11 @@ export default class Context {
 
         let refreshed = false;
         for (const instance of metric.instances) {
-            instance.instanceName = this.indomCache[metric.name][instance.instance];
-            if (!instance.instanceName && !refreshed) {
+            instance.instanceName = this.indomCache[metric.name][instance.instance] || "";
+            if (instance.instanceName === "" && !refreshed) {
                 // refresh instances at max once per metric
                 this.indomCache[metric.name] = await this.refreshIndoms(metric.name);
-                instance.instanceName = this.indomCache[metric.name][instance.instance];
+                instance.instanceName = this.indomCache[metric.name][instance.instance] || "";
                 refreshed = true;
             }
         }

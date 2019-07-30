@@ -2,19 +2,7 @@ import _ from 'lodash';
 import Context from "../lib/context";
 import Poller from '../lib/poller';
 import DataStore from '../lib/datastore';
-
-export interface BPFtraceScript {
-    // from PMDA
-    readonly name: string;
-    readonly vars: string[];
-    status: string;
-    exit_code: number | null;
-    output: string;
-
-    // additional properties by ScriptRegistry
-    code: string;
-    lastRequested: number;
-}
+import BPFtraceScript from './script';
 
 export default class ScriptRegistry {
 
@@ -28,11 +16,7 @@ export default class ScriptRegistry {
     constructor(private context: Context, private poller: Poller, private datastore: DataStore, private keepPollingMs: number) {
     }
 
-    hasScriptFailed(script: BPFtraceScript) {
-        return script.status === "stopped" && script.exit_code !== 0;
-    }
-
-    async ensureActive(code: string, allowRestart: boolean = true) {
+    async ensureActive(code: string, allowRestart: boolean = true): Promise<BPFtraceScript> {
         if (code in this.failedScripts) {
             return this.failedScripts[code];
         }
@@ -40,7 +24,7 @@ export default class ScriptRegistry {
         let script = this.scripts[code];
         if (!script) {
             script = await this.register(code);
-            if (this.hasScriptFailed(script)) {
+            if (script.hasFailed()) {
                 this.failedScripts[code] = script;
                 return script;
             }
@@ -49,11 +33,7 @@ export default class ScriptRegistry {
             }
         }
         script.lastRequested = new Date().getTime();
-        const controlMetrics = [
-            `bpftrace.scripts.${script.name}.status`,
-            `bpftrace.scripts.${script.name}.exit_code`,
-            `bpftrace.scripts.${script.name}.output`
-        ];
+        const controlMetrics = script.getControlMetrics();
         const validMetrics = await this.poller.ensurePolling(controlMetrics, false);
 
         // missing script metrics on the PMDA and script is not starting, register again
@@ -64,13 +44,7 @@ export default class ScriptRegistry {
             return allowRestart ? this.ensureActive(code, false) : script;
         }
 
-        const queryResult = this.datastore.queryMetrics(controlMetrics, 0, Infinity);
-        for (const metric of queryResult) {
-            if (metric.instances.length > 0 && metric.instances[0].datapoints.length > 0) {
-                const metric_field = metric.name.substring(metric.name.lastIndexOf('.') + 1);
-                script[metric_field] = metric.instances[0].datapoints[0][0];
-            }
-        }
+        script.update(this.datastore);
 
         if (script.status === "stopped") {
             if (script.exit_code === 0) {
@@ -111,13 +85,12 @@ export default class ScriptRegistry {
         }
         const response = await context.fetch(["bpftrace.control.register"]);
 
-        const script: BPFtraceScript = JSON.parse(response.values[0].instances[0].value);
+        const script = JSON.parse(response.values[0].instances[0].value);
         if (_.isEmpty(script))
             throw { message: "PMDA returned an empty response when registering this script." };
-        script.code = code;
 
         console.debug("script register response", script);
-        return script;
+        return new BPFtraceScript(script.name, script.vars, script.status, script.exit_code, script.output, code);
     }
 
     cleanupExpiredScripts() {

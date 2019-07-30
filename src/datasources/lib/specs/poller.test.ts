@@ -29,7 +29,7 @@ describe("Poller", () => {
                 "instances": [{
                     "instance": -1,
                     "value": 45200,
-                    "instanceName": null
+                    "instanceName": ""
                 }]
             }]
         });
@@ -39,8 +39,8 @@ describe("Poller", () => {
 
         const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity);
         const expected = [{
-            "target": "bpftrace.scripts.script1.data.scalar",
-            "datapoints": [
+            "name": "",
+            "values": [
                 [45200, 5002]
             ]
         }];

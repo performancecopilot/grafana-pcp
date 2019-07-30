@@ -23,7 +23,7 @@ describe("DataStore", () => {
                 "instances": [{
                     "instance": -1,
                     "value": 45200,
-                    "instanceName": null
+                    "instanceName": ""
                 }]
             }]
         });
@@ -38,15 +38,15 @@ describe("DataStore", () => {
                 "instances": [{
                     "instance": -1,
                     "value": 55200,
-                    "instanceName": null
+                    "instanceName": ""
                 }]
             }]
         });
 
         const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity);
         const expected = [{
-            "target": "bpftrace.scripts.script1.data.scalar",
-            "datapoints": [
+            "name": "",
+            "values": [
                 [45200, 5002],
                 [55200, 6002]
             ]
@@ -78,11 +78,11 @@ describe("DataStore", () => {
 
         const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.multiple", 0, Infinity);
         const expected = [{
-            "target": "/dev/sda1",
-            "datapoints": [[45200, 5002]]
+            "name": "/dev/sda1",
+            "values": [[45200, 5002]]
         }, {
-            "target": "/dev/sda2",
-            "datapoints": [[55200, 5002]]
+            "name": "/dev/sda2",
+            "values": [[55200, 5002]]
         }];
         expect(result).toStrictEqual(expected);
     });
@@ -100,7 +100,7 @@ describe("DataStore", () => {
                 "instances": [{
                     "instance": -1,
                     "value": 45200,
-                    "instanceName": null
+                    "instanceName": ""
                 }]
             }]
         });
@@ -115,7 +115,7 @@ describe("DataStore", () => {
                 "instances": [{
                     "instance": -1,
                     "value": 55200,
-                    "instanceName": null
+                    "instanceName": ""
                 }]
             }]
         });
@@ -130,15 +130,15 @@ describe("DataStore", () => {
                 "instances": [{
                     "instance": -1,
                     "value": 75200,
-                    "instanceName": null
+                    "instanceName": ""
                 }]
             }]
         });
 
         const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity);
         const expected = [{
-            "target": "bpftrace.scripts.script1.data.scalar",
-            "datapoints": [
+            "name": "",
+            "values": [
                 [10000, 6002, 55200],
                 [20000, 7002, 75200]
             ]
@@ -159,7 +159,7 @@ describe("DataStore", () => {
                 "instances": [{
                     "instance": -1,
                     "value": "line1\n",
-                    "instanceName": null
+                    "instanceName": ""
                 }]
             }]
         });
@@ -174,15 +174,15 @@ describe("DataStore", () => {
                 "instances": [{
                     "instance": -1,
                     "value": "line1\nline2\n",
-                    "instanceName": null
+                    "instanceName": ""
                 }]
             }]
         });
 
         const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.output", 0, Infinity);
         const expected = [{
-            "target": "bpftrace.scripts.script1.data.output",
-            "datapoints": [["line1\nline2\n", 6002]]
+            "name": "",
+            "values": [["line1\nline2\n", 6002]]
         }];
         expect(result).toStrictEqual(expected);
     });
@@ -200,7 +200,7 @@ describe("DataStore", () => {
                 "instances": [{
                     "instance": -1,
                     "value": 45200,
-                    "instanceName": null
+                    "instanceName": ""
                 }]
             }]
         });
@@ -215,7 +215,7 @@ describe("DataStore", () => {
                 "instances": [{
                     "instance": -1,
                     "value": 55200,
-                    "instanceName": null
+                    "instanceName": ""
                 }]
             }]
         });
@@ -230,15 +230,15 @@ describe("DataStore", () => {
                 "instances": [{
                     "instance": -1,
                     "value": 65200,
-                    "instanceName": null
+                    "instanceName": ""
                 }]
             }]
         });
 
         expect(ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity))
             .toStrictEqual([{
-                "target": "bpftrace.scripts.script1.data.scalar",
-                "datapoints": [
+                "name": "",
+                "values": [
                     [45200, 5002],
                     [55200, 6002],
                     [65200, 7002]
@@ -247,8 +247,8 @@ describe("DataStore", () => {
 
         expect(ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 6002, 6003))
             .toStrictEqual([{
-                "target": "bpftrace.scripts.script1.data.scalar",
-                "datapoints": [
+                "name": "",
+                "values": [
                     [55200, 6002]
                 ]
             }]);
@@ -271,7 +271,7 @@ describe("DataStore", () => {
                 "instances": [{
                     "instance": -1,
                     "value": 45200,
-                    "instanceName": null
+                    "instanceName": ""
                 }]
             }]
         });
@@ -286,7 +286,7 @@ describe("DataStore", () => {
                 "instances": [{
                     "instance": -1,
                     "value": 55200,
-                    "instanceName": null
+                    "instanceName": ""
                 }]
             }]
         });
@@ -301,7 +301,7 @@ describe("DataStore", () => {
                 "instances": [{
                     "instance": -1,
                     "value": 65200,
-                    "instanceName": null
+                    "instanceName": ""
                 }]
             }]
         });
@@ -310,12 +310,12 @@ describe("DataStore", () => {
         ctx.datastore.cleanExpiredMetrics();
 
         const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity);
-        expect(result[0].datapoints).toHaveLength(2);
+        expect(result[0].values).toHaveLength(2);
         const maxAge = new Date().getTime() - 25000;
-        expect(result[0].datapoints[0][0]).toEqual(55200);
-        expect(result[0].datapoints[0][1]).toBeGreaterThanOrEqual(maxAge);
-        expect(result[0].datapoints[1][0]).toEqual(65200);
-        expect(result[0].datapoints[1][1]).toBeGreaterThanOrEqual(maxAge);
+        expect(result[0].values[0][0]).toEqual(55200);
+        expect(result[0].values[0][1]).toBeGreaterThanOrEqual(maxAge);
+        expect(result[0].values[1][0]).toEqual(65200);
+        expect(result[0].values[1][1]).toBeGreaterThanOrEqual(maxAge);
     });
 
 });

@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Context from './context';
-import { Datapoint, TimeSeriesData, DatastoreQueryResultRow } from './types';
+import { Datapoint, MetricInstance, TargetResult, QueryTarget } from './types';
+import { Endpoint } from './endpoint_registry';
 
 type StoredDatapoint = [number | string | undefined, number, number?];
 
@@ -60,23 +61,25 @@ export default class DataStore {
         }
     }
 
-    queryMetric(metric: string, from: number, to: number) {
-        const results: TimeSeriesData[] = [];
-        for (const instance in this.store[metric]) {
-            let target = {
-                // for metrics without instance domains, show metric name
-                target: instance === "null" ? metric : instance,
-                datapoints: this.store[metric][instance].filter((dataPoint: StoredDatapoint) => (
-                    from <= dataPoint[1] && dataPoint[1] <= to && dataPoint[0] != undefined
-                )) as Datapoint[]
-            };
-            results.push(target);
-        }
-        return results;
+    queryMetric(metric: string, from: number, to: number): MetricInstance[] {
+        if (!(metric in this.store))
+            return [];
+        return Object.keys(this.store[metric]).map(instance => ({
+            name: instance,
+            values: this.store[metric][instance].filter(dataPoint => (
+                from <= dataPoint[1] && dataPoint[1] <= to && dataPoint[0] != undefined
+            )) as Datapoint[]
+        }));
     }
 
-    queryMetrics(metrics: string[], from: number, to: number) : DatastoreQueryResultRow[] {
-        return metrics.map((metric: string) => ({ name: metric, instances: this.queryMetric(metric, from, to) }));
+    queryMetrics(target: any, metrics: string[], from: number, to: number): TargetResult {
+        return {
+            target,
+            metrics: metrics.map(metric => ({
+                name: metric,
+                instances: this.queryMetric(metric, from, to)
+            }))
+        };
     }
 
     cleanExpiredMetrics() {

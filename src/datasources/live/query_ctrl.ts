@@ -12,11 +12,8 @@ export class PcpLiveDatasourceQueryCtrl extends PcpQueryCtrl {
     constructor($scope: any, $injector: any) {
         super($scope, $injector);
 
-        // TODO: remove workaround
-        this.target.expr = this.target.expr || this.target.target || "";
+        this.target.expr = this.target.expr || "";
         this.target.format = this.target.format || this.getDefaultFormat();
-        this.target.url = this.target.url || null;
-        this.target.container = this.target.container || null;
 
         this.formats = [
             { text: "Time series", value: TargetFormat.TimeSeries },

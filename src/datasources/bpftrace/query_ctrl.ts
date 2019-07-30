@@ -10,9 +10,8 @@ export class PCPBPFtraceDatasourceQueryCtrl extends PcpQueryCtrl {
     constructor($scope: any, $injector: any) {
         super($scope, $injector, 5000);
 
-        this.target.code = this.target.code || "";
+        this.target.expr = this.target.expr || "";
         this.target.format = this.target.format || this.getDefaultFormat();
-        this.target.url = this.target.url || null;
 
         this.formats = [
             { text: "Time series", value: TargetFormat.TimeSeries },

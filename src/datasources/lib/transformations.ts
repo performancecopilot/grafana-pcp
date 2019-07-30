@@ -1,50 +1,53 @@
 import _ from 'lodash';
-import { Datapoint, TargetFormat, TimeSeriesData, DatastoreQueryResult, PanelData, TableData, DatastoreQueryResultRow } from './types';
+import { TargetFormat, TimeSeriesData, PanelData, TableData, QueryTarget, TargetResult, MetricInstance, Metric } from './types';
 import { isBlank } from './utils';
+import "core-js/stable/array/flat-map";
 
 export default class Transformations {
 
     constructor(private templateSrv: any) {
     }
 
-    getLabel(target: string, legendFormat: string) {
-        if (isBlank(legendFormat)) {
-            return target;
+    getLabel(target: QueryTarget, metric: string, instance?: MetricInstance) {
+        if (isBlank(target.legendFormat)) {
+            if (instance && instance.name !== "")
+                return instance.name;
+            else
+                return metric;
         }
         else {
-            const targetSpl = target.split('.');
-            let vars = {
-                instance: { value: target },
-                metric0: { value: targetSpl[targetSpl.length - 1] }
+            const metricSpl = metric.split('.');
+            const vars: any = {
+                metric: { value: metric },
+                metric0: { value: metricSpl[metricSpl.length - 1] }
             };
-            return this.templateSrv.replace(legendFormat, vars);
+            if (instance && instance.name !== "")
+                vars["instance"] = { value: instance.name };
+            return this.templateSrv.replace(target.legendFormat, vars);
         }
     }
 
-    updateLabel(target: any, targetResult: TimeSeriesData) {
-        return { target: this.getLabel(targetResult.target, target.legendFormat), datapoints: targetResult.datapoints }
+    transformToTimeSeries(target: QueryTarget, metric: Metric): TimeSeriesData[] {
+        return metric.instances.map(instance => ({
+            target: this.getLabel(target, metric.name, instance),
+            datapoints: instance.values.map(dataPoint => [dataPoint[0], Math.floor(dataPoint[1] / 1000) * 1000])
+        }));
     }
 
-    transformToTimeSeries(queryResult: DatastoreQueryResult, target: any): TimeSeriesData[] {
-        const instances: TimeSeriesData[] = _.flatten(queryResult.map((row: DatastoreQueryResultRow) => row.instances));
-        return instances.map(this.updateLabel.bind(this, target));
-    }
-
-    transformToHeatmap(queryResult: DatastoreQueryResult) {
-        const targetResults: TimeSeriesData[] = queryResult[0].instances;
-        for (const target of targetResults) {
+    transformToHeatmap(metric: Metric): TimeSeriesData[] {
+        return metric.instances.map(instance => {
             // target name is the upper bound
-            const match = target.target.match(/^(.+?)\-(.+?)$/);
-            if (match) {
-                target.target = match[2];
-            }
+            let targetName = instance.name;
+            const match = instance.name.match(/^(.+?)\-(.+?)$/);
+            if (match)
+                targetName = match[2];
 
             // round timestamps to one second - the heatmap panel calculates the x-axis size accordingly
-            target.datapoints = target.datapoints.map(
-                (dataPoint: Datapoint) => [dataPoint[0], Math.floor(dataPoint[1] / 1000) * 1000]
-            );
-        }
-        return targetResults;
+            return {
+                target: targetName,
+                datapoints: instance.values.map(dataPoint => [dataPoint[0], Math.floor(dataPoint[1] / 1000) * 1000])
+            };
+        });
     }
 
     transformStringToTable(tableText: string) {
@@ -74,16 +77,16 @@ export default class Transformations {
         return table;
     }
 
-    transformMultipleMetricsToTable(queryResult: DatastoreQueryResult) {
+    transformMultipleMetricsToTable(results: TargetResult[]) {
         let table: TableData = { columns: [], rows: [], type: 'table' };
-        table.columns = queryResult.map((queryResultRow) => ({ text: queryResultRow.name }));
-        const instances = Object.keys(queryResult[0].instances).sort((a, b) => parseInt(a) - parseInt(b));
-        for (const instance of instances) {
+        table.columns = results.map(targetResult => ({ text: this.getLabel(targetResult.target, targetResult.metrics[0].name) }));
+        const instanceNames = Object.keys(results[0].metrics[0].instances).sort((a, b) => parseInt(a) - parseInt(b));
+        for (const instanceName of instanceNames) {
             const row: (string | number)[] = [];
-            for (const queryResultRow of queryResult) {
-                const target = queryResultRow.instances.find((target: TimeSeriesData) => target.target === instance);
-                if (target && target.datapoints.length > 0)
-                    row.push(target.datapoints[target.datapoints.length - 1][0]);
+            for (const targetResult of results) {
+                const instance = targetResult.metrics[0].instances.find(instance => instance.name === instanceName);
+                if (instance && instance.values.length > 0)
+                    row.push(instance.values[instance.values.length - 1][0]);
                 else
                     row.push('?');
             }
@@ -93,27 +96,29 @@ export default class Transformations {
         return table;
     }
 
-    transformToTable(queryResult: DatastoreQueryResult) {
-        if (queryResult.length > 1) {
-            return this.transformMultipleMetricsToTable(queryResult);
+    transformToTable(results: TargetResult[]) {
+        if (results.length > 1) {
+            return this.transformMultipleMetricsToTable(results);
         }
-        else if (queryResult.length === 1) {
-            const targets = queryResult[0].instances;
-            if (targets.length > 0 && targets[0].datapoints.length > 0)
-                return this.transformStringToTable(targets[0].datapoints[0][0] as string);
+        else if (results.length === 1 && results[0].metrics.length === 1) {
+            const instances = results[0].metrics[0].instances;
+            if (instances.length > 0 && instances[0].values.length > 0)
+                return this.transformStringToTable(instances[0].values[0][0] as string);
         }
         return { columns: [], rows: [], type: 'table' };
     }
 
-    transform(queryResult: DatastoreQueryResult, target: any): PanelData[] {
-        if (target.format === TargetFormat.TimeSeries)
-            return this.transformToTimeSeries(queryResult, target);
-        else if (target.format === TargetFormat.Heatmap)
-            return this.transformToHeatmap(queryResult);
-        else if (target.format == TargetFormat.Table)
-            return [this.transformToTable(queryResult)];
+    transform(results: TargetResult[]): PanelData[] {
+        const format = results[0].target.format;
+
+        if (format === TargetFormat.TimeSeries)
+            return results.flatMap(targetResult => targetResult.metrics.flatMap(metric => this.transformToTimeSeries(targetResult.target, metric)));
+        else if (format === TargetFormat.Heatmap)
+            return results.flatMap(targetResult => targetResult.metrics.flatMap(metric => this.transformToHeatmap(metric)));
+        else if (format == TargetFormat.Table)
+            return [this.transformToTable(results)];
         else
-            throw { message: `Invalid target format '${target.format}', possible options: ${TargetFormat.TimeSeries}, ${TargetFormat.Heatmap}, ${TargetFormat.Table}` };
+            throw { message: `Invalid target format '${format}', possible options: ${TargetFormat.TimeSeries}, ${TargetFormat.Heatmap}, ${TargetFormat.Table}` };
     }
 
 
