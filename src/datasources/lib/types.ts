@@ -25,6 +25,8 @@ export interface QueryTarget<EP extends Endpoint = any> {
     legendFormat?: string;
 
     endpoint?: EP;
+    url?: string;
+    container?: string;
 
     // TODO: remove me: deprecated
     target?: string;

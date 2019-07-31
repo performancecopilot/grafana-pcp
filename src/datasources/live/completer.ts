@@ -53,7 +53,7 @@ export default class PCPMetricCompleter {
     async findCompletions(editor: any, session: any, pos: any, prefix: any) {
         // don't do this in constructor of PCPMetricCompleter, as the user could
         // change the endpoint settings of the query, but the constructor is only called once
-        const endpoint = this.datasource.getOrCreateEndpoint(this.target);
+        const endpoint = this.datasource.getOrCreateEndpoint(this.datasource.instanceSettings.url, this.datasource.instanceSettings.jsonData.container);
 
         const editorValue: string = editor.getValue();
         let metricPrefix = "";

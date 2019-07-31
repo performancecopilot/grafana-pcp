@@ -21,7 +21,7 @@ export abstract class PcpLiveDatasourceBase<EP extends Endpoint> {
     endpointRegistry: EndpointRegistry<EP>;
     transformations: Transformations;
 
-    constructor(private instanceSettings: any, private backendSrv: any, private templateSrv: any, private variableSrv: any) {
+    constructor(readonly instanceSettings: any, private backendSrv: any, private templateSrv: any, private variableSrv: any) {
         this.name = instanceSettings.name;
         this.withCredentials = instanceSettings.withCredentials;
         this.headers = { 'Content-Type': 'application/json' };
@@ -38,35 +38,10 @@ export abstract class PcpLiveDatasourceBase<EP extends Endpoint> {
         this.transformations = new Transformations(this.templateSrv);
     }
 
-    getConnectionParams(variableSrv: any, target: any, instanceSettings: any): [string, string?] {
-        const dashboardVariables = getDashboardVariables(variableSrv);
-        let url: string = "";
-        let container: string | undefined;
-
-        if (!isBlank(target.url))
-            url = target.url;
-        else if (dashboardVariables.url && !isBlank(dashboardVariables.url.value))
-            url = dashboardVariables.url.value;
-        else if (!isBlank(instanceSettings.url))
-            url = instanceSettings.url;
-        else
-            throw { message: "Cannot find any connection url." };
-
-        if (!isBlank(target.container))
-            container = target.container;
-        else if (dashboardVariables.container && !isBlank(dashboardVariables.container.value))
-            container = dashboardVariables.container.value;
-        else if (!isBlank(instanceSettings.container))
-            container = instanceSettings.container;
-
-        return [url, container];
-    }
-
     configureEndpoint(_endpoint: EP) {
     }
 
-    getOrCreateEndpoint(target: any = {}) {
-        const [url, container] = this.getConnectionParams(this.variableSrv, target, this.instanceSettings);
+    getOrCreateEndpoint(url: string, container: string | undefined) {
         let endpoint = this.endpointRegistry.find(url, container);
         if (!endpoint) {
             endpoint = this.endpointRegistry.create(url, container, this.keepPollingMs, this.localHistoryAgeMs);
@@ -82,18 +57,17 @@ export abstract class PcpLiveDatasourceBase<EP extends Endpoint> {
     }
 
     async testDatasource() {
-        const [url, container] = this.getConnectionParams(this.variableSrv, {}, this.instanceSettings);
-        const context = new Context(url, container);
+        const context = new Context(this.instanceSettings.url, this.instanceSettings.jsonData.container);
         try {
             await context.createContext();
             return { status: 'success', title: "Success", message: "Data source is working" };
         }
         catch (error) {
             return {
-                status: 'error',
+                status: 'success',
                 title: "Additional configuration required",
-                message: `Could not connect to ${url}. To use this data source, ` +
-                    'please configure the url, and optionally the container dashboard variable(s).',
+                message: `Could not connect to ${this.instanceSettings.url}. To use this data source, ` +
+                    'please configure the url and optionally the container in the query editor.',
             };
         }
     }
@@ -102,7 +76,7 @@ export abstract class PcpLiveDatasourceBase<EP extends Endpoint> {
      * called by the templating engine (dashboard variables with type = query)
      */
     async metricFindQuery(query: string) {
-        let endpoint = this.getOrCreateEndpoint();
+        let endpoint = this.getOrCreateEndpoint(this.instanceSettings.url, this.instanceSettings.jsonData.container);
         const metricsResponse = await endpoint.context.fetch([query]);
         return metricsResponse.values[0].instances
             .map((instance: any) => ({ text: instance.value, value: instance.value }));
@@ -118,12 +92,28 @@ export abstract class PcpLiveDatasourceBase<EP extends Endpoint> {
                 if (!target.format && (target.type === "timeseries" || target.type === "timeserie"))
                     target.format = TargetFormat.TimeSeries;
 
+                let url: string;
+                let container: string | undefined;
+                if (!isBlank(target.url))
+                    url = this.templateSrv.replace(target.url, query.scopedVars);
+                else if (!isBlank(this.instanceSettings.url))
+                    url = this.instanceSettings.url;
+                else
+                    throw { message: "Please specify a connection URL in the datasource settings or in the query editor." };
+
+                if (!isBlank(target.container))
+                    container = this.templateSrv.replace(target.container, query.scopedVars);
+                else if (!isBlank(this.instanceSettings.jsonData.container))
+                    container = this.instanceSettings.jsonData.container;
+
                 return {
                     refId: target.refId,
                     expr: this.templateSrv.replace(target.expr.trim(), query.scopedVars),
                     format: target.format,
                     legendFormat: target.legendFormat,
-                    endpoint: this.getOrCreateEndpoint(target)
+                    url: url,
+                    container: container,
+                    endpoint: this.getOrCreateEndpoint(url, container)
                 };
             });
     }
@@ -134,7 +124,7 @@ export abstract class PcpLiveDatasourceBase<EP extends Endpoint> {
         // endpoint is the same for all targets, ensured by _.groupBy() in query()
         const endpoint = targets[0].endpoint;
         const targetResults = await Promise.all(targets.map(target => this.handleTarget(endpoint!, query, target)));
-        return this.transformations.transform(targetResults);
+        return this.transformations.transform(query, targetResults);
     }
 
     async query(query: Query) {

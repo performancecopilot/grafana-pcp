@@ -11,11 +11,6 @@ export default class Context {
     private d: string = '';
 
     constructor(readonly url: string, readonly container?: string) {
-        // if port != 44322, use pmwebd API with underscore
-        // TODO: remove once transition to pmproxy is done
-        if (!url.includes(":44322")) {
-            this.d = '_';
-        }
     }
 
     @synchronized
@@ -24,6 +19,12 @@ export default class Context {
 
         const contextResponse = await Context.datasourceRequest({ url: contextUrl });
         this.context = contextResponse.data.context;
+
+        // only pmproxy contains source attribute
+        if (!contextResponse.data.source) {
+            // pmwebd compat
+            this.d = '_';
+        }
 
         if (this.container) {
             await Context.datasourceRequest({
@@ -59,8 +60,7 @@ export default class Context {
             requiredMetrics.push("pmcd.control.timeout"); // TODO: remove workaround - server should return empty list if no metrics were found
             const metadata = await this.ensureContext(async () => {
                 const response = await Context.datasourceRequest({
-                    //url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
-                    url: `http://localhost:44322/pmapi/metric`,
+                    url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
                     params: { names: requiredMetrics.join(',') }
                 });
                 return response.data.metrics;

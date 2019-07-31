@@ -12,12 +12,14 @@ describe("Transformations", () => {
     });
 
     it("should update labels", () => {
-        const target: any = {
-            format: TargetFormat.TimeSeries,
-            legendFormat: "a $instance b"
+        const query: any = {
+            targets: [{
+                format: TargetFormat.TimeSeries,
+                legendFormat: "a $instance b"
+            }]
         };
         const results: TargetResult[] = [{
-            target: target,
+            target: query.targets[0],
             metrics: [{
                 name: "metric",
                 instances: [{
@@ -28,7 +30,7 @@ describe("Transformations", () => {
         }];
 
         ctx.templateSrv.replace.mockReturnValueOnce("a abc b");
-        const result = ctx.transformations.transform(results);
+        const result = ctx.transformations.transform(query, results);
         const expected: TimeSeriesData[] = [{
             target: "a abc b",
             datapoints: []
@@ -39,11 +41,13 @@ describe("Transformations", () => {
     });
 
     it("should transform histograms", () => {
-        const target: any = {
-            format: TargetFormat.Heatmap,
+        const query: any = {
+            targets: [{
+                format: TargetFormat.Heatmap,
+            }]
         };
         const results: TargetResult[] = [{
-            target: target,
+            target: query.targets[0],
             metrics: [{
                 name: "metric",
                 instances: [
@@ -56,7 +60,7 @@ describe("Transformations", () => {
             }]
         }];
 
-        const result = ctx.transformations.transform(results);
+        const result = ctx.transformations.transform(query, results);
         const expected: TimeSeriesData[] = [
             { target: "-1", datapoints: [[1, 1000]] },
             { target: "3", datapoints: [[1, 1000]] },
@@ -68,11 +72,13 @@ describe("Transformations", () => {
     });
 
     it("should transform tables", () => {
-        const target: any = {
-            format: TargetFormat.Table,
+        const query: any = {
+            targets: [{
+                format: TargetFormat.Table
+            }]
         };
         const results: TargetResult[] = [{
-            target: target,
+            target: query.targets[0],
             metrics: [{
                 name: "metric",
                 instances: [{
@@ -89,7 +95,7 @@ TIME     PID      COMM             SADDR                                   SPORT
         }];
 
 
-        const result = ctx.transformations.transform(results);
+        const result = ctx.transformations.transform(query, results);
         const expected: TableData[] = [{
             "columns": [
                 { "text": "TIME" },
