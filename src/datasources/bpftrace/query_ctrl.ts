@@ -1,7 +1,7 @@
 import { TargetFormat } from '../lib/types';
-import { PcpQueryCtrl } from '../lib/pcp_query_ctrl';
+import { PCPQueryCtrl } from '../lib/pcp_query_ctrl';
 
-export class PCPBPFtraceDatasourceQueryCtrl extends PcpQueryCtrl {
+export class PCPBPFtraceDatasourceQueryCtrl extends PCPQueryCtrl {
     static templateUrl = 'datasources/bpftrace/partials/query.editor.html';
 
     formats: any = [];

@@ -7,7 +7,7 @@
     <div class="gf-form">
       <span class="gf-form-label width-10">Container</span>
       <gf-form-dropdown css-class="gf-form-input--has-help-icon width-16" model="ctrl.current.jsonData.container"
-        get-options="ctrl.getContainers()">
+        get-options="ctrl.getContainers()" allow-custom="true">
       </gf-form-dropdown>
       <info-popover mode="right-absolute">
         Specify an individual container to be queried. Leave blank to query the host system.

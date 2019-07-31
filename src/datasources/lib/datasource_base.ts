@@ -8,7 +8,7 @@ import Context from './context';
 import { getDashboardVariables, isBlank } from './utils';
 import "core-js/stable/array/flat";
 
-export abstract class PcpLiveDatasourceBase<EP extends Endpoint> {
+export abstract class PCPLiveDatasourceBase<EP extends Endpoint> {
 
     name: string;
     withCredentials: boolean;

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { synchronized } from './utils';
+import { synchronized, isBlank } from './utils';
 import { MetricMetadata } from './types';
 
 export default class Context {
@@ -26,7 +26,7 @@ export default class Context {
             this.d = '_';
         }
 
-        if (this.container) {
+        if (!isBlank(this.container)) {
             await Context.datasourceRequest({
                 url: `${this.url}/pmapi/${this.context}/${this.d}store`,
                 params: { name: "pmcd.client.container", value: this.container }

@@ -4,7 +4,7 @@ import map from 'lodash/map';
 import isObject from 'lodash/isObject';
 import isUndefined from 'lodash/isUndefined';
 
-export class PCPDatasource {
+export class PCPRedisDatasource {
 
     name: string;
     url: string;

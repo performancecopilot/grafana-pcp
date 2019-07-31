@@ -1,10 +1,10 @@
 ///<reference path="../../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import _ from "lodash";
-import { PcpLiveDatasourceBase } from "../lib/datasource_base";
+import { PCPLiveDatasourceBase } from "../lib/datasource_base";
 import { QueryTarget, Query, TargetResult } from "../lib/types";
 import { Endpoint } from "../lib/endpoint_registry";
 
-export class PcpLiveDatasource extends PcpLiveDatasourceBase<Endpoint> {
+export class PCPLiveDatasource extends PCPLiveDatasourceBase<Endpoint> {
 
     container_name_filter: any;
 

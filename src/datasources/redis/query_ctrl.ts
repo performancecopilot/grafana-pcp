@@ -1,40 +1,32 @@
-import { QueryCtrl } from 'grafana/app/plugins/sdk';
+import { TargetFormat } from '../lib/types';
+import { PCPQueryCtrl } from '../lib/pcp_query_ctrl';
 
-export class PCPDatasourceQueryCtrl extends QueryCtrl {
-  static templateUrl = 'datasources/redis/partials/query.editor.html';
+export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
+    static templateUrl = 'datasources/redis/partials/query.editor.html';
 
-  private types: any;
-  private showJSON: boolean;
+    formats: any = [];
 
-  /** @ngInject **/
-  constructor($scope, $injector) {
-    super($scope, $injector);
+    /** @ngInject **/
+    constructor($scope: any, $injector: any) {
+        super($scope, $injector);
 
-    this.target.hide = false;
-    this.target.target = this.target.target || 'select metric';
-    if (!this.target.type) {
-      this.target.type = this.panelCtrl.panel.type === 'table' ? 'table' : 'timeseries';
+        this.target.expr = this.target.expr || "";
+        this.target.format = this.target.format || this.getDefaultFormat();
+
+        this.formats = [
+            { text: "Time series", value: TargetFormat.TimeSeries },
+            { text: "Table", value: TargetFormat.Table },
+            { text: "Heatmap", value: TargetFormat.Heatmap },
+        ];
     }
-    this.target.data = this.target.data || '';
 
-    // tables not implemented yet
-    this.types = [
-      { text: 'Time series', value: 'timeseries' },
-      { text: 'Table', value: 'table' },
-    ];
-    this.showJSON = false;
-  }
+    getDefaultFormat() {
+        if (this.panelCtrl.panel.type === 'table') {
+            return TargetFormat.Table;
+        } else if (this.panelCtrl.panel.type === 'heatmap') {
+            return TargetFormat.Heatmap;
+        }
+        return TargetFormat.TimeSeries;
+    }
 
-  getOptions(query) {
-    return this.datasource.metricFindQuery(query || '');
-  }
-
-  // not used
-  toggleEditorMode() {
-    this.target.rawQuery = !this.target.rawQuery;
-  }
-
-  onChangeInternal() {
-    this.panelCtrl.refresh(); // Asks the panel to refresh data.
-  }
 }

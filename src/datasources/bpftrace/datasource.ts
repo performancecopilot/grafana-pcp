@@ -1,11 +1,11 @@
 ///<reference path="../../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import _ from 'lodash';
-import { PcpLiveDatasourceBase } from '../lib/datasource_base';
+import { PCPLiveDatasourceBase } from '../lib/datasource_base';
 import BPFtraceEndpoint from './bpftrace_endpoint';
 import { Query, QueryTarget } from '../lib/types';
 import ScriptRegistry from './script_registry';
 
-export class PCPBPFtraceDatasource extends PcpLiveDatasourceBase<BPFtraceEndpoint> {
+export class PCPBPFtraceDatasource extends PCPLiveDatasourceBase<BPFtraceEndpoint> {
 
     /** @ngInject **/
     constructor(instanceSettings: any, backendSrv: any, templateSrv: any, variableSrv: any) {

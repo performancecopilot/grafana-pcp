@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { QueryCtrl } from 'grafana/app/plugins/sdk';
 
-export abstract class PcpQueryCtrl extends QueryCtrl {
+export abstract class PCPQueryCtrl extends QueryCtrl {
 
     constructor($scope: any, $injector: any, private typingDebounceTime: number = 1000) {
         super($scope, $injector);

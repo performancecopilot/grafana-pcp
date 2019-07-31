@@ -1,10 +1,10 @@
 import { TargetFormat } from '../lib/types';
 import PCPMetricCompleter from './completer';
-import { PcpQueryCtrl } from "../lib/pcp_query_ctrl";
+import { PCPQueryCtrl } from "../lib/pcp_query_ctrl";
 import './mode-pcp';
 import { getDashboardVariables } from '../lib/utils';
 
-export class PcpLiveDatasourceQueryCtrl extends PcpQueryCtrl {
+export class PCPLiveDatasourceQueryCtrl extends PCPQueryCtrl {
     static templateUrl = 'datasources/live/partials/query.editor.html'
 
     formats: any = [];
@@ -15,7 +15,7 @@ export class PcpLiveDatasourceQueryCtrl extends PcpQueryCtrl {
 
         this.target.expr = this.target.expr || "";
         this.target.format = this.target.format || this.getDefaultFormat();
-        this.target.container = this.target.container || ""; // gf-form-dropdown won't open with null/undefined value
+        this.target.container = this.target.container || ""; // gf-form-dropdown won't open with null/undefined value and allow-custom=true
 
         this.formats = [
             { text: "Time series", value: TargetFormat.TimeSeries },
@@ -33,7 +33,7 @@ export class PcpLiveDatasourceQueryCtrl extends PcpQueryCtrl {
         return TargetFormat.TimeSeries;
     }
 
-    async getContainers(query: string) {
+    async getContainers() {
         const dashboardVariables = Object.keys(getDashboardVariables(this.variableSrv));
         let containers = await this.datasource.metricFindQuery('containers.name');
 
@@ -41,7 +41,7 @@ export class PcpLiveDatasourceQueryCtrl extends PcpQueryCtrl {
         options.push({ text: '-', value: '' });
         options.push(...dashboardVariables.map((var_: string) => ({ text: '$' + var_, value: '$' + var_ })));
         options.push(...containers);
-        return options.filter(option => option.text.includes(query));
+        return options;
     }
 
     getCompleter() {

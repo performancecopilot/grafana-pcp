@@ -1,40 +1,31 @@
-<query-editor-row query-ctrl="ctrl" class="generic-datasource-query-row" has-text-edit-mode="true">
+<query-editor-row query-ctrl="ctrl" can-collapse="true" has-text-edit-mode="false">
   <div class="gf-form-inline">
-
-    <div class="gf-form" ng-if="ctrl.target.rawQuery">
-      <textarea class="gf-form-input" rows="5" ng-model="ctrl.target.target" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
+    <div class="gf-form gf-form--grow">
+      <code-editor content="ctrl.target.expr" on-change="ctrl.targetChanged()" ng-keyup="ctrl.startTyping()">
+      </code-editor>
     </div>
+  </div>
 
-    <div ng-if="!ctrl.target.rawQuery">
-      <div class="gf-form right" width-64>
-        <label class="gf-form-label width-5 query-keyword">Query</label>
-	<input type="text" class="gf-form-input width-32" ng-model="ctrl.target.target" spellcheck='false'
-          allow-custom="true"
-          lookup-text="true"
-          get-options="ctrl.getOptions($query)"
-          on-change="ctrl.onChangeInternal()">
-	</input>
-	<info-popover mode="right-absolute">
-        Specify a pmseries query expression. This can simply be a PCP metric name (e.g. kernel.all.load), or a full query including hostname, instance name and label patterns. See pmseries(1) and pmwebapi(3). Do not include any time-window parameters since these are automatically added by Grafana.
+  <div class="gf-form-inline">
+    <div class="gf-form">
+      <label class="gf-form-label">Legend</label>
+      <input type="text" class="gf-form-input gf-form-input--has-help-icon" ng-model="ctrl.target.legendFormat"
+        spellcheck="false" placeholder="legend format" data-min-length=0 data-items=1000 ng-model-onblur
+        ng-change="ctrl.targetChanged()">
+      </input>
+      <info-popover mode="right-absolute">
+        Controls the name of the time series, using name or pattern. For example
+        <span ng-non-bindable>${instance}</span> will be replaced with the instance name.
+        Available variables: metric, metric0 and instance.
       </info-popover>
-      </div>
     </div>
 
     <div class="gf-form">
-      <gf-form-switch
-      class="gf-form" label="Rate Convert" label-class="width-8" ng-model="ctrl.target.isCounter" checked="ctrl.target.isCounter" on-change="ctrl.refresh()">
-      </gf-form-switch>
-      <label class="gf-form-label width-5 legend-keyword">Legend</label>
-      <input type="text" width-16 class="gf-form-input" ng-model="ctrl.target.legend" spellcheck='false'
-	allow-custom="true"
-	lookup-text="true"
-	on-change="ctrl.refresh()"
-      </input>
-      <info-popover mode="right-absolute">
-      Specify a legend template. If empty, this defaults to the query string. Substrings enclosed in double curly braces are interpreted as label names and will be substituted with their label value string. Grafana template variable names can also be specified (also in double curly braces) and will also be substituted with their respective value - template variable substitution occurs after label substitution.
-    </info-popover>
-
+      <label class="gf-form-label width-5">Format</label>
+      <div class="gf-form-select-wrapper width-8">
+        <select class="gf-form-input gf-size-auto" ng-model="ctrl.target.format"
+          ng-options="f.value as f.text for f in ctrl.formats" ng-change="ctrl.targetChanged()"></select>
+      </div>
     </div>
-
   </div>
 </query-editor-row>

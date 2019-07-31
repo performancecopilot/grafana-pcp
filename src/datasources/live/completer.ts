@@ -1,5 +1,4 @@
-import { PcpLiveDatasource } from "./datasource";
-import Context from "../lib/context";
+import { PCPLiveDatasource } from "./datasource";
 import { Endpoint } from "../lib/endpoint_registry";
 import { MetricMetadata } from "../lib/types";
 
@@ -8,7 +7,7 @@ export default class PCPMetricCompleter {
     identifierRegexps = [/\./, /[a-zA-Z0-9_]/];
     childrenCache: Record<string, Record<string, { leaf: string[], nonleaf: string[] }>> = {};
 
-    constructor(private datasource: PcpLiveDatasource, private target: any) {
+    constructor(private datasource: PCPLiveDatasource, private target: any) {
     }
 
     getCompletions(editor: any, session: any, pos: any, prefix: any, callback: any) {
