@@ -39,8 +39,8 @@
     <div class="gf-form">
       <label class="gf-form-label width-6">Container</label>
       <div class="gf-form-select-wrapper width-12">
-        <gf-form-dropdown model="ctrl.target.container" get-options="ctrl.getContainers()"
-          on-change="ctrl.targetChanged()">
+        <gf-form-dropdown model="ctrl.target.container" get-options="ctrl.getContainers($query)"
+          on-change="ctrl.targetChanged()" allow-custom="true">
         </gf-form-dropdown>
       </div>
     </div>

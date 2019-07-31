@@ -26,7 +26,8 @@
     {"type": "datasource", "name": "PCP Redis"},
     {"type": "datasource", "name": "PCP Live"},
     {"type": "datasource", "name": "PCP bpftrace"},
-    {"type": "dashboard", "name": "PCP Redis Test Dashboard", "path": "dashboards/PCP_Redis_Test_Dashboard.json"}
+    {"type": "dashboard", "name": "PCP Live Host Overview", "path": "dashboards/pcp-live-host-overview.json"},
+    {"type": "dashboard", "name": "PCP Live Container Overview", "path": "dashboards/pcp-live-container-overview.json"}
   ],
 
   "dependencies": {
