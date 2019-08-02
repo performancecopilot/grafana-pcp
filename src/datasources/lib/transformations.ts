@@ -19,6 +19,13 @@ export class IngestionTransformations {
         }
     }
 
+    static divideBy(divisor: number) {
+        return (cur: Datapoint<number>): TDatapoint => {
+            cur[0] /= divisor;
+            return cur;
+        };
+    }
+
 }
 
 export class ValuesTransformations {

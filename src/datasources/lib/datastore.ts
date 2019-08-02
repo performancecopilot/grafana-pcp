@@ -1,25 +1,12 @@
 import _ from 'lodash';
 import { Context } from "./pmapi";
 import { MetricInstance, TargetResult, Metric, TDatapoint, IngestionTransformationFn } from './types';
-import { ValuesTransformations, IngestionTransformations } from './transformations';
+import { IngestionTransformations } from './transformations';
 
 export default class DataStore {
     private store: Record<string, Record<string, TDatapoint[]>> = {}; // store[metric][instance] = [val,ts]
 
     constructor(private context: Context, private localHistoryAgeMs: number) {
-    }
-
-    private ingestCounterMetric(instanceStore: any[], instance: any, pollTimeEpochMs: number) {
-        // first value: store it as undefined, to be filtered by queryTimeSeries()
-        // subsequent values: perform rate conversation
-        if (instanceStore.length > 0) {
-            let [, prevTimeMs, prevOrigVal] = instanceStore[instanceStore.length - 1];
-            const deltaSec = (pollTimeEpochMs - prevTimeMs) / 1000;
-            instanceStore.push([(instance.value - prevOrigVal!) / deltaSec, pollTimeEpochMs, instance.value]);
-        }
-        else {
-            instanceStore.push([undefined, pollTimeEpochMs, instance.value]);
-        }
     }
 
     private async ingestMetric(metricStore: Record<string, TDatapoint[]>, metric: any, pollTimeEpochMs: number) {
@@ -28,6 +15,12 @@ export default class DataStore {
             console.info(`skipping ingestion of ${metric.name}: metadata not available`);
             return;
         }
+
+        const transformations: IngestionTransformationFn[] = [];
+        if (metadata.sem === "counter")
+            transformations.push(IngestionTransformations.counter as any);
+        if (metadata.sem === "counter" && metadata.units === "nanosec")
+            transformations.push(IngestionTransformations.divideBy(1000 * 1000 * 1000));
 
         for (const instance of metric.instances) {
             // do not store history for the bpftrace control and output metrics
@@ -39,10 +32,6 @@ export default class DataStore {
             let datapoint: TDatapoint = [instance.value, pollTimeEpochMs];
             const storeSize = metricStore[instance.instanceName].length;
             const prevDatapoint = storeSize > 0 ? metricStore[instance.instanceName][storeSize - 1] : undefined;
-
-            const transformations: IngestionTransformationFn[] = [];
-            if (metadata.sem === "counter")
-                transformations.push(IngestionTransformations.counter as any);
 
             datapoint = IngestionTransformations.applyTransformations(transformations, datapoint, prevDatapoint);
             metricStore[instance.instanceName].push(datapoint);

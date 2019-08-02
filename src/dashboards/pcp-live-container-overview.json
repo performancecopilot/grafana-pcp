@@ -100,7 +100,7 @@
             "container": "$container",
             "expr": "cgroup.cpuacct.usage",
             "format": "time_series",
-            "legendFormat": "CPU time",
+            "legendFormat": "utilization",
             "refId": "A"
           }
         ],
@@ -124,10 +124,10 @@
         },
         "yaxes": [
           {
-            "format": "ns",
+            "format": "percentunit",
             "label": null,
             "logBase": 1,
-            "max": null,
+            "max": "1",
             "min": "0",
             "show": true
           },
