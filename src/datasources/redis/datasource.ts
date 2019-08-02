@@ -1,6 +1,6 @@
 ///<reference path="../../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import _ from 'lodash';
-import { Query, QueryTarget, ValuesTransformationFn } from '../lib/types';
+import { Query, QueryTarget, ValuesTransformationFn, TDatapoint } from '../lib/types';
 import { isBlank } from '../lib/utils';
 import { PmSeries } from './pmseries';
 import PanelTransformations from '../lib/panel_transformations';
@@ -68,6 +68,35 @@ export class PCPRedisDatasource {
             });
     }
 
+    /**
+     * group all instances by series and instanceName,
+     * and apply transformations depending on the series
+     */
+    transformSeries(allInstances: any, descriptions: any) {
+        const transformedInstances: Record<string, Record<string, TDatapoint[]>> = {}; // transformedInstances[series][instanceName] = datapoints
+        const instancesGroupedBySeries = _.groupBy(allInstances, "series");
+        for (const series in instancesGroupedBySeries) {
+            transformedInstances[series] = {};
+
+            let transformations: ValuesTransformationFn[] = [];
+            if (descriptions[series].semantics === "counter")
+                transformations.push(ValuesTransformations.counter);
+
+            const instancesGroupedBySeriesAndName = _.groupBy(instancesGroupedBySeries[series], "instanceName");
+            for (const instanceName in instancesGroupedBySeriesAndName) {
+                if (!(instanceName in transformedInstances[series]))
+                    transformedInstances[series][instanceName] = [];
+
+                let datapoints = instancesGroupedBySeriesAndName[instanceName].map(
+                    (instance: any) => [parseFloat(instance.value), parseInt(instance.timestamp)]
+                );
+                datapoints = ValuesTransformations.applyTransformations(transformations, datapoints);
+                transformedInstances[series][instanceName].push(...datapoints);
+            }
+        }
+        return transformedInstances;
+    }
+
     async query(query: Query) {
         const targets = this.buildQueryTargets(query);
         if (targets.length === 0)
@@ -95,28 +124,27 @@ export class PCPRedisDatasource {
         const interval = query.interval;
         const mdp = query.maxDataPoints; // TODO: not supported in pmproxy?
 
-        const instances = await this.pmSeries.values(series.flat(), { start, finish, samples, interval, tzparam }, true);
+        const allInstances = await this.pmSeries.values(series.flat(), { start, finish, samples, interval, tzparam }, true);
         const descriptions = await this.pmSeries.descs(series.flat());
+        const transformedInstances = this.transformSeries(allInstances, descriptions);
         const targetResults = targets.map(target => {
-            let series = seriesByExpr[target.expr];
-            // filter all instances to include only series of this expr
-            const instancesForTarget = instances.filter((instance: any) => series.includes(instance.series));
-            const instancesGroupedByName = _.groupBy(instancesForTarget, "instanceName");
-
-            let transformations: ValuesTransformationFn[] = [];
-            if (descriptions[series[0]].semantics === "counter")
-                transformations.push(ValuesTransformations.counter);
+            // merge all instances (by name) from all series for this target
+            const instances: Record<string, TDatapoint[]> = {};
+            for (const series of seriesByExpr[target.expr]) {
+                for (const instanceName in transformedInstances[series]) {
+                    if (!(instanceName in instances))
+                        instances[instanceName] = [];
+                    instances[instanceName].push(...transformedInstances[series][instanceName]);
+                }
+            }
 
             return {
                 target: target,
                 metrics: [{
                     name: target.expr,
-                    instances: _.map(instancesGroupedByName, (instances: any[], instanceName: string) => ({
+                    instances: _.map(instances, (datapoints: TDatapoint[], instanceName: string) => ({
                         name: instanceName,
-                        values: ValuesTransformations.applyTransformations(
-                            transformations,
-                            instances.map((instance: any) => [parseFloat(instance.value), parseInt(instance.timestamp)])
-                        )
+                        values: datapoints.sort((a: TDatapoint, b: TDatapoint) => a[1] - b[1])
                     }))
                 }]
             };
