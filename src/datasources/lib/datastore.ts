@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { Context } from "./pmapi";
-import { MetricInstance, TargetResult, Metric, TDatapoint } from './types';
+import { MetricInstance, TargetResult, Metric, TDatapoint, IngestionTransformationFn } from './types';
+import { ValuesTransformations, IngestionTransformations } from './transformations';
 
 export default class DataStore {
     private store: Record<string, Record<string, TDatapoint[]>> = {}; // store[metric][instance] = [val,ts]
@@ -35,14 +36,16 @@ export default class DataStore {
                 metricStore[instance.instanceName] = [];
             }
 
-            // TODO: use ValueTransformations.counter()?
-            // performance tests required for rate conversation at ingestion vs at query
-            if (metadata.sem === "counter") {
-                this.ingestCounterMetric(metricStore[instance.instanceName], instance, pollTimeEpochMs);
-            }
-            else {
-                metricStore[instance.instanceName].push([instance.value, pollTimeEpochMs]);
-            }
+            let datapoint: TDatapoint = [instance.value, pollTimeEpochMs];
+            const storeSize = metricStore[instance.instanceName].length;
+            const prevDatapoint = storeSize > 0 ? metricStore[instance.instanceName][storeSize - 1] : undefined;
+
+            const transformations: IngestionTransformationFn[] = [];
+            if (metadata.sem === "counter")
+                transformations.push(IngestionTransformations.counter as any);
+
+            datapoint = IngestionTransformations.applyTransformations(transformations, datapoint, prevDatapoint);
+            metricStore[instance.instanceName].push(datapoint);
         }
     }
 

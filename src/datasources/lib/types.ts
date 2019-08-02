@@ -77,5 +77,6 @@ export interface TargetResult {
     metrics: (Metric<number> | Metric<string>)[];
 }
 
-export type TransformationFn = (datapoints: TDatapoint[]) => void
+export type ValuesTransformationFn = (datapoints: TDatapoint[]) => void;
+export type IngestionTransformationFn = (cur: TDatapoint, prev?: TDatapoint) => TDatapoint;
 export type DatasourceRequestFn = (options: any) => any;

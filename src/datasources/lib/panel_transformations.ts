@@ -3,7 +3,7 @@ import { TargetFormat, TimeSeriesData, PanelData, TableData, QueryTarget, Target
 import { isBlank } from './utils';
 import "core-js/stable/array/flat-map";
 
-export default class Transformations {
+export default class PanelTransformations {
 
     constructor(private templateSrv: any) {
     }

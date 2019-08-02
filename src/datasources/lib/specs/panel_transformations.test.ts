@@ -1,14 +1,14 @@
-import Transformations from "../transformations";
-import { TargetFormat, TimeSeriesData, TableData, TargetResult, QueryTarget } from "../types";
+import PanelTransformations from "../panel_transformations";
+import { TargetFormat, TimeSeriesData, TableData, TargetResult } from "../types";
 
-describe("Transformations", () => {
-    let ctx: { templateSrv: any, transformations: Transformations } = {} as any;
+describe("PanelTransformations", () => {
+    let ctx: { templateSrv: any, transformations: PanelTransformations } = {} as any;
 
     beforeEach(() => {
         ctx.templateSrv = {
             replace: jest.fn()
         };
-        ctx.transformations = new Transformations(ctx.templateSrv);
+        ctx.transformations = new PanelTransformations(ctx.templateSrv);
     });
 
     it("should update labels", () => {

@@ -1,17 +1,17 @@
 ///<reference path="../../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import _ from 'lodash';
-import { Query, QueryTarget, TransformationFn } from '../lib/types';
+import { Query, QueryTarget, ValuesTransformationFn } from '../lib/types';
 import { isBlank } from '../lib/utils';
 import { PmSeries } from './pmseries';
-import Transformations from '../lib/transformations';
-import ValueTransformations from '../lib/value_transformations';
+import PanelTransformations from '../lib/panel_transformations';
+import { ValuesTransformations } from '../lib/transformations';
 
 export class PCPRedisDatasource {
 
     name: string;
     withCredentials: boolean;
     headers: any;
-    transformations: Transformations;
+    transformations: PanelTransformations;
     pmSeries: PmSeries;
 
     /** @ngInject **/
@@ -23,7 +23,7 @@ export class PCPRedisDatasource {
             this.headers['Authorization'] = instanceSettings.basicAuth;
         }
 
-        this.transformations = new Transformations(this.templateSrv);
+        this.transformations = new PanelTransformations(this.templateSrv);
         this.pmSeries = new PmSeries(this.doRequest.bind(this), this.instanceSettings.url);
     }
 
@@ -103,9 +103,9 @@ export class PCPRedisDatasource {
             const instancesForTarget = instances.filter((instance: any) => series.includes(instance.series));
             const instancesGroupedByName = _.groupBy(instancesForTarget, "instanceName");
 
-            let transformations: TransformationFn[] = [];
+            let transformations: ValuesTransformationFn[] = [];
             if (descriptions[series[0]].semantics === "counter")
-                transformations.push(ValueTransformations.counter);
+                transformations.push(ValuesTransformations.counter);
 
             return {
                 target: target,
@@ -113,7 +113,7 @@ export class PCPRedisDatasource {
                     name: target.expr,
                     instances: _.map(instancesGroupedByName, (instances: any[], instanceName: string) => ({
                         name: instanceName,
-                        values: ValueTransformations.applyTransformations(
+                        values: ValuesTransformations.applyTransformations(
                             transformations,
                             instances.map((instance: any) => [parseFloat(instance.value), parseInt(instance.timestamp)])
                         )

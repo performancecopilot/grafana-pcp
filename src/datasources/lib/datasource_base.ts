@@ -3,7 +3,7 @@ import _ from 'lodash';
 import kbn from 'grafana/app/core/utils/kbn';
 import EndpointRegistry, { Endpoint } from './endpoint_registry';
 import { QueryTarget, Query, TargetResult, TargetFormat } from './types';
-import Transformations from './transformations';
+import PanelTransformations from './panel_transformations';
 import { Context } from "./pmapi";
 import { isBlank } from './utils';
 import "core-js/stable/array/flat";
@@ -19,7 +19,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint> {
     localHistoryAgeMs: number; // age out time
 
     endpointRegistry: EndpointRegistry<EP>;
-    transformations: Transformations;
+    transformations: PanelTransformations;
 
     constructor(readonly instanceSettings: any, private backendSrv: any, private templateSrv: any, private variableSrv: any) {
         this.name = instanceSettings.name;
@@ -34,7 +34,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint> {
         this.localHistoryAgeMs = kbn.interval_to_ms(instanceSettings.jsonData.localHistoryAge || '5m');
 
         this.endpointRegistry = new EndpointRegistry();
-        this.transformations = new Transformations(this.templateSrv);
+        this.transformations = new PanelTransformations(this.templateSrv);
     }
 
     configureEndpoint(_endpoint: EP) {
