@@ -84,17 +84,37 @@ export class PCPRedisDatasource {
 
             const instancesGroupedBySeriesAndName = _.groupBy(instancesGroupedBySeries[series], "instanceName");
             for (const instanceName in instancesGroupedBySeriesAndName) {
-                if (!(instanceName in transformedInstances[series]))
-                    transformedInstances[series][instanceName] = [];
-
                 let datapoints = instancesGroupedBySeriesAndName[instanceName].map(
                     (instance: any) => [parseFloat(instance.value), parseInt(instance.timestamp)]
                 );
                 datapoints = ValuesTransformations.applyTransformations(transformations, datapoints);
-                transformedInstances[series][instanceName].push(...datapoints);
+                transformedInstances[series][instanceName] = datapoints;
             }
         }
         return transformedInstances;
+    }
+
+    handleTarget(target: QueryTarget, seriesForTarget: string[], transformedInstances: Record<string, Record<string, TDatapoint[]>>) {
+        // merge all instances (by name) from all series for this target
+        const instances: Record<string, TDatapoint[]> = {};
+        for (const series of seriesForTarget) {
+            for (const instanceName in transformedInstances[series]) {
+                if (!(instanceName in instances))
+                    instances[instanceName] = [];
+                instances[instanceName].push(...transformedInstances[series][instanceName]);
+            }
+        }
+
+        return {
+            target: target,
+            metrics: [{
+                name: target.expr,
+                instances: _.map(instances, (datapoints: TDatapoint[], instanceName: string) => ({
+                    name: instanceName,
+                    values: datapoints.sort((a: TDatapoint, b: TDatapoint) => a[1] - b[1])
+                }))
+            }]
+        };
     }
 
     async query(query: Query) {
@@ -127,29 +147,7 @@ export class PCPRedisDatasource {
         const allInstances = await this.pmSeries.values(series.flat(), { start, finish, samples, interval, tzparam }, true);
         const descriptions = await this.pmSeries.descs(series.flat());
         const transformedInstances = this.transformSeries(allInstances, descriptions);
-        const targetResults = targets.map(target => {
-            // merge all instances (by name) from all series for this target
-            const instances: Record<string, TDatapoint[]> = {};
-            for (const series of seriesByExpr[target.expr]) {
-                for (const instanceName in transformedInstances[series]) {
-                    if (!(instanceName in instances))
-                        instances[instanceName] = [];
-                    instances[instanceName].push(...transformedInstances[series][instanceName]);
-                }
-            }
-
-            return {
-                target: target,
-                metrics: [{
-                    name: target.expr,
-                    instances: _.map(instances, (datapoints: TDatapoint[], instanceName: string) => ({
-                        name: instanceName,
-                        values: datapoints.sort((a: TDatapoint, b: TDatapoint) => a[1] - b[1])
-                    }))
-                }]
-            };
-        });
-
+        const targetResults = targets.map(target => this.handleTarget(target, seriesByExpr[target.expr], transformedInstances));
         const panelData = this.transformations.transform(query, targetResults);
         return {
             data: panelData
