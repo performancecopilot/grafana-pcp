@@ -8,7 +8,7 @@ export default class Transformations {
     constructor(private templateSrv: any) {
     }
 
-    getLabel(query: Query, target: QueryTarget, metric: string, instance?: MetricInstance) {
+    getLabel(query: Query, target: QueryTarget, metric: string, instance?: MetricInstance<number | string>) {
         if (isBlank(target.legendFormat)) {
             if (instance && instance.name !== "")
                 return instance.name;
@@ -28,14 +28,14 @@ export default class Transformations {
         }
     }
 
-    transformToTimeSeries(query: Query, target: QueryTarget, metric: Metric): TimeSeriesData[] {
+    transformToTimeSeries(query: Query, target: QueryTarget, metric: Metric<number>): TimeSeriesData[] {
         return metric.instances.map(instance => ({
             target: this.getLabel(query, target, metric.name, instance),
             datapoints: instance.values.map(dataPoint => [dataPoint[0], Math.floor(dataPoint[1] / 1000) * 1000])
         }));
     }
 
-    transformToHeatmap(metric: Metric): TimeSeriesData[] {
+    transformToHeatmap(metric: Metric<number>): TimeSeriesData[] {
         return metric.instances.map(instance => {
             // target name is the upper bound
             let targetName = instance.name;
@@ -85,7 +85,7 @@ export default class Transformations {
         for (const instanceName of instanceNames) {
             const row: (string | number)[] = [];
             for (const targetResult of results) {
-                const instance = targetResult.metrics[0].instances.find(instance => instance.name === instanceName);
+                const instance = (targetResult.metrics[0] as Metric<number | string>).instances.find(instance => instance.name === instanceName);
                 if (instance && instance.values.length > 0)
                     row.push(instance.values[instance.values.length - 1][0]);
                 else
@@ -102,9 +102,9 @@ export default class Transformations {
             return this.transformMultipleMetricsToTable(query, results);
         }
         else if (results.length === 1 && results[0].metrics.length === 1) {
-            const instances = results[0].metrics[0].instances;
+            const instances = results[0].metrics[0].instances as MetricInstance<string>[];
             if (instances.length > 0 && instances[0].values.length > 0)
-                return this.transformStringToTable(instances[0].values[0][0] as string);
+                return this.transformStringToTable(instances[0].values[0][0]);
         }
         return { columns: [], rows: [], type: 'table' };
     }
@@ -113,9 +113,9 @@ export default class Transformations {
         const format = results[0].target.format;
 
         if (format === TargetFormat.TimeSeries)
-            return results.flatMap(targetResult => targetResult.metrics.flatMap(metric => this.transformToTimeSeries(query, targetResult.target, metric)));
+            return results.flatMap(targetResult => targetResult.metrics.flatMap((metric: Metric<number>) => this.transformToTimeSeries(query, targetResult.target, metric)));
         else if (format === TargetFormat.Heatmap)
-            return results.flatMap(targetResult => targetResult.metrics.flatMap(metric => this.transformToHeatmap(metric)));
+            return results.flatMap(targetResult => targetResult.metrics.flatMap((metric: Metric<number>) => this.transformToHeatmap(metric)));
         else if (format == TargetFormat.Table)
             return [this.transformToTable(query, results)];
         else

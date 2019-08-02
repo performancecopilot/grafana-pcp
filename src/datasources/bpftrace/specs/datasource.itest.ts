@@ -18,6 +18,18 @@ function datasourceRequestHttp(options) {
 describe("DataSource", () => {
     let ctx: { datasource: PCPBPFtraceDatasource, backendSrv: any, templateSrv: any, variableSrv: any } = {} as any;
 
+    const sampleQuery = {
+        range: {
+            from: new Date(0),
+            to: new Date(8640000000000000)
+        },
+        scopedVars: {},
+        timezone: "",
+        interval: "1s",
+        intervalMs: 1000,
+        maxDataPoints: 100
+    };
+
     beforeEach(() => {
         const instanceSettings = {
             url: "http://localhost:44323",
@@ -44,11 +56,7 @@ describe("DataSource", () => {
 
     it("should query timeseries", async () => {
         const query = {
-            range: {
-                from: new Date(0),
-                to: new Date(8640000000000000)
-            },
-            scopedVars: {},
+            ...sampleQuery,
             targets: [{
                 refId: 'A',
                 expr: "kretprobe:vfs_read { @bytes = hist(retval); }",
@@ -71,11 +79,7 @@ describe("DataSource", () => {
 
     it("should do legend transformation for timeseries", async () => {
         const query = {
-            range: {
-                from: new Date(0),
-                to: new Date(8640000000000000)
-            },
-            scopedVars: {},
+            ...sampleQuery,
             targets: [{
                 refId: 'A',
                 expr: "kretprobe:vfs_read { @scalar1 = 1; @scalar2 = 2; }",
@@ -100,11 +104,7 @@ describe("DataSource", () => {
 
     it("should query heatmaps", async () => {
         const query = {
-            range: {
-                from: new Date(0),
-                to: new Date(8640000000000000)
-            },
-            scopedVars: {},
+            ...sampleQuery,
             targets: [{
                 refId: 'A',
                 expr: "kretprobe:vfs_read { @bytes = hist(retval); }",

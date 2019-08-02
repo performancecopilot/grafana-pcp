@@ -1,17 +1,14 @@
 import _ from 'lodash';
 import Context from './context';
-import { Datapoint, MetricInstance, TargetResult, QueryTarget } from './types';
-import { Endpoint } from './endpoint_registry';
-
-type StoredDatapoint = [number | string | undefined, number, number?];
+import { Datapoint, MetricInstance, TargetResult, Metric, TDatapoint } from './types';
 
 export default class DataStore {
-    private store: Record<string, Record<string, StoredDatapoint[]>> = {}; // store[metric][instance] = [val,ts,origVal]
+    private store: Record<string, Record<string, TDatapoint[]>> = {}; // store[metric][instance] = [val,ts]
 
     constructor(private context: Context, private localHistoryAgeMs: number) {
     }
 
-    private ingestCounterMetric(instanceStore: StoredDatapoint[], instance: any, pollTimeEpochMs: number) {
+    private ingestCounterMetric(instanceStore: any[], instance: any, pollTimeEpochMs: number) {
         // first value: store it as undefined, to be filtered by queryTimeSeries()
         // subsequent values: perform rate conversation
         if (instanceStore.length > 0) {
@@ -24,7 +21,7 @@ export default class DataStore {
         }
     }
 
-    private async ingestMetric(metricStore: Record<string, StoredDatapoint[]>, metric: any, pollTimeEpochMs: number) {
+    private async ingestMetric(metricStore: Record<string, TDatapoint[]>, metric: any, pollTimeEpochMs: number) {
         const metadata = await this.context.metricMetadata(metric.name);
         if (!metadata) {
             console.info(`skipping ingestion of ${metric.name}: metadata not available`);
@@ -38,6 +35,8 @@ export default class DataStore {
                 metricStore[instance.instanceName] = [];
             }
 
+            // TODO: use ValueTransformations.counter()?
+            // performance tests required for rate conversation at ingestion vs at query
             if (metadata.sem === "counter") {
                 this.ingestCounterMetric(metricStore[instance.instanceName], instance, pollTimeEpochMs);
             }
@@ -61,14 +60,14 @@ export default class DataStore {
         }
     }
 
-    queryMetric(metric: string, from: number, to: number): MetricInstance[] {
+    queryMetric(metric: string, from: number, to: number): MetricInstance<number | string>[] {
         if (!(metric in this.store))
             return [];
         return Object.keys(this.store[metric]).map(instance => ({
             name: instance,
             values: this.store[metric][instance].filter(dataPoint => (
                 from <= dataPoint[1] && dataPoint[1] <= to && dataPoint[0] != undefined
-            )) as Datapoint[]
+            ))
         }));
     }
 
@@ -78,7 +77,7 @@ export default class DataStore {
             metrics: metrics.map(metric => ({
                 name: metric,
                 instances: this.queryMetric(metric, from, to)
-            }))
+            })) as Metric<number>[] | Metric<string>[]
         };
     }
 
@@ -87,7 +86,7 @@ export default class DataStore {
         for (const metric in this.store) {
             for (const instance in this.store[metric]) {
                 this.store[metric][instance] = this.store[metric][instance].filter(
-                    (dataPoint: Datapoint) => dataPoint[1] > keepExpiry
+                    dataPoint => dataPoint[1] > keepExpiry
                 );
             }
         }

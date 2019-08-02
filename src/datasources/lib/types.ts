@@ -10,9 +10,13 @@ export interface Query {
     targets: QueryTarget[];
     scopedVars: any;
     range: {
-        from: Date,
-        to: Date
+        from: { valueOf: () => number },
+        to: { valueOf: () => number }
     };
+    timezone: string;
+    interval: string;
+    intervalMs: number;
+    maxDataPoints: number;
 }
 
 export interface QueryTarget<EP extends Endpoint = any> {
@@ -42,11 +46,12 @@ export interface MetricMetadata {
     labels: Record<string, any>;
 }
 
-export type Datapoint = [number | string, number];
+export type Datapoint<T> = [T, number]; // [value, timestampMs]
+export type TDatapoint = Datapoint<number> | Datapoint<string>
 
 export interface TimeSeriesData {
     target: string;
-    datapoints: Datapoint[];
+    datapoints: Datapoint<number>[];
 }
 
 export interface TableData {
@@ -57,17 +62,19 @@ export interface TableData {
 
 export type PanelData = TimeSeriesData | TableData;
 
-export interface MetricInstance {
+export interface MetricInstance<T> {
     name: string;
-    values: Datapoint[];
+    values: Datapoint<T>[];
 }
 
-export interface Metric {
+export interface Metric<T> {
     name: string;
-    instances: MetricInstance[];
+    instances: MetricInstance<T>[];
 }
 
 export interface TargetResult {
     target: QueryTarget;
-    metrics: Metric[];
+    metrics: (Metric<number> | Metric<string>)[];
 }
+
+export type TransformationFn = (datapoints: TDatapoint[]) => void
