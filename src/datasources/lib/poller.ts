@@ -1,5 +1,5 @@
 import _ from "lodash";
-import Context from "./context";
+import { Context } from "./pmapi";
 import DataStore from "./datastore";
 
 export default class Poller {

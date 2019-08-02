@@ -4,8 +4,8 @@ import kbn from 'grafana/app/core/utils/kbn';
 import EndpointRegistry, { Endpoint } from './endpoint_registry';
 import { QueryTarget, Query, TargetResult, TargetFormat } from './types';
 import Transformations from './transformations';
-import Context from './context';
-import { getDashboardVariables, isBlank } from './utils';
+import { Context } from "./pmapi";
+import { isBlank } from './utils';
 import "core-js/stable/array/flat";
 
 export abstract class PCPLiveDatasourceBase<EP extends Endpoint> {
@@ -33,7 +33,6 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint> {
         this.keepPollingMs = kbn.interval_to_ms(instanceSettings.jsonData.keepPolling || '20s');
         this.localHistoryAgeMs = kbn.interval_to_ms(instanceSettings.jsonData.localHistoryAge || '5m');
 
-        Context.datasourceRequest = this.doRequest.bind(this);
         this.endpointRegistry = new EndpointRegistry();
         this.transformations = new Transformations(this.templateSrv);
     }
@@ -44,7 +43,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint> {
     getOrCreateEndpoint(url: string, container: string | undefined) {
         let endpoint = this.endpointRegistry.find(url, container);
         if (!endpoint) {
-            endpoint = this.endpointRegistry.create(url, container, this.keepPollingMs, this.localHistoryAgeMs);
+            endpoint = this.endpointRegistry.create(this.doRequest.bind(this), url, container, this.keepPollingMs, this.localHistoryAgeMs);
             this.configureEndpoint(endpoint);
         }
         return endpoint;

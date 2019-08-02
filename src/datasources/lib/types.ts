@@ -78,3 +78,4 @@ export interface TargetResult {
 }
 
 export type TransformationFn = (datapoints: TDatapoint[]) => void
+export type DatasourceRequestFn = (options: any) => any;

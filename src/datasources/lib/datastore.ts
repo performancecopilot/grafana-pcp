@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import Context from './context';
-import { Datapoint, MetricInstance, TargetResult, Metric, TDatapoint } from './types';
+import { Context } from "./pmapi";
+import { MetricInstance, TargetResult, Metric, TDatapoint } from './types';
 
 export default class DataStore {
     private store: Record<string, Record<string, TDatapoint[]>> = {}; // store[metric][instance] = [val,ts]

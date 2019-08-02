@@ -1,4 +1,4 @@
-import Context from "../lib/context";
+import { Context } from "../lib/pmapi";
 import { TargetFormat } from "../lib/types";
 import DataStore from "../lib/datastore";
 

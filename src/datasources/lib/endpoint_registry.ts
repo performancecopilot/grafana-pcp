@@ -1,6 +1,7 @@
-import Context from "./context";
+import { Context } from "./pmapi";
 import DataStore from "./datastore";
 import Poller from './poller';
+import { DatasourceRequestFn } from "./types";
 
 export interface Endpoint {
     id: string;
@@ -23,9 +24,9 @@ export default class EndpointRegistry<T extends Endpoint> {
         return this.endpoints[id];
     }
 
-    create(url: string, container: string | undefined, keepPollingMs: number, localHistoryAgeMs: number) {
+    create(datasourceRequest: DatasourceRequestFn, url: string, container: string | undefined, keepPollingMs: number, localHistoryAgeMs: number) {
         const id = this.generateId(url, container);
-        const context = new Context(url, container);
+        const context = new Context(datasourceRequest, url, container);
         const datastore = new DataStore(context, localHistoryAgeMs);
         const poller = new Poller(context, datastore, keepPollingMs);
 

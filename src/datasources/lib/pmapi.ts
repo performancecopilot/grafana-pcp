@@ -1,23 +1,26 @@
 import _ from 'lodash';
 import { synchronized, isBlank } from './utils';
-import { MetricMetadata } from './types';
+import { MetricMetadata, DatasourceRequestFn } from './types';
 
-export default class Context {
+export class Context {
 
-    static datasourceRequest: (options: any) => any;
     private context: string;
     private metricMetadataCache: Record<string, MetricMetadata> = {}; // TODO: invalidate cache
     private indomCache: Record<string, Record<number, string>> = {}; // indomCache[metric][instance_id] = instance_name
     private d: string = '';
 
-    constructor(readonly url: string, readonly container?: string) {
+    constructor(private datasourceRequest: DatasourceRequestFn, readonly url: string, readonly container?: string) {
+    }
+
+    newInstance() {
+        return new Context(this.datasourceRequest, this.url, this.container);
     }
 
     @synchronized
     async createContext() {
         let contextUrl = `${this.url}/pmapi/context?hostspec=127.0.0.1&polltimeout=30`;
 
-        const contextResponse = await Context.datasourceRequest({ url: contextUrl });
+        const contextResponse = await this.datasourceRequest({ url: contextUrl });
         this.context = contextResponse.data.context;
 
         // only pmproxy contains source attribute
@@ -27,7 +30,7 @@ export default class Context {
         }
 
         if (!isBlank(this.container)) {
-            await Context.datasourceRequest({
+            await this.datasourceRequest({
                 url: `${this.url}/pmapi/${this.context}/${this.d}store`,
                 params: { name: "pmcd.client.container", value: this.container }
             });
@@ -59,7 +62,7 @@ export default class Context {
         if (requiredMetrics.length > 0) {
             requiredMetrics.push("pmcd.control.timeout"); // TODO: remove workaround - server should return empty list if no metrics were found
             const metadata = await this.ensureContext(async () => {
-                const response = await Context.datasourceRequest({
+                const response = await this.datasourceRequest({
                     url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
                     params: { names: requiredMetrics.join(',') }
                 });
@@ -80,7 +83,7 @@ export default class Context {
 
     private async refreshIndoms(metric: string) {
         const indoms = await this.ensureContext(async () => {
-            const response = await Context.datasourceRequest({
+            const response = await this.datasourceRequest({
                 url: `${this.url}/pmapi/${this.context}/${this.d}indom`,
                 params: { name: metric }
             });
@@ -123,7 +126,7 @@ export default class Context {
         metrics.push("pmcd.control.timeout"); // TODO: remove workaround - server should return empty list if no metrics were found
 
         const data = await this.ensureContext(async () => {
-            const response = await Context.datasourceRequest({
+            const response = await this.datasourceRequest({
                 url: `${this.url}/pmapi/${this.context}/${this.d}fetch`,
                 params: { names: metrics.join(',') }
             });
@@ -151,7 +154,7 @@ export default class Context {
 
     async store(metric: string, value: string) {
         return await this.ensureContext(async () => {
-            const response = await Context.datasourceRequest({
+            const response = await this.datasourceRequest({
                 url: `${this.url}/pmapi/${this.context}/${this.d}store`,
                 params: { name: metric, value: value }
             });
@@ -161,7 +164,7 @@ export default class Context {
 
     async children(prefix: string) {
         return await this.ensureContext(async () => {
-            const response = await Context.datasourceRequest({
+            const response = await this.datasourceRequest({
                 url: `${this.url}/pmapi/${this.context}/${this.d}children`,
                 params: { prefix: prefix }
             });

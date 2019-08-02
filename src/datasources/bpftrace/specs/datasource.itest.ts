@@ -32,7 +32,7 @@ describe("DataSource", () => {
 
     beforeEach(() => {
         const instanceSettings = {
-            url: "http://localhost:44323",
+            url: "http://localhost:44322",
             jsonData: {
                 pollIntervalMs: 0,
                 scriptSyncIntervalMs: 0

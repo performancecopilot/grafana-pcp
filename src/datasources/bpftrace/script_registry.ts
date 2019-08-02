@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import Context from "../lib/context";
+import { Context } from "../lib/pmapi";
 import Poller from '../lib/poller';
 import DataStore from '../lib/datastore';
 import BPFtraceScript from './script';
@@ -68,7 +68,7 @@ export default class ScriptRegistry {
 
         // create temporary context, required so that the PMDA can identify
         // the client who sent the pmStore message
-        const context = new Context(this.context.url);
+        const context = this.context.newInstance();
         try {
             await context.store("bpftrace.control.register", code);
         }

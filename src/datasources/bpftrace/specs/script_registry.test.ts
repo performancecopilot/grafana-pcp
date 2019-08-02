@@ -1,10 +1,10 @@
 import ScriptRegistry from "../script_registry";
 import * as dateMock from 'jest-date-mock';
-import * as Context_ from "../../lib/context";
+import * as Context_ from "../../lib/pmapi";
 
-const Context = Context_.default;
-const ContextMock: { metricMetadatas: jest.Mock, metricMetadata: jest.Mock, fetch: jest.Mock, store: jest.Mock } = Context_ as any;
-jest.mock("../../lib/context");
+const Context = Context_.Context;
+const ContextMock: { metricMetadatas: jest.Mock, metricMetadata: jest.Mock, fetch: jest.Mock, store: jest.Mock } = (Context_ as any).ContextMock;
+jest.mock("../../lib/pmapi");
 
 describe("ScriptRegistry", () => {
     let ctx: { context: any, datastore: any, poller: any, scriptRegistry: ScriptRegistry } = {} as any;
@@ -17,7 +17,9 @@ describe("ScriptRegistry", () => {
         ContextMock.store.mockClear();
         dateMock.clear();
 
-        ctx.context = {};
+        ctx.context = {
+            newInstance: () => new Context(() => null, "http://localhost:44322")
+        };
         ctx.datastore = {
             queryMetrics: jest.fn()
         };
