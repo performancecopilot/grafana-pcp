@@ -8,6 +8,11 @@ describe("PanelTransformations", () => {
         ctx.templateSrv = {
             replace: jest.fn()
         };
+        ctx.templateSrv.replace.mockImplementation((str: string, vars: any) => {
+            for (const var_ in vars)
+                str = str.replace('$' + var_, vars[var_].value);
+            return str;
+        });
         ctx.transformations = new PanelTransformations(ctx.templateSrv);
     });
 
@@ -15,28 +20,28 @@ describe("PanelTransformations", () => {
         const query: any = {
             targets: [{
                 format: TargetFormat.TimeSeries,
-                legendFormat: "a $instance b"
+                legendFormat: "a $metric $metric0 $instance $label1 b"
             }]
         };
         const results: TargetResult[] = [{
             target: query.targets[0],
             metrics: [{
-                name: "metric",
+                name: "disk.dev.read",
                 instances: [{
-                    name: "abc",
+                    name: "inst1",
                     values: []
-                }]
+                }],
+                metadata: {
+                    "label1": "value1"
+                }
             }]
         }];
 
-        ctx.templateSrv.replace.mockReturnValueOnce("a abc b");
         const result = ctx.transformations.transform(query, results);
         const expected: TimeSeriesData[] = [{
-            target: "a abc b",
+            target: "a disk.dev.read read inst1 value1 b",
             datapoints: []
         }];
-        expect(ctx.templateSrv.replace.mock.calls[0][0]).toBe("a $instance b");
-        expect(ctx.templateSrv.replace.mock.calls[0][1]).toMatchObject({ instance: { value: "abc" } });
         expect(result).toStrictEqual(expected);
     });
 
@@ -56,7 +61,8 @@ describe("PanelTransformations", () => {
                     { name: "4-7", values: [[2, 2300]] },
                     { name: "8-15", values: [[3, 5000]] },
                     { name: "8-inf", values: [[3, 5000]] },
-                ]
+                ],
+                metadata: {}
             }]
         }];
 
@@ -90,7 +96,8 @@ TIME     PID      COMM             SADDR                                   SPORT
 15:45:05 6085     pmproxy          127.0.0.1                               59890  127.0.0.1                               44321 
 15:45:07 6085     pmproxy          0:0:8b2::a00:0                          45576  0:0:21ad::                              44321 
 `, 1400]]
-                }]
+                }],
+                metadata: {}
             }]
         }];
 

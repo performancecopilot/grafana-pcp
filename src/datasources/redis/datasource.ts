@@ -1,6 +1,6 @@
 ///<reference path="../../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import _ from 'lodash';
-import { Query, QueryTarget, ValuesTransformationFn, TDatapoint } from '../lib/types';
+import { Query, QueryTarget, ValuesTransformationFn, TDatapoint, Metric, MetricInstance } from '../lib/types';
 import { isBlank } from '../lib/utils';
 import { PmSeries } from './pmseries';
 import PanelTransformations from '../lib/panel_transformations';
@@ -68,15 +68,11 @@ export class PCPRedisDatasource {
             });
     }
 
-    /**
-     * group all instances by series and instanceName,
-     * and apply transformations depending on the series
-     */
-    transformSeries(allInstances: any, descriptions: any) {
-        const transformedInstances: Record<string, Record<string, TDatapoint[]>> = {}; // transformedInstances[series][instanceName] = datapoints
-        const instancesGroupedBySeries = _.groupBy(allInstances, "series");
+    handleTarget(instancesGroupedBySeries: Record<string, any>, descriptions: any, labels: any, target: QueryTarget) {
+        const metrics: Metric<number | string>[] = [];
+
         for (const series in instancesGroupedBySeries) {
-            transformedInstances[series] = {};
+            const instances: MetricInstance<number | string>[] = [];
 
             let transformations: ValuesTransformationFn[] = [];
             if (descriptions[series].semantics === "counter")
@@ -84,36 +80,25 @@ export class PCPRedisDatasource {
 
             const instancesGroupedBySeriesAndName = _.groupBy(instancesGroupedBySeries[series], "instanceName");
             for (const instanceName in instancesGroupedBySeriesAndName) {
-                let datapoints = instancesGroupedBySeriesAndName[instanceName].map(
+                const datapoints = instancesGroupedBySeriesAndName[instanceName].map(
                     (instance: any) => [parseFloat(instance.value), parseInt(instance.timestamp)]
                 );
-                datapoints = ValuesTransformations.applyTransformations(transformations, datapoints);
-                transformedInstances[series][instanceName] = datapoints;
+                instances.push({
+                    name: instanceName,
+                    values: ValuesTransformations.applyTransformations(transformations, datapoints)
+                });
             }
-        }
-        return transformedInstances;
-    }
 
-    handleTarget(target: QueryTarget, seriesForTarget: string[], transformedInstances: Record<string, Record<string, TDatapoint[]>>) {
-        // merge all instances (by name) from all series for this target
-        const instances: Record<string, TDatapoint[]> = {};
-        for (const series of seriesForTarget) {
-            for (const instanceName in transformedInstances[series]) {
-                if (!(instanceName in instances))
-                    instances[instanceName] = [];
-                instances[instanceName].push(...transformedInstances[series][instanceName]);
-            }
+            metrics.push({
+                name: target.expr,
+                instances: instances,
+                metadata: labels[series]
+            });
         }
 
         return {
             target: target,
-            metrics: [{
-                name: target.expr,
-                instances: _.map(instances, (datapoints: TDatapoint[], instanceName: string) => ({
-                    name: instanceName,
-                    values: datapoints.sort((a: TDatapoint, b: TDatapoint) => a[1] - b[1])
-                }))
-            }]
+            metrics: metrics
         };
     }
 
@@ -131,6 +116,7 @@ export class PCPRedisDatasource {
         const exprs = targets.map(target => target.expr);
         let series = await Promise.all(exprs.map(this.pmSeries.query.bind(this.pmSeries)));
         let seriesByExpr = _.zipObject(exprs, series);
+        let seriesList = series.flat();
 
         for (const expr in seriesByExpr) {
             if (seriesByExpr[expr].length === 0) {
@@ -144,10 +130,11 @@ export class PCPRedisDatasource {
         const interval = query.interval;
         const mdp = query.maxDataPoints; // TODO: not supported in pmproxy?
 
-        const allInstances = await this.pmSeries.values(series.flat(), { start, finish, samples, interval, tzparam }, true);
-        const descriptions = await this.pmSeries.descs(series.flat());
-        const transformedInstances = this.transformSeries(allInstances, descriptions);
-        const targetResults = targets.map(target => this.handleTarget(target, seriesByExpr[target.expr], transformedInstances));
+        const instances = await this.pmSeries.values(seriesList, { start, finish, samples, interval, tzparam }, true);
+        const descriptions = await this.pmSeries.descs(seriesList);
+        const labels = await this.pmSeries.labels(seriesList);
+        const instancesGroupedBySeries = _.groupBy(instances, "series");
+        const targetResults = targets.map(target => this.handleTarget(_.pick(instancesGroupedBySeries, seriesByExpr[target.expr]), descriptions, labels, target));
         const panelData = this.transformations.transform(query, targetResults);
         return {
             data: panelData

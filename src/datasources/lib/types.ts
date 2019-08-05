@@ -56,7 +56,7 @@ export interface TimeSeriesData {
 
 export interface TableData {
     columns: any[];
-    rows: (string | number)[][];
+    rows: (number | string)[][];
     type: string;
 }
 
@@ -70,11 +70,12 @@ export interface MetricInstance<T> {
 export interface Metric<T> {
     name: string;
     instances: MetricInstance<T>[];
+    metadata: Record<string, any>;
 }
 
 export interface TargetResult {
     target: QueryTarget;
-    metrics: (Metric<number> | Metric<string>)[];
+    metrics: Metric<number | string>[];
 }
 
 export type ValuesTransformationFn = (datapoints: TDatapoint[]) => void;

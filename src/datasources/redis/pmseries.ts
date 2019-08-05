@@ -8,6 +8,7 @@ export class PmSeries {
 
     private descriptionCache: Record<string, Description> = {}; // descriptionCache[series] = description;
     private instanceCache: Record<string, Record<string, string>> = {}; // instanceCache[series][instance] = name;
+    private labelCache: Record<string, Description> = {}; // labelCache[series] = labels;
 
     constructor(private datasourceRequest: (options: any) => any,
         private url: string) {
@@ -29,7 +30,7 @@ export class PmSeries {
         return _.isArray(series) ? series : []; // TODO: on error, pmproxy returns an object (should be an empty array)
     }
 
-    async descs(series: string[]): Promise<{ [key: string]: Description }> {
+    async descs(series: string[]): Promise<Record<string, Description>> {
         const requiredSeries = _.difference(series, Object.keys(this.descriptionCache));
         if (requiredSeries.length > 0) {
             const response = await this.datasourceRequest({
@@ -108,7 +109,22 @@ export class PmSeries {
         return response.data;
     }
 
-    async labels(): Promise<string[]> {
+    async labels(series?: string[]): Promise<Record<string, Record<string, any>>> {
+        const requiredSeries = _.difference(series, Object.keys(this.labelCache));
+        if (requiredSeries.length > 0) {
+            const response = await this.datasourceRequest({
+                url: `${this.url}/series/labels`,
+                params: { series: requiredSeries.join(',') }
+            });
+            const data = _.isArray(response.data) ? response.data : [];
+            for (const labels of data) {
+                this.labelCache[labels.series] = labels.labels;
+            }
+        }
+        return _.pick(this.labelCache, series); // _.pick ignores non-existing keys
+    }
+
+    async labelNames(): Promise<string[]> {
         const response = await this.datasourceRequest({
             url: `${this.url}/series/labels`
         });

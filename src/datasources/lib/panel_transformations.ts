@@ -8,7 +8,7 @@ export default class PanelTransformations {
     constructor(private templateSrv: any) {
     }
 
-    getLabel(query: Query, target: QueryTarget, metric: string, instance?: MetricInstance<number | string>) {
+    getLabel(query: Query, target: QueryTarget, metric: string, instance?: MetricInstance<number | string>, metadata: Record<string, any> = {}) {
         if (isBlank(target.legendFormat)) {
             if (instance && instance.name !== "")
                 return instance.name;
@@ -16,9 +16,11 @@ export default class PanelTransformations {
                 return metric;
         }
         else {
+            metadata = _.mapValues(metadata, (val: any) => ({ value: val }));
             const metricSpl = metric.split('.');
             const vars = {
                 ...query.scopedVars,
+                ...metadata,
                 metric: { value: metric },
                 metric0: { value: metricSpl[metricSpl.length - 1] }
             };
@@ -30,7 +32,7 @@ export default class PanelTransformations {
 
     transformToTimeSeries(query: Query, target: QueryTarget, metric: Metric<number>): TimeSeriesData[] {
         return metric.instances.map(instance => ({
-            target: this.getLabel(query, target, metric.name, instance),
+            target: this.getLabel(query, target, metric.name, instance, metric.metadata),
             datapoints: instance.values
         }));
     }
@@ -83,7 +85,7 @@ export default class PanelTransformations {
         table.columns = results.map(targetResult => ({ text: this.getLabel(query, targetResult.target, targetResult.metrics[0].name) }));
         const instanceNames = Object.keys(results[0].metrics[0].instances).sort((a, b) => parseInt(a) - parseInt(b));
         for (const instanceName of instanceNames) {
-            const row: (string | number)[] = [];
+            const row: (number | string)[] = [];
             for (const targetResult of results) {
                 const instance = (targetResult.metrics[0] as Metric<number | string>).instances.find(instance => instance.name === instanceName);
                 if (instance && instance.values.length > 0)
