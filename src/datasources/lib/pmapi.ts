@@ -7,6 +7,7 @@ export class Context {
     private context: string;
     private metricMetadataCache: Record<string, MetricMetadata> = {}; // TODO: invalidate cache
     private indomCache: Record<string, Record<number, string>> = {}; // indomCache[metric][instance_id] = instance_name
+    private childrenCache: Record<string, { leaf: string[], nonleaf: string[] }> = {};
     private d: string = '';
 
     constructor(private datasourceRequest: DatasourceRequestFn, readonly url: string, readonly container?: string) {
@@ -163,12 +164,18 @@ export class Context {
     }
 
     async children(prefix: string) {
-        return await this.ensureContext(async () => {
+        if (prefix in this.childrenCache)
+            return this.childrenCache[prefix];
+
+        const data = await this.ensureContext(async () => {
             const response = await this.datasourceRequest({
                 url: `${this.url}/pmapi/${this.context}/${this.d}children`,
                 params: { prefix: prefix }
             });
             return response.data;
         });
+
+        this.childrenCache[prefix] = { nonleaf: data.nonleaf, leaf: data.leaf };
+        return this.childrenCache[prefix];
     }
 }

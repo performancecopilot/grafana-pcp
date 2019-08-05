@@ -100,5 +100,20 @@ export class PmSeries {
         return instances;
     }
 
+    async metrics(pattern: string): Promise<string[]> {
+        const response = await this.datasourceRequest({
+            url: `${this.url}/series/metrics`,
+            params: { target: pattern }
+        });
+        return response.data;
+    }
+
+    async labels(): Promise<string[]> {
+        const response = await this.datasourceRequest({
+            url: `${this.url}/series/labels`
+        });
+        const labels = response.data;
+        return _.isArray(labels) ? labels : []; // TODO: on error, pmproxy returns an object (should be an empty array)
+    }
 
 }

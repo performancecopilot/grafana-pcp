@@ -15,11 +15,8 @@ ace.define("ace/mode/pcp_highlight_rules", ["require", "exports", "module", "ace
     var PcpHighlightRules = function () {
         this.$rules = {
             "start": [{
-                token: "punctuation",
-                regex: "\\."
-            }, {
-                token: "entity.name.tag",
-                regex: '[a-zA-Z]\\w*'
+                token: "entity.name.tag.metric",
+                regex: '[a-zA-Z][a-zA-Z0-9._]*'
             }]
         };
         this.normalizeRules();

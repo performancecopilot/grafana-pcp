@@ -1,5 +1,7 @@
 import { TargetFormat } from '../lib/types';
 import { PCPQueryCtrl } from '../lib/pcp_query_ctrl';
+import PCPRedisMetricCompleter from './completer';
+import './mode-pmseries';
 
 export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
     static templateUrl = 'datasources/redis/partials/query.editor.html';
@@ -27,6 +29,10 @@ export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
             return TargetFormat.Heatmap;
         }
         return TargetFormat.TimeSeries;
+    }
+
+    getCompleter() {
+        return new PCPRedisMetricCompleter(this.datasource);
     }
 
 }

@@ -1,11 +1,9 @@
 import { PCPLiveDatasource } from "./datasource";
-import { Endpoint } from "../lib/endpoint_registry";
 import { MetricMetadata } from "../lib/types";
 
-export default class PCPMetricCompleter {
+export default class PCPLiveMetricCompleter {
 
-    identifierRegexps = [/\./, /[a-zA-Z0-9_]/];
-    childrenCache: Record<string, Record<string, { leaf: string[], nonleaf: string[] }>> = {};
+    identifierRegexps = [/[a-zA-Z0-9_.]/];
 
     constructor(private datasource: PCPLiveDatasource, private target: any) {
     }
@@ -37,51 +35,49 @@ export default class PCPMetricCompleter {
             `${help}`;
     }
 
-    async getChildren(endpoint: Endpoint, prefix: string) {
-        if (endpoint.id in this.childrenCache && prefix in this.childrenCache[endpoint.id])
-            return this.childrenCache[endpoint.id][prefix];
+    getCompletion(word: string, meta: string, doc?: string) {
+        return {
+            caption: word,
+            value: word,
+            meta: meta,
+            score: Number.MAX_VALUE,
+            docHTML: doc
+        };
+    }
 
-        const suggestions = await endpoint.context.children(prefix);
-        if (!(endpoint.id in this.childrenCache))
-            this.childrenCache[endpoint.id] = {};
-        this.childrenCache[endpoint.id][prefix] = { nonleaf: suggestions.nonleaf, leaf: suggestions.leaf };
+    async findMetricCompletions(token: any) {
+        // don't do this in constructor of PCPLiveMetricCompleter, as the user could
+        // change the endpoint settings of the query, but the constructor is only called once
+        const [url, container] = this.datasource.getConnectionParams(this.target, {});
+        const endpoint = this.datasource.getOrCreateEndpoint(url, container);
 
-        return this.childrenCache[endpoint.id][prefix];
+        let searchPrefix = "";
+        if (token.value.includes(".")) {
+            searchPrefix = token.value.substring(0, token.value.lastIndexOf("."));
+        }
+        const suggestions = await endpoint.context.children(searchPrefix);
+        let prefixWithDot = searchPrefix === "" ? "" : `${searchPrefix}.`;
+        const metadatas = await endpoint.context.metricMetadatas(suggestions.leaf.map((leaf: string) => `${prefixWithDot}${leaf}`));
+
+        const completions: any[] = [];
+        completions.push(...suggestions.nonleaf.map(nonleaf =>
+            this.getCompletion(`${prefixWithDot}${nonleaf}`, "namespace")
+        ));
+        completions.push(...suggestions.leaf.map(leaf => {
+            const helpText = this.getHelpText(`${prefixWithDot}${leaf}`, metadatas[`${prefixWithDot}${leaf}`]);
+            return this.getCompletion(`${prefixWithDot}${leaf}`, "metric", helpText);
+        }));
+
+        return completions;
     }
 
     async findCompletions(editor: any, session: any, pos: any, prefix: any) {
-        // don't do this in constructor of PCPMetricCompleter, as the user could
-        // change the endpoint settings of the query, but the constructor is only called once
-        const endpoint = this.datasource.getOrCreateEndpoint(this.datasource.instanceSettings.url, this.datasource.instanceSettings.jsonData.container);
-
-        const editorValue: string = editor.getValue();
-        let metricPrefix = "";
-
-        if (editorValue.includes(".")) {
-            metricPrefix = editorValue.substring(0, editorValue.lastIndexOf("."));
+        const token = session.getTokenAt(pos.row, pos.column);
+        if (token.type === "entity.name.tag.metric") {
+            return this.findMetricCompletions(token);
         }
-
-        const suggestions = await this.getChildren(endpoint, metricPrefix);
-        if (prefix !== ".")
-            prefix = "";
-
-        const completions: any[] = [];
-        completions.push(...suggestions.nonleaf.map((nonleaf: string) => ({
-            caption: nonleaf,
-            value: prefix + nonleaf,
-            meta: "namespace",
-            score: Number.MAX_VALUE
-        })));
-
-        const metadatas = await endpoint.context.metricMetadatas(suggestions.leaf.map((leaf: string) => `${metricPrefix}.${leaf}`));
-        completions.push(...suggestions.leaf.map((leaf: string) => ({
-            caption: leaf,
-            value: prefix + leaf,
-            meta: "metric",
-            score: Number.MAX_VALUE,
-            docHTML: this.getHelpText(`${metricPrefix}.${leaf}`, metadatas[`${metricPrefix}.${leaf}`])
-        })));
-
-        return completions;
+        else {
+            return [];
+        }
     }
 }

@@ -31,7 +31,7 @@ export default class PanelTransformations {
     transformToTimeSeries(query: Query, target: QueryTarget, metric: Metric<number>): TimeSeriesData[] {
         return metric.instances.map(instance => ({
             target: this.getLabel(query, target, metric.name, instance),
-            datapoints: instance.values.map(dataPoint => [dataPoint[0], Math.floor(dataPoint[1] / 1000) * 1000])
+            datapoints: instance.values
         }));
     }
 
@@ -43,7 +43,7 @@ export default class PanelTransformations {
             if (match)
                 targetName = match[2];
 
-            // round timestamps to one second - the heatmap panel calculates the x-axis size accordingly
+            // round timestamps to one second, the heatmap panel calculates the x-axis size accordingly
             return {
                 target: targetName,
                 datapoints: instance.values.map(dataPoint => [dataPoint[0], Math.floor(dataPoint[1] / 1000) * 1000])

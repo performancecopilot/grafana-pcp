@@ -1,7 +1,8 @@
 <query-editor-row query-ctrl="ctrl" can-collapse="true" has-text-edit-mode="false">
   <div class="gf-form-inline">
     <div class="gf-form gf-form--grow">
-      <code-editor content="ctrl.target.expr" on-change="ctrl.targetChanged()" ng-keyup="ctrl.startTyping()">
+      <code-editor content="ctrl.target.expr" on-change="ctrl.targetChanged()" ng-keyup="ctrl.startTyping()"
+        data-mode="pmseries" get-completer="ctrl.getCompleter()">
       </code-editor>
     </div>
   </div>

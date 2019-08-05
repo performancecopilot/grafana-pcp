@@ -81,6 +81,24 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint> {
             .map((instance: any) => ({ text: instance.value, value: instance.value }));
     }
 
+    getConnectionParams(target: QueryTarget, scopedVars: any): [string, string | undefined] {
+        let url: string;
+        let container: string | undefined;
+        if (!isBlank(target.url))
+            url = this.templateSrv.replace(target.url, scopedVars);
+        else if (!isBlank(this.instanceSettings.url))
+            url = this.instanceSettings.url;
+        else
+            throw { message: "Please specify a connection URL in the datasource settings or in the query editor." };
+
+        if (!isBlank(target.container))
+            container = this.templateSrv.replace(target.container, scopedVars);
+        else if (!isBlank(this.instanceSettings.jsonData.container))
+            container = this.instanceSettings.jsonData.container;
+
+        return [url, container];
+    }
+
     buildQueryTargets(query: Query): QueryTarget[] {
         return query.targets
             .filter(target => !target.hide && (!isBlank(target.expr) || !isBlank(target.target)) && !target.isTyping)
@@ -91,20 +109,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint> {
                 if (!target.format && (target.type === "timeseries" || target.type === "timeserie"))
                     target.format = TargetFormat.TimeSeries;
 
-                let url: string;
-                let container: string | undefined;
-                if (!isBlank(target.url))
-                    url = this.templateSrv.replace(target.url, query.scopedVars);
-                else if (!isBlank(this.instanceSettings.url))
-                    url = this.instanceSettings.url;
-                else
-                    throw { message: "Please specify a connection URL in the datasource settings or in the query editor." };
-
-                if (!isBlank(target.container))
-                    container = this.templateSrv.replace(target.container, query.scopedVars);
-                else if (!isBlank(this.instanceSettings.jsonData.container))
-                    container = this.instanceSettings.jsonData.container;
-
+                const [url, container] = this.getConnectionParams(target, query.scopedVars);
                 return {
                     refId: target.refId,
                     expr: this.templateSrv.replace(target.expr.trim(), query.scopedVars),
