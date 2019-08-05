@@ -59,6 +59,8 @@ export default class PCPLiveMetricCompleter {
         let prefixWithDot = searchPrefix === "" ? "" : `${searchPrefix}.`;
         const metadatas = await endpoint.context.metricMetadatas(suggestions.leaf.map((leaf: string) => `${prefixWithDot}${leaf}`));
 
+        suggestions.nonleaf.sort();
+        suggestions.leaf.sort();
         const completions: any[] = [];
         completions.push(...suggestions.nonleaf.map(nonleaf =>
             this.getCompletion(`${prefixWithDot}${nonleaf}`, "namespace")

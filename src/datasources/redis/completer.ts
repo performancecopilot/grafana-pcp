@@ -36,13 +36,14 @@ export default class PCPRedisMetricCompleter {
     }
 
     async findMetricCompletions(token: any) {
-        let metricPrefix = token.value;
-        if (metricPrefix.includes(".")) {
-            metricPrefix = metricPrefix.substring(0, metricPrefix.lastIndexOf("."));
+        let searchPrefix: string = "";
+        if (token.value.includes(".")) {
+            searchPrefix = token.value.substring(0, token.value.lastIndexOf("."));
         }
 
-        let completions = await this.pmSeries.metrics(`${metricPrefix}.*`);
-        completions = completions.filter(c => c.match(`${metricPrefix}.*`)); // TODO: remove me once API performs filtering
+        let completions = await this.pmSeries.metrics(`${searchPrefix}.*`);
+        completions = completions.filter(c => c.match(`${searchPrefix}.*`)); // TODO: remove me once API performs filtering
+        completions.sort();
         return completions.map((metric: string) => this.getCompletion(metric, "", "metric"));
     }
 
