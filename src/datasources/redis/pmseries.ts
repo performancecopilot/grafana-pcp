@@ -110,7 +110,7 @@ export class PmSeries {
     async metrics(pattern: string): Promise<string[]> {
         const response = await this.datasourceRequest({
             url: `${this.url}/series/metrics`,
-            params: { target: pattern }
+            params: { match: pattern }
         });
         return response.data;
     }

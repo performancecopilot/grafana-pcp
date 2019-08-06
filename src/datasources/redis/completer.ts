@@ -47,12 +47,12 @@ export default class PCPRedisMetricCompleter {
 
     async findMetricCompletions(token: any) {
         let searchPrefix: string = "";
+        let completions: string[] = [];
         if (token.value.includes(".")) {
             searchPrefix = token.value.substring(0, token.value.lastIndexOf("."));
+            completions.push(...await this.pmSeries.metrics(`${searchPrefix}.*`));
         }
 
-        let completions = await this.pmSeries.metrics(`${searchPrefix}.*`);
-        completions = completions.filter(c => c.match(`${searchPrefix}.*`)); // TODO: remove me once API performs filtering
         completions.sort();
         return completions.map((metric: string) => this.getCompletion(metric, "", "metric"));
     }
