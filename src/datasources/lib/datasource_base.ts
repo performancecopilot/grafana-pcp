@@ -1,14 +1,14 @@
-///<reference path="../../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import _ from 'lodash';
 import kbn from 'grafana/app/core/utils/kbn';
 import EndpointRegistry, { Endpoint } from './endpoint_registry';
-import { QueryTarget, Query, TargetResult, TargetFormat } from './types';
+import { QueryTarget, Query, TargetResult, TargetFormat, MetricMetadata } from './types';
 import PanelTransformations from './panel_transformations';
 import { Context } from "./pmapi";
 import { isBlank } from './utils';
+import { ValuesTransformations } from './transformations';
 import "core-js/stable/array/flat";
 
-export abstract class PCPLiveDatasourceBase<EP extends Endpoint> {
+export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
 
     name: string;
     withCredentials: boolean;
@@ -120,6 +120,15 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint> {
                     endpoint: this.getOrCreateEndpoint(url, container)
                 };
             });
+    }
+
+    async applyTransformations(context: Context, results: TargetResult) {
+        for (const metric of results.metrics) {
+            const metadata = await context.metricMetadata(metric.name);
+            for (const instance of metric.instances) {
+                instance.values = ValuesTransformations.applyTransformations(metadata.sem, metadata.units, instance.values as any);
+            }
+        }
     }
 
     abstract async handleTarget(endpoint: EP, query: Query, target: QueryTarget<EP>): Promise<TargetResult>;

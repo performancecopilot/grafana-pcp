@@ -16,25 +16,13 @@ export default class DataStore {
             return;
         }
 
-        const transformations: IngestionTransformationFn[] = [];
-        if (metadata.sem === "counter")
-            transformations.push(IngestionTransformations.counter as any);
-        if (metadata.sem === "counter" && metadata.units === "nanosec")
-            transformations.push(IngestionTransformations.divideBy(1000 * 1000 * 1000));
-
         for (const instance of metric.instances) {
             // do not store history for the bpftrace control and output metrics
             if (!(instance.instanceName in metricStore) ||
                 (metadata.labels && ["control", "output"].includes(metadata.labels.metrictype))) {
                 metricStore[instance.instanceName] = [];
             }
-
-            let datapoint: TDatapoint = [instance.value, pollTimeEpochMs];
-            const storeSize = metricStore[instance.instanceName].length;
-            const prevDatapoint = storeSize > 0 ? metricStore[instance.instanceName][storeSize - 1] : undefined;
-
-            datapoint = IngestionTransformations.applyTransformations(transformations, datapoint, prevDatapoint);
-            metricStore[instance.instanceName].push(datapoint);
+            metricStore[instance.instanceName].push([instance.value, pollTimeEpochMs]);
         }
     }
 
@@ -58,7 +46,7 @@ export default class DataStore {
         return Object.keys(this.store[metric]).map(instance => ({
             name: instance,
             values: this.store[metric][instance].filter(dataPoint => (
-                from <= dataPoint[1] && dataPoint[1] <= to && dataPoint[0] != undefined
+                from <= dataPoint[1] && dataPoint[1] <= to
             ))
         }));
     }
@@ -68,8 +56,9 @@ export default class DataStore {
             target,
             metrics: metrics.map(metric => ({
                 name: metric,
-                instances: this.queryMetric(metric, from, to)
-            })) as Metric<number>[] | Metric<string>[]
+                instances: this.queryMetric(metric, from, to),
+                metadata: {}
+            }))
         };
     }
 

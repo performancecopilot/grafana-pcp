@@ -70,12 +70,9 @@ class IngestWithoutRateConversation {
 }
 
 class CounterValues {
-    transformations: ValuesTransformationFn[] = [];
     values: Datapoint<number>[];
 
     async setup() {
-        this.transformations.push(ValuesTransformations.counter);
-
         const context: any = {
             metricMetadata: () => ({})
         };
@@ -106,7 +103,7 @@ class CounterValues {
     }
 
     run(deferred: any) {
-        ValuesTransformations.applyTransformations(this.transformations, this.values);
+        ValuesTransformations.applyTransformations("counter", "", this.values);
         deferred.resolve();
     }
 

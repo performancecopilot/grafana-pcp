@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Datapoint, TDatapoint, IngestionTransformationFn, ValuesTransformationFn } from "./types";
 
 export class IngestionTransformations {
@@ -30,10 +31,17 @@ export class IngestionTransformations {
 
 export class ValuesTransformations {
 
-    static applyTransformations(transformations: ValuesTransformationFn[], datapoints: TDatapoint[]) {
-        datapoints.sort((a: TDatapoint, b: TDatapoint) => a[1] - b[1]);
-        transformations.forEach(transformation => transformation(datapoints));
-        return datapoints;
+    static applyTransformations(semantics: string, units: string, datapoints: TDatapoint[]) {
+        const transformations: ValuesTransformationFn[] = [];
+        if (semantics === "counter") {
+            transformations.push(ValuesTransformations.counter);
+            if (units === "nanosec")
+                transformations.push(ValuesTransformations.divideBy(1000 * 1000 * 1000));
+        }
+
+        const datapointsCopy = _.cloneDeep(datapoints);
+        datapointsCopy.sort((a: TDatapoint, b: TDatapoint) => a[1] - b[1]);
+        return transformations.reduce((datapoints, transformation) => transformation(datapoints), datapointsCopy);
     }
 
     static counter(datapoints: Datapoint<number>[]) {
@@ -49,6 +57,16 @@ export class ValuesTransformations {
             prev = cur;
         }
         datapoints.shift(); // remove first value of the counter (not possible to calculate rate)
+        return datapoints;
+    }
+
+    static divideBy(divisor: number) {
+        return (datapoints: Datapoint<number>[]) => {
+            datapoints.forEach(datapoint => {
+                datapoint[0] /= divisor;
+            });
+            return datapoints;
+        };
     }
 
 }

@@ -1,6 +1,5 @@
-///<reference path="../../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import _ from 'lodash';
-import { Query, QueryTarget, ValuesTransformationFn, TDatapoint, Metric, MetricInstance } from '../lib/types';
+import { Query, QueryTarget, TDatapoint, Metric, MetricInstance } from '../lib/types';
 import { isBlank } from '../lib/utils';
 import { PmSeries } from './pmseries';
 import PanelTransformations from '../lib/panel_transformations';
@@ -72,26 +71,21 @@ export class PCPRedisDatasource {
         const metrics: Metric<number | string>[] = [];
 
         for (const series in instancesGroupedBySeries) {
-            const instances: MetricInstance<number | string>[] = [];
-
-            let transformations: ValuesTransformationFn[] = [];
-            if (descriptions[series].semantics === "counter")
-                transformations.push(ValuesTransformations.counter);
-
+            const seriesInstances: MetricInstance<number | string>[] = [];
             const instancesGroupedBySeriesAndName = _.groupBy(instancesGroupedBySeries[series], "instanceName");
             for (const instanceName in instancesGroupedBySeriesAndName) {
                 const datapoints = instancesGroupedBySeriesAndName[instanceName].map(
-                    (instance: any) => [parseFloat(instance.value), parseInt(instance.timestamp)]
+                    (instance: any) => [parseFloat(instance.value), parseInt(instance.timestamp)] as TDatapoint
                 );
-                instances.push({
+                seriesInstances.push({
                     name: instanceName,
-                    values: ValuesTransformations.applyTransformations(transformations, datapoints)
+                    values: ValuesTransformations.applyTransformations(descriptions[series].semantics, descriptions[series].units, datapoints)
                 });
             }
 
             metrics.push({
                 name: target.expr,
-                instances: instances,
+                instances: seriesInstances,
                 metadata: labels[series]
             });
         }
@@ -114,7 +108,7 @@ export class PCPRedisDatasource {
             tzparam = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
         const exprs = targets.map(target => target.expr);
-        let series = await Promise.all(exprs.map(this.pmSeries.query.bind(this.pmSeries)));
+        let series = await Promise.all(exprs.map(expr => this.pmSeries.query(expr)));
         let seriesByExpr = _.zipObject(exprs, series);
         let seriesList = series.flat();
 

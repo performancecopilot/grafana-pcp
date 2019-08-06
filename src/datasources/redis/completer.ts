@@ -49,7 +49,7 @@ export default class PCPRedisMetricCompleter {
 
     async findQualifierCompletions(token: any) {
         const hiddenPrefix = token.value === "{" ? "{" : "";
-        let labels = await this.pmSeries.labelNames();
+        let labels = await this.pmSeries.labelNames(); // todo: only labels of series for expr
 
         let completions: any[] = [];
         completions.push(...["instance.name", "metric.name"].map(suggestion => this.getCompletion(suggestion, hiddenPrefix, "qualifier")));

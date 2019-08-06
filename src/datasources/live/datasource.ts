@@ -1,4 +1,3 @@
-///<reference path="../../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import _ from "lodash";
 import { PCPLiveDatasourceBase } from "../lib/datasource_base";
 import { QueryTarget, Query, TargetResult } from "../lib/types";
@@ -30,7 +29,9 @@ export class PCPLiveDatasource extends PCPLiveDatasourceBase<Endpoint> {
     }
 
     async handleTarget(endpoint: Endpoint, query: Query, target: QueryTarget): Promise<TargetResult> {
-        return endpoint.datastore.queryMetrics(target, [target.expr], query.range.from.valueOf(), query.range.to.valueOf());
+        const results = endpoint.datastore.queryMetrics(target, [target.expr], query.range.from.valueOf(), query.range.to.valueOf());
+        await this.applyTransformations(endpoint.context, results);
+        return results;
     }
 
     async queryTargetsByEndpoint(query: Query, targets: QueryTarget[]) {

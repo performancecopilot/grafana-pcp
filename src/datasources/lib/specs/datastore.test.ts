@@ -87,65 +87,6 @@ describe("DataStore", () => {
         expect(result).toStrictEqual(expected);
     });
 
-    it("should perform rate-conversation for counters", async () => {
-        ctx.context.metricMetadata.mockReturnValue({ sem: "counter" });
-        await ctx.datastore.ingest({
-            "timestamp": {
-                "s": 5,
-                "us": 2000
-            },
-            "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.scripts.script1.data.scalar",
-                "instances": [{
-                    "instance": -1,
-                    "value": 45200,
-                    "instanceName": ""
-                }]
-            }]
-        });
-        await ctx.datastore.ingest({
-            "timestamp": {
-                "s": 6,
-                "us": 2000
-            },
-            "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.scripts.script1.data.scalar",
-                "instances": [{
-                    "instance": -1,
-                    "value": 55200,
-                    "instanceName": ""
-                }]
-            }]
-        });
-        await ctx.datastore.ingest({
-            "timestamp": {
-                "s": 7,
-                "us": 2000
-            },
-            "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.scripts.script1.data.scalar",
-                "instances": [{
-                    "instance": -1,
-                    "value": 75200,
-                    "instanceName": ""
-                }]
-            }]
-        });
-
-        const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity);
-        const expected = [{
-            "name": "",
-            "values": [
-                [10000, 6002, 55200],
-                [20000, 7002, 75200]
-            ]
-        }];
-        expect(result).toStrictEqual(expected);
-    });
-
     it("should remove old data from bpftrace output variables", async () => {
         ctx.context.metricMetadata.mockReturnValue({ labels: { metrictype: "output" } });
         await ctx.datastore.ingest({

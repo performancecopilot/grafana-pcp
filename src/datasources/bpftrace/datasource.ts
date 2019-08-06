@@ -1,4 +1,3 @@
-///<reference path="../../../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import _ from 'lodash';
 import { PCPLiveDatasourceBase } from '../lib/datasource_base';
 import BPFtraceEndpoint from './bpftrace_endpoint';
@@ -42,7 +41,9 @@ export class PCPBPFtraceDatasource extends PCPLiveDatasourceBase<BPFtraceEndpoin
         }
 
         await endpoint.poller.ensurePolling(metrics);
-        return endpoint.datastore.queryMetrics(target, metrics, query.range.from.valueOf(), query.range.to.valueOf());
+        const results = endpoint.datastore.queryMetrics(target, metrics, query.range.from.valueOf(), query.range.to.valueOf());
+        await this.applyTransformations(endpoint.context, results);
+        return results;
     }
 
 }

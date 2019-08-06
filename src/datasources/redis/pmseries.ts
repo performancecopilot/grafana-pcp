@@ -21,7 +21,7 @@ export class PmSeries {
         return response;
     }
 
-    async query(expr: string) {
+    async query(expr: string): Promise<string[]> {
         const response = await this.datasourceRequest({
             url: `${this.url}/series/query`,
             params: { expr }
@@ -109,7 +109,7 @@ export class PmSeries {
         return response.data;
     }
 
-    async labels(series?: string[]): Promise<Record<string, Record<string, any>>> {
+    async labels(series: string[]): Promise<Record<string, Record<string, any>>> {
         const requiredSeries = _.difference(series, Object.keys(this.labelCache));
         if (requiredSeries.length > 0) {
             const response = await this.datasourceRequest({

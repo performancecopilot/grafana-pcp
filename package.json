@@ -37,7 +37,6 @@
     "copy-webpack-plugin": "^4.5.2",
     "core-js": "^3.1.4",
     "css-loader": "^1.0.0",
-    "grafana-sdk-mocks": "github:grafana/grafana-sdk-mocks",
     "jest": "^24.8.0",
     "jest-date-mock": "^1.0.7",
     "jsdom": "~9.12.0",
