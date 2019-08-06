@@ -1,5 +1,8 @@
 import { TargetFormat } from '../lib/types';
 import { PCPQueryCtrl } from '../lib/pcp_query_ctrl';
+import PCPBPFtraceCompleter from './completer';
+import './css/query-editor.css'
+import './mode-bpftrace';
 
 export class PCPBPFtraceDatasourceQueryCtrl extends PCPQueryCtrl {
     static templateUrl = 'datasources/bpftrace/partials/query.editor.html';
@@ -27,6 +30,10 @@ export class PCPBPFtraceDatasourceQueryCtrl extends PCPQueryCtrl {
             return TargetFormat.Heatmap;
         }
         return TargetFormat.TimeSeries;
+    }
+
+    getCompleter() {
+        return new PCPBPFtraceCompleter(this.datasource, this.target);
     }
 
 }

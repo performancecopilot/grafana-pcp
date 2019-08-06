@@ -1,5 +1,5 @@
 import { TargetFormat } from '../lib/types';
-import PCPLiveMetricCompleter from './completer';
+import PCPLiveCompleter from './completer';
 import { PCPQueryCtrl } from "../lib/pcp_query_ctrl";
 import { getDashboardVariables } from '../lib/utils';
 import './mode-pcp';
@@ -45,7 +45,7 @@ export class PCPLiveDatasourceQueryCtrl extends PCPQueryCtrl {
     }
 
     getCompleter() {
-        return new PCPLiveMetricCompleter(this.datasource, this.target);
+        return new PCPLiveCompleter(this.datasource, this.target);
     }
 
 }

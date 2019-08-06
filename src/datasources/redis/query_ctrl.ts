@@ -1,6 +1,6 @@
 import { TargetFormat } from '../lib/types';
 import { PCPQueryCtrl } from '../lib/pcp_query_ctrl';
-import PCPRedisMetricCompleter from './completer';
+import PCPRedisCompleter from './completer';
 import './mode-pmseries';
 
 export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
@@ -32,7 +32,7 @@ export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
     }
 
     getCompleter() {
-        return new PCPRedisMetricCompleter(this.datasource);
+        return new PCPRedisCompleter(this.datasource);
     }
 
 }

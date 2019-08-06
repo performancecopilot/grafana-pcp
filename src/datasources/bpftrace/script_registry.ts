@@ -64,7 +64,7 @@ export default class ScriptRegistry {
     }
 
     async register(code: string) {
-        console.debug("registering script", code);
+        console.debug("registering script", code.split('\n'));
 
         // create temporary context, required so that the PMDA can identify
         // the client who sent the pmStore message

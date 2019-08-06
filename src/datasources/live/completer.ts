@@ -1,7 +1,7 @@
 import { PCPLiveDatasource } from "./datasource";
 import { MetricMetadata } from "../lib/types";
 
-export default class PCPLiveMetricCompleter {
+export default class PCPLiveCompleter {
 
     identifierRegexps = [/[a-zA-Z0-9_.]/];
 

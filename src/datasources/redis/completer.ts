@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { PCPRedisDatasource } from "./datasource";
 import { PmSeries } from "./pmseries";
 
-export default class PCPRedisMetricCompleter {
+export default class PCPRedisCompleter {
 
     // first regex is required that the auto-completion box shows up
     // when entering a { or "

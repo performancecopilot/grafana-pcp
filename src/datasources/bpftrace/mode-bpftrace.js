@@ -1,0 +1,113 @@
+// jshint ignore: start
+ace.define("ace/snippets/bpftrace", ["require", "exports", "module"], function (require, exports, module) {
+    "use strict";
+
+    exports.snippets = [];
+    exports.scope = "bpftrace";
+});
+
+ace.define("ace/mode/bpftrace_highlight_rules", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text_highlight_rules"], function (require, exports, module) {
+    "use strict";
+
+    var oop = require("../lib/oop");
+    var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+
+    var BPFtraceHighlightRules = function () {
+        var keywords = (
+            "if|else|unroll"
+        );
+
+        var storageType = (
+            "struct|union|enum"
+        );
+
+        var builtinVariables = (
+            "pid|tid|cgroup|uid|gid|nsecs|cpu|comm|kstack|stack|ustack|retval|func|probe|curtask|rand|ctx|username|args|elapsed|" +
+            "arg0|arg1|arg2|arg3|arg4|arg5|arg6|arg7|arg8|arg9"
+        );
+
+        var builtinConstants = (
+            "true|false"
+        );
+
+        var builtinFunctions = (
+            "printf|time|join|str|ksym|usym|kaddr|uaddr|reg|system|exit|cgroupid|kstack|ustack|ntop|cat|" +
+            "count|sum|avg|min|max|stats|hist|lhist|delete|print|clear|zero"
+        );
+
+        var keywordMapper = this.createKeywordMapper({
+            "keyword": keywords,
+            "storage.type": storageType,
+            "variable.language": builtinVariables,
+            "constant.language": builtinConstants,
+            "support.function": builtinFunctions
+        }, "identifier");
+
+        this.$rules = {
+            "start": [{
+                token: "comment",
+                regex: "//.*$"
+            }, {
+                token: "comment",
+                start: "/\\*",
+                end: "\\*/"
+            }, {
+                token: "string",
+                regex: '".*?"'
+            }, {
+                token: "constant.numeric", // hex
+                regex: "0[xX][0-9a-fA-F]+(L|l|UL|ul|u|U|F|f|ll|LL|ull|ULL)?\\b"
+            }, {
+                token: "constant.numeric", // float
+                regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?(L|l|UL|ul|u|U|F|f|ll|LL|ull|ULL)?\\b"
+            }, {
+                token: "keyword", // pre-compiler directives
+                regex: "#\\s*(?:include|import|pragma|line|define|undef)\\b"
+            }, {
+                token: keywordMapper,
+                regex: "[a-zA-Z_$@][a-zA-Z0-9_$]*"
+            }, {
+                token: "keyword.operator",
+                regex: /--|\+\+|<<=|>>=|>>>=|<>|&&|\|\||\?:|[*%\/+\-&\^|~!<>=]=?/
+            }, {
+                token: "punctuation.operator",
+                regex: "\\?|\\:|\\,|\\;|\\."
+            }, {
+                token: "paren.lparen",
+                regex: "[[({]"
+            }, {
+                token: "paren.rparen",
+                regex: "[\\])}]"
+            }, {
+                token: "text",
+                regex: "\\s+"
+            }]
+        };
+        this.normalizeRules();
+    };
+
+    oop.inherits(BPFtraceHighlightRules, TextHighlightRules);
+
+    exports.BPFtraceHighlightRules = BPFtraceHighlightRules;
+});
+
+ace.define("ace/mode/bpftrace", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text", "ace/mode/bpftrace_highlight_rules"], function (require, exports, module) {
+    "use strict";
+
+    var oop = require("../lib/oop");
+    var TextMode = require("./text").Mode;
+    var BPFtraceHighlightRules = require("./bpftrace_highlight_rules").BPFtraceHighlightRules;
+
+    var Mode = function () {
+        this.HighlightRules = BPFtraceHighlightRules;
+        this.$behaviour = this.$defaultBehaviour;
+    };
+    oop.inherits(Mode, TextMode);
+
+    (function () {
+        this.$id = "ace/mode/bpftrace";
+    }).call(Mode.prototype);
+
+    exports.Mode = Mode;
+
+});
