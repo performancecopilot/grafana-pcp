@@ -74,19 +74,21 @@ export class PCPRedisDatasource {
             const seriesInstances: MetricInstance<number | string>[] = [];
             const instancesGroupedBySeriesAndName = _.groupBy(instancesGroupedBySeries[series], "instanceName");
             for (const instanceName in instancesGroupedBySeriesAndName) {
+                // collection is grouped by instanceName, i.e. all items are of the same instance id
+                const instanceId = instancesGroupedBySeriesAndName[instanceName][0].instance;
                 const datapoints = instancesGroupedBySeriesAndName[instanceName].map(
                     (instance: any) => [parseFloat(instance.value), parseInt(instance.timestamp)] as TDatapoint
                 );
                 seriesInstances.push({
                     name: instanceName,
-                    values: ValuesTransformations.applyTransformations(descriptions[series].semantics, descriptions[series].units, datapoints)
+                    values: ValuesTransformations.applyTransformations(descriptions[series].semantics, descriptions[series].units, datapoints),
+                    metadata: instanceId ? labels[instanceId] : labels[series]
                 });
             }
 
             metrics.push({
                 name: target.expr,
-                instances: seriesInstances,
-                metadata: labels[series]
+                instances: seriesInstances
             });
         }
 
@@ -125,8 +127,11 @@ export class PCPRedisDatasource {
         const mdp = query.maxDataPoints; // TODO: not supported in pmproxy?
 
         const instances = await this.pmSeries.values(seriesList, { start, finish, samples, interval, tzparam }, true);
-        const descriptions = await this.pmSeries.descs(seriesList);
-        const labels = await this.pmSeries.labels(seriesList);
+        const seriesWithLabels = seriesList.flatMap(series => {
+            const instanceIds = this.pmSeries.instancesOfSeries(series);
+            return instanceIds.length > 0 ? instanceIds : [series];
+        });
+        const [descriptions, labels] = await Promise.all([this.pmSeries.descs(seriesList), this.pmSeries.labels(seriesWithLabels)]);
         const instancesGroupedBySeries = _.groupBy(instances, "series");
         const targetResults = targets.map(target => this.handleTarget(_.pick(instancesGroupedBySeries, seriesByExpr[target.expr]), descriptions, labels, target));
         const panelData = this.transformations.transform(query, targetResults);

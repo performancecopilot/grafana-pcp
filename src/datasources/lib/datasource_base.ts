@@ -147,7 +147,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
         if (!_.every(targets, ['format', targets[0].format]))
             throw { message: "Format must be the same for all queries of a panel." };
 
-        const targetsPerEndpoint = _.groupBy(targets, (target: any) => target.endpoint.id) as { [key: string]: QueryTarget<EP>[] };
+        const targetsPerEndpoint = _.groupBy(targets, target => target.endpoint.id);
         const promises = Object.values(targetsPerEndpoint).map(targets => this.queryTargetsByEndpoint(query, targets));
         const results = await Promise.all(promises);
         return { data: results.flat() };

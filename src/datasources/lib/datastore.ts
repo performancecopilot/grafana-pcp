@@ -47,7 +47,8 @@ export default class DataStore {
             name: instance,
             values: this.store[metric][instance].filter(dataPoint => (
                 from <= dataPoint[1] && dataPoint[1] <= to
-            ))
+            )),
+            metadata: {}
         }));
     }
 
@@ -56,8 +57,7 @@ export default class DataStore {
             target,
             metrics: metrics.map(metric => ({
                 name: metric,
-                instances: this.queryMetric(metric, from, to),
-                metadata: {}
+                instances: this.queryMetric(metric, from, to)
             }))
         };
     }

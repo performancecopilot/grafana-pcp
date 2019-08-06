@@ -43,9 +43,9 @@ describe("DatasourceBase", () => {
                         [45200, 1000] as TDatapoint,
                         [55200, 2000] as TDatapoint,
                         [75200, 3000] as TDatapoint,
-                    ]
-                }],
-                metadata: {}
+                    ],
+                    metadata: {}
+                }]
             }]
         };
         ctx.context.metricMetadata.mockReturnValue({
@@ -86,9 +86,9 @@ describe("DatasourceBase", () => {
                         [1.5 * 1000000000, 1000] as TDatapoint,
                         [2.0 * 1000000000, 2000] as TDatapoint,
                         [3.0 * 1000000000, 3000] as TDatapoint,
-                    ]
-                }],
-                metadata: {}
+                    ],
+                    metadata: {}
+                }]
             }]
         };
         ctx.context.metricMetadata.mockReturnValue({

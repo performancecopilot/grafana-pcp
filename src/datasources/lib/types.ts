@@ -65,12 +65,12 @@ export type PanelData = TimeSeriesData | TableData;
 export interface MetricInstance<T> {
     name: string;
     values: Datapoint<T>[];
+    metadata: Record<string, any>;
 }
 
 export interface Metric<T> {
     name: string;
     instances: MetricInstance<T>[];
-    metadata: Record<string, any>;
 }
 
 export interface TargetResult {

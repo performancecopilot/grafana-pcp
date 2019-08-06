@@ -10,10 +10,18 @@ export default class PanelTransformations {
 
     getLabel(query: Query, target: QueryTarget, metric: string, instance?: MetricInstance<number | string>, metadata: Record<string, any> = {}) {
         if (isBlank(target.legendFormat)) {
-            if (instance && instance.name !== "")
-                return instance.name;
-            else
-                return metric;
+            let label = instance && instance.name !== "" ? instance.name : metric;
+            if (!_.isEmpty(metadata)) {
+                let pairs: string[] = [];
+                for (const label of ["hostname", "source"]) {
+                    if (label in metadata) {
+                        pairs.push(`${label}: "${metadata[label]}"`);
+                    }
+                }
+                if (pairs.length > 0)
+                    label += ` {${pairs.join(", ")}}`;
+            }
+            return label;
         }
         else {
             metadata = _.mapValues(metadata, (val: any) => ({ value: val }));
@@ -32,7 +40,7 @@ export default class PanelTransformations {
 
     transformToTimeSeries(query: Query, target: QueryTarget, metric: Metric<number>): TimeSeriesData[] {
         return metric.instances.map(instance => ({
-            target: this.getLabel(query, target, metric.name, instance, metric.metadata),
+            target: this.getLabel(query, target, metric.name, instance, instance.metadata),
             datapoints: instance.values
         }));
     }
