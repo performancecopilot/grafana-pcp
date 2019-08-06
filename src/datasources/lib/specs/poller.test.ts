@@ -42,7 +42,8 @@ describe("Poller", () => {
             "name": "",
             "values": [
                 [45200, 5002]
-            ]
+            ],
+            "metadata": {}
         }];
         expect(result).toStrictEqual(expected);
     });

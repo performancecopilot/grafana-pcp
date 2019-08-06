@@ -49,7 +49,8 @@ describe("DataStore", () => {
             "values": [
                 [45200, 5002],
                 [55200, 6002]
-            ]
+            ],
+            "metadata": {}
         }];
         expect(result).toStrictEqual(expected);
     });
@@ -79,10 +80,12 @@ describe("DataStore", () => {
         const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.multiple", 0, Infinity);
         const expected = [{
             "name": "/dev/sda1",
-            "values": [[45200, 5002]]
+            "values": [[45200, 5002]],
+            "metadata": {}
         }, {
             "name": "/dev/sda2",
-            "values": [[55200, 5002]]
+            "values": [[55200, 5002]],
+            "metadata": {}
         }];
         expect(result).toStrictEqual(expected);
     });
@@ -123,7 +126,8 @@ describe("DataStore", () => {
         const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.output", 0, Infinity);
         const expected = [{
             "name": "",
-            "values": [["line1\nline2\n", 6002]]
+            "values": [["line1\nline2\n", 6002]],
+            "metadata": {}
         }];
         expect(result).toStrictEqual(expected);
     });
@@ -183,7 +187,8 @@ describe("DataStore", () => {
                     [45200, 5002],
                     [55200, 6002],
                     [65200, 7002]
-                ]
+                ],
+                "metadata": {}
             }]);
 
         expect(ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 6002, 6003))
@@ -191,7 +196,8 @@ describe("DataStore", () => {
                 "name": "",
                 "values": [
                     [55200, 6002]
-                ]
+                ],
+                "metadata": {}
             }]);
     });
 
