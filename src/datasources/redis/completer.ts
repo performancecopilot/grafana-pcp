@@ -1,10 +1,12 @@
-import { MetricMetadata } from "../lib/types";
+import _ from 'lodash';
 import { PCPRedisDatasource } from "./datasource";
 import { PmSeries } from "./pmseries";
 
 export default class PCPRedisMetricCompleter {
 
-    identifierRegexps = [/\{/, /[a-zA-Z0-9_.]/];
+    // first regex is required that the auto-completion box shows up
+    // when entering a { or "
+    identifierRegexps = [/[\{"]/, /[a-zA-Z0-9_.]/];
     pmSeries: PmSeries;
 
     constructor(datasource: PCPRedisDatasource) {
@@ -35,6 +37,14 @@ export default class PCPRedisMetricCompleter {
         };
     }
 
+    findToken(tokens: any[], type: string) {
+        for (let i = tokens.length - 1; i >= 0; i--) {
+            if (tokens[i].type === type)
+                return tokens[i];
+        }
+        return null;
+    }
+
     async findMetricCompletions(token: any) {
         let searchPrefix: string = "";
         if (token.value.includes(".")) {
@@ -47,14 +57,56 @@ export default class PCPRedisMetricCompleter {
         return completions.map((metric: string) => this.getCompletion(metric, "", "metric"));
     }
 
-    async findQualifierCompletions(token: any) {
-        const hiddenPrefix = token.value === "{" ? "{" : "";
-        let labels = await this.pmSeries.labelNames(); // todo: only labels of series for expr
+    private async findQualifiersForToken(metric: string): Promise<Record<string, string[]>> {
+        const seriesList = await this.pmSeries.query(metric);
+        if (seriesList.length === 0)
+            return {};
 
-        let completions: any[] = [];
-        completions.push(...["instance.name", "metric.name"].map(suggestion => this.getCompletion(suggestion, hiddenPrefix, "qualifier")));
-        completions.push(...labels.map(label => this.getCompletion(label, hiddenPrefix, "label")));
-        return completions;
+        const qualifiers = {};
+        const descriptions = await this.pmSeries.descs(seriesList);
+        const [seriesWithIndoms, seriesWithoutIndoms] = _.partition(seriesList, series => descriptions[series].indom !== "none");
+        let instanceIds: string[] = [];
+        if (seriesWithIndoms.length > 0) {
+            const instanceDescs = await this.pmSeries.instances(seriesWithIndoms);
+            instanceIds = instanceDescs.map(instanceDesc => instanceDesc.instance);
+            qualifiers["instance.name"] = instanceDescs.map(instanceDesc => instanceDesc.name);
+        }
+
+        const labels = await this.pmSeries.labels([...seriesWithoutIndoms, ...instanceIds]);
+        for (const label of Object.values(labels)) {
+            for (const [key, value] of Object.entries(label)) {
+                if (!(key in qualifiers))
+                    qualifiers[key] = [];
+                if (!qualifiers[key].includes(value))
+                    qualifiers[key].push(value);
+            }
+        }
+        return qualifiers;
+    }
+
+    async findQualifierKeyCompletions(tokens: any[], token: any) {
+        const hiddenPrefix = token.value === "{" ? "{" : "";
+        const metricToken = this.findToken(tokens, "entity.name.tag.metric");
+        if (!metricToken)
+            return [];
+
+        const qualifiers = await this.findQualifiersForToken(metricToken.value);
+        return Object.keys(qualifiers).map(qualifierKey =>
+            this.getCompletion(qualifierKey, hiddenPrefix, qualifierKey === "instance.name" ? "qualifier" : "label")
+        );
+    }
+
+    async findQualifierValueCompletions(tokens: any[], token: any) {
+        const hiddenPrefix = token.value === '""' ? '"' : '';
+        const metricToken = this.findToken(tokens, "entity.name.tag.metric");
+        const qualifierKeyToken = this.findToken(tokens, "entity.name.tag.qualifier-key");
+        if (!metricToken || !qualifierKeyToken)
+            return [];
+
+        const qualifiers = await this.findQualifiersForToken(metricToken.value);
+        return (qualifiers[qualifierKeyToken.value] || []).map(qualifierValue =>
+            this.getCompletion(qualifierValue, hiddenPrefix, qualifierValue === "instance.name" ? "qualifier" : "label")
+        );
     }
 
     async findCompletions(editor: any, session: any, pos: any, prefix: any) {
@@ -62,8 +114,11 @@ export default class PCPRedisMetricCompleter {
         if (token.type === "entity.name.tag.metric") {
             return this.findMetricCompletions(token);
         }
-        else if (token.type === "entity.name.tag.qualifier-field" || token.type === "paren.lparen.qualifiers-matcher") {
-            return this.findQualifierCompletions(token);
+        else if (token.type === "entity.name.tag.qualifier-key" || token.type === "paren.lparen.qualifiers-matcher") {
+            return this.findQualifierKeyCompletions(session.getTokens(pos.row), token);
+        }
+        else if (token.type === "string.quoted.qualifier-value") {
+            return this.findQualifierValueCompletions(session.getTokens(pos.row), token);
         }
         else {
             return [];

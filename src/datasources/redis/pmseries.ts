@@ -2,6 +2,7 @@ import _ from 'lodash';
 
 export interface Description {
     semantics: string;
+    indom: string;
 }
 
 export class PmSeries {
@@ -45,7 +46,7 @@ export class PmSeries {
         return _.pick(this.descriptionCache, series); // _.pick ignores non-existing keys
     }
 
-    private async refreshInstances(series: string[]) {
+    async instances(series: string[]): Promise<any[]> {
         const response = await this.datasourceRequest({
             url: `${this.url}/series/instances`,
             params: { series: series.join(',') }
@@ -57,6 +58,7 @@ export class PmSeries {
                 this.instanceCache[instance.series] = {};
             this.instanceCache[instance.series][instance.instance] = instance.name;
         }
+        return instances;
     }
 
     private async updateInstanceNames(instances: any[]) {
@@ -69,13 +71,13 @@ export class PmSeries {
             }
 
             if (!(instance.series in this.instanceCache)) {
-                await this.refreshInstances([instance.series]);
+                await this.instances([instance.series]);
                 refreshed[instance.series] = true;
             }
 
             instance.instanceName = this.instanceCache[instance.series][instance.instance] || "";
             if (instance.instanceName === "" && !refreshed[instance.series]) {
-                await this.refreshInstances([instance.series]);
+                await this.instances([instance.series]);
                 instance.instanceName = this.instanceCache[instance.series][instance.instance] || "";
                 refreshed[instance.series] = true;
             }
@@ -126,14 +128,6 @@ export class PmSeries {
             }
         }
         return _.pick(this.labelCache, series); // _.pick ignores non-existing keys
-    }
-
-    async labelNames(): Promise<string[]> {
-        const response = await this.datasourceRequest({
-            url: `${this.url}/series/labels`
-        });
-        const labels = response.data;
-        return _.isArray(labels) ? labels : []; // TODO: on error, pmproxy returns an object (should be an empty array)
     }
 
 }

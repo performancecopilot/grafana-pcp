@@ -23,13 +23,13 @@ ace.define("ace/mode/pmseries_highlight_rules", ["require", "exports", "module",
                 next: "start-qualifiers-matcher"
             }],
             "start-qualifiers-matcher": [{
-                token: "entity.name.tag.qualifier-field",
+                token: "entity.name.tag.qualifier-key",
                 regex: '[a-zA-Z_][a-zA-Z0-9_]*'
             }, {
                 token: "keyword.operator",
                 regex: '==|!=|~~|=~|!~|:|<|>|<=|>='
             }, {
-                token: "string.quoted",
+                token: "string.quoted.qualifier-value",
                 regex: '"(.*?)"'
             }, {
                 token: "punctuation.operator",
