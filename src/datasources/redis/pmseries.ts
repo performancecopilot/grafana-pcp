@@ -10,6 +10,7 @@ export class PmSeries {
     private descriptionCache: Record<string, Description> = {}; // descriptionCache[series] = description;
     private instanceCache: Record<string, Record<string, string>> = {}; // instanceCache[series][instance] = name;
     private labelCache: Record<string, Description> = {}; // labelCache[series] = labels;
+    private metricNamesCache: Record<string, string[]> = {}; // metricNamesCache[prefix] = name[];
 
     constructor(private datasourceRequest: (options: any) => any,
         private url: string) {
@@ -46,7 +47,7 @@ export class PmSeries {
         return _.pick(this.descriptionCache, series); // _.pick ignores non-existing keys
     }
 
-    async instances(series: string[]): Promise<any[]> {
+    async instances(series: string[]) {
         const response = await this.datasourceRequest({
             url: `${this.url}/series/instances`,
             params: { series: series.join(',') }
@@ -61,6 +62,12 @@ export class PmSeries {
         return instances;
     }
 
+    private getInstanceName(series: string, instance: string): string | undefined {
+        if (!(series in this.instanceCache))
+            return undefined;
+        return this.instanceCache[series][instance];
+    }
+
     private async updateInstanceNames(instances: any[]) {
         // max 1 refresh per series
         let refreshed: Record<string, boolean> = {};
@@ -70,15 +77,10 @@ export class PmSeries {
                 continue;
             }
 
-            if (!(instance.series in this.instanceCache)) {
-                await this.instances([instance.series]);
-                refreshed[instance.series] = true;
-            }
-
-            instance.instanceName = this.instanceCache[instance.series][instance.instance] || "";
+            instance.instanceName = this.getInstanceName(instance.series, instance.instance) || "";
             if (instance.instanceName === "" && !refreshed[instance.series]) {
                 await this.instances([instance.series]);
-                instance.instanceName = this.instanceCache[instance.series][instance.instance] || "";
+                instance.instanceName = this.getInstanceName(instance.series, instance.instance) || "";
                 refreshed[instance.series] = true;
             }
         }
@@ -108,11 +110,14 @@ export class PmSeries {
     }
 
     async metrics(pattern: string): Promise<string[]> {
-        const response = await this.datasourceRequest({
-            url: `${this.url}/series/metrics`,
-            params: { match: pattern }
-        });
-        return response.data;
+        if (!(pattern in this.metricNamesCache)) {
+            const response = await this.datasourceRequest({
+                url: `${this.url}/series/metrics`,
+                params: { match: pattern }
+            });
+            this.metricNamesCache[pattern] = response.data;
+        }
+        return this.metricNamesCache[pattern];
     }
 
     async labels(series: string[]): Promise<Record<string, Record<string, any>>> {
