@@ -52,6 +52,12 @@ ace.define("ace/mode/bpftrace_highlight_rules", ["require", "exports", "module",
                 start: "/\\*",
                 end: "\\*/"
             }, {
+                token: "keyword", // pre-compiler directives
+                regex: "#\\s*(?:include|import|pragma|line|define|undef)\\b"
+            }, {
+                token: "keyword.control.probe",
+                regex: "BEGIN|END|(k|u)(ret)?probe:.*|tracepoint:.*|usdt:.*|profile:.*|interval:.*|software:.*|hardware:.*|watchpoint:.*|dummy:.*"
+            }, {
                 token: "string",
                 regex: '".*?"'
             }, {
@@ -61,11 +67,11 @@ ace.define("ace/mode/bpftrace_highlight_rules", ["require", "exports", "module",
                 token: "constant.numeric", // float
                 regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?(L|l|UL|ul|u|U|F|f|ll|LL|ull|ULL)?\\b"
             }, {
-                token: "keyword", // pre-compiler directives
-                regex: "#\\s*(?:include|import|pragma|line|define|undef)\\b"
+                token:"variable.other",
+                regex: "(@|\\$)[a-zA-Z_][a-zA-Z0-9_]*"
             }, {
                 token: keywordMapper,
-                regex: "[a-zA-Z_$@][a-zA-Z0-9_$]*"
+                regex: "[a-zA-Z_][a-zA-Z0-9_]*"
             }, {
                 token: "keyword.operator",
                 regex: /--|\+\+|<<=|>>=|>>>=|<>|&&|\|\||\?:|[*%\/+\-&\^|~!<>=]=?/

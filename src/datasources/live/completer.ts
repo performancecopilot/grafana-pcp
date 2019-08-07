@@ -46,7 +46,7 @@ export default class PCPLiveCompleter {
     }
 
     async findMetricCompletions(token: any) {
-        // don't do this in constructor of PCPLiveMetricCompleter, as the user could
+        // don't do this in constructor of PCPLiveCompleter, as the user could
         // change the endpoint settings of the query, but the constructor is only called once
         const [url, container] = this.datasource.getConnectionParams(this.target, {});
         const endpoint = this.datasource.getOrCreateEndpoint(url, container);
