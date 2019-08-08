@@ -85,7 +85,8 @@
         {
           "expr": "kernel.all.load{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "$instance"
         }
       ],
       "thresholds": [],
@@ -176,17 +177,20 @@
         {
           "expr": "mem.util.cached{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "C"
+          "refId": "C",
+          "legendFormat": "cached"
         },
         {
           "expr": "mem.physmem{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "D"
+          "refId": "D",
+          "legendFormat": "physmem"
         },
         {
           "expr": "mem.util.free{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "free"
         }
       ],
       "thresholds": [],
@@ -283,7 +287,8 @@
         {
           "expr": "kernel.percpu.cpu.user{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "$instance"
         }
       ],
       "thresholds": [],
@@ -368,7 +373,8 @@
         {
           "expr": "kernel.percpu.cpu.sys{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "B"
+          "refId": "B",
+          "legendFormat": "$instance"
         }
       ],
       "thresholds": [],
@@ -1082,7 +1088,8 @@
         {
           "expr": "network.interface.in.bytes{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "$instance"
         }
       ],
       "thresholds": [],
@@ -1166,7 +1173,8 @@
         {
           "expr": "network.interface.out.bytes{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "$instance"
         }
       ],
       "thresholds": [],
@@ -1250,7 +1258,8 @@
         {
           "expr": "network.interface.in.drops{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "$instance"
         }
       ],
       "thresholds": [],
@@ -1336,7 +1345,8 @@
         {
           "expr": "network.interface.out.drops{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "$instance"
         }
       ],
       "thresholds": [],
@@ -1422,7 +1432,8 @@
         {
           "expr": "network.interface.in.packets{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "$instance"
         }
       ],
       "thresholds": [],
@@ -1508,7 +1519,8 @@
         {
           "expr": "network.interface.in.packets{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "$instance"
         }
       ],
       "thresholds": [],
@@ -1693,12 +1705,14 @@
         {
           "expr": "network.tcp.listenoverflows{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "B"
+          "refId": "B",
+          "legendFormat": "overflows"
         },
         {
           "expr": "network.tcp.listendrops{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "drops"
         }
       ],
       "thresholds": [],
@@ -1784,22 +1798,26 @@
         {
           "expr": "network.tcp.retranssegs{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "A"
+          "refId": "A",
+          "legendFormat": "retranssegs"
         },
         {
           "expr": "network.tcp.fastretrans{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "D"
+          "refId": "D",
+          "legendFormat": "fastretrans"
         },
         {
           "expr": "network.tcp.slowstartretrans{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "E"
+          "refId": "E",
+          "legendFormat": "slowstartretrans"
         },
         {
           "expr": "network.tcp.synretrans{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "F"
+          "refId": "F",
+          "legendFormat": "synretrans"
         }
       ],
       "thresholds": [],
@@ -1898,12 +1916,14 @@
         {
           "expr": "disk.dev.read_rawactive{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "B"
+          "refId": "B",
+          "legendFormat": "$instance"
         },
         {
           "expr": "disk.dev.write_rawactive{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "D"
+          "refId": "D",
+          "legendFormat": "$instance"
         }
       ],
       "thresholds": [],
@@ -1987,12 +2007,14 @@
         {
           "expr": "disk.dev.read{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "B"
+          "refId": "B",
+          "legendFormat": "$instance"
         },
         {
           "expr": "disk.dev.write{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "D"
+          "refId": "D",
+          "legendFormat": "$instance"
         }
       ],
       "thresholds": [],
@@ -2076,12 +2098,14 @@
         {
           "expr": "disk.dev.read_bytes{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "B"
+          "refId": "B",
+          "legendFormat": "$instance"
         },
         {
           "expr": "disk.dev.write_bytes{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "D"
+          "refId": "D",
+          "legendFormat": "$instance"
         }
       ],
       "thresholds": [],
@@ -2165,7 +2189,8 @@
         {
           "expr": "disk.dev.avactive{hostname == \"$host\"}",
           "format": "time_series",
-          "refId": "B"
+          "refId": "B",
+          "legendFormat": "$instance"
         }
       ],
       "thresholds": [],
