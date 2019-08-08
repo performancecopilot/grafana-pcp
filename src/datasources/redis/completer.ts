@@ -62,9 +62,12 @@ export default class PCPRedisCompleter {
         const [seriesWithIndoms, seriesWithoutIndoms] = _.partition(seriesList, series => descriptions[series].indom !== "none");
         let instanceIds: string[] = [];
         if (seriesWithIndoms.length > 0) {
-            const instanceDescs = await this.pmSeries.instances(seriesWithIndoms);
-            instanceIds = instanceDescs.map(instanceDesc => instanceDesc.instance);
-            qualifiers["instance.name"] = instanceDescs.map(instanceDesc => instanceDesc.name);
+            const instances = await this.pmSeries.instances(seriesWithIndoms);
+            qualifiers["instance.name"] = [];
+            for (const series in instances) {
+                instanceIds.push(...Object.keys(instances[series]));
+                qualifiers["instance.name"].push(...Object.values(instances[series]));
+            }
         }
 
         const labels = await this.pmSeries.labels([...seriesWithoutIndoms, ...instanceIds]);

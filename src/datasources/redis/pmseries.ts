@@ -44,22 +44,24 @@ export class PmSeries {
                 this.descriptionCache[description.series] = description;
             }
         }
-        return _.pick(this.descriptionCache, series); // _.pick ignores non-existing keys
+        return _.pick(this.descriptionCache, series);
     }
 
-    async instances(series: string[]) {
-        const response = await this.datasourceRequest({
-            url: `${this.url}/series/instances`,
-            params: { series: series.join(',') }
-        });
+    async instances(series: string[], force: boolean = false): Promise<Record<string, Record<string, string>>> {
+        const requiredSeries = force ? series : _.difference(series, Object.keys(this.instanceCache));
+        if (requiredSeries.length > 0) {
+            const response = await this.datasourceRequest({
+                url: `${this.url}/series/instances`,
+                params: { series: requiredSeries.join(',') }
+            });
 
-        const instances = response.data;
-        for (const instance of instances) {
-            if (!(instance.series in this.instanceCache))
-                this.instanceCache[instance.series] = {};
-            this.instanceCache[instance.series][instance.instance] = instance.name;
+            for (const instance of response.data) {
+                if (!(instance.series in this.instanceCache))
+                    this.instanceCache[instance.series] = {};
+                this.instanceCache[instance.series][instance.instance] = instance.name;
+            }
         }
-        return instances;
+        return _.pick(this.instanceCache, series);
     }
 
     private getInstanceName(series: string, instance: string): string | undefined {
@@ -79,7 +81,7 @@ export class PmSeries {
 
             instance.instanceName = this.getInstanceName(instance.series, instance.instance) || "";
             if (instance.instanceName === "" && !refreshed[instance.series]) {
-                await this.instances([instance.series]);
+                await this.instances([instance.series], true);
                 instance.instanceName = this.getInstanceName(instance.series, instance.instance) || "";
                 refreshed[instance.series] = true;
             }
@@ -132,7 +134,7 @@ export class PmSeries {
                 this.labelCache[labels.series] = labels.labels;
             }
         }
-        return _.pick(this.labelCache, series); // _.pick ignores non-existing keys
+        return _.pick(this.labelCache, series);
     }
 
 }
