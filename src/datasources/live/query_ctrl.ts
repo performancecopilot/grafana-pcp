@@ -49,6 +49,7 @@ export class PCPLiveDatasourceQueryCtrl extends PCPQueryCtrl {
     }
 
     getCompleter() {
+        this.removeTextCompleter();
         return new PCPLiveCompleter(this.datasource, this.target);
     }
 

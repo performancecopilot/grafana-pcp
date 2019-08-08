@@ -52,11 +52,15 @@ ace.define("ace/mode/bpftrace_highlight_rules", ["require", "exports", "module",
                 start: "/\\*",
                 end: "\\*/"
             }, {
-                token: "keyword", // pre-compiler directives
+                token: "keyword", // compiler directives
                 regex: "#\\s*(?:include|import|pragma|line|define|undef)\\b"
             }, {
+                token: "text", // compiler directive value
+                regex: "<.*>"
+            }, {
                 token: "keyword.control.probe",
-                regex: "BEGIN|END|(k|u)(ret)?probe:.*|tracepoint:.*|usdt:.*|profile:.*|interval:.*|software:.*|hardware:.*|watchpoint:.*|dummy:.*"
+                regex: "BEGIN|END|" + ["(k|u)(ret)?probe", "tracepoint", "usdt", "profile", "interval",
+                    "software", "hardware", "watchpoint"].map(p => `${p}:[a-zA-Z0-9_\\-:.]*`).join("|")
             }, {
                 token: "string",
                 regex: '".*?"'
@@ -67,7 +71,7 @@ ace.define("ace/mode/bpftrace_highlight_rules", ["require", "exports", "module",
                 token: "constant.numeric", // float
                 regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?(L|l|UL|ul|u|U|F|f|ll|LL|ull|ULL)?\\b"
             }, {
-                token:"variable.other",
+                token: "variable.other",
                 regex: "(@|\\$)[a-zA-Z_][a-zA-Z0-9_]*"
             }, {
                 token: keywordMapper,
@@ -80,10 +84,16 @@ ace.define("ace/mode/bpftrace_highlight_rules", ["require", "exports", "module",
                 regex: "\\?|\\:|\\,|\\;|\\."
             }, {
                 token: "paren.lparen",
-                regex: "[[({]"
+                regex: "[[(]"
             }, {
                 token: "paren.rparen",
-                regex: "[\\])}]"
+                regex: "[\\])]"
+            }, {
+                token: "paren.lparen.brace",
+                regex: "{"
+            }, {
+                token: "paren.rparen.brace",
+                regex: "}"
             }, {
                 token: "text",
                 regex: "\\s+"

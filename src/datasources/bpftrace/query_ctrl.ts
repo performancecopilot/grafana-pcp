@@ -33,6 +33,7 @@ export class PCPBPFtraceDatasourceQueryCtrl extends PCPQueryCtrl {
     }
 
     getCompleter() {
+        this.removeTextCompleter();
         return new PCPBPFtraceCompleter(this.datasource, this.target);
     }
 

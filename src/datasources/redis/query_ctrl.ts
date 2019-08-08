@@ -32,6 +32,7 @@ export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
     }
 
     getCompleter() {
+        this.removeTextCompleter();
         return new PCPRedisCompleter(this.datasource);
     }
 

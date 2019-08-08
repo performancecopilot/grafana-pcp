@@ -14,13 +14,6 @@ export default class PCPRedisCompleter {
     }
 
     getCompletions(editor: any, session: any, pos: any, prefix: any, callback: any) {
-        if (editor.completers.length > 1) {
-            // the ace editor comes with a snippetCompleter, textCompleter, keywordCompleter
-            // our completor is the last of the array - let's remove all other
-            // completers except ours
-            editor.completers = editor.completers.slice(-1);
-        }
-
         this.findCompletions(editor, session, pos, prefix).then((value) => {
             callback(null, value);
         }, (reason: any) => {

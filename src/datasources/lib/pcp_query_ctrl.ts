@@ -25,4 +25,21 @@ export abstract class PCPQueryCtrl extends QueryCtrl {
         this.panelCtrl.refresh();
     }
 
+    removeTextCompleter() {
+        if (!("ace" in window))
+            return;
+
+        let { textCompleter } = (window as any).ace.acequire('ace/ext/language_tools');
+        if (!textCompleter)
+            return;
+
+        for (const codeEditor of Array.from<any>(document.getElementsByTagName('code-editor'))) {
+            const completers = Array.from(codeEditor.env.editor.completers);
+            const idx = completers.indexOf(textCompleter);
+            if (idx >= 0) {
+                completers.splice(idx, 1);
+                codeEditor.env.editor.completers = completers;
+            }
+        }
+    }
 }
