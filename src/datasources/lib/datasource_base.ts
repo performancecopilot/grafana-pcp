@@ -75,6 +75,9 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
      * called by the templating engine (dashboard variables with type = query)
      */
     async metricFindQuery(query: string) {
+        if (isBlank(this.instanceSettings.url))
+            throw { message: "Please specify a connection URL in the datasource settings." };
+
         let endpoint = this.getOrCreateEndpoint(this.instanceSettings.url, this.instanceSettings.jsonData.container);
         const metricsResponse = await endpoint.context.fetch([query]);
         return metricsResponse.values[0].instances

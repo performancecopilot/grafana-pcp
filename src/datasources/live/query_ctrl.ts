@@ -35,7 +35,11 @@ export class PCPLiveDatasourceQueryCtrl extends PCPQueryCtrl {
 
     async getContainers() {
         const dashboardVariables = Object.keys(getDashboardVariables(this.variableSrv));
-        let containers = await this.datasource.metricFindQuery('containers.name');
+        const [url,] = this.datasource.getConnectionParams(this.target, {});
+        const endpoint = this.datasource.getOrCreateEndpoint(url);
+        const containersMetricsResponse = await endpoint.context.fetch(['containers.name']);
+        const containers = containersMetricsResponse.values[0].instances
+            .map((instance: any) => ({ text: instance.value, value: instance.value }));
 
         const options: { text: string, value: string }[] = [];
         options.push({ text: '-', value: '' });
