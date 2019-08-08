@@ -50,7 +50,29 @@ export class PCPRedisDatasource {
         }
     }
 
+    async getAllUniqLabelValues(metric: string, label: string) {
+        let series = await this.pmSeries.query(metric);
+        if (series.length === 0) {
+            throw { message: `Could not find any series for ${metric}` };
+        }
+
+        const labels = await this.pmSeries.labels(series);
+        const values: string[] = [];
+        for (const serie in labels) {
+            const value = labels[serie][label];
+            if (value && !(value in values))
+                values.push(value);
+        }
+        return values;
+    }
+
     async metricFindQuery(query: string) {
+        query = this.templateSrv.replace(query);
+
+        if (query === "@hosts@") {
+            const hosts = await this.getAllUniqLabelValues("kernel.all.sysfork", "hostname"); // pmproxy logs this metric by default
+            return hosts.map(host => ({ text: host, value: host }));
+        }
         return [];
     }
 
@@ -105,10 +127,6 @@ export class PCPRedisDatasource {
         if (!_.every(targets, ['format', targets[0].format]))
             throw { message: "Format must be the same for all queries of a panel." };
 
-        let tzparam = "UTC";
-        if (query.timezone == "browser")
-            tzparam = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
         const exprs = targets.map(target => target.expr);
         let series = await Promise.all(exprs.map(expr => this.pmSeries.query(expr)));
         let seriesByExpr = _.zipObject(exprs, series);
@@ -116,7 +134,7 @@ export class PCPRedisDatasource {
 
         for (const expr in seriesByExpr) {
             if (seriesByExpr[expr].length === 0) {
-                throw { message: `Could not find series for ${expr}` };
+                throw { message: `Could not find any series for ${expr}` };
             }
         }
 
@@ -124,9 +142,9 @@ export class PCPRedisDatasource {
         const finish = Math.round(query.range.to.valueOf() / 1000);
         const samples = Math.round((query.range.to.valueOf() - query.range.from.valueOf()) / query.intervalMs);
         const interval = query.interval;
-        const mdp = query.maxDataPoints; // TODO: not supported in pmproxy?
+        const zone = query.timezone == "browser" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC";
 
-        const instances = await this.pmSeries.values(seriesList, { start, finish, samples, interval, tzparam }, true);
+        const instances = await this.pmSeries.values(seriesList, { start, finish, samples, interval, zone }, true);
         const seriesWithLabels = seriesList.flatMap(series => {
             const instanceIds = this.pmSeries.instancesOfSeries(series);
             return instanceIds.length > 0 ? instanceIds : [series];

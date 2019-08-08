@@ -14,16 +14,10 @@
       "version": ""
     },
     {
-      "type": "panel",
-      "id": "heatmap",
-      "name": "Heatmap",
-      "version": ""
-    },
-    {
       "type": "datasource",
-      "id": "pcp-live-datasource",
-      "name": "PCP Live",
-      "version": "0.0.1"
+      "id": "pcp-redis-datasource",
+      "name": "PCP Redis",
+      "version": "0.0.7"
     }
   ],
   "annotations": {},
@@ -31,7 +25,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1564559233085,
+  "iteration": 1565280060489,
   "links": [],
   "panels": [
     {
@@ -53,101 +47,12 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "$datasource",
-      "fill": 1,
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 1
-      },
-      "id": 4,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {},
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "kernel.cpu.util.user",
-          "format": "time_series",
-          "refId": "A"
-        },
-        {
-          "expr": "kernel.cpu.util.sys",
-          "format": "time_series",
-          "refId": "B"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "CPU%",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "percent",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "$datasource",
       "decimals": 2,
       "fill": 1,
       "gridPos": {
         "h": 7,
         "w": 12,
-        "x": 12,
+        "x": 0,
         "y": 1
       },
       "id": 2,
@@ -178,7 +83,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "kernel.all.load",
+          "expr": "kernel.all.load{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -234,8 +139,8 @@
       "gridPos": {
         "h": 7,
         "w": 12,
-        "x": 0,
-        "y": 8
+        "x": 12,
+        "y": 1
       },
       "id": 8,
       "legend": {
@@ -269,17 +174,17 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "mem.util.cached",
+          "expr": "mem.util.cached{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "C"
         },
         {
-          "expr": "mem.physmem",
+          "expr": "mem.physmem{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "D"
         },
         {
-          "expr": "mem.util.free",
+          "expr": "mem.util.free{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -326,97 +231,12 @@
       }
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "$datasource",
-      "fill": 1,
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 8
-      },
-      "id": 46,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {},
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "disk.dev.util",
-          "format": "time_series",
-          "refId": "B"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Disk Utilisation",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "percent",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 8
       },
       "id": 13,
       "panels": [],
@@ -434,7 +254,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 9
       },
       "id": 26,
       "legend": {
@@ -461,7 +281,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "kernel.percpu.cpu.user",
+          "expr": "kernel.percpu.cpu.user{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -519,7 +339,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 9
       },
       "id": 40,
       "legend": {
@@ -546,7 +366,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "kernel.percpu.cpu.sys",
+          "expr": "kernel.percpu.cpu.sys{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "B"
         }
@@ -594,348 +414,12 @@
       }
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "$datasource",
-      "fill": 1,
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 0,
-        "y": 22
-      },
-      "id": 36,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {},
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "kernel.cpu.util.user",
-          "format": "time_series",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "User %",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "percent",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "$datasource",
-      "fill": 1,
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 22
-      },
-      "id": 37,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {},
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "kernel.cpu.util.sys",
-          "format": "time_series",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Sys %",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "percent",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "$datasource",
-      "fill": 1,
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 12,
-        "y": 22
-      },
-      "id": 39,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {},
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "kernel.cpu.util.intr",
-          "format": "time_series",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Interrupt %",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "percent",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "$datasource",
-      "fill": 1,
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 18,
-        "y": 22
-      },
-      "id": 38,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {},
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "kernel.cpu.util.wait",
-          "format": "time_series",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Wait %",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "percent",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 15
       },
       "id": 44,
       "panels": [],
@@ -953,7 +437,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 29
+        "y": 16
       },
       "id": 35,
       "legend": {
@@ -980,7 +464,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "kernel.all.pswitch",
+          "expr": "kernel.all.pswitch{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -1038,7 +522,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 29
+        "y": 16
       },
       "id": 42,
       "legend": {
@@ -1065,7 +549,7 @@
       "steppedLine": true,
       "targets": [
         {
-          "expr": "kernel.all.runnable",
+          "expr": "kernel.all.runnable{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -1113,76 +597,12 @@
       }
     },
     {
-      "cards": {
-        "cardPadding": 0,
-        "cardRound": null
-      },
-      "color": {
-        "cardColor": "#b4ff00",
-        "colorScale": "sqrt",
-        "colorScheme": "interpolateOranges",
-        "exponent": 0.5,
-        "max": null,
-        "mode": "spectrum"
-      },
-      "dataFormat": "tsbuckets",
-      "datasource": "$datasource",
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 34
-      },
-      "heatmap": {},
-      "hideZeroBuckets": true,
-      "highlightCards": true,
-      "id": 63,
-      "legend": {
-        "show": false
-      },
-      "links": [],
-      "options": {},
-      "reverseYBuckets": false,
-      "targets": [
-        {
-          "expr": "bcc.runq.latency",
-          "format": "heatmap",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Run queue latency (us)",
-      "tooltip": {
-        "show": true,
-        "showHistogram": false
-      },
-      "type": "heatmap",
-      "xAxis": {
-        "show": true
-      },
-      "xBucketNumber": null,
-      "xBucketSize": null,
-      "yAxis": {
-        "decimals": null,
-        "format": "µs",
-        "logBase": 1,
-        "max": null,
-        "min": null,
-        "show": true,
-        "splitFactor": null
-      },
-      "yBucketBound": "upper",
-      "yBucketNumber": null,
-      "yBucketSize": null
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 21
       },
       "id": 24,
       "panels": [],
@@ -1200,7 +620,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 41
+        "y": 22
       },
       "id": 33,
       "legend": {
@@ -1227,7 +647,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "mem.util.used",
+          "expr": "mem.util.used{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -1284,7 +704,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 41
+        "y": 22
       },
       "id": 31,
       "legend": {
@@ -1311,7 +731,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "mem.util.cached",
+          "expr": "mem.util.cached{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -1368,7 +788,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 41
+        "y": 22
       },
       "id": 32,
       "legend": {
@@ -1395,7 +815,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "mem.util.free",
+          "expr": "mem.util.free{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -1452,7 +872,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 47
+        "y": 28
       },
       "id": 28,
       "legend": {
@@ -1479,7 +899,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "mem.vmstat.pgfault",
+          "expr": "mem.vmstat.pgfault{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -1536,7 +956,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 47
+        "y": 28
       },
       "id": 34,
       "legend": {
@@ -1563,7 +983,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "mem.vmstat.pgmajfault",
+          "expr": "mem.vmstat.pgmajfault{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "B"
         }
@@ -1615,7 +1035,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 33
       },
       "id": 20,
       "panels": [],
@@ -1633,7 +1053,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 53
+        "y": 34
       },
       "id": 10,
       "legend": {
@@ -1660,7 +1080,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "network.interface.in.bytes",
+          "expr": "network.interface.in.bytes{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -1717,7 +1137,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 53
+        "y": 34
       },
       "id": 11,
       "legend": {
@@ -1744,7 +1164,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "network.interface.out.bytes",
+          "expr": "network.interface.out.bytes{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -1801,7 +1221,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 60
+        "y": 41
       },
       "id": 47,
       "legend": {
@@ -1828,7 +1248,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "network.interface.in.drops",
+          "expr": "network.interface.in.drops{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -1887,7 +1307,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 60
+        "y": 41
       },
       "id": 48,
       "legend": {
@@ -1914,7 +1334,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "network.interface.out.drops",
+          "expr": "network.interface.out.drops{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -1973,7 +1393,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 66
+        "y": 47
       },
       "id": 49,
       "legend": {
@@ -2000,7 +1420,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "network.interface.in.packets",
+          "expr": "network.interface.in.packets{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -2059,7 +1479,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 66
+        "y": 47
       },
       "id": 50,
       "legend": {
@@ -2086,7 +1506,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "network.interface.in.packets",
+          "expr": "network.interface.in.packets{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -2140,7 +1560,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 72
+        "y": 53
       },
       "id": 54,
       "panels": [],
@@ -2155,105 +1575,10 @@
       "datasource": "$datasource",
       "fill": 1,
       "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 73
-      },
-      "id": 58,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {},
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "network.tcpconn.established",
-          "format": "time_series",
-          "refId": "B"
-        },
-        {
-          "expr": "network.tcpconn.time_wait",
-          "format": "time_series",
-          "refId": "A"
-        },
-        {
-          "expr": "network.tcpconn.close_wait",
-          "format": "time_series",
-          "refId": "C"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "TCP Connections",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "min": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "$datasource",
-      "fill": 1,
-      "gridPos": {
         "h": 6,
-        "w": 6,
+        "w": 12,
         "x": 0,
-        "y": 80
+        "y": 54
       },
       "id": 51,
       "legend": {
@@ -2280,7 +1605,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "network.tcp.timeouts",
+          "expr": "network.tcp.timeouts{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "B"
         }
@@ -2337,266 +1662,9 @@
       "fill": 1,
       "gridPos": {
         "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 80
-      },
-      "id": 55,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {},
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "network.tcpconn.close_wait",
-          "format": "time_series",
-          "refId": "B"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "TCP Close-waits",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "min": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": 0,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "$datasource",
-      "fill": 1,
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 12,
-        "y": 80
-      },
-      "id": 57,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {},
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "network.tcpconn.time_wait",
-          "format": "time_series",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "TCP Time Wait",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "min": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": 0,
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "$datasource",
-      "fill": 1,
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 18,
-        "y": 80
-      },
-      "id": 56,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {},
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "network.tcpconn.established",
-          "format": "time_series",
-          "refId": "B"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "TCP Established",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "min": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "$datasource",
-      "fill": 1,
-      "gridPos": {
-        "h": 6,
         "w": 12,
-        "x": 0,
-        "y": 86
+        "x": 12,
+        "y": 54
       },
       "id": 52,
       "legend": {
@@ -2623,12 +1691,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "network.tcp.listenoverflows",
+          "expr": "network.tcp.listenoverflows{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "B"
         },
         {
-          "expr": "network.tcp.listendrops",
+          "expr": "network.tcp.listendrops{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         }
@@ -2685,9 +1753,9 @@
       "fill": 1,
       "gridPos": {
         "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 86
+        "w": 24,
+        "x": 0,
+        "y": 60
       },
       "id": 22,
       "legend": {
@@ -2714,22 +1782,22 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "network.tcp.retranssegs",
+          "expr": "network.tcp.retranssegs{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "A"
         },
         {
-          "expr": "network.tcp.fastretrans",
+          "expr": "network.tcp.fastretrans{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "D"
         },
         {
-          "expr": "network.tcp.slowstartretrans",
+          "expr": "network.tcp.slowstartretrans{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "E"
         },
         {
-          "expr": "network.tcp.synretrans",
+          "expr": "network.tcp.synretrans{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "F"
         }
@@ -2783,7 +1851,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 92
+        "y": 66
       },
       "id": 15,
       "panels": [],
@@ -2801,7 +1869,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 93
+        "y": 67
       },
       "id": 6,
       "legend": {
@@ -2828,12 +1896,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "disk.dev.read_rawactive",
+          "expr": "disk.dev.read_rawactive{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "B"
         },
         {
-          "expr": "disk.dev.write_rawactive",
+          "expr": "disk.dev.write_rawactive{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "D"
         }
@@ -2890,7 +1958,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 93
+        "y": 67
       },
       "id": 16,
       "legend": {
@@ -2917,12 +1985,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "disk.dev.read",
+          "expr": "disk.dev.read{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "B"
         },
         {
-          "expr": "disk.dev.write",
+          "expr": "disk.dev.write{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "D"
         }
@@ -2979,7 +2047,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 100
+        "y": 74
       },
       "id": 17,
       "legend": {
@@ -3006,12 +2074,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "disk.dev.read_bytes",
+          "expr": "disk.dev.read_bytes{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "B"
         },
         {
-          "expr": "disk.dev.write_bytes",
+          "expr": "disk.dev.write_bytes{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "D"
         }
@@ -3068,7 +2136,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 100
+        "y": 74
       },
       "id": 18,
       "legend": {
@@ -3095,7 +2163,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "disk.dev.avactive",
+          "expr": "disk.dev.avactive{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "B"
         }
@@ -3140,83 +2208,20 @@
         "align": false,
         "alignLevel": null
       }
-    },
-    {
-      "cards": {
-        "cardPadding": 0,
-        "cardRound": null
-      },
-      "color": {
-        "cardColor": "#b4ff00",
-        "colorScale": "sqrt",
-        "colorScheme": "interpolateOranges",
-        "exponent": 0.5,
-        "mode": "spectrum"
-      },
-      "dataFormat": "tsbuckets",
-      "datasource": "$datasource",
-      "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 107
-      },
-      "heatmap": {},
-      "hideZeroBuckets": true,
-      "highlightCards": true,
-      "id": 62,
-      "legend": {
-        "show": false
-      },
-      "links": [],
-      "options": {},
-      "reverseYBuckets": false,
-      "targets": [
-        {
-          "expr": "bcc.disk.all.latency",
-          "format": "heatmap",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "BCC disk latency (us)",
-      "tooltip": {
-        "show": true,
-        "showHistogram": false
-      },
-      "type": "heatmap",
-      "xAxis": {
-        "show": true
-      },
-      "xBucketNumber": null,
-      "xBucketSize": null,
-      "yAxis": {
-        "decimals": null,
-        "format": "µs",
-        "logBase": 1,
-        "max": null,
-        "min": null,
-        "show": true,
-        "splitFactor": null
-      },
-      "yBucketBound": "upper",
-      "yBucketNumber": null,
-      "yBucketSize": null
     }
   ],
-  "refresh": "1s",
+  "refresh": "10s",
   "schemaVersion": 18,
   "style": "dark",
   "tags": [
-    "pcp-live"
+    "pcp-redis"
   ],
   "templating": {
     "list": [
       {
         "current": {
-          "text": "PCP Live",
-          "value": "PCP Live"
+          "text": "PCP Redis",
+          "value": "PCP Redis"
         },
         "hide": 0,
         "includeAll": false,
@@ -3224,33 +2229,66 @@
         "multi": false,
         "name": "datasource",
         "options": [],
-        "query": "pcp-live-datasource",
+        "query": "pcp-redis-datasource",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "type": "datasource"
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "$datasource",
+        "definition": "@hosts@",
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "host",
+        "options": [],
+        "query": "@hosts@",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
   "time": {
-    "from": "now-2m",
-    "to": "now+2s"
+    "from": "now-6h",
+    "to": "now"
   },
   "timepicker": {
-    "hidden": false,
     "refresh_intervals": [
-      "1s",
-      "2s",
       "5s",
-      "10s"
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
     ],
     "time_options": [
-      "1m",
-      "2m",
-      "5m"
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
     ]
   },
   "timezone": "",
-  "title": "Live Host Overview",
+  "title": "Host Overview",
   "version": 1
 }

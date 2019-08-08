@@ -92,7 +92,7 @@ export class PmSeries {
         return series in this.instanceCache ? Object.keys(this.instanceCache[series]) : [];
     }
 
-    async values(series: string[], timeSpec: {}, instanceNames: boolean = false) {
+    async values(series: string[], timeSpec: any = {}, instanceNames: boolean = false) {
         const response = await this.datasourceRequest({
             url: `${this.url}/series/values`,
             params: {
