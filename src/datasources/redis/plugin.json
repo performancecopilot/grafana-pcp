@@ -1,37 +1,20 @@
 {
-  "name": "PCP Redis",
-  "id": "pcp-redis-datasource",
-  "type": "datasource",
-  "metrics": true,
-  "tables": false,
-  "annotations": false,
-  "alerting": false,
-
-  "queryOptions": {
-    "maxDataPoints": true,
-    "minInterval": true,
-    "cacheTimeout": true
-  },
-
-  "info": {
-    "description": "Grafana datasource for fast, scalable PCP time series with Redis",
-    "author": {
-      "name": "Performance Co-Pilot Project",
-      "url": "https://pcp.io"
+    "name": "PCP Redis",
+    "id": "pcp-redis-datasource",
+    "type": "datasource",
+    "metrics": true,
+    "alerting": false,
+    "annotations": false,
+    "tables": true,
+    "queryOptions": {
+        "maxDataPoints": true,
+        "minInterval": true,
+        "cacheTimeout": true
     },
-    "logos": {
-      "small": "../performancecopilot-pcp-app/img/pcp-logo.svg",
-      "large": "../performancecopilot-pcp-app/img/pcp-logo.svg"
-    },
-    "links": [
-      {"name": "GitHub", "url": "https://github.com/performancecopilot/grafana-pcp"}
-    ],
-    "version": "0.0.7",
-    "updated": "2019-06-11"
-  },
-
-  "dependencies": {
-    "grafanaVersion": "6.x.x",
-    "plugins": [ ]
-  }
+    "info": {
+        "logos": {
+            "small": "../performancecopilot-pcp-app/img/pcp-logo.svg",
+            "large": "../performancecopilot-pcp-app/img/pcp-logo.svg"
+        }
+    }
 }

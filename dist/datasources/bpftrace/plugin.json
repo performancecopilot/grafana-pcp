@@ -7,26 +7,9 @@
     "annotations": false,
     "tables": true,
     "info": {
-        "author": {
-            "name": "Performance Co-Pilot Project",
-            "url": "https://pcp.io"
-        },
-        "description": "Grafana datasource for the PCP bpftrace PMDA",
         "logos": {
             "small": "../performancecopilot-pcp-app/img/pcp-logo.svg",
             "large": "../performancecopilot-pcp-app/img/pcp-logo.svg"
-        },
-        "links": [
-            {
-                "name": "GitHub",
-                "url": "https://github.com/performancecopilot/grafana-pcp"
-            }
-        ],
-        "version": "0.0.1",
-        "updated": "2019-07-05"
-    },
-    "dependencies": {
-        "grafanaVersion": "6.x.x",
-        "plugins": []
+        }
     }
 }
