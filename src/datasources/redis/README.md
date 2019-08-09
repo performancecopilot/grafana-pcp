@@ -7,10 +7,6 @@ datasource makes REST API query requests to the PCP pmproxy(1) service, which ca
 either locally or on a remote host. The pmproxy daemon can be local or remote, and uses
 the Redis time-series database (local or remote) for persistent storage.
 
-_Please note: this datasource plugin is under development, so the installation and
-configuration instructions are more convoluted than they will be once this has been
-released for general use._
-
 ### Grafana Installation and configuration on Fedora FC29 or later:
  * grafana is now in the 'updates' repo on Fedora F29 and later.
  * To install grafana: `dnf install grafana`
@@ -48,24 +44,9 @@ The PCP datasource can now be configured and enabled in the Grafana UI for use b
 ### Create a new dashboard and panels
  * use the grafana web UI to create a new dashboard, and then create a panel within that dashboard, e.g. a `single-stat` panel.
  * in the new panel, click on it's title at the top, and select Edit
- * in the panel editor select `Performance Co-Pilot` in the drop-down menu as the datasource for this panel. Note that different panels in the same dashboard can use different datasources, but all Queries in the **same** panel always use the same datasource.
+ * in the panel editor select `PCP Redis` in the drop-down menu as the datasource for this panel. Note that different panels in the same dashboard can use different datasources.
  * It is possible to configure more than one Performance Co-Pilot datasource - just give each one a unique name and URL. This allows different panels to retrieve data from different servers (each of which must be running the pmproxy service), e.g. in different datacenters.
- * Now enter the Query text, i.e. choose a PCP metric name, e.g. `kernel.all.cpu.user`. If the metric you have chosen is a counter type, then select the 'Rate Convert' tick-box, so that returned time-series values will be rate converted (e.g. count/second) before being passed to the Grafana panel display handler.
-
-## Implementation details
-To work with this datasource the pmproxy backend (on port 44322 by default) implements 4 URLs:
-
- * `/grafana/test` should return 200 ok. Used for "Test connection" on the datasource config page.
- * `/grafana/query` should return time-series data based on the query text. See below for syntax examples.
- * `/grafana/annotations` should return annotations.
- * `/grafana/search` is used by the query tab in panels. It should just return "{}" for now.
-
-At the present time, only `/grafana/test` and `/grafana/query` are implemented. The `/grafana/search` end-point will be used for auto-completion of metric names and other 'helper' functionality when entering queries. Annotations are not yet implemented.
-
-Two addtional urls are optional (once implemented):
-
- * `/grafana/tag-keys` should return tag keys for ad hoc filters.
- * `/grafana/tag-values` should return tag values for ad hoc filters.
+ * Now enter the Query text, i.e. choose a PCP metric name, e.g. `kernel.all.cpu.user`.
 
 ### Build and Development
 

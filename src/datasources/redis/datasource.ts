@@ -33,19 +33,20 @@ export class PCPRedisDatasource {
     }
 
     async testDatasource() {
+        if (isBlank(this.instanceSettings.url))
+            return { status: 'error', message: "Please specify a URL in the datasource settings." };
+
         try {
             const response = await this.pmSeries.ping();
             if (response.status !== 200) {
-                throw { message: "err" };
+                throw { statusText: "Invalid response code" };
             }
-            return { status: 'success', title: 'Success', message: 'Data source is working' };
+            return { status: 'success', message: "Data source is working" };
         }
         catch (error) {
-            const errorText = error && error.statusText ? error.statusText : `Could not connect to ${this.instanceSettings.url}`;
             return {
                 status: 'error',
-                title: 'Error',
-                message: 'PCP Data source is not working: ' + errorText
+                message: error && error.statusText ? `Error: ${error.statusText}` : `Could not connect to ${this.instanceSettings.url}`
             };
         }
     }

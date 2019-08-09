@@ -56,17 +56,20 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
     }
 
     async testDatasource() {
-        const context = new Context(this.instanceSettings.url, this.instanceSettings.jsonData.container);
+        if (isBlank(this.instanceSettings.url))
+            return { status: 'error', message: "Please specify a URL in the datasource settings." };
+
+        const context = new Context(this.doRequest.bind(this), this.instanceSettings.url, this.instanceSettings.jsonData.container);
         try {
             await context.createContext();
-            return { status: 'success', title: "Success", message: "Data source is working" };
+            return { status: 'success', message: "Data source is working" };
         }
         catch (error) {
+            const errorText = error && error.statusText ? `Error: ${error.statusText}` : `Could not connect to ${this.instanceSettings.url}`;
             return {
                 status: 'success',
-                title: "Additional configuration required",
-                message: `Could not connect to ${this.instanceSettings.url}. To use this data source, ` +
-                    'please configure the url and optionally the container in the query editor.',
+                message: `${errorText}. To use this data source, ` +
+                    "please configure the URL in the query editor."
             };
         }
     }

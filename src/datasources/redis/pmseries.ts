@@ -20,6 +20,7 @@ export class PmSeries {
         const response = await this.datasourceRequest({
             url: `${this.url}/series/ping`
         });
+        // full response object is required for testDatasource()
         return response;
     }
 
