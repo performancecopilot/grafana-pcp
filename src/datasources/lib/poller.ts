@@ -10,7 +10,7 @@ export default class Poller {
 
     async poll() {
         const metrics = Object.keys(this.requestedMetrics);
-        if (metrics.length == 0) {
+        if (metrics.length === 0) {
             return;
         }
 
@@ -27,7 +27,7 @@ export default class Poller {
         }
     }
 
-    async ensurePolling(metrics: string[], failOnError: boolean = true) {
+    async ensurePolling(metrics: string[], failOnError = true) {
         const metadatas = await this.context.metricMetadatas(metrics);
         const validMetrics = _.intersection(metrics, Object.keys(metadatas));
 
@@ -37,9 +37,9 @@ export default class Poller {
             throw { message: `Cannot find metric${s} ${invalidMetrics.join(', ')}. Please check if the PMDA is enabled.` };
         }
 
-        const now = new Date().getTime()
+        const now = new Date().getTime();
         for (const metric of validMetrics) {
-            this.requestedMetrics[metric] = now
+            this.requestedMetrics[metric] = now;
         }
         return validMetrics;
     }

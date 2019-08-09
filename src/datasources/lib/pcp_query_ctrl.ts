@@ -3,7 +3,7 @@ import { QueryCtrl } from 'grafana/app/plugins/sdk';
 
 export abstract class PCPQueryCtrl extends QueryCtrl {
 
-    constructor($scope: any, $injector: any, private typingDebounceTime: number = 1000) {
+    constructor($scope: any, $injector: any, private typingDebounceTime = 1000) {
         super($scope, $injector);
     }
 
@@ -29,7 +29,7 @@ export abstract class PCPQueryCtrl extends QueryCtrl {
         if (!("ace" in window))
             return;
 
-        let { textCompleter } = (window as any).ace.acequire('ace/ext/language_tools');
+        const { textCompleter } = (window as any).ace.acequire('ace/ext/language_tools');
         if (!textCompleter)
             return;
 

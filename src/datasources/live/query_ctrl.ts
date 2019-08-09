@@ -5,11 +5,11 @@ import { getDashboardVariables } from '../lib/utils';
 import './mode-pcp';
 
 export class PCPLiveDatasourceQueryCtrl extends PCPQueryCtrl {
-    static templateUrl = 'datasources/live/partials/query.editor.html'
+    static templateUrl = 'datasources/live/partials/query.editor.html';
 
     formats: any = [];
 
-    /** @ngInject **/
+    /* @ngInject */
     constructor($scope: any, $injector: any, private variableSrv: any) {
         super($scope, $injector);
 

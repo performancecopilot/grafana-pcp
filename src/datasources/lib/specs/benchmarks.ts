@@ -1,9 +1,9 @@
 import Benchmark from "benchmark";
 import DataStore from "../datastore";
-import { ValuesTransformationFn, MetricInstance, Datapoint } from "../types";
+import { MetricInstance, Datapoint } from "../types";
 import { ValuesTransformations } from "../transformations";
 
-interface IBenchmark {
+interface BenchmarkCase {
     setup?: () => void;
     run: (deferred: any) => void;
     finish?: () => void;
@@ -117,21 +117,21 @@ class CounterValues {
 
 class Benchmarks {
 
-    static async runSuite(benchmarks: IBenchmark[]) {
+    static async runSuite(benchmarks: BenchmarkCase[]) {
         let suite = new Benchmark.Suite();
         for (const benchmark of benchmarks) {
             if (benchmark.setup) {
                 await benchmark.setup();
             }
 
-            suite = suite.add(benchmark.constructor.name, benchmark.run.bind(benchmark), { defer: true })
+            suite = suite.add(benchmark.constructor.name, benchmark.run.bind(benchmark), { defer: true });
         }
         suite
-            .on('cycle', function (event) {
+            .on('cycle', (event) => {
                 console.log(String(event.target), "per test", event.target.times.period * 1000, "ms");
             })
-            .on('complete', function () {
-                console.log('Fastest is ' + this.filter('fastest').map('name'));
+            .on('complete', () => {
+                console.log('Fastest is ' + (suite.filter('fastest') as any).map('name'));
                 for (const benchmark of benchmarks) {
                     if (benchmark.finish)
                         benchmark.finish();
@@ -149,4 +149,4 @@ class Benchmarks {
         new IngestWithoutRateConversation(),
         new CounterValues()
     ]);
-}
+};

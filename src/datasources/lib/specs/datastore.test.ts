@@ -1,12 +1,12 @@
 import DataStore from "../datastore";
 
 describe("DataStore", () => {
-    let ctx: { context: any, datastore: DataStore } = {} as any;
+    const ctx: { context: any, datastore: DataStore } = {} as any;
 
     beforeEach(() => {
         ctx.context = {
             metricMetadata: jest.fn()
-        }
+        };
         ctx.datastore = new DataStore(ctx.context, 25000); // max age: 25s
     });
 
@@ -203,9 +203,9 @@ describe("DataStore", () => {
 
     it("should clean expired metrics", async () => {
         ctx.context.metricMetadata.mockReturnValue({});
-        const date1 = new Date().getTime() - 30000  // 30s ago
-        const date2 = new Date().getTime() - 20000
-        const date3 = new Date().getTime() - 10000
+        const date1 = new Date().getTime() - 30000;  // 30s ago
+        const date2 = new Date().getTime() - 20000;
+        const date3 = new Date().getTime() - 10000;
 
         await ctx.datastore.ingest({
             "timestamp": {

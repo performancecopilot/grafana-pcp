@@ -6,7 +6,7 @@ import ScriptRegistry from './script_registry';
 
 export class PCPBPFtraceDatasource extends PCPLiveDatasourceBase<BPFtraceEndpoint> {
 
-    /** @ngInject **/
+    /* @ngInject */
     constructor(instanceSettings: any, backendSrv: any, templateSrv: any, variableSrv: any) {
         super(instanceSettings, backendSrv, templateSrv, variableSrv);
 
@@ -15,7 +15,7 @@ export class PCPBPFtraceDatasource extends PCPLiveDatasourceBase<BPFtraceEndpoin
     }
 
     doPollAll() {
-        let promises: Promise<void>[] = [];
+        const promises: Promise<void>[] = [];
         for (const endpoint of this.endpointRegistry.list()) {
             endpoint.datastore.cleanExpiredMetrics();
             endpoint.poller.cleanupExpiredMetrics();
@@ -30,7 +30,7 @@ export class PCPBPFtraceDatasource extends PCPLiveDatasourceBase<BPFtraceEndpoin
     }
 
     async handleTarget(endpoint: BPFtraceEndpoint, query: Query, target: QueryTarget) {
-        let script = await endpoint.scriptRegistry.ensureActive(target.expr);
+        const script = await endpoint.scriptRegistry.ensureActive(target.expr);
         let metrics: string[];
 
         if (script.status === "started" || script.status === "starting") {

@@ -10,8 +10,7 @@ cache:
 
 before_script: yarn install
 
-# TODO: yarn run lint
-script: yarn run build && yarn run unit
+script: yarn run lint && yarn run build && yarn run unit
 
 after_script:
   - ln -s dist grafana-pcp

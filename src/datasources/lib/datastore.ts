@@ -63,7 +63,7 @@ export default class DataStore {
     }
 
     cleanExpiredMetrics() {
-        const keepExpiry = new Date().getTime() - this.localHistoryAgeMs
+        const keepExpiry = new Date().getTime() - this.localHistoryAgeMs;
         for (const metric in this.store) {
             for (const instance in this.store[metric]) {
                 this.store[metric][instance] = this.store[metric][instance].filter(

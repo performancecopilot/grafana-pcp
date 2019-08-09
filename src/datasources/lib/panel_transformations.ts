@@ -12,7 +12,7 @@ export default class PanelTransformations {
         if (isBlank(target.legendFormat)) {
             let label = instance && instance.name !== "" ? instance.name : metric;
             if (!_.isEmpty(metadata)) {
-                let pairs: string[] = [];
+                const pairs: string[] = [];
                 for (const label of ["hostname", "source"]) {
                     if (label in metadata) {
                         pairs.push(`${label}: "${metadata[label]}"`);
@@ -62,9 +62,9 @@ export default class PanelTransformations {
     }
 
     transformStringToTable(tableText: string) {
-        let table: TableData = { columns: [], rows: [], type: 'table' };
-        let lines = tableText.split('\n');
-        let columnSizes: [number, number | undefined][] = [];
+        const table: TableData = { columns: [], rows: [], type: 'table' };
+        const lines = tableText.split('\n');
+        const columnSizes: [number, number | undefined][] = [];
 
         for (let line of lines) {
             line = line.trim();
@@ -72,7 +72,7 @@ export default class PanelTransformations {
                 continue;
 
             if (table.columns.length === 0) {
-                let tableHeaders = line.split(/\s\s+/);
+                const tableHeaders = line.split(/\s\s+/);
                 for (let i = 0; i < tableHeaders.length; i++) {
                     const colStartAt = line.indexOf(tableHeaders[i]);
                     const colEndAt = i + 1 < tableHeaders.length ? line.indexOf(tableHeaders[i + 1]) - 1 : undefined;
@@ -81,7 +81,7 @@ export default class PanelTransformations {
                 }
             }
             else {
-                let row = columnSizes.map((colSize: any) => line.substring(colSize[0], colSize[1]).trim());
+                const row = columnSizes.map((colSize: any) => line.substring(colSize[0], colSize[1]).trim());
                 table.rows.push(row);
             }
         }
@@ -89,9 +89,9 @@ export default class PanelTransformations {
     }
 
     transformMultipleMetricsToTable(query: Query, results: TargetResult[]) {
-        let table: TableData = { columns: [], rows: [], type: 'table' };
+        const table: TableData = { columns: [], rows: [], type: 'table' };
         table.columns = results.map(targetResult => ({ text: this.getLabel(query, targetResult.target, targetResult.metrics[0].name) }));
-        const instanceNames = Object.keys(results[0].metrics[0].instances).sort((a, b) => parseInt(a) - parseInt(b));
+        const instanceNames = Object.keys(results[0].metrics[0].instances).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
         for (const instanceName of instanceNames) {
             const row: (number | string)[] = [];
             for (const targetResult of results) {
@@ -122,14 +122,25 @@ export default class PanelTransformations {
     transform(query: Query, results: TargetResult[]): PanelData[] {
         const format = results[0].target.format;
 
-        if (format === TargetFormat.TimeSeries)
-            return results.flatMap(targetResult => targetResult.metrics.flatMap((metric: Metric<number>) => this.transformToTimeSeries(query, targetResult.target, metric)));
-        else if (format === TargetFormat.Heatmap)
-            return results.flatMap(targetResult => targetResult.metrics.flatMap((metric: Metric<number>) => this.transformToHeatmap(metric)));
-        else if (format == TargetFormat.Table)
+        if (format === TargetFormat.TimeSeries) {
+            return results.flatMap(targetResult => targetResult.metrics.flatMap((metric: Metric<number>) =>
+                this.transformToTimeSeries(query, targetResult.target, metric)
+            ));
+        }
+        else if (format === TargetFormat.Heatmap) {
+            return results.flatMap(targetResult => targetResult.metrics.flatMap((metric: Metric<number>) =>
+                this.transformToHeatmap(metric)
+            ));
+        }
+        else if (format === TargetFormat.Table) {
             return [this.transformToTable(query, results)];
-        else
-            throw { message: `Invalid target format '${format}', possible options: ${TargetFormat.TimeSeries}, ${TargetFormat.Heatmap}, ${TargetFormat.Table}` };
+        }
+        else {
+            throw {
+                message: `Invalid target format '${format}', possible options: ` +
+                    `${TargetFormat.TimeSeries}, ${TargetFormat.Heatmap}, ${TargetFormat.Table}`
+            };
+        }
     }
 
 

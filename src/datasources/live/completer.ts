@@ -49,7 +49,7 @@ export default class PCPLiveCompleter {
             searchPrefix = token.value.substring(0, token.value.lastIndexOf("."));
         }
         const suggestions = await endpoint.context.children(searchPrefix);
-        let prefixWithDot = searchPrefix === "" ? "" : `${searchPrefix}.`;
+        const prefixWithDot = searchPrefix === "" ? "" : `${searchPrefix}.`;
         const metadatas = await endpoint.context.metricMetadatas(suggestions.leaf.map((leaf: string) => `${prefixWithDot}${leaf}`));
 
         suggestions.nonleaf.sort();

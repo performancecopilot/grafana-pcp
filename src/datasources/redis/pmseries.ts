@@ -48,7 +48,7 @@ export class PmSeries {
         return _.pick(this.descriptionCache, series);
     }
 
-    async instances(series: string[], force: boolean = false): Promise<Record<string, Record<string, string>>> {
+    async instances(series: string[], force = false): Promise<Record<string, Record<string, string>>> {
         const requiredSeries = force ? series : _.difference(series, Object.keys(this.instanceCache));
         if (requiredSeries.length > 0) {
             const response = await this.datasourceRequest({
@@ -73,7 +73,7 @@ export class PmSeries {
 
     private async updateInstanceNames(instances: any[]) {
         // max 1 refresh per series
-        let refreshed: Record<string, boolean> = {};
+        const refreshed: Record<string, boolean> = {};
         for (const instance of instances) {
             if (!instance.instance) { // this metric has no instances (single value)
                 instance.instanceName = "";
@@ -93,7 +93,7 @@ export class PmSeries {
         return series in this.instanceCache ? Object.keys(this.instanceCache[series]) : [];
     }
 
-    async values(series: string[], timeSpec: any = {}, instanceNames: boolean = false) {
+    async values(series: string[], timeSpec: any = {}, instanceNames = false) {
         const response = await this.datasourceRequest({
             url: `${this.url}/series/values`,
             params: {

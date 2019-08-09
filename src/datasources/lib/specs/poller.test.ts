@@ -3,15 +3,15 @@ import DataStore from "../datastore";
 import * as dateMock from 'jest-date-mock';
 
 describe("Poller", () => {
-    let ctx: { context: any, datastore: DataStore, poller: Poller } = {} as any;
+    const ctx: { context: any, datastore: DataStore, poller: Poller } = {} as any;
 
     beforeEach(() => {
         ctx.context = {
             metricMetadatas: jest.fn(),
             metricMetadata: (metric) => ctx.context.metricMetadatas()[metric],
             fetch: jest.fn()
-        }
-        ctx.datastore = new DataStore(ctx.context, 25000)
+        };
+        ctx.datastore = new DataStore(ctx.context, 25000);
         ctx.poller = new Poller(ctx.context, ctx.datastore, 10000);
         dateMock.clear();
     });

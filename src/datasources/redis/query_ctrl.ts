@@ -9,7 +9,7 @@ export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
 
     formats: any = [];
 
-    /** @ngInject **/
+    /* @ngInject */
     constructor($scope: any, $injector: any, private variableSrv: any) {
         super($scope, $injector);
 

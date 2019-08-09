@@ -39,8 +39,8 @@ export default class PCPRedisCompleter {
     }
 
     async findMetricCompletions(token: any) {
-        let searchPrefix = token.value.substring(0, 1);
-        let completions = await this.pmSeries.metrics(`${searchPrefix}*`);
+        const searchPrefix = token.value.substring(0, 1);
+        const completions = await this.pmSeries.metrics(`${searchPrefix}*`);
         completions.sort();
         return completions.map((metric: string) => this.getCompletion(metric, "", "metric"));
     }
@@ -53,7 +53,7 @@ export default class PCPRedisCompleter {
         const qualifiers = {};
         const descriptions = await this.pmSeries.descs(seriesList);
         const [seriesWithIndoms, seriesWithoutIndoms] = _.partition(seriesList, series => descriptions[series].indom !== "none");
-        let instanceIds: string[] = [];
+        const instanceIds: string[] = [];
         if (seriesWithIndoms.length > 0) {
             const instances = await this.pmSeries.instances(seriesWithIndoms);
             qualifiers["instance.name"] = this.dashboardVariables.map(v => '$' + v);

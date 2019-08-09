@@ -8,7 +8,7 @@ export class Context {
     private metricMetadataCache: Record<string, MetricMetadata> = {}; // TODO: invalidate cache
     private indomCache: Record<string, Record<number, string>> = {}; // indomCache[metric][instance_id] = instance_name
     private childrenCache: Record<string, { leaf: string[], nonleaf: string[] }> = {};
-    private d: string = '';
+    private d = '';
 
     constructor(private datasourceRequest: DatasourceRequestFn, readonly url: string, readonly container?: string) {
     }
@@ -19,9 +19,10 @@ export class Context {
 
     @synchronized
     async createContext() {
-        let contextUrl = `${this.url}/pmapi/context?hostspec=127.0.0.1&polltimeout=30`;
-
-        const contextResponse = await this.datasourceRequest({ url: contextUrl });
+        const contextResponse = await this.datasourceRequest({
+            url: `${this.url}/pmapi/context`,
+            params: { hostspec: "127.0.0.1", polltimeout: 30 }
+        });
         this.context = contextResponse.data.context;
 
         // only pmproxy contains source attribute
@@ -100,7 +101,7 @@ export class Context {
     }
 
     private async updateInstanceNames(metric: any) {
-        if (metric.instances.length == 0) {
+        if (metric.instances.length === 0) {
             return;
         } else if (metric.instances[0].instance === null || metric.instances[0].instance === -1) {
             // this metric has no instances (single value)
@@ -123,7 +124,7 @@ export class Context {
         }
     }
 
-    async fetch(metrics: string[], instanceNames: boolean = false) {
+    async fetch(metrics: string[], instanceNames = false) {
         metrics.push("pmcd.control.timeout"); // TODO: remove workaround - server should return empty list if no metrics were found
 
         const data = await this.ensureContext(async () => {

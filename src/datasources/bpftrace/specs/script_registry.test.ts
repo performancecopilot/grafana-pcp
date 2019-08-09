@@ -7,7 +7,7 @@ const ContextMock: { metricMetadatas: jest.Mock, metricMetadata: jest.Mock, fetc
 jest.mock("../../lib/pmapi");
 
 describe("ScriptRegistry", () => {
-    let ctx: { context: any, datastore: any, poller: any, scriptRegistry: ScriptRegistry } = {} as any;
+    const ctx: { context: any, datastore: any, poller: any, scriptRegistry: ScriptRegistry } = {} as any;
 
     beforeEach(() => {
         (Context as any).mockClear();
@@ -30,7 +30,7 @@ describe("ScriptRegistry", () => {
         ctx.scriptRegistry = new ScriptRegistry(ctx.context, ctx.poller, ctx.datastore, 10000);
     });
 
-    let registerScript = async () => {
+    const registerScript = async () => {
         ContextMock.fetch.mockReturnValueOnce({
             "timestamp": {
                 "s": 5,
@@ -56,7 +56,7 @@ describe("ScriptRegistry", () => {
         });
 
         await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
-    }
+    };
 
     it("should register a script only once", async () => {
         await registerScript();
@@ -125,14 +125,15 @@ describe("ScriptRegistry", () => {
             }]
         });
 
-        let script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
+        const script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
         expect(script).toMatchObject({
             "status": "stopped",
             "output": "syntax error",
             "exit_code": 1
         });
         expect(ContextMock.store).toHaveBeenCalledTimes(1);
-        expect(ctx.poller.removeMetricsFromPolling).toHaveBeenCalledWith(["bpftrace.scripts.script1.status", "bpftrace.scripts.script1.exit_code", "bpftrace.scripts.script1.output"]);
+        expect(ctx.poller.removeMetricsFromPolling).toHaveBeenCalledWith(["bpftrace.scripts.script1.status",
+            "bpftrace.scripts.script1.exit_code", "bpftrace.scripts.script1.output"]);
     });
 
     it("should restart a stopped script", async () => {
@@ -181,7 +182,7 @@ describe("ScriptRegistry", () => {
             metrics: []
         });
 
-        let script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
+        const script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
         expect(script).toMatchObject({
             "status": "started"
         });
@@ -213,7 +214,7 @@ describe("ScriptRegistry", () => {
             }]
         });
 
-        let script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
+        const script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
         expect(script).toMatchObject({
             "status": "started"
         });

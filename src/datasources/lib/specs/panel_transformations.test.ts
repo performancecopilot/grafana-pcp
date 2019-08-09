@@ -2,7 +2,7 @@ import PanelTransformations from "../panel_transformations";
 import { TargetFormat, TimeSeriesData, TableData, TargetResult } from "../types";
 
 describe("PanelTransformations", () => {
-    let ctx: { templateSrv: any, transformations: PanelTransformations } = {} as any;
+    const ctx: { templateSrv: any, transformations: PanelTransformations } = {} as any;
 
     beforeEach(() => {
         ctx.templateSrv = {
@@ -111,6 +111,7 @@ describe("PanelTransformations", () => {
                 format: TargetFormat.Table
             }]
         };
+        /* tslint:disable:no-trailing-whitespace */
         const results: TargetResult[] = [{
             target: query.targets[0],
             metrics: [{

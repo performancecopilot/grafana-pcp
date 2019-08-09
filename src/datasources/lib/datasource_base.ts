@@ -82,7 +82,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
             throw { message: "Please specify a connection URL in the datasource settings." };
 
         query = this.templateSrv.replace(query);
-        let endpoint = this.getOrCreateEndpoint(this.instanceSettings.url, this.instanceSettings.jsonData.container);
+        const endpoint = this.getOrCreateEndpoint(this.instanceSettings.url, this.instanceSettings.jsonData.container);
         const metricsResponse = await endpoint.context.fetch([query]);
         return metricsResponse.values[0].instances
             .map((instance: any) => ({ text: instance.value, value: instance.value }));

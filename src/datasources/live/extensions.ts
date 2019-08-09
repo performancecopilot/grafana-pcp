@@ -1,3 +1,4 @@
+/* tslint:disable */
 export function cleanTitusOvfsLatencyCollected(c, containerName) {
     const TO_FILTER = [
         'titusovfs.read.latency',

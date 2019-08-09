@@ -4,7 +4,7 @@ import _ from "lodash";
 // is called only once at a time
 // subsequent calls return the promise of the first call
 export function synchronized(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    let method = descriptor.value;
+    const method = descriptor.value;
 
     descriptor.value = function () {
         if (!this.inflightCalls)
@@ -20,7 +20,7 @@ export function synchronized(target: any, propertyKey: string, descriptor: Prope
             this.inflightCalls[propertyKey] = null;
             throw reason;
         });
-    }
+    };
 }
 
 export function isBlank(str?: string) {

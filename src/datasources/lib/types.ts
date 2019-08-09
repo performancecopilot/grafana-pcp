@@ -47,7 +47,7 @@ export interface MetricMetadata {
 }
 
 export type Datapoint<T> = [T, number]; // [value, timestampMs]
-export type TDatapoint = Datapoint<number> | Datapoint<string>
+export type TDatapoint = Datapoint<number> | Datapoint<string>;
 
 export interface TimeSeriesData {
     target: string;

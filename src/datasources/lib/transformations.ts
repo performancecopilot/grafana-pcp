@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { Datapoint, TDatapoint, IngestionTransformationFn, ValuesTransformationFn } from "./types";
+//import './specs/benchmarks';
 
 export class IngestionTransformations {
 
@@ -51,7 +52,7 @@ export class ValuesTransformations {
 
         let prev = datapoints[0];
         for (let i = 1; i < datapoints.length; i++) {
-            let cur = datapoints[i].slice() as Datapoint<number>; // copy datapoint
+            const cur = datapoints[i].slice() as Datapoint<number>; // copy datapoint
             const deltaSec = (cur[1] - prev[1]) / 1000;
             datapoints[i][0] = (cur[0] - prev[0]) / deltaSec;
             prev = cur;

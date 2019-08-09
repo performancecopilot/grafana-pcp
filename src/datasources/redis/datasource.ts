@@ -13,7 +13,7 @@ export class PCPRedisDatasource {
     transformations: PanelTransformations;
     pmSeries: PmSeries;
 
-    /** @ngInject **/
+    /* @ngInject */
     constructor(readonly instanceSettings: any, private backendSrv: any, private templateSrv: any, private variableSrv: any) {
         this.name = instanceSettings.name;
         this.withCredentials = instanceSettings.withCredentials;
@@ -52,7 +52,7 @@ export class PCPRedisDatasource {
     }
 
     async getLabelValues(metric: string, labelName: string) {
-        let seriesList = await this.pmSeries.query(metric);
+        const seriesList = await this.pmSeries.query(metric);
         if (seriesList.length === 0) {
             throw { message: `Could not find any series for ${metric}` };
         }
@@ -85,13 +85,13 @@ export class PCPRedisDatasource {
         if (metricNamesQuery) {
             const pattern = metricNamesQuery[1] === "" ? "*" : metricNamesQuery[1];
             const metrics = await this.pmSeries.metrics(pattern);
-            return metrics.map(metric => ({ text: metric }));
+            return metrics.map(metric => ({ text: metric, value: metric }));
         }
 
         const labelValuesQuery = query.match(labelValuesRegex);
         if (labelValuesQuery) {
             const labelValues = await this.getLabelValues(labelValuesQuery[1], labelValuesQuery[2]);
-            return labelValues.map(labelValue => ({ text: labelValue }));
+            return labelValues.map(labelValue => ({ text: labelValue, value: labelValue }));
         }
 
         return [];
@@ -120,7 +120,7 @@ export class PCPRedisDatasource {
                 // collection is grouped by instanceName, i.e. all items are of the same instance id
                 const instanceId = instancesGroupedBySeriesAndName[instanceName][0].instance;
                 const datapoints = instancesGroupedBySeriesAndName[instanceName].map(
-                    (instance: any) => [parseFloat(instance.value), parseInt(instance.timestamp)] as TDatapoint
+                    (instance: any) => [parseFloat(instance.value), parseInt(instance.timestamp, 10)] as TDatapoint
                 );
                 seriesInstances.push({
                     name: instanceName,
@@ -149,9 +149,9 @@ export class PCPRedisDatasource {
             throw { message: "Format must be the same for all queries of a panel." };
 
         const exprs = targets.map(target => target.expr);
-        let series = await Promise.all(exprs.map(expr => this.pmSeries.query(expr)));
-        let seriesByExpr = _.zipObject(exprs, series);
-        let seriesList = series.flat();
+        const series = await Promise.all(exprs.map(expr => this.pmSeries.query(expr)));
+        const seriesByExpr = _.zipObject(exprs, series);
+        const seriesList = series.flat();
 
         for (const expr in seriesByExpr) {
             if (seriesByExpr[expr].length === 0) {
@@ -163,7 +163,7 @@ export class PCPRedisDatasource {
         const finish = Math.round(query.range.to.valueOf() / 1000);
         const samples = Math.round((query.range.to.valueOf() - query.range.from.valueOf()) / query.intervalMs);
         const interval = query.interval;
-        const zone = query.timezone == "browser" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC";
+        const zone = query.timezone === "browser" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC";
 
         const instances = await this.pmSeries.values(seriesList, { start, finish, samples, interval, zone }, true);
         const seriesWithLabels = seriesList.flatMap(series => {
@@ -172,7 +172,9 @@ export class PCPRedisDatasource {
         });
         const [descriptions, labels] = await Promise.all([this.pmSeries.descs(seriesList), this.pmSeries.labels(seriesWithLabels)]);
         const instancesGroupedBySeries = _.groupBy(instances, "series");
-        const targetResults = targets.map(target => this.handleTarget(_.pick(instancesGroupedBySeries, seriesByExpr[target.expr]), descriptions, labels, target));
+        const targetResults = targets.map(target => this.handleTarget(
+            _.pick(instancesGroupedBySeries, seriesByExpr[target.expr]), descriptions, labels, target
+        ));
         const panelData = this.transformations.transform(query, targetResults);
         return {
             data: panelData

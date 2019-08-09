@@ -6,6 +6,7 @@ export default class BPFtraceScript {
     // additional properties by ScriptRegistry
     lastRequested: number;
 
+    /* tslint:disable:variable-name */
     constructor(readonly name: string, readonly vars: string[], readonly status: string,
         readonly exit_code: number | null, readonly output: string, readonly code: string) {
         this.lastRequested = new Date().getTime();

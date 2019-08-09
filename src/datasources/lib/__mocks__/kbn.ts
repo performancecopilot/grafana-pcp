@@ -8,4 +8,4 @@ function interval_to_ms(interval) {
     return undefined;
 }
 
-export default { interval_to_ms }
+export default { interval_to_ms };

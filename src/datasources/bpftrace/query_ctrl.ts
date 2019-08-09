@@ -1,7 +1,7 @@
 import { TargetFormat } from '../lib/types';
 import { PCPQueryCtrl } from '../lib/pcp_query_ctrl';
 import PCPBPFtraceCompleter from './completer';
-import './css/query-editor.css'
+import './css/query-editor.css';
 import './mode-bpftrace';
 
 export class PCPBPFtraceDatasourceQueryCtrl extends PCPQueryCtrl {
@@ -9,7 +9,7 @@ export class PCPBPFtraceDatasourceQueryCtrl extends PCPQueryCtrl {
 
     formats: any = [];
 
-    /** @ngInject **/
+    /* @ngInject */
     constructor($scope: any, $injector: any) {
         super($scope, $injector, 5000);
 

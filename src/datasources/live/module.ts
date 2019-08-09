@@ -3,7 +3,7 @@ import { PCPLiveDatasourceQueryCtrl } from './query_ctrl';
 import { PCPLiveConfigCtrl } from './config_ctrl';
 
 class PCPLiveAnnotationsQueryCtrl {
-  static templateUrl = 'datasources/live/partials/annotations.editor.html'
+  static templateUrl = 'datasources/live/partials/annotations.editor.html';
 }
 
 export {

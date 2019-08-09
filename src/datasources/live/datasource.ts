@@ -5,21 +5,16 @@ import { Endpoint } from "../lib/endpoint_registry";
 
 export class PCPLiveDatasource extends PCPLiveDatasourceBase<Endpoint> {
 
-    container_name_filter: any;
-
-    /** @ngInject **/
+    /* @ngInject */
     constructor(instanceSettings: any, backendSrv: any, templateSrv: any, variableSrv: any) {
         super(instanceSettings, backendSrv, templateSrv, variableSrv);
 
         if (this.pollIntervalMs > 0)
             setInterval(this.doPollAll.bind(this), this.pollIntervalMs);
-
-        //const UUID_REGEX = /[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/
-        //this.container_name_filter = name => true // name => name.match(UUID_REGEX)
     }
 
     doPollAll() {
-        let promises: Promise<void>[] = [];
+        const promises: Promise<void>[] = [];
         for (const endpoint of this.endpointRegistry.list()) {
             endpoint.datastore.cleanExpiredMetrics();
             endpoint.poller.cleanupExpiredMetrics();

@@ -21,7 +21,7 @@ class SynchronizedClass {
 describe("Utils", () => {
 
     it("should synchronize functions", async () => {
-        let x = new SynchronizedClass(0);
+        const x = new SynchronizedClass(0);
         x.synchronizedFn("1");
         x.synchronizedFn("2");
         await new Promise((resolve, reject) => setInterval(resolve, 500)); // wait 0.5s
@@ -29,8 +29,8 @@ describe("Utils", () => {
     });
 
     it("should handle multiple instances of synchronized functions", async () => {
-        let x = new SynchronizedClass(0);
-        let y = new SynchronizedClass(1);
+        const x = new SynchronizedClass(0);
+        const y = new SynchronizedClass(1);
 
         x.synchronizedFn("1");
         x.synchronizedFn("2");

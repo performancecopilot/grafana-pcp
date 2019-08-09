@@ -2,9 +2,9 @@ import request from "request";
 import { PCPBPFtraceDatasource } from "../datasource";
 import { TargetFormat, TimeSeriesData } from '../../lib/types';
 
-function datasourceRequestHttp(options) {
+const datasourceRequestHttp = (options: any) => {
     return new Promise((resolve, reject) => {
-        request({ url: options.url, qs: options.params }, function (err, response, body) {
+        request({ url: options.url, qs: options.params }, (err, response, body) => {
             if (err) {
                 reject(err);
                 return;
@@ -13,10 +13,10 @@ function datasourceRequestHttp(options) {
             resolve({ data: JSON.parse(body) });
         });
     });
-}
+};
 
 describe("DataSource", () => {
-    let ctx: { datasource: PCPBPFtraceDatasource, backendSrv: any, templateSrv: any, variableSrv: any } = {} as any;
+    const ctx: { datasource: PCPBPFtraceDatasource, backendSrv: any, templateSrv: any, variableSrv: any } = {} as any;
 
     const sampleQuery = {
         range: {

@@ -16,7 +16,7 @@ export default class ScriptRegistry {
     constructor(private context: Context, private poller: Poller, private datastore: DataStore, private keepPollingMs: number) {
     }
 
-    async ensureActive(code: string, allowRestart: boolean = true): Promise<BPFtraceScript> {
+    async ensureActive(code: string, allowRestart = true): Promise<BPFtraceScript> {
         if (code in this.failedScripts) {
             return this.failedScripts[code];
         }

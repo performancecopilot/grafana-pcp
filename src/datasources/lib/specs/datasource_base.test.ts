@@ -13,7 +13,7 @@ class Datasource extends PCPLiveDatasourceBase {
 }
 
 describe("DatasourceBase", () => {
-    let ctx: { context: any, datasource: Datasource } = {} as any;
+    const ctx: { context: any, datasource: Datasource } = {} as any;
 
     beforeEach(() => {
         const instanceSettings = {
@@ -173,7 +173,7 @@ describe("DatasourceBase", () => {
                 from: new Date(0),
                 to: new Date(8640000000000000)
             }
-        }
+        };
         const endpoint = {
             id: "",
             context: ctx.context,

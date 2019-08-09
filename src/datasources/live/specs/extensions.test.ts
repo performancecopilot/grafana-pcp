@@ -1,3 +1,4 @@
+/* tslint:disable */
 import * as extensions from "../extensions";
 
 describe('extensions', function() {
