@@ -31,10 +31,6 @@ export interface QueryTarget<EP extends Endpoint = any> {
     endpoint?: EP;
     url?: string;
     container?: string;
-
-    // TODO: remove me: deprecated
-    target?: string;
-    type?: string;
 }
 
 export interface MetricMetadata {

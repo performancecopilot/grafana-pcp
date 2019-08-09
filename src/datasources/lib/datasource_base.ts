@@ -108,14 +108,8 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
 
     buildQueryTargets(query: Query): QueryTarget[] {
         return query.targets
-            .filter(target => !target.hide && (!isBlank(target.expr) || !isBlank(target.target)) && !target.isTyping)
+            .filter(target => !target.hide && !isBlank(target.expr) && !target.isTyping)
             .map(target => {
-                // TODO: remove me: workaround for old dashboards
-                if (!target.expr)
-                    target.expr = target.target!;
-                if (!target.format && (target.type === "timeseries" || target.type === "timeserie"))
-                    target.format = TargetFormat.TimeSeries;
-
                 const [url, container] = this.getConnectionParams(target, query.scopedVars);
                 return {
                     refId: target.refId,
