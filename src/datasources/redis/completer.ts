@@ -9,7 +9,7 @@ export default class PCPRedisCompleter {
     identifierRegexps = [/[\{"]/, /[a-zA-Z0-9_.]/];
     pmSeries: PmSeries;
 
-    constructor(datasource: PCPRedisDatasource) {
+    constructor(datasource: PCPRedisDatasource, private dashboardVariables: string[]) {
         this.pmSeries = datasource.pmSeries;
     }
 
@@ -56,10 +56,10 @@ export default class PCPRedisCompleter {
         let instanceIds: string[] = [];
         if (seriesWithIndoms.length > 0) {
             const instances = await this.pmSeries.instances(seriesWithIndoms);
-            qualifiers["instance.name"] = [];
-            for (const series in instances) {
-                instanceIds.push(...Object.keys(instances[series]));
-                qualifiers["instance.name"].push(...Object.values(instances[series]));
+            qualifiers["instance.name"] = this.dashboardVariables.map(v => '$' + v);
+            for (const instanceMapping of Object.values(instances)) {
+                instanceIds.push(...Object.keys(instanceMapping));
+                qualifiers["instance.name"].push(...Object.values(instanceMapping));
             }
         }
 
@@ -67,12 +67,29 @@ export default class PCPRedisCompleter {
         for (const label of Object.values(labels)) {
             for (const [key, value] of Object.entries(label)) {
                 if (!(key in qualifiers))
-                    qualifiers[key] = [];
+                    qualifiers[key] = this.dashboardVariables.map(v => '$' + v);
                 if (!qualifiers[key].includes(value))
                     qualifiers[key].push(value);
             }
         }
         return qualifiers;
+    }
+
+    getQualifierMetaTag(qualifierKey: string, qualifierValue?: string) {
+        if (qualifierValue) {
+            if (qualifierValue.startsWith('$'))
+                return "dashboard variable";
+            else if (qualifierKey === "instance.name")
+                return "instance name";
+            else
+                return "label value";
+        }
+        else {
+            if (qualifierKey === "instance.name")
+                return "instance name";
+            else
+                return "label";
+        }
     }
 
     async findQualifierKeyCompletions(tokens: any[], token: any) {
@@ -83,7 +100,7 @@ export default class PCPRedisCompleter {
 
         const qualifiers = await this.findQualifiersForToken(metricToken.value);
         return Object.keys(qualifiers).map(qualifierKey =>
-            this.getCompletion(qualifierKey, hiddenPrefix, qualifierKey === "instance.name" ? "qualifier" : "label")
+            this.getCompletion(qualifierKey, hiddenPrefix, this.getQualifierMetaTag(qualifierKey))
         );
     }
 
@@ -96,7 +113,7 @@ export default class PCPRedisCompleter {
 
         const qualifiers = await this.findQualifiersForToken(metricToken.value);
         return (qualifiers[qualifierKeyToken.value] || []).map(qualifierValue =>
-            this.getCompletion(qualifierValue, hiddenPrefix, qualifierValue === "instance.name" ? "qualifier" : "label")
+            this.getCompletion(qualifierValue, hiddenPrefix, this.getQualifierMetaTag(qualifierKeyToken.value, qualifierValue))
         );
     }
 

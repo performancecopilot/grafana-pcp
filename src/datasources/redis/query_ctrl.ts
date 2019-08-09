@@ -2,6 +2,7 @@ import { TargetFormat } from '../lib/types';
 import { PCPQueryCtrl } from '../lib/pcp_query_ctrl';
 import PCPRedisCompleter from './completer';
 import './mode-pmseries';
+import { getDashboardVariables } from '../lib/utils';
 
 export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
     static templateUrl = 'datasources/redis/partials/query.editor.html';
@@ -9,7 +10,7 @@ export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
     formats: any = [];
 
     /** @ngInject **/
-    constructor($scope: any, $injector: any) {
+    constructor($scope: any, $injector: any, private variableSrv: any) {
         super($scope, $injector);
 
         this.target.expr = this.target.expr || "";
@@ -33,7 +34,8 @@ export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
 
     getCompleter() {
         this.removeTextCompleter();
-        return new PCPRedisCompleter(this.datasource);
+        const dashboardVariables = Object.keys(getDashboardVariables(this.variableSrv));
+        return new PCPRedisCompleter(this.datasource, dashboardVariables);
     }
 
 }

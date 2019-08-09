@@ -50,17 +50,25 @@ export class PCPRedisDatasource {
         }
     }
 
-    async getAllUniqLabelValues(metric: string, label: string) {
-        let series = await this.pmSeries.query(metric);
-        if (series.length === 0) {
+    async getLabelValues(metric: string, labelName: string) {
+        let seriesList = await this.pmSeries.query(metric);
+        if (seriesList.length === 0) {
             throw { message: `Could not find any series for ${metric}` };
         }
 
-        const labels = await this.pmSeries.labels(series);
+        const descriptions = await this.pmSeries.descs(seriesList);
+        const [seriesWithIndoms, seriesWithoutIndoms] = _.partition(seriesList, series => descriptions[series].indom !== "none");
+        let instanceIds: string[] = [];
+        if (seriesWithIndoms.length > 0) {
+            const instances = await this.pmSeries.instances(seriesWithIndoms);
+            instanceIds = Object.values(instances).flatMap(Object.keys);
+        }
+
+        const labels = await this.pmSeries.labels([...seriesWithoutIndoms, ...instanceIds]);
         const values: string[] = [];
-        for (const serie in labels) {
-            const value = labels[serie][label];
-            if (value && !(value in values))
+        for (const label of Object.values(labels)) {
+            const value = label[labelName];
+            if (value && !values.includes(value))
                 values.push(value);
         }
         return values;
@@ -69,10 +77,22 @@ export class PCPRedisDatasource {
     async metricFindQuery(query: string) {
         query = this.templateSrv.replace(query);
 
-        if (query === "@hosts@") {
-            const hosts = await this.getAllUniqLabelValues("kernel.all.sysfork", "hostname"); // pmproxy logs this metric by default
-            return hosts.map(host => ({ text: host, value: host }));
+        const metricNamesRegex = /^metrics\(([a-zA-Z0-9._*]*)\)$/;
+        const labelValuesRegex = /^label_values\(([a-zA-Z][a-zA-Z0-9._]*),\s*(\S+)\)$/;
+
+        const metricNamesQuery = query.match(metricNamesRegex);
+        if (metricNamesQuery) {
+            const pattern = metricNamesQuery[1] === "" ? "*" : metricNamesQuery[1];
+            const metrics = await this.pmSeries.metrics(pattern);
+            return metrics.map(metric => ({ text: metric }));
         }
+
+        const labelValuesQuery = query.match(labelValuesRegex);
+        if (labelValuesQuery) {
+            const labelValues = await this.getLabelValues(labelValuesQuery[1], labelValuesQuery[2]);
+            return labelValues.map(labelValue => ({ text: labelValue }));
+        }
+
         return [];
     }
 
