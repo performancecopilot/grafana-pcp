@@ -35,7 +35,6 @@ export default class DataStore {
             if (!(metric.name in this.store)) {
                 this.store[metric.name] = {};
             }
-
             await this.ingestMetric(this.store[metric.name], metric, pollTimeEpochMs);
         }
     }

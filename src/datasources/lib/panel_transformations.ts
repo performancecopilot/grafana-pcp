@@ -91,7 +91,9 @@ export default class PanelTransformations {
     transformMultipleMetricsToTable(query: Query, results: TargetResult[]) {
         const table: TableData = { columns: [], rows: [], type: 'table' };
         table.columns = results.map(targetResult => ({ text: this.getLabel(query, targetResult.target, targetResult.metrics[0].name) }));
-        const instanceNames = Object.keys(results[0].metrics[0].instances).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+        const instanceNames = results[0].metrics[0].instances.map(instance => instance.name);
+        if (instanceNames.length > 0 && _.isNumber(instanceNames[0]))
+            instanceNames.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
         for (const instanceName of instanceNames) {
             const row: (number | string)[] = [];
             for (const targetResult of results) {
@@ -102,7 +104,6 @@ export default class PanelTransformations {
                     row.push('?');
             }
             table.rows.push(row);
-
         }
         return table;
     }
