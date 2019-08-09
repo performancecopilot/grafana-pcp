@@ -40,6 +40,7 @@ export interface QueryTarget<EP extends Endpoint = any> {
 export interface MetricMetadata {
     name: string;
     pmid: number;
+    indom?: string;
     sem: string;
     type: string;
     units: string;
@@ -65,7 +66,7 @@ export type PanelData = TimeSeriesData | TableData;
 export interface MetricInstance<T> {
     name: string;
     values: Datapoint<T>[];
-    metadata: Record<string, any>;
+    labels: Record<string, any>;
 }
 
 export interface Metric<T> {

@@ -9,7 +9,8 @@ describe("Poller", () => {
         ctx.context = {
             metricMetadatas: jest.fn(),
             metricMetadata: (metric) => ctx.context.metricMetadatas()[metric],
-            fetch: jest.fn()
+            fetch: jest.fn(),
+            labels: jest.fn()
         };
         ctx.datastore = new DataStore(ctx.context, 25000);
         ctx.poller = new Poller(ctx.context, ctx.datastore, 10000);
@@ -18,6 +19,7 @@ describe("Poller", () => {
 
     it("should poll", async () => {
         ctx.context.metricMetadatas.mockReturnValue({ "bpftrace.scripts.script1.data.scalar": {} });
+        ctx.context.labels.mockReturnValue({});
         ctx.context.fetch.mockReturnValue({
             "timestamp": {
                 "s": 5,
@@ -43,7 +45,7 @@ describe("Poller", () => {
             "values": [
                 [45200, 5002]
             ],
-            "metadata": {}
+            "labels": {}
         }];
         expect(result).toStrictEqual(expected);
     });
@@ -71,6 +73,7 @@ describe("Poller", () => {
 
     it("should remove metrics which weren't requested in a specified time period", async () => {
         ctx.context.metricMetadatas.mockReturnValue({ "metric1": {}, "metric2": {}, "metric3": {} });
+        ctx.context.labels.mockReturnValue({});
         ctx.context.fetch.mockReturnValue({
             "timestamp": {
                 "s": 6,

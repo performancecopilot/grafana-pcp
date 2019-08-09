@@ -125,7 +125,7 @@ export class PCPRedisDatasource {
                 seriesInstances.push({
                     name: instanceName,
                     values: ValuesTransformations.applyTransformations(descriptions[series].semantics, descriptions[series].units, datapoints),
-                    metadata: instanceId ? labels[instanceId] : labels[series]
+                    labels: instanceId ? labels[instanceId] : labels[series]
                 });
             }
 

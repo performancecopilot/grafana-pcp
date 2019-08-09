@@ -19,7 +19,7 @@ class IngestWithRateConversation {
     }
     async run(deferred: any) {
         for (let i = 0; i < 2000; i++) {
-            await this.datastore.ingest({
+            this.datastore.ingest({
                 "timestamp": {
                     "s": 5,
                     "us": 2000
@@ -49,7 +49,7 @@ class IngestWithoutRateConversation {
     }
     async run(deferred: any) {
         for (let i = 0; i < 2000; i++) {
-            await this.datastore.ingest({
+            this.datastore.ingest({
                 "timestamp": {
                     "s": 5,
                     "us": 2000
@@ -79,7 +79,7 @@ class CounterValues {
         const datastore = new DataStore(context, 25000);
         // 3640 px per page (1px = 1 datapoint), 17 rows
         for (let i = 0; i < 3640 * 17; i++) {
-            await datastore.ingest({
+            datastore.ingest({
                 "timestamp": {
                     "s": 5,
                     "us": 2000

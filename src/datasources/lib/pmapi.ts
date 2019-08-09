@@ -5,8 +5,9 @@ import { MetricMetadata, DatasourceRequestFn } from './types';
 export class Context {
 
     private context: string;
-    private metricMetadataCache: Record<string, MetricMetadata> = {}; // TODO: invalidate cache
-    private indomCache: Record<string, Record<number, string>> = {}; // indomCache[metric][instance_id] = instance_name
+    private metricMetadataCache: Record<string, MetricMetadata> = {};
+    private instanceCache: Record<string, Record<number, string>> = {}; // instanceCache[metric][instance_id] = instance_name
+    private instanceLabelCache: Record<string, Record<string, any>> = {}; // instanceLabelCache[metric][instance_name] = {label1: value1}
     private childrenCache: Record<string, { leaf: string[], nonleaf: string[] }> = {};
     private d = '';
 
@@ -83,8 +84,8 @@ export class Context {
         return metadata[metric];
     }
 
-    private async refreshIndoms(metric: string) {
-        const indoms = await this.ensureContext(async () => {
+    private async indom(metric: string) {
+        const instances = await this.ensureContext(async () => {
             const response = await this.datasourceRequest({
                 url: `${this.url}/pmapi/${this.context}/${this.d}indom`,
                 params: { name: metric }
@@ -92,12 +93,19 @@ export class Context {
             return response.data.instances;
         });
 
-        // convert [{instance: X, name: Y}] to {instance: name}
-        this.indomCache[metric] = {};
-        for (const indom of indoms) {
-            this.indomCache[metric][indom.instance] = indom.name;
+        this.instanceCache[metric] = {};
+        this.instanceLabelCache[metric] = {};
+        for (const instance of instances) {
+            this.instanceCache[metric][instance.instance] = instance.name;
+            this.instanceLabelCache[metric][instance.name] = instance.labels || {};
         }
-        return this.indomCache[metric];
+        return this.instanceCache[metric];
+    }
+
+    private getInstanceName(metric: string, instance: string): string | undefined {
+        if (!(metric in this.instanceCache))
+            return undefined;
+        return this.instanceCache[metric][instance];
     }
 
     private async updateInstanceNames(metric: any) {
@@ -109,16 +117,13 @@ export class Context {
             return;
         }
 
-        if (!(metric.name in this.indomCache))
-            this.indomCache[metric.name] = await this.refreshIndoms(metric.name);
-
         let refreshed = false;
         for (const instance of metric.instances) {
-            instance.instanceName = this.indomCache[metric.name][instance.instance] || "";
+            instance.instanceName = this.getInstanceName(metric.name, instance.instance) || "";
             if (instance.instanceName === "" && !refreshed) {
                 // refresh instances at max once per metric
-                this.indomCache[metric.name] = await this.refreshIndoms(metric.name);
-                instance.instanceName = this.indomCache[metric.name][instance.instance] || "";
+                await this.indom(metric.name);
+                instance.instanceName = this.getInstanceName(metric.name, instance.instance) || "";
                 refreshed = true;
             }
         }
@@ -141,7 +146,8 @@ export class Context {
             console.debug(`fetch didn't include result for ${missingMetrics.join(', ')}, clearing it from metric metadata and indom cache`);
             for (const missingMetric of missingMetrics) {
                 delete this.metricMetadataCache[missingMetric];
-                delete this.indomCache[missingMetric];
+                delete this.instanceCache[missingMetric];
+                delete this.instanceLabelCache[missingMetric];
             }
         }
 
@@ -178,5 +184,17 @@ export class Context {
 
         this.childrenCache[prefix] = { nonleaf: data.nonleaf, leaf: data.leaf };
         return this.childrenCache[prefix];
+    }
+
+    labels(metric: string, instance?: string): Record<string, string> {
+        const metadata = this.metricMetadataCache[metric];
+        if (!metadata)
+            return {};
+
+        const labels = this.metricMetadataCache[metric].labels || {};
+        if (instance && metadata.indom && metric in this.instanceLabelCache && instance in this.instanceLabelCache[metric]) {
+            Object.assign(labels, this.instanceLabelCache[metric][instance]);
+        }
+        return labels;
     }
 }

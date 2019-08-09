@@ -23,7 +23,8 @@ describe("DatasourceBase", () => {
             }
         };
         ctx.context = {
-            metricMetadata: jest.fn()
+            metricMetadata: jest.fn(),
+            labels: jest.fn(),
         };
         ctx.datasource = new Datasource(instanceSettings, null, null, null);
     });
@@ -44,7 +45,7 @@ describe("DatasourceBase", () => {
                         [55200, 2000] as TDatapoint,
                         [75200, 3000] as TDatapoint,
                     ],
-                    metadata: {}
+                    labels: {}
                 }]
             }]
         };
@@ -87,7 +88,7 @@ describe("DatasourceBase", () => {
                         [2.0 * 1000000000, 2000] as TDatapoint,
                         [3.0 * 1000000000, 3000] as TDatapoint,
                     ],
-                    metadata: {}
+                    labels: {}
                 }]
             }]
         };
@@ -116,8 +117,8 @@ describe("DatasourceBase", () => {
 
     it("should not modify the datastore", async () => {
         const datastore = new DataStore(ctx.context, 10000);
-        ctx.context.metricMetadata.mockReturnValue({});
-        await datastore.ingest({
+        ctx.context.labels.mockReturnValue({});
+        datastore.ingest({
             "timestamp": {
                 "s": 5,
                 "us": 2000
@@ -132,7 +133,7 @@ describe("DatasourceBase", () => {
                 }]
             }]
         });
-        await datastore.ingest({
+        datastore.ingest({
             "timestamp": {
                 "s": 6,
                 "us": 2000
@@ -147,7 +148,7 @@ describe("DatasourceBase", () => {
                 }]
             }]
         });
-        await datastore.ingest({
+        datastore.ingest({
             "timestamp": {
                 "s": 7,
                 "us": 2000

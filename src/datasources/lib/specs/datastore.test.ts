@@ -5,14 +5,14 @@ describe("DataStore", () => {
 
     beforeEach(() => {
         ctx.context = {
-            metricMetadata: jest.fn()
+            labels: jest.fn()
         };
         ctx.datastore = new DataStore(ctx.context, 25000); // max age: 25s
     });
 
     it("should ingest single metrics", async () => {
-        ctx.context.metricMetadata.mockReturnValue({});
-        await ctx.datastore.ingest({
+        ctx.context.labels.mockReturnValue({});
+        ctx.datastore.ingest({
             "timestamp": {
                 "s": 5,
                 "us": 2000
@@ -27,7 +27,7 @@ describe("DataStore", () => {
                 }]
             }]
         });
-        await ctx.datastore.ingest({
+        ctx.datastore.ingest({
             "timestamp": {
                 "s": 6,
                 "us": 2000
@@ -50,14 +50,14 @@ describe("DataStore", () => {
                 [45200, 5002],
                 [55200, 6002]
             ],
-            "metadata": {}
+            "labels": {}
         }];
         expect(result).toStrictEqual(expected);
     });
 
     it("should ingest metrics with instance domains", async () => {
-        ctx.context.metricMetadata.mockReturnValue({});
-        await ctx.datastore.ingest({
+        ctx.context.labels.mockReturnValue({});
+        ctx.datastore.ingest({
             "timestamp": {
                 "s": 5,
                 "us": 2000
@@ -81,18 +81,18 @@ describe("DataStore", () => {
         const expected = [{
             "name": "/dev/sda1",
             "values": [[45200, 5002]],
-            "metadata": {}
+            "labels": {}
         }, {
             "name": "/dev/sda2",
             "values": [[55200, 5002]],
-            "metadata": {}
+            "labels": {}
         }];
         expect(result).toStrictEqual(expected);
     });
 
     it("should remove old data from bpftrace output variables", async () => {
-        ctx.context.metricMetadata.mockReturnValue({ labels: { metrictype: "output" } });
-        await ctx.datastore.ingest({
+        ctx.context.labels.mockReturnValue({ metrictype: "output" });
+        ctx.datastore.ingest({
             "timestamp": {
                 "s": 5,
                 "us": 2000
@@ -107,7 +107,7 @@ describe("DataStore", () => {
                 }]
             }]
         });
-        await ctx.datastore.ingest({
+        ctx.datastore.ingest({
             "timestamp": {
                 "s": 6,
                 "us": 2000
@@ -127,14 +127,16 @@ describe("DataStore", () => {
         const expected = [{
             "name": "",
             "values": [["line1\nline2\n", 6002]],
-            "metadata": {}
+            "labels": {
+                "metrictype": "output"
+            }
         }];
         expect(result).toStrictEqual(expected);
     });
 
     it("should return metrics in time range", async () => {
-        ctx.context.metricMetadata.mockReturnValue({});
-        await ctx.datastore.ingest({
+        ctx.context.labels.mockReturnValue({});
+        ctx.datastore.ingest({
             "timestamp": {
                 "s": 5,
                 "us": 2000
@@ -149,7 +151,7 @@ describe("DataStore", () => {
                 }]
             }]
         });
-        await ctx.datastore.ingest({
+        ctx.datastore.ingest({
             "timestamp": {
                 "s": 6,
                 "us": 2000
@@ -164,7 +166,7 @@ describe("DataStore", () => {
                 }]
             }]
         });
-        await ctx.datastore.ingest({
+        ctx.datastore.ingest({
             "timestamp": {
                 "s": 7,
                 "us": 2000
@@ -188,7 +190,7 @@ describe("DataStore", () => {
                     [55200, 6002],
                     [65200, 7002]
                 ],
-                "metadata": {}
+                "labels": {}
             }]);
 
         expect(ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 6002, 6003))
@@ -197,17 +199,17 @@ describe("DataStore", () => {
                 "values": [
                     [55200, 6002]
                 ],
-                "metadata": {}
+                "labels": {}
             }]);
     });
 
     it("should clean expired metrics", async () => {
-        ctx.context.metricMetadata.mockReturnValue({});
+        ctx.context.labels.mockReturnValue({});
         const date1 = new Date().getTime() - 30000;  // 30s ago
         const date2 = new Date().getTime() - 20000;
         const date3 = new Date().getTime() - 10000;
 
-        await ctx.datastore.ingest({
+        ctx.datastore.ingest({
             "timestamp": {
                 "s": date1 / 1000,
                 "us": 2000
@@ -222,7 +224,7 @@ describe("DataStore", () => {
                 }]
             }]
         });
-        await ctx.datastore.ingest({
+        ctx.datastore.ingest({
             "timestamp": {
                 "s": date2 / 1000,
                 "us": 2000
@@ -237,7 +239,7 @@ describe("DataStore", () => {
                 }]
             }]
         });
-        await ctx.datastore.ingest({
+        ctx.datastore.ingest({
             "timestamp": {
                 "s": date3 / 1000,
                 "us": 2000

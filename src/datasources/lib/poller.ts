@@ -15,7 +15,7 @@ export default class Poller {
         }
 
         const data = await this.context.fetch(metrics, true);
-        await this.datastore.ingest(data);
+        this.datastore.ingest(data);
 
         const returnedMetrics = data.values.map((metric: any) => metric.name);
         const missingMetrics = _.difference(metrics, returnedMetrics);

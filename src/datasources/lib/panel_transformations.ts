@@ -8,14 +8,14 @@ export default class PanelTransformations {
     constructor(private templateSrv: any) {
     }
 
-    getLabel(query: Query, target: QueryTarget, metric: string, instance?: MetricInstance<number | string>, metadata: Record<string, any> = {}) {
+    getLabel(query: Query, target: QueryTarget, metric: string, instance?: MetricInstance<number | string>, labels: Record<string, any> = {}) {
         if (isBlank(target.legendFormat)) {
             let label = instance && instance.name !== "" ? instance.name : metric;
-            if (!_.isEmpty(metadata)) {
+            if (!_.isEmpty(labels)) {
                 const pairs: string[] = [];
                 for (const label of ["hostname", "source"]) {
-                    if (label in metadata) {
-                        pairs.push(`${label}: "${metadata[label]}"`);
+                    if (label in labels) {
+                        pairs.push(`${label}: "${labels[label]}"`);
                     }
                 }
                 if (pairs.length > 0)
@@ -24,11 +24,11 @@ export default class PanelTransformations {
             return label;
         }
         else {
-            metadata = _.mapValues(metadata, (val: any) => ({ value: val }));
+            labels = _.mapValues(labels, (val: any) => ({ value: val }));
             const metricSpl = metric.split('.');
             const vars = {
                 ...query.scopedVars,
-                ...metadata,
+                ...labels,
                 metric: { value: metric },
                 metric0: { value: metricSpl[metricSpl.length - 1] }
             };
@@ -40,7 +40,7 @@ export default class PanelTransformations {
 
     transformToTimeSeries(query: Query, target: QueryTarget, metric: Metric<number>): TimeSeriesData[] {
         return metric.instances.map(instance => ({
-            target: this.getLabel(query, target, metric.name, instance, instance.metadata),
+            target: this.getLabel(query, target, metric.name, instance, instance.labels),
             datapoints: instance.values
         }));
     }
@@ -109,20 +109,19 @@ export default class PanelTransformations {
     }
 
     transformToTable(query: Query, results: TargetResult[]) {
-        if (results.length > 1) {
-            return this.transformMultipleMetricsToTable(query, results);
+        if (results.length === 1 && results[0].metrics.length === 1) {
+            const firstMetric = results[0].metrics[0];
+            if (firstMetric.instances.length === 1 &&
+                firstMetric.instances[0].labels.agent === "bpftrace" &&
+                firstMetric.instances[0].labels.metrictype === "output") {
+                return this.transformStringToTable((firstMetric.instances[0] as MetricInstance<string>).values[0][0]);
+            }
         }
-        else if (results.length === 1 && results[0].metrics.length === 1) {
-            const instances = results[0].metrics[0].instances as MetricInstance<string>[];
-            if (instances.length > 0 && instances[0].values.length > 0)
-                return this.transformStringToTable(instances[0].values[0][0]);
-        }
-        return { columns: [], rows: [], type: 'table' };
+        return this.transformMultipleMetricsToTable(query, results);
     }
 
     transform(query: Query, results: TargetResult[]): PanelData[] {
         const format = results[0].target.format;
-
         if (format === TargetFormat.TimeSeries) {
             return results.flatMap(targetResult => targetResult.metrics.flatMap((metric: Metric<number>) =>
                 this.transformToTimeSeries(query, targetResult.target, metric)
@@ -143,6 +142,5 @@ export default class PanelTransformations {
             };
         }
     }
-
 
 }

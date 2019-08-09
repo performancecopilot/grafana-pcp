@@ -9,24 +9,18 @@ export default class DataStore {
     constructor(private context: Context, private localHistoryAgeMs: number) {
     }
 
-    private async ingestMetric(metricStore: Record<string, TDatapoint[]>, metric: any, pollTimeEpochMs: number) {
-        const metadata = await this.context.metricMetadata(metric.name);
-        if (!metadata) {
-            console.info(`skipping ingestion of ${metric.name}: metadata not available`);
-            return;
-        }
-
+    private ingestMetric(metricStore: Record<string, TDatapoint[]>, metric: any, pollTimeEpochMs: number) {
+        const labels = this.context.labels(metric.name);
         for (const instance of metric.instances) {
             // do not store history for the bpftrace control and output metrics
-            if (!(instance.instanceName in metricStore) ||
-                (metadata.labels && ["control", "output"].includes(metadata.labels.metrictype))) {
+            if (!(instance.instanceName in metricStore) || ["control", "output"].includes(labels.metrictype)) {
                 metricStore[instance.instanceName] = [];
             }
             metricStore[instance.instanceName].push([instance.value, pollTimeEpochMs]);
         }
     }
 
-    async ingest(data: any) {
+    ingest(data: any) {
         if (_.isEmpty(data))
             return;
 
@@ -35,7 +29,7 @@ export default class DataStore {
             if (!(metric.name in this.store)) {
                 this.store[metric.name] = {};
             }
-            await this.ingestMetric(this.store[metric.name], metric, pollTimeEpochMs);
+            this.ingestMetric(this.store[metric.name], metric, pollTimeEpochMs);
         }
     }
 
@@ -47,7 +41,7 @@ export default class DataStore {
             values: this.store[metric][instance].filter(dataPoint => (
                 from <= dataPoint[1] && dataPoint[1] <= to
             )),
-            metadata: {}
+            labels: this.context.labels(metric, instance)
         }));
     }
 

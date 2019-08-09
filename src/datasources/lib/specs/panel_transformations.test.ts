@@ -30,7 +30,7 @@ describe("PanelTransformations", () => {
                 instances: [{
                     name: "inst1",
                     values: [],
-                    metadata: {
+                    labels: {
                         "label1": "value1"
                     }
                 }]
@@ -58,7 +58,7 @@ describe("PanelTransformations", () => {
                 instances: [{
                     name: "inst1",
                     values: [],
-                    metadata: {
+                    labels: {
                         "label1": "value1",
                         "hostname": "host"
                     }
@@ -85,11 +85,11 @@ describe("PanelTransformations", () => {
             metrics: [{
                 name: "metric",
                 instances: [
-                    { name: "-inf--1", values: [[1, 1400]], metadata: {} },
-                    { name: "2-3", values: [[1, 1400]], metadata: {} },
-                    { name: "4-7", values: [[2, 2300]], metadata: {} },
-                    { name: "8-15", values: [[3, 5000]], metadata: {} },
-                    { name: "8-inf", values: [[3, 5000]], metadata: {} },
+                    { name: "-inf--1", values: [[1, 1400]], labels: {} },
+                    { name: "2-3", values: [[1, 1400]], labels: {} },
+                    { name: "4-7", values: [[2, 2300]], labels: {} },
+                    { name: "8-15", values: [[3, 5000]], labels: {} },
+                    { name: "8-inf", values: [[3, 5000]], labels: {} },
                 ]
             }]
         }];
@@ -125,7 +125,10 @@ TIME     PID      COMM             SADDR                                   SPORT
 15:45:05 6085     pmproxy          127.0.0.1                               59890  127.0.0.1                               44321 
 15:45:07 6085     pmproxy          0:0:8b2::a00:0                          45576  0:0:21ad::                              44321 
 `, 1400]],
-                    metadata: {}
+                    labels: {
+                        agent: "bpftrace",
+                        metrictype: "output"
+                    }
                 }]
             }]
         }];
