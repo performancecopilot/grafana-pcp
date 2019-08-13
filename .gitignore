@@ -4,11 +4,7 @@ node_modules
 /.tscache
 /packaging/rpm/*.rpm
 /packaging/rpm/*.tar.gz
-
-# Test artifacts
-/dist/src
-/dist/test
-/dist/spec
+/dist
 
 # Packaging
 /rpm-build.*
