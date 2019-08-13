@@ -1,8 +1,9 @@
 import _ from 'lodash';
 import { PCPLiveDatasourceBase } from '../lib/datasource_base';
 import BPFtraceEndpoint from './bpftrace_endpoint';
-import { Query, QueryTarget } from '../lib/types';
 import ScriptRegistry from './script_registry';
+import { Query, QueryTarget } from '../lib/models/datasource';
+import { ScriptStatus } from './script';
 
 export class PCPBPFtraceDatasource extends PCPLiveDatasourceBase<BPFtraceEndpoint> {
 
@@ -17,30 +18,30 @@ export class PCPBPFtraceDatasource extends PCPLiveDatasourceBase<BPFtraceEndpoin
     doPollAll() {
         return Promise.all(this.endpointRegistry.list().map(async endpoint => {
             endpoint.datastore.cleanExpiredMetrics();
-            endpoint.poller.cleanupExpiredMetrics();
+            endpoint.pollSrv.cleanExpiredMetrics();
             endpoint.scriptRegistry.cleanupExpiredScripts();
-            await endpoint.poller.poll();
+            await endpoint.pollSrv.poll();
         }));
     }
 
     configureEndpoint(endpoint: BPFtraceEndpoint) {
-        endpoint.scriptRegistry = new ScriptRegistry(endpoint.context, endpoint.poller, endpoint.datastore, this.keepPollingMs);
+        endpoint.scriptRegistry = new ScriptRegistry(endpoint.pmapiSrv, endpoint.pollSrv, endpoint.datastore, this.keepPollingMs);
     }
 
     async handleTarget(endpoint: BPFtraceEndpoint, query: Query, target: QueryTarget) {
         const script = await endpoint.scriptRegistry.ensureActive(target.expr);
         let metrics: string[];
 
-        if (script.status === "started" || script.status === "starting") {
-            metrics = await script.getDataMetrics(endpoint.context, target.format);
+        if (script.status === ScriptStatus.Started || script.status === ScriptStatus.Starting) {
+            metrics = await script.getDataMetrics(endpoint.pmapiSrv, target.format);
         }
         else {
-            throw { message: `BPFtrace error:\n\n${script.output}` };
+            throw new Error(`BPFtrace error:\n\n${script.output}`);
         }
 
-        await endpoint.poller.ensurePolling(metrics);
+        await endpoint.pollSrv.ensurePolling(metrics);
         const results = endpoint.datastore.queryMetrics(target, metrics, query.range.from.valueOf(), query.range.to.valueOf());
-        await this.applyTransformations(endpoint.context, results);
+        await this.applyTransformations(endpoint.pmapiSrv, results);
         return results;
     }
 

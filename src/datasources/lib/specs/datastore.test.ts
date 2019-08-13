@@ -1,270 +1,316 @@
+import * as dateMock from 'jest-date-mock';
 import DataStore from "../datastore";
+import { PmapiSrv, Context } from "../services/pmapi_srv";
+import * as fixtures from './lib/fixtures';
 
 describe("DataStore", () => {
-    const ctx: { context: any, datastore: DataStore } = {} as any;
+    const ctx: { context: jest.Mocked<Context>, pmapiSrv: PmapiSrv, datastore: DataStore } = {} as any;
 
     beforeEach(() => {
+        dateMock.clear();
         ctx.context = {
-            labels: jest.fn()
-        };
-        ctx.datastore = new DataStore(ctx.context, 25000); // max age: 25s
+            indom: jest.fn(),
+            metrics: jest.fn()
+        } as any;
+        ctx.pmapiSrv = new PmapiSrv(ctx.context);
+        ctx.datastore = new DataStore(ctx.pmapiSrv, 5 * 60 * 1000);
     });
 
     it("should ingest single metrics", async () => {
-        ctx.context.labels.mockReturnValue({});
-        ctx.datastore.ingest({
-            "timestamp": {
-                "s": 5,
-                "us": 2000
-            },
+        ctx.context.metrics.mockResolvedValueOnce({
+            metrics: [{
+                ...fixtures.metricMetadataSingle
+            }]
+        });
+
+        await ctx.datastore.ingest({
+            "timestamp": 5,
             "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.scripts.script1.data.scalar",
+                "pmid": "1.0.1",
+                "name": "metric.single",
                 "instances": [{
-                    "instance": -1,
-                    "value": 45200,
-                    "instanceName": ""
+                    "instance": null,
+                    "value": 100,
                 }]
             }]
         });
-        ctx.datastore.ingest({
-            "timestamp": {
-                "s": 6,
-                "us": 2000
-            },
+        await ctx.datastore.ingest({
+            "timestamp": 6,
             "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.scripts.script1.data.scalar",
+                "pmid": "1.0.1",
+                "name": "metric.single",
                 "instances": [{
-                    "instance": -1,
-                    "value": 55200,
-                    "instanceName": ""
+                    "instance": null,
+                    "value": 200
                 }]
             }]
         });
 
-        const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity);
-        const expected = [{
+        const result = ctx.datastore.queryMetric("metric.single", 5 * 1000, 6 * 1000);
+        expect(result).toStrictEqual([{
+            "id": null,
             "name": "",
             "values": [
-                [45200, 5002],
-                [55200, 6002]
+                [100, 5000],
+                [200, 6000]
             ],
             "labels": {}
-        }];
-        expect(result).toStrictEqual(expected);
+        }]);
     });
 
     it("should ingest metrics with instance domains", async () => {
-        ctx.context.labels.mockReturnValue({});
-        ctx.datastore.ingest({
-            "timestamp": {
-                "s": 5,
-                "us": 2000
-            },
+        ctx.context.indom.mockResolvedValueOnce({
+            instances: [
+                { instance: 1, name: "/dev/sda1", labels: {} },
+                { instance: 2, name: "/dev/sda2", labels: {} }
+            ]
+        });
+        ctx.context.metrics.mockResolvedValueOnce({
+            metrics: [{
+                ...fixtures.metricMetadataIndom
+            }]
+        });
+
+        await ctx.datastore.ingest({
+            "timestamp": 5,
             "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.scripts.script1.data.multiple",
+                "pmid": "1.0.1",
+                "name": "metric.indom",
                 "instances": [{
                     "instance": 1,
-                    "value": 45200,
-                    "instanceName": "/dev/sda1"
+                    "value": 100
                 }, {
                     "instance": 2,
-                    "value": 55200,
-                    "instanceName": "/dev/sda2"
+                    "value": 200
                 }]
             }]
         });
 
-        const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.multiple", 0, Infinity);
-        const expected = [{
+        const result = ctx.datastore.queryMetric("metric.indom", 5 * 1000, 5 * 1000);
+        expect(result).toStrictEqual([{
+            "id": 1,
             "name": "/dev/sda1",
-            "values": [[45200, 5002]],
+            "values": [[100, 5000]],
             "labels": {}
         }, {
+            "id": 2,
             "name": "/dev/sda2",
-            "values": [[55200, 5002]],
+            "values": [[200, 5000]],
             "labels": {}
-        }];
-        expect(result).toStrictEqual(expected);
+        }]);
+    });
+
+    it("should request missing instance names only once", async () => {
+        ctx.context.indom.mockResolvedValueOnce({
+            instances: [
+                { instance: 1, name: "/dev/sda1", labels: {} },
+                { instance: 2, name: "/dev/sda2", labels: {} }
+            ]
+        });
+        ctx.context.metrics.mockResolvedValueOnce({
+            metrics: [{
+                ...fixtures.metricMetadataIndom
+            }]
+        });
+
+        await ctx.datastore.ingest({
+            "timestamp": 5,
+            "values": [{
+                "pmid": "1.0.1",
+                "name": "metric.indom",
+                "instances": [{
+                    "instance": 1,
+                    "value": 100
+                }, {
+                    "instance": 2,
+                    "value": 200
+                }, {
+                    "instance": 3,
+                    "value": 300
+                }, {
+                    "instance": 4,
+                    "value": 400
+                }]
+            }]
+        });
+
+        const result = ctx.datastore.queryMetric("metric.indom", 5 * 1000, 5 * 1000);
+        expect(result).toStrictEqual([{
+            "id": 1,
+            "name": "/dev/sda1",
+            "values": [[100, 5000]],
+            "labels": {}
+        }, {
+            "id": 2,
+            "name": "/dev/sda2",
+            "values": [[200, 5000]],
+            "labels": {}
+        }, {
+            "id": 3,
+            "name": "",
+            "values": [[300, 5000]],
+            "labels": {}
+        }, {
+            "id": 4,
+            "name": "",
+            "values": [[400, 5000]],
+            "labels": {}
+        }]);
     });
 
     it("should remove old data from bpftrace output variables", async () => {
-        ctx.context.labels.mockReturnValue({ metrictype: "output" });
-        ctx.datastore.ingest({
-            "timestamp": {
-                "s": 5,
-                "us": 2000
-            },
+        ctx.context.metrics.mockResolvedValueOnce({
+            metrics: [{
+                ...fixtures.metricMetadataSingle,
+                name: "bpftrace.scripts.script1.data.output",
+                labels: {
+                    agent: "bpftrace",
+                    metrictype: "output"
+                }
+            }]
+        });
+
+        await ctx.datastore.ingest({
+            "timestamp": 5,
             "values": [{
-                "pmid": 633356298,
+                "pmid": "1.0.1",
                 "name": "bpftrace.scripts.script1.data.output",
                 "instances": [{
-                    "instance": -1,
-                    "value": "line1\n",
-                    "instanceName": ""
+                    "instance": null,
+                    "value": "line1\n"
                 }]
             }]
         });
-        ctx.datastore.ingest({
-            "timestamp": {
-                "s": 6,
-                "us": 2000
-            },
+        await ctx.datastore.ingest({
+            "timestamp": 6,
             "values": [{
-                "pmid": 633356298,
+                "pmid": "1.0.1",
                 "name": "bpftrace.scripts.script1.data.output",
                 "instances": [{
-                    "instance": -1,
-                    "value": "line1\nline2\n",
-                    "instanceName": ""
+                    "instance": null,
+                    "value": "line1\nline2\n"
                 }]
             }]
         });
 
         const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.output", 0, Infinity);
-        const expected = [{
-            "name": "",
-            "values": [["line1\nline2\n", 6002]],
+        expect(result).toMatchObject([{
+            "values": [["line1\nline2\n", 6000]],
             "labels": {
+                "agent": "bpftrace",
                 "metrictype": "output"
             }
-        }];
-        expect(result).toStrictEqual(expected);
+        }]);
     });
 
     it("should return metrics in time range", async () => {
-        ctx.context.labels.mockReturnValue({});
-        ctx.datastore.ingest({
-            "timestamp": {
-                "s": 5,
-                "us": 2000
-            },
+        ctx.context.metrics.mockResolvedValueOnce({
+            metrics: [{
+                ...fixtures.metricMetadataSingle
+            }]
+        });
+
+        await ctx.datastore.ingest({
+            "timestamp": 5,
             "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.scripts.script1.data.scalar",
+                "pmid": "1.0.1",
+                "name": "metric.single",
                 "instances": [{
-                    "instance": -1,
-                    "value": 45200,
-                    "instanceName": ""
+                    "instance": null,
+                    "value": 100
                 }]
             }]
         });
-        ctx.datastore.ingest({
-            "timestamp": {
-                "s": 6,
-                "us": 2000
-            },
+        await ctx.datastore.ingest({
+            "timestamp": 6,
             "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.scripts.script1.data.scalar",
+                "pmid": "1.0.1",
+                "name": "metric.single",
                 "instances": [{
-                    "instance": -1,
-                    "value": 55200,
-                    "instanceName": ""
+                    "instance": null,
+                    "value": 200
                 }]
             }]
         });
-        ctx.datastore.ingest({
-            "timestamp": {
-                "s": 7,
-                "us": 2000
-            },
+        await ctx.datastore.ingest({
+            "timestamp": 7,
             "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.scripts.script1.data.scalar",
+                "pmid": "1.0.1",
+                "name": "metric.single",
                 "instances": [{
-                    "instance": -1,
-                    "value": 65200,
-                    "instanceName": ""
+                    "instance": null,
+                    "value": 300
                 }]
             }]
         });
 
-        expect(ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity))
-            .toStrictEqual([{
-                "name": "",
-                "values": [
-                    [45200, 5002],
-                    [55200, 6002],
-                    [65200, 7002]
-                ],
-                "labels": {}
-            }]);
+        expect(ctx.datastore.queryMetric("metric.single", 0, 10 * 10000)).toMatchObject([{
+            "values": [
+                [100, 5000],
+                [200, 6000],
+                [300, 7000]
+            ]
+        }]);
 
-        expect(ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 6002, 6003))
-            .toStrictEqual([{
-                "name": "",
-                "values": [
-                    [55200, 6002]
-                ],
-                "labels": {}
-            }]);
+        expect(ctx.datastore.queryMetric("metric.single", 5999, 6001)).toMatchObject([{
+            "values": [
+                [200, 6000]
+            ]
+        }]);
     });
 
     it("should clean expired metrics", async () => {
-        ctx.context.labels.mockReturnValue({});
-        const date1 = new Date().getTime() - 30000;  // 30s ago
-        const date2 = new Date().getTime() - 20000;
-        const date3 = new Date().getTime() - 10000;
+        ctx.context.metrics.mockResolvedValueOnce({
+            metrics: [{
+                ...fixtures.metricMetadataSingle
+            }]
+        });
 
-        ctx.datastore.ingest({
-            "timestamp": {
-                "s": date1 / 1000,
-                "us": 2000
-            },
+        await ctx.datastore.ingest({
+            "timestamp": 1 * 60,
             "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.scripts.script1.data.scalar",
+                "pmid": "1.0.1",
+                "name": "metric.single",
                 "instances": [{
-                    "instance": -1,
-                    "value": 45200,
-                    "instanceName": ""
+                    "instance": null,
+                    "value": 100
                 }]
             }]
         });
-        ctx.datastore.ingest({
-            "timestamp": {
-                "s": date2 / 1000,
-                "us": 2000
-            },
+        await ctx.datastore.ingest({
+            "timestamp": 4 * 60,
             "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.scripts.script1.data.scalar",
+                "pmid": "1.0.1",
+                "name": "metric.single",
                 "instances": [{
-                    "instance": -1,
-                    "value": 55200,
-                    "instanceName": ""
+                    "instance": null,
+                    "value": 200
                 }]
             }]
         });
-        ctx.datastore.ingest({
-            "timestamp": {
-                "s": date3 / 1000,
-                "us": 2000
-            },
+        await ctx.datastore.ingest({
+            "timestamp": 6 * 60,
             "values": [{
-                "pmid": 633356298,
-                "name": "bpftrace.scripts.script1.data.scalar",
+                "pmid": "1.0.1",
+                "name": "metric.single",
                 "instances": [{
-                    "instance": -1,
-                    "value": 65200,
-                    "instanceName": ""
+                    "instance": null,
+                    "value": 300
                 }]
             }]
         });
 
-        // clean metrics older than 25s
+        // clean metrics older than 5min
+        dateMock.advanceTo(6 * 60 * 1000);
         ctx.datastore.cleanExpiredMetrics();
 
-        const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity);
-        expect(result[0].values).toHaveLength(2);
-        const maxAge = new Date().getTime() - 25000;
-        expect(result[0].values[0][0]).toEqual(55200);
-        expect(result[0].values[0][1]).toBeGreaterThanOrEqual(maxAge);
-        expect(result[0].values[1][0]).toEqual(65200);
-        expect(result[0].values[1][1]).toBeGreaterThanOrEqual(maxAge);
+        const result = ctx.datastore.queryMetric("metric.single", 0, Infinity);
+        expect(result).toMatchObject([{
+            "values": [
+                [200, 4 * 60 * 1000], [300, 6 * 60 * 1000]
+            ]
+        }]);
+
     });
 
 });

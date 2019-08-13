@@ -17,7 +17,7 @@ module.exports = {
     setupFiles: [
         "jest-date-mock"
     ],
-    testRegex: "(\\.|/)i?test\\.ts$",
+    testRegex: "(\\.|/)test\\.ts$",
     moduleFileExtensions: [
         "js",
         "json",

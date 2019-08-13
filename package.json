@@ -6,11 +6,9 @@
     "build": "webpack --config webpack.config.prod.js",
     "dev": "webpack --mode development",
     "watch": "webpack --mode development --watch",
-    "test": "jest",
-    "coverage": "jest --coverage",
+    "test": "jest --silent",
+    "coverage": "jest --coverage --silent",
     "memleaks": "node --expose-gc ./node_modules/jest-cli/bin/jest.js --runInBand --logHeapUsage --silent",
-    "unit": "jest --config jest.config.unit.js",
-    "integration": "jest --config jest.config.integration.js",
     "lint": "tslint --config tslint.json --project tsconfig.json"
   },
   "repository": {
@@ -30,7 +28,7 @@
     "@babel/preset-typescript": "^7.3.3",
     "@types/benchmark": "^1.0.31",
     "@types/grafana": "github:CorpGlory/types-grafana",
-    "@types/jest": "^23.3.1",
+    "@types/jest": "^24.0.17",
     "@types/lodash": "^4.14.123",
     "babel-jest": "^24.8.0",
     "babel-loader": "^8.0.5",

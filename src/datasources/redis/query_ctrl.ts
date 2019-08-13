@@ -1,8 +1,8 @@
-import { TargetFormat } from '../lib/types';
 import { PCPQueryCtrl } from '../lib/pcp_query_ctrl';
 import PCPRedisCompleter from './completer';
 import './mode-pmseries';
 import { getDashboardVariables } from '../lib/utils';
+import { TargetFormat } from '../lib/models/datasource';
 
 export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
     static templateUrl = 'datasources/redis/partials/query.editor.html';

@@ -1,27 +1,25 @@
-import { TestContext } from '../datasource.test';
-import { PmApi } from '../../pmapi/pmapi';
-import { TargetFormat } from '../../../src/datasources/lib/types';
+import { TestContext } from './datasource.test';
+import * as fixtures from '../../../lib/specs/lib/fixtures';
 
-export default (ctx: TestContext, backend: PmApi) => {
+export default (ctx: TestContext) => {
     it("should perform rate-conversation of a counter with no instance domains", async () => {
         ctx.server.addResponses([
-            backend.context(1),
-            backend.kernelAllSysfork.metric,
-            backend.kernelAllSysfork.fetch(10, 100),
-            backend.kernelAllSysfork.fetch(11, 200),
-            backend.kernelAllSysfork.fetch(12, 400)
+            fixtures.PmProxy.context(1),
+            fixtures.PmProxy.kernelAllSysfork.metric,
+            fixtures.PmProxy.kernelAllSysfork.fetch(10, 100),
+            fixtures.PmProxy.kernelAllSysfork.fetch(11, 200),
+            fixtures.PmProxy.kernelAllSysfork.fetch(12, 400)
         ]);
 
         const query = {
-            ...ctx.defaultQuery,
+            ...fixtures.query,
             targets: [{
-                refId: "",
+                ...fixtures.queryTarget,
                 expr: "kernel.all.sysfork",
-                format: TargetFormat.TimeSeries
             }]
         };
 
-        // result is empty, but metric got added to poller
+        // result is empty, but metric got added to pollSrv
         let result = await ctx.datasource.query(query);
         expect(result).toStrictEqual({ data: [] });
 
@@ -64,22 +62,21 @@ export default (ctx: TestContext, backend: PmApi) => {
 
     it("should perform a query with instance domains", async () => {
         ctx.server.addResponses([
-            backend.context(1),
-            backend.kernelAllLoad.metric,
-            backend.kernelAllLoad.indom,
-            backend.kernelAllLoad.fetch
+            fixtures.PmProxy.context(1),
+            fixtures.PmProxy.kernelAllLoad.metric,
+            fixtures.PmProxy.kernelAllLoad.indom,
+            fixtures.PmProxy.kernelAllLoad.fetch
         ]);
 
         const query = {
-            ...ctx.defaultQuery,
+            ...fixtures.query,
             targets: [{
-                refId: "",
-                expr: "kernel.all.load",
-                format: TargetFormat.TimeSeries
+                ...fixtures.queryTarget,
+                expr: "kernel.all.load"
             }]
         };
 
-        // result is empty, but metric got added to poller
+        // result is empty, but metric got added to pollSrv
         let result = await ctx.datasource.query(query);
         expect(result).toStrictEqual({ data: [] });
 
@@ -108,36 +105,33 @@ export default (ctx: TestContext, backend: PmApi) => {
 
     it("should handle requesting metadata of non existing metrics", async () => {
         ctx.server.addResponses([
-            backend.context(1),
-            backend.metric(1, [], ["non.existing.metric"]),
-            backend.metric(1, [{ name: "existing.metric", semantics: "instant" }], ["non.existing.metric,existing.metric"]),
+            fixtures.PmProxy.context(1),
+            fixtures.PmProxy.metric(1, [], ["non.existing.metric"]),
+            fixtures.PmProxy.metric(1, [{ name: "existing.metric", semantics: "instant" }], ["non.existing.metric,existing.metric"]),
         ]);
 
         const query1 = {
-            ...ctx.defaultQuery,
+            ...fixtures.query,
             targets: [{
-                refId: "",
-                expr: "non.existing.metric",
-                format: TargetFormat.TimeSeries
+                ...fixtures.queryTarget,
+                expr: "non.existing.metric"
             }]
         };
-        await expect(ctx.datasource.query(query1)).rejects.toStrictEqual({
+        await expect(ctx.datasource.query(query1)).rejects.toMatchObject({
             message: "Cannot find metric non.existing.metric. Please check if the PMDA is enabled."
         });
 
         const query2 = {
-            ...ctx.defaultQuery,
+            ...fixtures.query,
             targets: [{
-                refId: "",
+                ...fixtures.queryTarget,
                 expr: "non.existing.metric",
-                format: TargetFormat.TimeSeries
             }, {
-                refId: "",
+                ...fixtures.queryTarget,
                 expr: "existing.metric",
-                format: TargetFormat.TimeSeries
             }]
         };
-        await expect(ctx.datasource.query(query2)).rejects.toStrictEqual({
+        await expect(ctx.datasource.query(query2)).rejects.toMatchObject({
             message: "Cannot find metric non.existing.metric. Please check if the PMDA is enabled."
         });
     });
@@ -147,24 +141,23 @@ export default (ctx: TestContext, backend: PmApi) => {
 
     it("should get a new context if current context is expired", async () => {
         ctx.server.addResponses([
-            backend.context(1),
-            backend.metric(1, [{ name: "metric1", semantics: "instant" }]),
-            backend.fetchSingleMetric(1, 10, [{ name: "metric1", value: 100 }]),
-            backend.contextExpired(1, "/"),
-            backend.context(2),
-            backend.fetchSingleMetric(2, 11, [{ name: "metric1", value: 200 }]),
+            fixtures.PmProxy.context(1),
+            fixtures.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
+            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "metric1", value: 100 }]),
+            fixtures.PmProxy.contextExpired(1, "/"),
+            fixtures.PmProxy.context(2),
+            fixtures.PmProxy.fetchSingleMetric(2, 11, [{ name: "metric1", value: 200 }]),
         ]);
 
         const query = {
-            ...ctx.defaultQuery,
+            ...fixtures.query,
             targets: [{
-                refId: "",
+                ...fixtures.queryTarget,
                 expr: "metric1",
-                format: TargetFormat.TimeSeries,
             }]
         };
 
-        // result is empty, but metric got added to poller
+        // result is empty, but metric got added to pollSrv
         let result = await ctx.datasource.query(query);
         expect(result).toStrictEqual({ data: [] });
 

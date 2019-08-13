@@ -1,47 +1,68 @@
 import _ from 'lodash';
-import { Context } from "./pmapi";
-import { MetricInstance, TargetResult, Metric, TDatapoint, IngestionTransformationFn } from './types';
-import { IngestionTransformations } from './transformations';
+import { PmapiSrv, FetchResponse } from "./services/pmapi_srv";
+import { MetricInstance, TargetResult } from './models/metrics';
+import { MetricValues } from './models/pmapi';
 
 export default class DataStore {
-    private store: Record<string, Record<string, TDatapoint[]>> = {}; // store[metric][instance] = [val,ts]
+    private store: Record<string, Map<number | null, MetricInstance<number | string>>> = {}; // store[metric][instance_id] = metricInstance
 
-    constructor(private context: Context, private localHistoryAgeMs: number) {
+    constructor(private pmapiSrv: PmapiSrv, private localHistoryAgeMs: number) {
     }
 
-    private ingestMetric(metricStore: Record<string, TDatapoint[]>, metric: any, pollTimeEpochMs: number) {
-        const labels = this.context.labels(metric.name);
+    private async ingestMetric(metricStore: Map<number | null, MetricInstance<number | string>>, metric: MetricValues, pollTimeEpochMs: number) {
+        let indomsRefreshed = false;
         for (const instance of metric.instances) {
-            // do not store history for the bpftrace control and output metrics
-            if (!(instance.instanceName in metricStore) || ["control", "output"].includes(labels.metrictype)) {
-                metricStore[instance.instanceName] = [];
+            const instanceId = instance.instance;
+
+            const storedInstance = metricStore.get(instanceId)!;
+            if (storedInstance) {
+                // do not store history for the bpftrace control and output metrics
+                if (storedInstance.labels.agent === "bpftrace" && ["control", "output"].includes(storedInstance.labels.metrictype as string))
+                    storedInstance.values = [];
+                storedInstance.values.push([instance.value, pollTimeEpochMs]);
             }
-            metricStore[instance.instanceName].push([instance.value, pollTimeEpochMs]);
+            else {
+                let instanceName = "";
+                if (instanceId !== null) {
+                    let indom = await this.pmapiSrv.getIndom(metric.name, instanceId, true); // try from cache
+                    if (!indom && !indomsRefreshed) {
+                        indom = await this.pmapiSrv.getIndom(metric.name, instanceId, false); // do api request
+                        indomsRefreshed = true;
+                    }
+                    if (indom)
+                        instanceName = indom.name;
+                }
+
+                metricStore.set(instanceId, {
+                    id: instanceId,
+                    name: instanceName,
+                    values: [[instance.value, pollTimeEpochMs]],
+                    labels: await this.pmapiSrv.getLabels(metric.name, instanceId, indomsRefreshed)
+                });
+            }
         }
     }
 
-    ingest(data: any) {
-        if (_.isEmpty(data))
-            return;
-
-        const pollTimeEpochMs = data.timestamp.s ? data.timestamp.s * 1000 + data.timestamp.us / 1000 : data.timestamp * 1000;
+    async ingest(data: FetchResponse) {
+        const pollTimeEpochMs = data.timestamp * 1000;
         for (const metric of data.values) {
             if (!(metric.name in this.store)) {
-                this.store[metric.name] = {};
+                this.store[metric.name] = new Map();
             }
-            this.ingestMetric(this.store[metric.name], metric, pollTimeEpochMs);
+            await this.ingestMetric(this.store[metric.name], metric, pollTimeEpochMs);
         }
     }
 
     queryMetric(metric: string, from: number, to: number): MetricInstance<number | string>[] {
         if (!(metric in this.store))
             return [];
-        return Object.keys(this.store[metric]).map(instance => ({
-            name: instance,
-            values: this.store[metric][instance].filter(dataPoint => (
+        return Array.from(this.store[metric], ([, instance]) => ({
+            id: instance.id,
+            name: instance.name,
+            values: instance.values.filter(dataPoint => (
                 from <= dataPoint[1] && dataPoint[1] <= to
             )),
-            labels: this.context.labels(metric, instance)
+            labels: instance.labels
         }));
     }
 
@@ -58,8 +79,8 @@ export default class DataStore {
     cleanExpiredMetrics() {
         const keepExpiry = new Date().getTime() - this.localHistoryAgeMs;
         for (const metric in this.store) {
-            for (const instance in this.store[metric]) {
-                this.store[metric][instance] = this.store[metric][instance].filter(
+            for (const instance of this.store[metric].values()) {
+                instance.values = instance.values.filter(
                     dataPoint => dataPoint[1] > keepExpiry
                 );
             }

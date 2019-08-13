@@ -1,7 +1,6 @@
-import { TestContext } from '../datasource.test';
-import { PmApi } from '../../pmapi/pmapi';
+import { TestContext } from "./datasource.test";
 
-export default (ctx: TestContext, backend: PmApi) => {
+export default (ctx: TestContext) => {
     it.skip("handle templating in expression, url, and container", async () => {
     });
 

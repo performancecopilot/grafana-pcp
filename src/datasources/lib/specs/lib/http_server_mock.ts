@@ -11,7 +11,7 @@ interface Response {
     };
 }
 
-export default class HttpServer {
+export default class HttpServerMock {
     private responses: Response[] = [];
 
     constructor(private baseUrl: string, private debug = false) {
@@ -53,6 +53,6 @@ export default class HttpServer {
 
         console.error(`no response found for ${url}`, options.params);
         console.info("possible options:", this.responses.map(response => response.request));
-        throw { message: `Cannot process request for ${url}` };
+        throw new Error(`Cannot process request for ${url}`);
     }
 }

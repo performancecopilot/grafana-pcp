@@ -1,11 +1,12 @@
 import _ from 'lodash';
-import { TargetFormat, TimeSeriesData, PanelData, TableData, QueryTarget, TargetResult, MetricInstance, Metric, Query } from './types';
-import { isBlank } from './utils';
+import { isBlank } from '../utils';
+import { MetricInstance, Metric, TargetResult } from '../models/metrics';
+import { Query, QueryTarget, TimeSeriesData, TableData, PanelData, TargetFormat } from '../models/datasource';
 import "core-js/stable/array/flat-map";
 
 export type DefaultLegendFormatterFn = (metric: string, instance: MetricInstance<number | string> | undefined, labels: Record<string, any>) => string;
 
-export default class PanelTransformations {
+export default class PanelTransformationSrv {
 
     constructor(private templateSrv: any) {
     }

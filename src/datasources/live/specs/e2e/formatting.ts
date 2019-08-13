@@ -1,22 +1,21 @@
-import { TestContext } from '../datasource.test';
-import { PmApi } from '../../pmapi/pmapi';
-import { TargetFormat } from '../../../src/datasources/lib/types';
+import { TestContext } from './datasource.test';
+import * as fixtures from '../../../lib/specs/lib/fixtures';
+import { TargetFormat } from '../../../lib/models/datasource';
 
-export default (ctx: TestContext, backend: PmApi) => {
+export default (ctx: TestContext) => {
     it("should support legend templating", async () => {
         ctx.server.addResponses([
-            backend.context(1),
-            backend.kernelAllLoad.metric,
-            backend.kernelAllLoad.indom,
-            backend.kernelAllLoad.fetch
+            fixtures.PmProxy.context(1),
+            fixtures.PmProxy.kernelAllLoad.metric,
+            fixtures.PmProxy.kernelAllLoad.indom,
+            fixtures.PmProxy.kernelAllLoad.fetch
         ]);
 
         const query = {
-            ...ctx.defaultQuery,
+            ...fixtures.query,
             targets: [{
-                refId: "",
+                ...fixtures.queryTarget,
                 expr: "kernel.all.load",
-                format: TargetFormat.TimeSeries,
                 legendFormat: "a $metric $metric0 $instance $hostname $region b"
             }],
             scopedVars: {
@@ -24,7 +23,7 @@ export default (ctx: TestContext, backend: PmApi) => {
             }
         };
 
-        // result is empty, but metric got added to poller
+        // result is empty, but metric got added to pollSrv
         let result = await ctx.datasource.query(query);
         expect(result).toStrictEqual({ data: [] });
 
@@ -53,28 +52,28 @@ export default (ctx: TestContext, backend: PmApi) => {
 
     it("should convert to heatmaps", async () => {
         ctx.server.addResponses([
-            backend.context(1),
-            backend.metric(1, [{ name: "metric1", semantics: "instant" }]),
-            backend.indom(1, "metric1", [
+            fixtures.PmProxy.context(1),
+            fixtures.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
+            fixtures.PmProxy.indom(1, "metric1", [
                 { instance: 0, name: "-inf--1" },
                 { instance: 1, name: "2-3" },
                 { instance: 2, name: "4-inf" }
             ]),
-            backend.fetchIndomMetric(1, 10.4, [{
+            fixtures.PmProxy.fetchIndomMetric(1, 10.4, [{
                 name: "metric1", instances: [
                     { instance: 0, value: 100 },
                     { instance: 1, value: 200 },
                     { instance: 2, value: 300 }
                 ]
             }]),
-            backend.fetchIndomMetric(1, 11.5, [{
+            fixtures.PmProxy.fetchIndomMetric(1, 11.5, [{
                 name: "metric1", instances: [
                     { instance: 0, value: 400 },
                     { instance: 1, value: 500 },
                     { instance: 2, value: 600 }
                 ]
             }]),
-            backend.fetchIndomMetric(1, 12.6, [{
+            fixtures.PmProxy.fetchIndomMetric(1, 12.6, [{
                 name: "metric1", instances: [
                     { instance: 0, value: 700 },
                     { instance: 1, value: 800 },
@@ -84,15 +83,15 @@ export default (ctx: TestContext, backend: PmApi) => {
         ]);
 
         const query = {
-            ...ctx.defaultQuery,
+            ...fixtures.query,
             targets: [{
-                refId: "",
+                ...fixtures.queryTarget,
                 expr: "metric1",
-                format: TargetFormat.Heatmap,
+                format: TargetFormat.Heatmap
             }]
         };
 
-        // result is empty, but metric got added to poller
+        // result is empty, but metric got added to pollSrv
         let result = await ctx.datasource.query(query);
         expect(result).toStrictEqual({ data: [] });
 

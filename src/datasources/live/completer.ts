@@ -1,5 +1,5 @@
 import { PCPLiveDatasource } from "./datasource";
-import { MetricMetadata } from "../lib/types";
+import { MetricMetadata } from "../lib/models/pmapi";
 
 export default class PCPLiveCompleter {
 
@@ -20,7 +20,7 @@ export default class PCPLiveCompleter {
         const type = metadata.type;
         const semantics = metadata.sem;
         const units = metadata.units;
-        const help = metadata['text-help'] || metadata['text-oneline'];
+        const help = metadata["text-help"] || metadata["text-oneline"];
         return `<b>${metric}</b><hr />` +
             `Type: ${type}<br />` +
             `Semantics: ${semantics}<br />` +
@@ -48,9 +48,9 @@ export default class PCPLiveCompleter {
         if (token.value.includes(".")) {
             searchPrefix = token.value.substring(0, token.value.lastIndexOf("."));
         }
-        const suggestions = await endpoint.context.children(searchPrefix);
+        const suggestions = await endpoint.pmapiSrv.getChildren(searchPrefix);
         const prefixWithDot = searchPrefix === "" ? "" : `${searchPrefix}.`;
-        const metadatas = await endpoint.context.metricMetadatas(suggestions.leaf.map((leaf: string) => `${prefixWithDot}${leaf}`));
+        const metadatas = await endpoint.pmapiSrv.getMetricMetadatas(suggestions.leaf.map((leaf: string) => `${prefixWithDot}${leaf}`));
 
         suggestions.nonleaf.sort();
         suggestions.leaf.sort();

@@ -1,12 +1,12 @@
-import { Context } from "./pmapi";
+import { PmapiSrv, Context } from "./services/pmapi_srv";
 import DataStore from "./datastore";
-import Poller from './poller';
-import { DatasourceRequestFn } from "./types";
+import PollSrv from './services/poll_srv';
+import { DatasourceRequestFn } from "./models/datasource";
 
 export interface Endpoint {
     id: string;
-    context: Context;
-    poller: Poller;
+    pmapiSrv: PmapiSrv;
+    pollSrv: PollSrv;
     datastore: DataStore;
 }
 
@@ -26,11 +26,11 @@ export default class EndpointRegistry<T extends Endpoint> {
 
     create(datasourceRequest: DatasourceRequestFn, url: string, container: string | undefined, keepPollingMs: number, localHistoryAgeMs: number) {
         const id = this.generateId(url, container);
-        const context = new Context(datasourceRequest, url, container);
-        const datastore = new DataStore(context, localHistoryAgeMs);
-        const poller = new Poller(context, datastore, keepPollingMs);
+        const pmapiSrv = new PmapiSrv(new Context(datasourceRequest, url, container));
+        const datastore = new DataStore(pmapiSrv, localHistoryAgeMs);
+        const pollSrv = new PollSrv(pmapiSrv, datastore, keepPollingMs);
 
-        this.endpoints[id] = { id, context, datastore, poller } as T;
+        this.endpoints[id] = { id, pmapiSrv, datastore, pollSrv } as T;
         return this.endpoints[id];
     }
 

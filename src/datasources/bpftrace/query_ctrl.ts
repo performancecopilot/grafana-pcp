@@ -1,4 +1,4 @@
-import { TargetFormat } from '../lib/types';
+import { TargetFormat } from '../lib/models/datasource';
 import { PCPQueryCtrl } from '../lib/pcp_query_ctrl';
 import PCPBPFtraceCompleter from './completer';
 import './css/query-editor.css';

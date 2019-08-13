@@ -1,4 +1,4 @@
-import { TargetFormat } from '../lib/types';
+import { TargetFormat } from '../lib/models/datasource';
 import PCPLiveCompleter from './completer';
 import { PCPQueryCtrl } from "../lib/pcp_query_ctrl";
 import { getDashboardVariables } from '../lib/utils';

@@ -32,10 +32,12 @@ export default class PCPBPFtraceCompleter {
         const endpoint = this.datasource.getOrCreateEndpoint(url, container);
 
         if (!this.probeCache[endpoint.id]) {
-            const result = await endpoint.context.fetch(["bpftrace.info.tracepoints"], true);
-            this.probeCache[endpoint.id] = result.values.find(
-                (metric: any) => metric.name === "bpftrace.info.tracepoints"
-            ).instances.map((instance: any) => instance.instanceName);
+            const result = await endpoint.pmapiSrv.getMetricValues(["bpftrace.info.tracepoints"]);
+            const indoms = await endpoint.pmapiSrv.getIndoms("bpftrace.info.tracepoints");
+            this.probeCache[endpoint.id] = result.values[0].instances.map(instance => {
+                const indom = indoms[instance.instance || ""];
+                return indom ? indom.name : "";
+            });
             this.probeCache[endpoint.id].unshift("END");
             this.probeCache[endpoint.id].unshift("BEGIN");
         }

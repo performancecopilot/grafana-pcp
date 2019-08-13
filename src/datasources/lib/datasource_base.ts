@@ -1,11 +1,12 @@
 import _ from 'lodash';
 import kbn from 'grafana/app/core/utils/kbn';
 import EndpointRegistry, { Endpoint } from './endpoint_registry';
-import { QueryTarget, Query, TargetResult, TargetFormat, MetricMetadata, MetricInstance } from './types';
-import PanelTransformations from './panel_transformations';
-import { Context } from "./pmapi";
+import PanelTransformations from './services/panel_transformation_srv';
+import { PmapiSrv, Context } from "./services/pmapi_srv";
 import { isBlank } from './utils';
-import { ValuesTransformations } from './transformations';
+import { Transformations } from './transformations';
+import { QueryTarget, Query } from './models/datasource';
+import { TargetResult, MetricInstance } from './models/metrics';
 import "core-js/stable/array/flat";
 
 export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
@@ -59,9 +60,9 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
         if (isBlank(this.instanceSettings.url))
             return { status: 'error', message: "Please specify a URL in the datasource settings." };
 
-        const context = new Context(this.doRequest.bind(this), this.instanceSettings.url, this.instanceSettings.jsonData.container);
+        const pmapiSrv = new PmapiSrv(new Context(this.doRequest.bind(this), this.instanceSettings.url, this.instanceSettings.jsonData.container));
         try {
-            await context.createContext();
+            await pmapiSrv.getMetricValues(["pmcd.hostname"]);
             return { status: 'success', message: "Data source is working" };
         }
         catch (error) {
@@ -79,13 +80,12 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
      */
     async metricFindQuery(query: string) {
         if (isBlank(this.instanceSettings.url))
-            throw { message: "Please specify a connection URL in the datasource settings." };
+            throw new Error("Please specify a connection URL in the datasource settings.");
 
         query = this.templateSrv.replace(query);
         const endpoint = this.getOrCreateEndpoint(this.instanceSettings.url, this.instanceSettings.jsonData.container);
-        const metricsResponse = await endpoint.context.fetch([query]);
-        return metricsResponse.values[0].instances
-            .map((instance: any) => ({ text: instance.value, value: instance.value }));
+        const response = await endpoint.pmapiSrv.getMetricValues([query]);
+        return response.values[0].instances.map(instance => ({ text: instance.value, value: instance.value }));
     }
 
     getConnectionParams(target: QueryTarget, scopedVars: any): [string, string | undefined] {
@@ -96,7 +96,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
         else if (!isBlank(this.instanceSettings.url))
             url = this.instanceSettings.url;
         else
-            throw { message: "Please specify a connection URL in the datasource settings or in the query editor." };
+            throw new Error("Please specify a connection URL in the datasource settings or in the query editor.");
 
         if (!isBlank(target.container))
             container = this.templateSrv.replace(target.container, scopedVars);
@@ -106,7 +106,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
         return [url, container];
     }
 
-    buildQueryTargets(query: Query): QueryTarget[] {
+    buildQueryTargets(query: Query): QueryTarget<EP>[] {
         return query.targets
             .filter(target => !target.hide && !isBlank(target.expr) && !target.isTyping)
             .map(target => {
@@ -123,11 +123,11 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
             });
     }
 
-    async applyTransformations(context: Context, results: TargetResult) {
+    async applyTransformations(pmapiSrv: PmapiSrv, results: TargetResult) {
         for (const metric of results.metrics) {
-            const metadata = await context.metricMetadata(metric.name);
+            const metadata = await pmapiSrv.getMetricMetadata(metric.name);
             for (const instance of metric.instances) {
-                instance.values = ValuesTransformations.applyTransformations(metadata.sem, metadata.units, instance.values as any);
+                instance.values = Transformations.applyTransformations(metadata.sem, metadata.units, instance.values as any);
             }
         }
     }
@@ -149,9 +149,9 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
         if (targets.length === 0)
             return { data: [] };
         if (!_.every(targets, ['format', targets[0].format]))
-            throw { message: "Format must be the same for all queries of a panel." };
+            throw new Error("Format must be the same for all queries of a panel.");
 
-        const targetsPerEndpoint = _.groupBy(targets, target => target.endpoint.id);
+        const targetsPerEndpoint = _.groupBy(targets, target => target.endpoint!.id);
         const promises = Object.values(targetsPerEndpoint).map(targets => this.queryTargetsByEndpoint(query, targets));
         const targetResults = await Promise.all(promises);
         const panelData = this.transformations.transform(query, targetResults.flat(), PCPLiveDatasourceBase.defaultLegendFormatter);

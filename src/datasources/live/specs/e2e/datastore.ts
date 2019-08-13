@@ -1,25 +1,23 @@
-import { TestContext } from '../datasource.test';
-import { PmApi } from '../../pmapi/pmapi';
-import { TargetFormat } from '../../../src/datasources/lib/types';
 import * as dateMock from 'jest-date-mock';
+import { TestContext } from './datasource.test';
+import * as fixtures from '../../../lib/specs/lib/fixtures';
 
-export default (ctx: TestContext, backend: PmApi) => {
+export default (ctx: TestContext) => {
     it("should return datapoints in range", async () => {
         ctx.server.addResponses([
-            backend.context(1),
-            backend.metric(1, [{ name: "metric1", semantics: "instant" }]),
-            backend.fetchSingleMetric(1, 10, [{ name: "metric1", value: 100 }]),
-            backend.fetchSingleMetric(1, 11, [{ name: "metric1", value: 200 }]),
-            backend.fetchSingleMetric(1, 12, [{ name: "metric1", value: 300 }]),
-            backend.fetchSingleMetric(1, 13, [{ name: "metric1", value: 400 }]),
+            fixtures.PmProxy.context(1),
+            fixtures.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
+            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "metric1", value: 100 }]),
+            fixtures.PmProxy.fetchSingleMetric(1, 11, [{ name: "metric1", value: 200 }]),
+            fixtures.PmProxy.fetchSingleMetric(1, 12, [{ name: "metric1", value: 300 }]),
+            fixtures.PmProxy.fetchSingleMetric(1, 13, [{ name: "metric1", value: 400 }]),
         ]);
 
         const query = {
-            ...ctx.defaultQuery,
+            ...fixtures.query,
             targets: [{
-                refId: "",
-                expr: "metric1",
-                format: TargetFormat.TimeSeries,
+                ...fixtures.queryTarget,
+                expr: "metric1"
             }],
             range: {
                 from: new Date(11000),
@@ -27,7 +25,7 @@ export default (ctx: TestContext, backend: PmApi) => {
             },
         };
 
-        // result is empty, but metric got added to poller
+        // result is empty, but metric got added to pollSrv
         let result = await ctx.datasource.query(query);
         expect(result).toStrictEqual({ data: [] });
 
@@ -50,20 +48,19 @@ export default (ctx: TestContext, backend: PmApi) => {
 
     it("should clean expired datapoints", async () => {
         ctx.server.addResponses([
-            backend.context(1),
-            backend.metric(1, [{ name: "metric1", semantics: "instant" }]),
-            backend.fetchSingleMetric(1, 2 * 60, [{ name: "metric1", value: 100 }]),
-            backend.fetchSingleMetric(1, 4 * 60, [{ name: "metric1", value: 200 }]),
-            backend.fetchSingleMetric(1, 6 * 60, [{ name: "metric1", value: 300 }]),
-            backend.fetchSingleMetric(1, 8 * 60, [{ name: "metric1", value: 400 }]),
+            fixtures.PmProxy.context(1),
+            fixtures.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
+            fixtures.PmProxy.fetchSingleMetric(1, 2 * 60, [{ name: "metric1", value: 100 }]),
+            fixtures.PmProxy.fetchSingleMetric(1, 4 * 60, [{ name: "metric1", value: 200 }]),
+            fixtures.PmProxy.fetchSingleMetric(1, 6 * 60, [{ name: "metric1", value: 300 }]),
+            fixtures.PmProxy.fetchSingleMetric(1, 8 * 60, [{ name: "metric1", value: 400 }]),
         ]);
 
         const query = {
-            ...ctx.defaultQuery,
+            ...fixtures.query,
             targets: [{
-                refId: "",
-                expr: "metric1",
-                format: TargetFormat.TimeSeries,
+                ...fixtures.queryTarget,
+                expr: "metric1"
             }],
             range: {
                 // get everything between 0 - 10min
@@ -75,7 +72,7 @@ export default (ctx: TestContext, backend: PmApi) => {
         // unixtime: 5min
         dateMock.advanceTo(5 * 60 * 1000);
 
-        // result is empty, but metric got added to poller
+        // result is empty, but metric got added to pollSrv
         let result = await ctx.datasource.query(query);
         expect(result).toStrictEqual({ data: [] });
 

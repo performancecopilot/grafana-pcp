@@ -1,16 +1,16 @@
 import _ from 'lodash';
 import { PCPRedisDatasource } from "./datasource";
-import { PmSeries } from "./pmseries";
+import { PmSeriesSrv } from "./pmseries_srv";
 
 export default class PCPRedisCompleter {
 
     // first regex is required that the auto-completion box shows up
     // when entering a { or "
     identifierRegexps = [/[\{"]/, /[a-zA-Z0-9_.]/];
-    pmSeries: PmSeries;
+    pmSeriesSrv: PmSeriesSrv;
 
     constructor(datasource: PCPRedisDatasource, private dashboardVariables: string[]) {
-        this.pmSeries = datasource.pmSeries;
+        this.pmSeriesSrv = datasource.pmSeriesSrv;
     }
 
     getCompletions(editor: any, session: any, pos: any, prefix: any, callback: any) {
@@ -40,37 +40,16 @@ export default class PCPRedisCompleter {
 
     async findMetricCompletions(token: any) {
         const searchPrefix = token.value.substring(0, 1);
-        const completions = await this.pmSeries.metrics(`${searchPrefix}*`);
+        const completions = await this.pmSeriesSrv.getMetrics(`${searchPrefix}*`);
         completions.sort();
         return completions.map((metric: string) => this.getCompletion(metric, "", "metric"));
     }
 
     private async findQualifiersForToken(metric: string): Promise<Record<string, string[]>> {
-        const seriesList = await this.pmSeries.query(metric);
-        if (seriesList.length === 0)
-            return {};
-
-        const qualifiers = {};
-        const descriptions = await this.pmSeries.descs(seriesList);
-        const [seriesWithIndoms, seriesWithoutIndoms] = _.partition(seriesList, series => descriptions[series].indom !== "none");
-        const instanceIds: string[] = [];
-        if (seriesWithIndoms.length > 0) {
-            const instances = await this.pmSeries.instances(seriesWithIndoms);
-            qualifiers["instance.name"] = this.dashboardVariables.map(v => '$' + v);
-            for (const instanceMapping of Object.values(instances)) {
-                instanceIds.push(...Object.keys(instanceMapping));
-                qualifiers["instance.name"].push(...Object.values(instanceMapping));
-            }
-        }
-
-        const labels = await this.pmSeries.labels([...seriesWithoutIndoms, ...instanceIds]);
-        for (const label of Object.values(labels)) {
-            for (const [key, value] of Object.entries(label)) {
-                if (!(key in qualifiers))
-                    qualifiers[key] = this.dashboardVariables.map(v => '$' + v);
-                if (!qualifiers[key].includes(value))
-                    qualifiers[key].push(value);
-            }
+        const dashboardVars = this.dashboardVariables.map(v => '$' + v);
+        const qualifiers = await this.pmSeriesSrv.getQualifiers(metric);
+        for (const qualifier in qualifiers) {
+            qualifiers[qualifier].unshift(...dashboardVars);
         }
         return qualifiers;
     }

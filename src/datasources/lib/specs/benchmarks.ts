@@ -1,7 +1,8 @@
 import Benchmark from "benchmark";
 import DataStore from "../datastore";
-import { MetricInstance, Datapoint } from "../types";
-import { ValuesTransformations } from "../transformations";
+import { Transformations } from "../transformations";
+import { Datapoint } from "../models/datasource";
+import { MetricInstance } from "../models/metrics";
 
 interface BenchmarkCase {
     setup?: () => void;
@@ -20,17 +21,13 @@ class IngestWithRateConversation {
     async run(deferred: any) {
         for (let i = 0; i < 2000; i++) {
             this.datastore.ingest({
-                "timestamp": {
-                    "s": 5,
-                    "us": 2000
-                },
+                "timestamp": 5.2,
                 "values": [{
-                    "pmid": 633356298,
+                    "pmid": "1.0.1",
                     "name": "bpftrace.scripts.script1.data.scalar",
                     "instances": [{
                         "instance": -1,
-                        "value": 45200,
-                        "instanceName": ""
+                        "value": 45200
                     }]
                 }]
             });
@@ -50,17 +47,13 @@ class IngestWithoutRateConversation {
     async run(deferred: any) {
         for (let i = 0; i < 2000; i++) {
             this.datastore.ingest({
-                "timestamp": {
-                    "s": 5,
-                    "us": 2000
-                },
+                "timestamp": 5.2,
                 "values": [{
-                    "pmid": 633356298,
+                    "pmid": "1.0.1",
                     "name": "bpftrace.scripts.script1.data.scalar",
                     "instances": [{
                         "instance": -1,
-                        "value": 45200,
-                        "instanceName": ""
+                        "value": 45200
                     }]
                 }]
             });
@@ -80,17 +73,13 @@ class CounterValues {
         // 3640 px per page (1px = 1 datapoint), 17 rows
         for (let i = 0; i < 3640 * 17; i++) {
             datastore.ingest({
-                "timestamp": {
-                    "s": 5,
-                    "us": 2000
-                },
+                "timestamp": 5.2,
                 "values": [{
-                    "pmid": 633356298,
+                    "pmid": "1.0.1",
                     "name": "bpftrace.scripts.script1.data.scalar",
                     "instances": [{
                         "instance": -1,
-                        "value": 45200,
-                        "instanceName": ""
+                        "value": 45200
                     }]
                 }]
             });
@@ -103,7 +92,7 @@ class CounterValues {
     }
 
     run(deferred: any) {
-        ValuesTransformations.applyTransformations("counter", "", this.values);
+        Transformations.applyTransformations("counter", "", this.values);
         deferred.resolve();
     }
 
