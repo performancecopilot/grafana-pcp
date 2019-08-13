@@ -130,7 +130,7 @@ export class PCPRedisDatasource {
             }
 
             metrics.push({
-                name: target.expr,
+                name: target.expr, // TODO: metric, not expression
                 instances: seriesInstances
             });
         }
@@ -139,6 +139,21 @@ export class PCPRedisDatasource {
             target: target,
             metrics: metrics
         };
+    }
+
+    static defaultLegendFormatter(metric: string, instance: MetricInstance<number | string> | undefined, labels: Record<string, any>) {
+        let label = instance && instance.name !== "" ? instance.name : metric;
+        if (!_.isEmpty(labels)) {
+            const pairs: string[] = [];
+            for (const label of ["hostname", "source"]) {
+                if (label in labels) {
+                    pairs.push(`${label}: "${labels[label]}"`);
+                }
+            }
+            if (pairs.length > 0)
+                label += ` {${pairs.join(", ")}}`;
+        }
+        return label;
     }
 
     async query(query: Query) {
@@ -175,10 +190,8 @@ export class PCPRedisDatasource {
         const targetResults = targets.map(target => this.handleTarget(
             _.pick(instancesGroupedBySeries, seriesByExpr[target.expr]), descriptions, labels, target
         ));
-        const panelData = this.transformations.transform(query, targetResults);
-        return {
-            data: panelData
-        };
+        const panelData = this.transformations.transform(query, targetResults, PCPRedisDatasource.defaultLegendFormatter);
+        return { data: panelData };
     }
 
 }

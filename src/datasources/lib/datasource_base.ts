@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import kbn from 'grafana/app/core/utils/kbn';
 import EndpointRegistry, { Endpoint } from './endpoint_registry';
-import { QueryTarget, Query, TargetResult, TargetFormat, MetricMetadata } from './types';
+import { QueryTarget, Query, TargetResult, TargetFormat, MetricMetadata, MetricInstance } from './types';
 import PanelTransformations from './panel_transformations';
 import { Context } from "./pmapi";
 import { isBlank } from './utils';
@@ -134,11 +134,14 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
 
     abstract async handleTarget(endpoint: EP, query: Query, target: QueryTarget<EP>): Promise<TargetResult>;
 
+    static defaultLegendFormatter(metric: string, instance: MetricInstance<number | string> | undefined, labels: Record<string, any>) {
+        return instance && instance.name !== "" ? instance.name : metric;
+    }
+
     async queryTargetsByEndpoint(query: Query, targets: QueryTarget<EP>[]) {
         // endpoint is the same for all targets, ensured by _.groupBy() in query()
         const endpoint = targets[0].endpoint;
-        const targetResults = await Promise.all(targets.map(target => this.handleTarget(endpoint!, query, target)));
-        return this.transformations.transform(query, targetResults);
+        return await Promise.all(targets.map(target => this.handleTarget(endpoint!, query, target)));
     }
 
     async query(query: Query) {
@@ -150,7 +153,8 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
 
         const targetsPerEndpoint = _.groupBy(targets, target => target.endpoint.id);
         const promises = Object.values(targetsPerEndpoint).map(targets => this.queryTargetsByEndpoint(query, targets));
-        const results = await Promise.all(promises);
-        return { data: results.flat() };
+        const targetResults = await Promise.all(promises);
+        const panelData = this.transformations.transform(query, targetResults.flat(), PCPLiveDatasourceBase.defaultLegendFormatter);
+        return { data: panelData };
     }
 }

@@ -3,25 +3,17 @@ import { TargetFormat, TimeSeriesData, PanelData, TableData, QueryTarget, Target
 import { isBlank } from './utils';
 import "core-js/stable/array/flat-map";
 
+export type DefaultLegendFormatterFn = (metric: string, instance: MetricInstance<number | string> | undefined, labels: Record<string, any>) => string;
+
 export default class PanelTransformations {
 
     constructor(private templateSrv: any) {
     }
 
-    getLabel(query: Query, target: QueryTarget, metric: string, instance?: MetricInstance<number | string>, labels: Record<string, any> = {}) {
+    getLabel(query: Query, target: QueryTarget, defaultLegendFormatter: DefaultLegendFormatterFn,
+        metric: string, instance?: MetricInstance<number | string>, labels: Record<string, any> = {}) {
         if (isBlank(target.legendFormat)) {
-            let label = instance && instance.name !== "" ? instance.name : metric;
-            if (!_.isEmpty(labels)) {
-                const pairs: string[] = [];
-                for (const label of ["hostname", "source"]) {
-                    if (label in labels) {
-                        pairs.push(`${label}: "${labels[label]}"`);
-                    }
-                }
-                if (pairs.length > 0)
-                    label += ` {${pairs.join(", ")}}`;
-            }
-            return label;
+            return defaultLegendFormatter(metric, instance, labels);
         }
         else {
             labels = _.mapValues(labels, (val: any) => ({ value: val }));
@@ -38,9 +30,10 @@ export default class PanelTransformations {
         }
     }
 
-    transformToTimeSeries(query: Query, target: QueryTarget, metric: Metric<number>): TimeSeriesData[] {
+    transformToTimeSeries(query: Query, target: QueryTarget, defaultLegendFormatter: DefaultLegendFormatterFn,
+        metric: Metric<number>): TimeSeriesData[] {
         return metric.instances.map(instance => ({
-            target: this.getLabel(query, target, metric.name, instance, instance.labels),
+            target: this.getLabel(query, target, defaultLegendFormatter, metric.name, instance, instance.labels),
             datapoints: instance.values
         }));
     }
@@ -88,9 +81,11 @@ export default class PanelTransformations {
         return table;
     }
 
-    transformMultipleMetricsToTable(query: Query, results: TargetResult[]) {
+    transformMultipleMetricsToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn, ) {
         const table: TableData = { columns: [], rows: [], type: 'table' };
-        table.columns = results.map(targetResult => ({ text: this.getLabel(query, targetResult.target, targetResult.metrics[0].name) }));
+        table.columns = results.map(targetResult => ({
+            text: this.getLabel(query, targetResult.target, defaultLegendFormatter, targetResult.metrics[0].name)
+        }));
         const instanceNames = results[0].metrics[0].instances.map(instance => instance.name);
         if (instanceNames.length > 0 && _.isNumber(instanceNames[0]))
             instanceNames.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
@@ -108,7 +103,7 @@ export default class PanelTransformations {
         return table;
     }
 
-    transformToTable(query: Query, results: TargetResult[]) {
+    transformToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn, ) {
         if (results.length === 1 && results[0].metrics.length === 1) {
             const firstMetric = results[0].metrics[0];
             if (firstMetric.instances.length === 1 &&
@@ -117,14 +112,14 @@ export default class PanelTransformations {
                 return this.transformStringToTable((firstMetric.instances[0] as MetricInstance<string>).values[0][0]);
             }
         }
-        return this.transformMultipleMetricsToTable(query, results);
+        return this.transformMultipleMetricsToTable(query, results, defaultLegendFormatter);
     }
 
-    transform(query: Query, results: TargetResult[]): PanelData[] {
+    transform(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn): PanelData[] {
         const format = results[0].target.format;
         if (format === TargetFormat.TimeSeries) {
             return results.flatMap(targetResult => targetResult.metrics.flatMap((metric: Metric<number>) =>
-                this.transformToTimeSeries(query, targetResult.target, metric)
+                this.transformToTimeSeries(query, targetResult.target, defaultLegendFormatter, metric)
             ));
         }
         else if (format === TargetFormat.Heatmap) {
@@ -133,7 +128,7 @@ export default class PanelTransformations {
             ));
         }
         else if (format === TargetFormat.Table) {
-            return [this.transformToTable(query, results)];
+            return [this.transformToTable(query, results, defaultLegendFormatter)];
         }
         else {
             throw {

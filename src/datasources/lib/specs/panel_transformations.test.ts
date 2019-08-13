@@ -1,5 +1,6 @@
 import PanelTransformations from "../panel_transformations";
 import { TargetFormat, TimeSeriesData, TableData, TargetResult } from "../types";
+import { PCPRedisDatasource } from "../../redis/datasource";
 
 describe("PanelTransformations", () => {
     const ctx: { templateSrv: any, transformations: PanelTransformations } = {} as any;
@@ -37,7 +38,7 @@ describe("PanelTransformations", () => {
             }],
         }];
 
-        const result = ctx.transformations.transform(query, results);
+        const result = ctx.transformations.transform(query, results, () => "");
         const expected: TimeSeriesData[] = [{
             target: "a disk.dev.read read inst1 value1 b",
             datapoints: []
@@ -66,7 +67,7 @@ describe("PanelTransformations", () => {
             }],
         }];
 
-        const result = ctx.transformations.transform(query, results);
+        const result = ctx.transformations.transform(query, results, PCPRedisDatasource.defaultLegendFormatter);
         const expected: TimeSeriesData[] = [{
             target: 'inst1 {hostname: "host"}',
             datapoints: []
@@ -94,7 +95,7 @@ describe("PanelTransformations", () => {
             }]
         }];
 
-        const result = ctx.transformations.transform(query, results);
+        const result = ctx.transformations.transform(query, results, () => "");
         const expected: TimeSeriesData[] = [
             { target: "-1", datapoints: [[1, 1000]] },
             { target: "3", datapoints: [[1, 1000]] },
@@ -134,7 +135,7 @@ TIME     PID      COMM             SADDR                                   SPORT
         }];
 
 
-        const result = ctx.transformations.transform(query, results);
+        const result = ctx.transformations.transform(query, results, () => "");
         const expected: TableData[] = [{
             "columns": [
                 { "text": "TIME" },
