@@ -3,7 +3,7 @@
 with pkgs;
 
 stdenv.mkDerivation {
-  name = "grafana-pcp-live";
+  name = "grafana-pcp";
 
   buildInputs = [
     nodejs-10_x
