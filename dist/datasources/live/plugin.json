@@ -1,0 +1,15 @@
+{
+    "name": "PCP Live",
+    "id": "pcp-live-datasource",
+    "type": "datasource",
+    "metrics": true,
+    "alerting": false,
+    "annotations": false,
+    "tables": true,
+    "info": {
+        "logos": {
+            "small": "../performancecopilot-pcp-app/img/pcp-logo.svg",
+            "large": "../performancecopilot-pcp-app/img/pcp-logo.svg"
+        }
+    }
+}
