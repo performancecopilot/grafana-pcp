@@ -21,8 +21,11 @@ describe("PanelTransformations", () => {
         const query: any = {
             targets: [{
                 format: TargetFormat.TimeSeries,
-                legendFormat: "a $metric $metric0 $instance $label1 b"
-            }]
+                legendFormat: "a $metric $metric0 $instance $label1 $region b"
+            }],
+            scopedVars: {
+                region: {value: "eu"}
+            }
         };
         const results: TargetResult[] = [{
             target: query.targets[0],
@@ -40,7 +43,7 @@ describe("PanelTransformations", () => {
 
         const result = ctx.transformations.transform(query, results, () => "");
         const expected: TimeSeriesData[] = [{
-            target: "a disk.dev.read read inst1 value1 b",
+            target: "a disk.dev.read read inst1 value1 eu b",
             datapoints: []
         }];
         expect(result).toStrictEqual(expected);
@@ -75,7 +78,7 @@ describe("PanelTransformations", () => {
         expect(result).toStrictEqual(expected);
     });
 
-    it("should transform histograms", () => {
+    it("should transform heatmaps", () => {
         const query: any = {
             targets: [{
                 format: TargetFormat.Heatmap,

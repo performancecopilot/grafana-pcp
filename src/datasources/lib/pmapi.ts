@@ -63,13 +63,22 @@ export class Context {
     async metricMetadatas(metrics: string[]): Promise<{ [key: string]: MetricMetadata }> {
         const requiredMetrics = _.difference(metrics, Object.keys(this.metricMetadataCache));
         if (requiredMetrics.length > 0) {
-            requiredMetrics.push("pmcd.control.timeout"); // TODO: remove workaround - server should return empty list if no metrics were found
             const metadata = await this.ensureContext(async () => {
-                const response = await this.datasourceRequest({
-                    url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
-                    params: { names: requiredMetrics.join(',') }
-                });
-                return response.data.metrics;
+                try {
+                    const response = await this.datasourceRequest({
+                        url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
+                        params: { names: requiredMetrics.join(',') }
+                    });
+                    return response.data.metrics;
+                }
+                catch (e) {
+                    // pmproxy throws an exception if exactly one metric is requested
+                    // and this metric is not found
+                    if (e.data && !e.data.success)
+                        return [];
+                    else
+                        throw e;
+                }
             });
 
             for (const metric of metadata) {
@@ -130,14 +139,22 @@ export class Context {
     }
 
     async fetch(metrics: string[], instanceNames = false) {
-        metrics.push("pmcd.control.timeout"); // TODO: remove workaround - server should return empty list if no metrics were found
-
         const data = await this.ensureContext(async () => {
-            const response = await this.datasourceRequest({
-                url: `${this.url}/pmapi/${this.context}/${this.d}fetch`,
-                params: { names: metrics.join(',') }
-            });
-            return response.data;
+            try {
+                const response = await this.datasourceRequest({
+                    url: `${this.url}/pmapi/${this.context}/${this.d}fetch`,
+                    params: { names: metrics.join(',') }
+                });
+                return response.data;
+            }
+            catch (e) {
+                // pmwebd throws an exception if exactly one metric is requested
+                // and this metric is not found
+                if (_.isString(e.data) && e.data.includes("-12443"))
+                    return { timestamp: 0, values: [] };
+                else
+                    throw e;
+            }
         });
 
         const returnedMetrics = data.values.map((metric: any) => metric.name);

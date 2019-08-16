@@ -15,14 +15,12 @@ export class PCPBPFtraceDatasource extends PCPLiveDatasourceBase<BPFtraceEndpoin
     }
 
     doPollAll() {
-        const promises: Promise<void>[] = [];
-        for (const endpoint of this.endpointRegistry.list()) {
+        return Promise.all(this.endpointRegistry.list().map(async endpoint => {
             endpoint.datastore.cleanExpiredMetrics();
             endpoint.poller.cleanupExpiredMetrics();
             endpoint.scriptRegistry.cleanupExpiredScripts();
-            promises.push(endpoint.poller.poll());
-        }
-        return Promise.all(promises);
+            await endpoint.poller.poll();
+        }));
     }
 
     configureEndpoint(endpoint: BPFtraceEndpoint) {

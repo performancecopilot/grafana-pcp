@@ -14,13 +14,11 @@ export class PCPLiveDatasource extends PCPLiveDatasourceBase<Endpoint> {
     }
 
     doPollAll() {
-        const promises: Promise<void>[] = [];
-        for (const endpoint of this.endpointRegistry.list()) {
+        return Promise.all(this.endpointRegistry.list().map(async endpoint => {
             endpoint.datastore.cleanExpiredMetrics();
             endpoint.poller.cleanupExpiredMetrics();
-            promises.push(endpoint.poller.poll());
-        }
-        return Promise.all(promises);
+            await endpoint.poller.poll();
+        }));
     }
 
     async handleTarget(endpoint: Endpoint, query: Query, target: QueryTarget): Promise<TargetResult> {

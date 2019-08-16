@@ -6,7 +6,9 @@
     "build": "webpack --config webpack.config.prod.js",
     "dev": "webpack --mode development",
     "watch": "webpack --mode development --watch",
-    "test": "jest --config jest.config.js",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "memleaks": "node --expose-gc ./node_modules/jest-cli/bin/jest.js --runInBand --logHeapUsage --silent",
     "unit": "jest --config jest.config.unit.js",
     "integration": "jest --config jest.config.integration.js",
     "lint": "tslint --config tslint.json --project tsconfig.json"
@@ -52,6 +54,7 @@
     "tslint": "^5.18.0",
     "tslint-config-airbnb": "^5.11.1",
     "typescript": "^3.5.2",
+    "weak": "^1.0.1",
     "webpack": "^4.38.0",
     "webpack-cli": "^3.3.5"
   },

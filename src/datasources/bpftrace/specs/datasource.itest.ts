@@ -15,7 +15,7 @@ const datasourceRequestHttp = (options: any) => {
     });
 };
 
-describe("DataSource", () => {
+describe.skip("DataSource", () => {
     const ctx: { datasource: PCPBPFtraceDatasource, backendSrv: any, templateSrv: any, variableSrv: any } = {} as any;
 
     const sampleQuery = {
