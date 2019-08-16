@@ -8,7 +8,7 @@ either locally or on a remote host. The pmproxy daemon can be local or remote, a
 the Redis time-series database (local or remote) for persistent storage.
 
 ### Grafana Installation and configuration on Fedora FC29 or later:
- * grafana is now in the 'updates' repo on Fedora F29 and later.
+ * Grafana is now in the 'updates' repo on Fedora F29 and later.
  * To install grafana: `dnf install grafana`
  * enable and start the grafana service: `systemctl enable grafana-server; systemctl start grafana-server`
 
@@ -16,8 +16,8 @@ the Redis time-series database (local or remote) for persistent storage.
  * on Fedora FC29 or later: `dnf install redis`
  * enable and start the redis service: `systemctl enable redis; systemctl start redis`
 
-### Install PCP pcp-4.3.3 or later, and enable the pmcd, pmlogger and pmproxy services
- * install pcp-4.3.3 or later (this is in the 'updates' repo on Fedora F29 and later)
+### Install PCP pcp-4.3.4 or later, and enable the pmcd, pmlogger and pmproxy services
+ * install pcp-4.3.4 or later (this is in the 'updates' repo on Fedora F30 and later)
  * enable PCP services: `systemctl enable pmcd; systemctl enable pmlogger; systemctl enable pmproxy`
  * edit `/etc/pcp/pmproxy/pmproxy.options` and set the `-t` and `-D http` options under the "timeseries with debug for http requests/response" section. This configures pmproxy to scrape performance data from PCP archive logs, and load it into Redis.
  * due to a missing feature in Grafana, you will also need to edit `/etc/pcp/pmproxy/pmproxy.conf` and set `chunksize = 2097152`. Hopefully this will soon not be necessary.

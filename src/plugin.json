@@ -27,6 +27,10 @@
             {
                 "name": "License",
                 "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/LICENSE"
+            },
+            {
+                "name": "Notice",
+                "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/NOTICE"
             }
         ],
         "version": "0.0.7",

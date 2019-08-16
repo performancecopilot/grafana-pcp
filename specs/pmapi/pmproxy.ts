@@ -23,7 +23,7 @@ export default class PmProxy implements PmApi {
                     }
                 }
             }
-        }
+        };
     }
     contextExpired(context: number, url: string) {
         return {
@@ -36,7 +36,7 @@ export default class PmProxy implements PmApi {
                     "context": context, "message": `unknown context identifier: ${context}`, "success": false
                 }
             }
-        }
+        };
     }
 
     metric(context: number, metrics: { name: string, semantics: string }[], requestedMetrics: string[] = []) {
@@ -91,7 +91,7 @@ export default class PmProxy implements PmApi {
                     }))
                 }
             }
-        }
+        };
     }
 
     indom(context: number, metric: string, instances: { instance: number, name: string, labels?: any }[]) {
@@ -167,7 +167,7 @@ export default class PmProxy implements PmApi {
                     }))
                 }
             }
-        }
+        };
     }
     fetchIndomMetric(context: number, timestamp: number, metrics: { name: string, instances: { instance: number, value: number }[] }[]) {
         return {

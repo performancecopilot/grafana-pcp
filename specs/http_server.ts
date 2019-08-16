@@ -53,6 +53,6 @@ export default class HttpServer {
 
         console.error(`no response found for ${url}`, options.params);
         console.info("possible options:", this.responses.map(response => response.request));
-        throw `Cannot process request for ${url}`;
+        throw { message: `Cannot process request for ${url}` };
     }
 }

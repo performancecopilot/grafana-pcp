@@ -10,7 +10,7 @@ Summary:        PCP Grafana Application
 BuildArch:      noarch
 ExclusiveArch:  %{nodejs_arches}
 
-License:        GPLv2+ and MIT
+License:        ASL 2.0
 URL:            %{github}
 
 Source0:        %{github}/archive/v%{version}/%{name}-%{version}.tar.gz
@@ -23,8 +23,8 @@ Obsoletes:      grafana-pcp-datasource
 Obsoletes:      grafana-pcp-redis
 
 %description
-Native PCP application plugin for Grafana with several data sources and dashboards.
-
+Native Performance Co-Pilot application plugin for Grafana with datasources
+for pmseries, live metrics and the bpftrace PMDA, and several example dashboards.
 
 %prep
 %setup -q
@@ -41,14 +41,14 @@ cp -a dist/* %{buildroot}/%{install_dir}
 %files
 %{install_dir}
 
-%license LICENSE
+%license LICENSE NOTICE
 %doc README.md
 
 %changelog
-* Fri Jul 05 2019 Mark Goodwin <mgoodwin@redhat.com> 0.0.7-1
-- converted into a grafana application with multiple datasources
-- reworked datasources to use pmproxy /series REST API
-- renamed package to grafana-pcp, updated README, etc
+* Fri Aug 16 2019 Andreas Gerstmayr <agerstmayr@redhat.com> 0.0.7-1
+- converted into a Grafana app plugin, renamed to grafana-pcp
+- redis: support for instance domains, labels, autocompletion, automatic rate conversation
+- live and bpftrace: initial commit of datasources
 
 * Tue Jun 11 2019 Mark Goodwin <mgoodwin@redhat.com> 0.0.6-1
 - renamed package to grafana-pcp-redis, updated README, etc

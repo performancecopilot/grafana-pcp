@@ -22,8 +22,5 @@ monitoring and includes container support.
 
 # Installation
 
-Use the `grafana-cli` tool to install this app:
-```
-sudo grafana-cli plugins install performancecopilot-pcp-app
-sudo service grafana-server restart
-```
+Download the tarball, extract it to `/var/lib/grafana/plugins`, restart grafana,
+enable the Performance Co-Pilot plugin and setup the datasources.
