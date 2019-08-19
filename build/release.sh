@@ -15,7 +15,7 @@ if ! git diff-index --quiet HEAD --; then
     exit 1
 fi
 
-PLUGIN_NAME="grafana-app"
+PLUGIN_NAME="grafana-pcp"
 VERSION=$(cat src/plugin.json | jq '.info.version' | sed 's/"//g')
 RELEASE_NOTES=$(awk '/^## / {s++} s == 1 {print}' CHANGELOG.md)
 
