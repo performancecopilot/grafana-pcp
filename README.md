@@ -22,5 +22,12 @@ monitoring and includes container support.
 
 # Installation
 
-Download the tarball, extract it to `/var/lib/grafana/plugins`, restart grafana,
-enable the Performance Co-Pilot plugin and setup the datasources.
+Download a release tarball from https://github.com/performancecopilot/grafana-pcp/releases,
+extract it to `/var/lib/grafana/plugins`, restart grafana, enable the Performance Co-Pilot
+plugin and setup the datasources.
+
+```
+$ wget https://github.com/performancecopilot/grafana-pcp/archive/v0.0.7.tar.gz
+$ sudo tar xfz v0.0.7.tar.gz -C /var/lib/grafana/plugins
+$ sudo systemctl restart grafana-server 
+```
