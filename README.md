@@ -21,7 +21,6 @@ pmwebd(1) daemon. It is intented for single host, on-demand performance
 monitoring and includes container support.
 
 # Installation
-
 Download a release tarball from https://github.com/performancecopilot/grafana-pcp/releases,
 extract it to `/var/lib/grafana/plugins`, restart grafana, enable the Performance Co-Pilot
 plugin and setup the datasources.

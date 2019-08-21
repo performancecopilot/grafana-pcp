@@ -1,6 +1,6 @@
 {
   "name": "pcp-grafana-app",
-  "description": "PCP Grafana Application",
+  "description": "Performance Co-Pilot App for Grafana",
   "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack.config.prod.js",

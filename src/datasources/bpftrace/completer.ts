@@ -25,6 +25,28 @@ export default class PCPBPFtraceCompleter {
         };
     }
 
+    *getAllPreviousTokens(session: any, pos: any) {
+        const curLineTokens = session.getTokens(pos.row);
+        const curLineTokensUntilCursor: any[] = [];
+        // get all tokens of the current line until cursor position
+        for (let i = 0, c = 0; i < curLineTokens.length; i++) {
+            c += curLineTokens[i].value.length;
+            if (c > pos.column) {
+                break;
+            }
+            curLineTokensUntilCursor.push(curLineTokens[i]);
+        }
+        curLineTokensUntilCursor.reverse();
+        yield* curLineTokensUntilCursor;
+
+        for (let row = pos.row - 1; row >= 0; row--) {
+            const tokens = session.getTokens(row);
+            for (let i = tokens.length - 1; i >= 0; i--) {
+                yield tokens[i];
+            }
+        }
+    }
+
     async findProbeCompletions() {
         // don't do this in constructor of PCPBPFtraceCompleter, as the user could
         // change the endpoint settings of the query, but the constructor is only called once
