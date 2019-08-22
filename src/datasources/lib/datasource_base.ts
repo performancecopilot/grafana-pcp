@@ -22,7 +22,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
     endpointRegistry: EndpointRegistry<EP>;
     transformations: PanelTransformations;
 
-    constructor(readonly instanceSettings: any, private backendSrv: any, private templateSrv: any, private variableSrv: any) {
+    constructor(readonly instanceSettings: any, private backendSrv: any, private templateSrv: any) {
         this.name = instanceSettings.name;
         this.withCredentials = instanceSettings.withCredentials;
         this.headers = { 'Content-Type': 'application/json' };

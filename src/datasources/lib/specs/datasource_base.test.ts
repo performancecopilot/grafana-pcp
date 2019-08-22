@@ -27,14 +27,14 @@ describe("DatasourceBase", () => {
         };
         ctx.context = {
             indom: jest.fn(),
-            metrics: jest.fn()
+            metric: jest.fn()
         } as any;
         ctx.pmapiSrv = new PmapiSrv(ctx.context);
-        ctx.datasource = new Datasource(instanceSettings, null, null, null);
+        ctx.datasource = new Datasource(instanceSettings, null, null);
     });
 
     it("should perform rate-conversation for counters", async () => {
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataSingle,
                 sem: "counter"
@@ -72,7 +72,7 @@ describe("DatasourceBase", () => {
     });
 
     it("should perform utilization-conversation for time-based counters", async () => {
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataSingle,
                 sem: "counter",
@@ -111,7 +111,7 @@ describe("DatasourceBase", () => {
     });
 
     it("should not modify the datastore", async () => {
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataSingle,
                 sem: "counter"

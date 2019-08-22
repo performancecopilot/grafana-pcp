@@ -50,9 +50,15 @@ export default class BPFtraceScript {
         ];
     }
 
+    private getDataMetric(var_: string) {
+        return `bpftrace.scripts.${this.name}.data.${var_}`;
+    }
+
     private async findMetricForMetricType(pmapiSrv: PmapiSrv, metrictype: MetricType) {
+        if (this.vars.length === 1)
+            return this.getDataMetric(this.vars[0]);
         for (const var_ of this.vars) {
-            const metric = `bpftrace.scripts.${this.name}.data.${var_}`;
+            const metric = this.getDataMetric(var_);
             const labels = await pmapiSrv.getLabels(metric);
             if (labels.metrictype === metrictype)
                 return metric;
@@ -62,7 +68,7 @@ export default class BPFtraceScript {
 
     async getDataMetrics(pmapiSrv: PmapiSrv, format: TargetFormat) {
         if (format === TargetFormat.TimeSeries) {
-            return this.vars.map(var_ => `bpftrace.scripts.${this.name}.data.${var_}`);
+            return this.vars.map(var_ => this.getDataMetric(var_));
         }
         else if (format === TargetFormat.Heatmap) {
             const metric = await this.findMetricForMetricType(pmapiSrv, MetricType.Histogram);
@@ -84,9 +90,11 @@ export default class BPFtraceScript {
         for (const metric of queryResult.metrics) {
             if (metric.instances.length > 0 && metric.instances[0].values.length > 0) {
                 const metric_field = metric.name.substring(metric.name.lastIndexOf('.') + 1);
-                // datastore doesn't retain old values of metrics with agent=bpftrace, metrictype=control,
-                // so it's safe to pick the first value (is always the latest)
-                this[metric_field] = metric.instances[0].values[0][0];
+                const lastValueIdx = metric.instances[0].values.length - 1;
+                // when using pmproxy, datastore doesn't retain old values of metrics
+                // with agent=bpftrace, metrictype=control
+                // however, with pmwebd, it does retain old values
+                this[metric_field] = metric.instances[0].values[lastValueIdx][0];
             }
         }
     }

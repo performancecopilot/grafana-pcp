@@ -11,7 +11,7 @@ describe("PollSrv", () => {
         dateMock.clear();
         ctx.context = {
             indom: jest.fn(),
-            metrics: jest.fn(),
+            metric: jest.fn(),
             fetch: jest.fn()
         } as any;
         ctx.pmapiSrv = new PmapiSrv(ctx.context);
@@ -20,7 +20,7 @@ describe("PollSrv", () => {
     });
 
     it("should poll", async () => {
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataSingle
             }]
@@ -53,7 +53,7 @@ describe("PollSrv", () => {
     });
 
     it("should add and remove metrics to poll", async () => {
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataSingle,
                 name: "metric1"
@@ -81,7 +81,7 @@ describe("PollSrv", () => {
     });
 
     it("should remove metrics which weren't requested in a specified time period", async () => {
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataSingle,
                 name: "metric1"

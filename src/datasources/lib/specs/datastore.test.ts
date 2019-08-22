@@ -10,14 +10,14 @@ describe("DataStore", () => {
         dateMock.clear();
         ctx.context = {
             indom: jest.fn(),
-            metrics: jest.fn()
+            metric: jest.fn()
         } as any;
         ctx.pmapiSrv = new PmapiSrv(ctx.context);
         ctx.datastore = new DataStore(ctx.pmapiSrv, 5 * 60 * 1000);
     });
 
     it("should ingest single metrics", async () => {
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataSingle
             }]
@@ -65,7 +65,7 @@ describe("DataStore", () => {
                 { instance: 2, name: "/dev/sda2", labels: {} }
             ]
         });
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataIndom
             }]
@@ -107,7 +107,7 @@ describe("DataStore", () => {
                 { instance: 2, name: "/dev/sda2", labels: {} }
             ]
         });
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataIndom
             }]
@@ -159,7 +159,7 @@ describe("DataStore", () => {
     });
 
     it("should remove old data from bpftrace output variables", async () => {
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataSingle,
                 name: "bpftrace.scripts.script1.data.output",
@@ -204,7 +204,7 @@ describe("DataStore", () => {
     });
 
     it("should return metrics in time range", async () => {
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataSingle
             }]
@@ -260,7 +260,7 @@ describe("DataStore", () => {
     });
 
     it("should clean expired metrics", async () => {
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataSingle
             }]

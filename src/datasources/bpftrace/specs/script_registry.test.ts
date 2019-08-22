@@ -15,7 +15,7 @@ describe("ScriptRegistry", () => {
         dateMock.clear();
         ctx.context = {
             indom: jest.fn(),
-            metrics: jest.fn(),
+            metric: jest.fn(),
             fetch: jest.fn(),
             store: jest.fn(),
             newInstance: () => ctx.context
@@ -39,7 +39,7 @@ describe("ScriptRegistry", () => {
                 }]
             }]
         });
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataSingle,
                 name: "bpftrace.scripts.script1.status",
@@ -209,7 +209,7 @@ describe("ScriptRegistry", () => {
         await ctx.pollSrv.poll();
 
         // ensureActive tries to fetch metadata (not in cache anymore), but it doesn't exist
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: []
         });
         // then it will register the script again
@@ -225,7 +225,7 @@ describe("ScriptRegistry", () => {
             }]
         });
         // and ensurePolling will fetch metadata
-        ctx.context.metrics.mockResolvedValueOnce({
+        ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataSingle,
                 name: "bpftrace.scripts.script1.status",

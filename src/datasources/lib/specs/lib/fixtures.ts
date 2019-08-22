@@ -44,14 +44,65 @@ export const queryTarget: QueryTarget = {
 };
 
 export class PmWebd {
-    fetchSingleMetric(context: number, timestamp: number, metrics: { name: string, value: number }[], requestedMetrics: string[] = []) {
+    static context(context: number) {
+        return {
+            "request": {
+                "url": "^/pmapi/context$"
+            },
+            "response": {
+                "status": 200,
+                "data": {
+                    "context": context
+                }
+            }
+        };
+    }
+    static contextExpired(url: string) {
+        return {
+            "request": {
+                "url": url,
+            },
+            "response": {
+                "status": 400,
+                "data": "PMWEBD error, code -12376: Attempt to use an illegal context"
+            }
+        };
+    }
+
+    static metric(context: number, metric: string, semantics: string) {
+        return {
+            "request": {
+                "url": `^/pmapi/${context}/_metric$`,
+                "params": {
+                    "prefix": metric
+                }
+            },
+            "response": {
+                "status": 200,
+                "data": {
+                    "metrics": [{
+                        "name": metric,
+                        "text-oneline": "fork rate metric from /proc/stat",
+                        "text-help": "fork rate metric from /proc/stat",
+                        "pmid": 251658254,
+                        "sem": semantics,
+                        "units": "count",
+                        "type": "U64"
+                    }]
+                }
+            }
+        };
+    }
+
+    static fetchSingleMetric(context: number, timestampS: number, timestampUs: number,
+        metrics: { name: string, value: number }[], requestedMetrics: string[] = []) {
         if (requestedMetrics.length === 0)
             requestedMetrics = metrics.map(metric => metric.name);
 
         if (requestedMetrics.length === 1 && metrics.length === 0) {
             return {
                 "request": {
-                    "url": `^/pmapi/${context}/fetch$`,
+                    "url": `^/pmapi/${context}/_fetch$`,
                     "params": {
                         "names": requestedMetrics.join(',')
                     }
@@ -65,7 +116,7 @@ export class PmWebd {
 
         return {
             "request": {
-                "url": `^/pmapi/${context}/fetch$`,
+                "url": `^/pmapi/${context}/_fetch$`,
                 "params": {
                     "names": requestedMetrics.join(',')
                 }
@@ -73,14 +124,16 @@ export class PmWebd {
             "response": {
                 "status": 200,
                 "data": {
-                    "context": context,
-                    "timestamp": timestamp,
+                    "timestamp": {
+                        "s": timestampS,
+                        "us": timestampUs
+                    },
                     "values": metrics.map(({ name, value }) => ({
-                        "pmid": "60.0.14",
+                        "pmid": 123,
                         "name": name,
                         "instances": [
                             {
-                                "instance": null,
+                                "instance": -1,
                                 "value": value
                             }
                         ]

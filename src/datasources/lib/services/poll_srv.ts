@@ -1,6 +1,6 @@
 import _ from "lodash";
 import DataStore from "../datastore";
-import { PmapiSrv } from "./pmapi_srv";
+import { PmapiSrv, MissingMetricsError } from "./pmapi_srv";
 
 export default class PollSrv {
     private requestedMetrics: Record<string, number> = {}; // {metric: lastRequested}
@@ -31,11 +31,7 @@ export default class PollSrv {
         const metadatas = await this.pmapiSrv.getMetricMetadatas(metrics);
         const missingMetrics = _.difference(metrics, Object.keys(metadatas));
         if (missingMetrics.length > 0) {
-            const s = missingMetrics.length !== 1 ? 's' : '';
-            throw {
-                message: `Cannot find metric${s} ${missingMetrics.join(', ')}. Please check if the PMDA is enabled.`,
-                missingMetrics
-            };
+            throw new MissingMetricsError(missingMetrics);
         }
 
         const validMetrics = _.intersection(metrics, Object.keys(metadatas));

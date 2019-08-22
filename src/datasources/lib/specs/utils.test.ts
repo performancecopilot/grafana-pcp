@@ -3,7 +3,7 @@ import { synchronized } from "../utils";
 class SynchronizedClass {
     log: string[] = [];
 
-    constructor(private id: number) {
+    constructor(id: number) {
     }
 
     @synchronized

@@ -3,6 +3,7 @@ import { synchronized, isBlank } from '../utils';
 import { MetricMetadata, IndomInstance, MetricValues } from '../models/pmapi';
 import { DatasourceRequestFn } from '../models/datasource';
 import { Labels } from '../models/metrics';
+import "core-js/stable/array/flat-map";
 
 export interface MetricsResponse {
     metrics: MetricMetadata[];
@@ -26,10 +27,23 @@ export interface ChildrenResponse {
     nonleaf: string[];
 }
 
+export class MissingMetricsError extends Error {
+    readonly metrics: string[];
+    constructor(metrics: string[], message?: string) {
+        const s = metrics.length !== 1 ? 's' : '';
+        if (!message)
+            message = `Cannot find metric${s} ${metrics.join(', ')}. Please check if the PMDA is enabled.`;
+        super(message);
+        this.metrics = metrics;
+        Object.setPrototypeOf(this, MissingMetricsError.prototype);
+    }
+}
+
 export class Context {
 
     private context: string;
     private isPmwebd = false;
+    private isPmproxy = true;
     private d = '';
 
     constructor(private datasourceRequest: DatasourceRequestFn, private url: string, private container?: string) {
@@ -48,9 +62,14 @@ export class Context {
         this.context = contextResponse.data.context;
 
         // only pmproxy contains source attribute
-        if (!contextResponse.data.source) {
-            // pmwebd compat
+        if (contextResponse.data.source) {
+            this.isPmproxy = true;
+            this.isPmwebd = false;
+            this.d = '';
+        }
+        else {
             this.isPmwebd = true;
+            this.isPmproxy = false;
             this.d = '_';
         }
 
@@ -70,8 +89,8 @@ export class Context {
         try {
             return await fn();
         } catch (error) {
-            if ((_.isString(error.data) && error.data.includes("12376")) ||
-                (_.isObject(error.data) && error.data.message.includes("unknown context identifier"))) {
+            if ((this.isPmproxy && _.has(error, 'data.message') && error.data.message.includes("unknown context identifier")) ||
+                (this.isPmwebd && _.isString(error.data) && error.data.includes("12376"))) {
                 console.debug("context expired, creating new context...");
                 await this.createContext();
                 return await fn();
@@ -82,31 +101,43 @@ export class Context {
         }
     }
 
-    async metrics(metrics: string[]): Promise<MetricsResponse> {
-        const response: MetricsResponse = await this.ensureContext(async () => {
-            try {
-                const response = await this.datasourceRequest({
-                    url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
-                    params: { names: metrics.join(',') }
-                });
-                return response.data;
+    async metric(metrics: string[]): Promise<MetricsResponse> {
+        return await this.ensureContext(async () => {
+            // we know whether it's a pmproxy or pmwebd only after context was created
+            if (this.isPmproxy) {
+                try {
+                    const response = await this.datasourceRequest({
+                        url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
+                        params: { names: metrics.join(',') }
+                    });
+                    return response.data;
+                }
+                catch (e) {
+                    // pmproxy throws an exception if exactly one metric is requested
+                    // and this metric is not found
+                    if (e.data && !e.data.success)
+                        return { metrics: [] };
+                    else
+                        throw e;
+                }
             }
-            catch (e) {
-                // pmproxy throws an exception if exactly one metric is requested
-                // and this metric is not found
-                if (e.data && !e.data.success)
-                    return { metrics: [] };
-                else
-                    throw e;
+            else {
+                const responses = await Promise.all(metrics.map(metric => this.datasourceRequest({
+                    url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
+                    params: { prefix: metric }
+                })));
+                return {
+                    metrics: responses.flatMap(response => {
+                        const metricsList = response.data.metrics;
+                        if (metricsList.length > 0) {
+                            metricsList[0].pmid = metricsList[0].pmid.toString();
+                            metricsList[0].labels = {};
+                        }
+                        return metricsList;
+                    })
+                };
             }
         });
-
-        if (this.isPmwebd) {
-            for (const metric of response.metrics) {
-                metric.labels = {};
-            }
-        }
-        return response;
     }
 
     async indom(metric: string): Promise<IndomResponse> {
@@ -138,8 +169,8 @@ export class Context {
             catch (e) {
                 // pmwebd throws an exception if exactly one metric is requested
                 // and this metric is not found
-                if (_.isString(e.data) && e.data.includes("-12443"))
-                    return { timestamp: 0, values: [] };
+                if (this.isPmwebd && _.isString(e.data) && e.data.includes("-12443"))
+                    return { timestamp: { s: 0, us: 0 }, values: [] };
                 else
                     throw e;
             }
@@ -148,6 +179,7 @@ export class Context {
         if (this.isPmwebd) {
             data.timestamp = data.timestamp.s + data.timestamp.us / 1000000;
             for (const metric of (data as FetchResponse).values) {
+                metric.pmid = metric.pmid.toString();
                 for (const instance of metric.instances) {
                     if (instance.instance === -1)
                         instance.instance = null;
@@ -160,11 +192,23 @@ export class Context {
 
     async store(metric: string, value: string): Promise<StoreResponse> {
         return await this.ensureContext(async () => {
-            const response = await this.datasourceRequest({
-                url: `${this.url}/pmapi/${this.context}/${this.d}store`,
-                params: { name: metric, value: value }
-            });
-            return response.data;
+            try {
+                const response = await this.datasourceRequest({
+                    url: `${this.url}/pmapi/${this.context}/${this.d}store`,
+                    params: { name: metric, value: value }
+                });
+                return response.data;
+            }
+            catch (error) {
+                if ((this.isPmproxy && _.has(error, 'data.message') && error.data.message.includes("failed to lookup metric")) ||
+                    (this.isPmwebd && _.isString(error.data) && error.data.includes("-12357")))
+                    throw new MissingMetricsError([metric]);
+                else if ((this.isPmproxy && _.has(error, 'data.message') && error.data.message.includes("Bad input")) ||
+                    (this.isPmwebd && _.isString(error.data) && error.data.includes("-12400")))
+                    return { success: false };
+                else
+                    throw error;
+            }
         });
     }
 
@@ -190,7 +234,7 @@ export class PmapiSrv {
     async getMetricMetadatas(metrics: string[]): Promise<Record<string, MetricMetadata>> {
         const requiredMetrics = _.difference(metrics, Object.keys(this.metricMetadataCache));
         if (requiredMetrics.length > 0) {
-            const metadatas = await this.context.metrics(requiredMetrics);
+            const metadatas = await this.context.metric(requiredMetrics);
             for (const metricMetadata of metadatas.metrics) {
                 this.metricMetadataCache[metricMetadata.name] = metricMetadata;
             }

@@ -6,7 +6,7 @@ export class PCPLiveConfigCtrl {
     current: any;
 
     /* @ngInject */
-    constructor(private backendSrv: any, private templateSrv: any, private variableSrv: any) {
+    constructor(private backendSrv: any, private templateSrv: any) {
         // gf-form-dropdown won't open with null/undefined value and allow-custom=true
         this.current.jsonData.container = this.current.jsonData.container || "";
     }
@@ -14,7 +14,7 @@ export class PCPLiveConfigCtrl {
     async getContainers() {
         const instanceSettings = _.cloneDeep(this.current);
         instanceSettings.jsonData.pollInterval = '0s'; // otherwise setInterval will be called in constructor
-        const datasource = new PCPLiveDatasource(instanceSettings, this.backendSrv, this.templateSrv, this.variableSrv);
+        const datasource = new PCPLiveDatasource(instanceSettings, this.backendSrv, this.templateSrv);
 
         let containers: any = [];
         try {

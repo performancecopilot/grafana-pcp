@@ -34,9 +34,7 @@ describe("PCP Live End-to-End", () => {
                 return str;
             }
         };
-        const variableSrv = {
-        };
-        ctx.datasource = new PCPLiveDatasource(instanceSettings, backendSrv, templateSrv, variableSrv);
+        ctx.datasource = new PCPLiveDatasource(instanceSettings, backendSrv, templateSrv);
         dateMock.advanceTo(20000); // simulate unixtime of 20s (since Jan 1, 1970 UTC)
     });
 

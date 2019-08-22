@@ -7,8 +7,8 @@ import { TargetResult } from "../lib/models/metrics";
 export class PCPLiveDatasource extends PCPLiveDatasourceBase<Endpoint> {
 
     /* @ngInject */
-    constructor(instanceSettings: any, backendSrv: any, templateSrv: any, variableSrv: any) {
-        super(instanceSettings, backendSrv, templateSrv, variableSrv);
+    constructor(instanceSettings: any, backendSrv: any, templateSrv: any) {
+        super(instanceSettings, backendSrv, templateSrv);
 
         if (this.pollIntervalMs > 0)
             setInterval(this.doPollAll.bind(this), this.pollIntervalMs);

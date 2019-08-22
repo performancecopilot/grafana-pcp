@@ -13,20 +13,20 @@ interface BenchmarkCase {
 class IngestWithRateConversation {
     datastore: DataStore;
     constructor() {
-        const context: any = {
-            metricMetadata: () => ({ sem: "counter" })
+        const pmapiSrv: any = {
+            getLabels: () => ({})
         };
-        this.datastore = new DataStore(context, 25000);
+        this.datastore = new DataStore(pmapiSrv, 25000);
     }
     async run(deferred: any) {
         for (let i = 0; i < 2000; i++) {
-            this.datastore.ingest({
+            await this.datastore.ingest({
                 "timestamp": 5.2,
                 "values": [{
                     "pmid": "1.0.1",
                     "name": "bpftrace.scripts.script1.data.scalar",
                     "instances": [{
-                        "instance": -1,
+                        "instance": null,
                         "value": 45200
                     }]
                 }]
@@ -39,20 +39,20 @@ class IngestWithRateConversation {
 class IngestWithoutRateConversation {
     datastore: DataStore;
     constructor() {
-        const context: any = {
-            metricMetadata: () => ({})
+        const pmapiSrv: any = {
+            getLabels: () => ({})
         };
-        this.datastore = new DataStore(context, 25000);
+        this.datastore = new DataStore(pmapiSrv, 25000);
     }
     async run(deferred: any) {
         for (let i = 0; i < 2000; i++) {
-            this.datastore.ingest({
+            await this.datastore.ingest({
                 "timestamp": 5.2,
                 "values": [{
                     "pmid": "1.0.1",
                     "name": "bpftrace.scripts.script1.data.scalar",
                     "instances": [{
-                        "instance": -1,
+                        "instance": null,
                         "value": 45200
                     }]
                 }]
@@ -66,19 +66,19 @@ class CounterValues {
     values: Datapoint<number>[];
 
     async setup() {
-        const context: any = {
-            metricMetadata: () => ({})
+        const pmapiSrv: any = {
+            getLabels: () => ({})
         };
-        const datastore = new DataStore(context, 25000);
+        const datastore = new DataStore(pmapiSrv, 25000);
         // 3640 px per page (1px = 1 datapoint), 17 rows
         for (let i = 0; i < 3640 * 17; i++) {
-            datastore.ingest({
+            await datastore.ingest({
                 "timestamp": 5.2,
                 "values": [{
                     "pmid": "1.0.1",
                     "name": "bpftrace.scripts.script1.data.scalar",
                     "instances": [{
-                        "instance": -1,
+                        "instance": null,
                         "value": 45200
                     }]
                 }]
@@ -88,7 +88,7 @@ class CounterValues {
         const result = datastore.queryMetric("bpftrace.scripts.script1.data.scalar", 0, Infinity);
         const instance = result[0] as MetricInstance<number>;
         this.values = instance.values;
-        console.log(this.values.length);
+        console.log("prepared values", this.values.length);
     }
 
     run(deferred: any) {
@@ -99,7 +99,7 @@ class CounterValues {
     finish() {
         // TODO: this test removes the last element from the list,
         // i.e. later executions are faster and the benchmark result is invalid
-        console.log("finished", this.values.length);
+        console.log("finished values", this.values.length);
     }
 }
 
@@ -127,6 +127,23 @@ class Benchmarks {
                 }
             })
             .run({ 'async': true });
+    }
+
+    static async runOnce(benchmarks: BenchmarkCase[]) {
+        for (const benchmark of benchmarks) {
+            if (benchmark.setup) {
+                await benchmark.setup();
+            }
+        }
+        for (const benchmark of benchmarks) {
+            await new Promise((resolve, reject) => {
+                benchmark.run({ resolve, reject });
+            });
+        }
+        for (const benchmark of benchmarks) {
+            if (benchmark.finish)
+                await benchmark.finish();
+        }
     }
 }
 

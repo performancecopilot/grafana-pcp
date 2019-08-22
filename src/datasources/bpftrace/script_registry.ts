@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { PmapiSrv } from "../lib/services/pmapi_srv";
+import { PmapiSrv, MissingMetricsError } from "../lib/services/pmapi_srv";
 import PollSrv from '../lib/services/poll_srv';
 import DataStore from '../lib/datastore';
 import BPFtraceScript, { ScriptStatus } from './script';
@@ -26,21 +26,10 @@ export default class ScriptRegistry {
             await localPmapiSrv.storeMetricValue("bpftrace.control.register", code);
         }
         catch (error) {
-            if (_.has(error, 'data.message')) {
-                if (error.data.message.includes("failed to lookup metric")) {
-                    throw new Error("Please install the bpftrace PMDA to use this datasource.");
-                }
-                else if (error.data.message.includes("Bad input")) {
-                    // PMDA returned PM_ERR_BADSTORE
-                    // next fetch will show error reason from bpftrace PMDA
-                }
-                else {
-                    throw new Error(error.data.message);
-                }
-            }
-            else {
+            if (error instanceof MissingMetricsError)
+                throw new Error("Please install the bpftrace PMDA to use this datasource.");
+            else
                 throw error;
-            }
         }
         const response = await localPmapiSrv.getMetricValues(["bpftrace.control.register"]);
 
@@ -59,10 +48,13 @@ export default class ScriptRegistry {
                 await this.pollSrv.ensurePolling(script.getControlMetrics());
             }
             catch (error) {
-                // script just got registered, ignore missing metrics
-                // re-throw on other errors
-                if (!error.missingMetrics)
+                if (error instanceof MissingMetricsError) {
+                    // script just got registered, ignore missing metrics
+                }
+                else {
+                    // re-throw on other errors
                     throw error;
+                }
             }
         }
         return script;
@@ -91,11 +83,14 @@ export default class ScriptRegistry {
             // missing script metrics on the PMDA, e.g. PMDA was restarted or script expired
             // pollSrv requested metric, pmproxy didn't include it in response, therefore PmApi removed
             // metric metadata from cache and ensurePolling requested it again, but pmproxy didn't return it => exception
-            if (error.missingMetrics) {
-                // script is not starting, register again
-                if (script.status !== ScriptStatus.Starting) {
+            if (error instanceof MissingMetricsError) {
+                if (script.status === ScriptStatus.Starting) {
+                    // ignore error
+                }
+                else {
+                    // missing metrics, register script again
                     console.debug(`script ${script.name} got deregistered on the PMDA ` +
-                        `(missing metrics: ${error.missingMetrics.join(', ')}), register it again...`);
+                        `(missing metrics: ${error.metrics.join(', ')}), register it again...`);
                     this.deregister(script);
                     return await this.register(code);
                 }

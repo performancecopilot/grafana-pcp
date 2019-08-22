@@ -1,11 +1,9 @@
 import { Labels } from "./metrics";
 
-export type PMID = string;
-
 export interface MetricMetadata {
     series?: string;
     name: string;
-    pmid: PMID;
+    pmid: string;
     indom?: string;
     type: string;
     sem: string;
@@ -27,7 +25,7 @@ export interface InstanceValues {
 }
 
 export interface MetricValues {
-    pmid: PMID;
+    pmid: string;
     name: string;
     instances: InstanceValues[];
 }
