@@ -3,21 +3,20 @@ import _ from "lodash";
 // typescript decorator which makes sure that this function
 // is called only once at a time
 // subsequent calls return the promise of the first call
-export function synchronized(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+export function synchronized(target: any, methodName: string, descriptor: PropertyDescriptor) {
     const method = descriptor.value;
-
     descriptor.value = function () {
         if (!this.inflightCalls)
             this.inflightCalls = {};
-        if (this.inflightCalls[propertyKey])
-            return this.inflightCalls[propertyKey];
+        if (this.inflightCalls[methodName])
+            return this.inflightCalls[methodName];
 
-        this.inflightCalls[propertyKey] = method.apply(this, arguments);
-        return this.inflightCalls[propertyKey].then((result: any) => {
-            this.inflightCalls[propertyKey] = null;
+        this.inflightCalls[methodName] = method.apply(this, arguments);
+        return this.inflightCalls[methodName].then((result: any) => {
+            this.inflightCalls[methodName] = null;
             return result;
         }, (reason: any) => {
-            this.inflightCalls[propertyKey] = null;
+            this.inflightCalls[methodName] = null;
             throw reason;
         });
     };

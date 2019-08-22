@@ -81,100 +81,103 @@ export class Context {
         }
     }
 
-    private async ensureContext(fn: () => any) {
-        if (!this.context) {
-            await this.createContext();
-        }
-
-        try {
-            return await fn();
-        } catch (error) {
-            if ((this.isPmproxy && _.has(error, 'data.message') && error.data.message.includes("unknown context identifier")) ||
-                (this.isPmwebd && _.isString(error.data) && error.data.includes("12376"))) {
-                console.debug("context expired, creating new context...");
+    static ensureContext(target: any, methodName: string, descriptor: PropertyDescriptor) {
+        const method = descriptor.value;
+        const asyncFn = async function (this: Context, args: IArguments) {
+            if (!this.context) {
                 await this.createContext();
-                return await fn();
             }
-            else {
-                throw error;
+
+            try {
+                return await method.apply(this, args);
+            } catch (error) {
+                if ((this.isPmproxy && _.has(error, 'data.message') && error.data.message.includes("unknown context identifier")) ||
+                    (this.isPmwebd && _.isString(error.data) && error.data.includes("12376"))) {
+                    console.debug("context expired, creating new context...");
+                    await this.createContext();
+                    return await method.apply(this, args);
+                }
+                else {
+                    throw error;
+                }
             }
-        }
+        };
+        descriptor.value = function (this: Context) {
+            return asyncFn.call(this, arguments);
+        };
     }
 
+    @Context.ensureContext
     async metric(metrics: string[]): Promise<MetricsResponse> {
-        return await this.ensureContext(async () => {
-            // we know whether it's a pmproxy or pmwebd only after context was created
-            if (this.isPmproxy) {
-                try {
-                    const response = await this.datasourceRequest({
-                        url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
-                        params: { names: metrics.join(',') }
-                    });
-                    return response.data;
-                }
-                catch (e) {
-                    // pmproxy throws an exception if exactly one metric is requested
-                    // and this metric is not found
-                    if (e.data && !e.data.success)
-                        return { metrics: [] };
-                    else
-                        throw e;
-                }
-            }
-            else {
-                const responses = await Promise.all(metrics.map(metric => this.datasourceRequest({
-                    url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
-                    params: { prefix: metric }
-                })));
-                return {
-                    metrics: responses.flatMap(response => {
-                        const metricsList = response.data.metrics;
-                        if (metricsList.length > 0) {
-                            metricsList[0].pmid = metricsList[0].pmid.toString();
-                            metricsList[0].labels = {};
-                        }
-                        return metricsList;
-                    })
-                };
-            }
-        });
-    }
-
-    async indom(metric: string): Promise<IndomResponse> {
-        const response: IndomResponse = await this.ensureContext(async () => {
-            const response = await this.datasourceRequest({
-                url: `${this.url}/pmapi/${this.context}/${this.d}indom`,
-                params: { name: metric }
-            });
-            return response.data;
-        });
-
-        if (this.isPmwebd) {
-            for (const instance of response.instances) {
-                instance.labels = {};
-            }
-        }
-        return response;
-    }
-
-    async fetch(metrics: string[]): Promise<FetchResponse> {
-        const data = await this.ensureContext(async () => {
+        if (this.isPmproxy) {
             try {
                 const response = await this.datasourceRequest({
-                    url: `${this.url}/pmapi/${this.context}/${this.d}fetch`,
+                    url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
                     params: { names: metrics.join(',') }
                 });
                 return response.data;
             }
             catch (e) {
-                // pmwebd throws an exception if exactly one metric is requested
+                // pmproxy throws an exception if exactly one metric is requested
                 // and this metric is not found
-                if (this.isPmwebd && _.isString(e.data) && e.data.includes("-12443"))
-                    return { timestamp: { s: 0, us: 0 }, values: [] };
+                if (e.data && !e.data.success)
+                    return { metrics: [] };
                 else
                     throw e;
             }
+        }
+        else {
+            const responses = await Promise.all(metrics.map(metric => this.datasourceRequest({
+                url: `${this.url}/pmapi/${this.context}/${this.d}metric`,
+                params: { prefix: metric }
+            })));
+            return {
+                metrics: responses.flatMap(response => {
+                    const metricsList = response.data.metrics;
+                    if (metricsList.length > 0) {
+                        metricsList[0].pmid = metricsList[0].pmid.toString();
+                        metricsList[0].labels = {};
+                    }
+                    return metricsList;
+                })
+            };
+        }
+    }
+
+    @Context.ensureContext
+    async indom(metric: string): Promise<IndomResponse> {
+        const response = await this.datasourceRequest({
+            url: `${this.url}/pmapi/${this.context}/${this.d}indom`,
+            params: { name: metric }
         });
+        const data = response.data;
+
+        if (this.isPmwebd) {
+            for (const instance of data.instances) {
+                instance.labels = {};
+            }
+        }
+        return data;
+    }
+
+    @Context.ensureContext
+    async fetch(metrics: string[]): Promise<FetchResponse> {
+        let data: any;
+        try {
+            const response = await this.datasourceRequest({
+                url: `${this.url}/pmapi/${this.context}/${this.d}fetch`,
+                params: { names: metrics.join(',') }
+            });
+            data = response.data;
+        }
+        catch (e) {
+            // pmwebd throws an exception if exactly one metric is requested
+            // and this metric is not found
+            if (this.isPmwebd && _.isString(e.data) && e.data.includes("-12443"))
+                data = { timestamp: { s: 0, us: 0 }, values: [] };
+            else
+                throw e;
+        }
 
         if (this.isPmwebd) {
             data.timestamp = data.timestamp.s + data.timestamp.us / 1000000;
@@ -190,36 +193,34 @@ export class Context {
         return data;
     }
 
+    @Context.ensureContext
     async store(metric: string, value: string): Promise<StoreResponse> {
-        return await this.ensureContext(async () => {
-            try {
-                const response = await this.datasourceRequest({
-                    url: `${this.url}/pmapi/${this.context}/${this.d}store`,
-                    params: { name: metric, value: value }
-                });
-                return response.data;
-            }
-            catch (error) {
-                if ((this.isPmproxy && _.has(error, 'data.message') && error.data.message.includes("failed to lookup metric")) ||
-                    (this.isPmwebd && _.isString(error.data) && error.data.includes("-12357")))
-                    throw new MissingMetricsError([metric]);
-                else if ((this.isPmproxy && _.has(error, 'data.message') && error.data.message.includes("Bad input")) ||
-                    (this.isPmwebd && _.isString(error.data) && error.data.includes("-12400")))
-                    return { success: false };
-                else
-                    throw error;
-            }
-        });
-    }
-
-    async children(prefix: string): Promise<ChildrenResponse> {
-        return await this.ensureContext(async () => {
+        try {
             const response = await this.datasourceRequest({
-                url: `${this.url}/pmapi/${this.context}/${this.d}children`,
-                params: { prefix: prefix }
+                url: `${this.url}/pmapi/${this.context}/${this.d}store`,
+                params: { name: metric, value: value }
             });
             return response.data;
+        }
+        catch (error) {
+            if ((this.isPmproxy && _.has(error, 'data.message') && error.data.message.includes("failed to lookup metric")) ||
+                (this.isPmwebd && _.isString(error.data) && error.data.includes("-12357")))
+                throw new MissingMetricsError([metric]);
+            else if ((this.isPmproxy && _.has(error, 'data.message') && error.data.message.includes("Bad input")) ||
+                (this.isPmwebd && _.isString(error.data) && error.data.includes("-12400")))
+                return { success: false };
+            else
+                throw error;
+        }
+    }
+
+    @Context.ensureContext
+    async children(prefix: string): Promise<ChildrenResponse> {
+        const response = await this.datasourceRequest({
+            url: `${this.url}/pmapi/${this.context}/${this.d}children`,
+            params: { prefix: prefix }
         });
+        return response.data;
     }
 }
 
