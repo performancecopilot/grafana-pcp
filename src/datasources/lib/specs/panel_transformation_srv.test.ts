@@ -23,7 +23,7 @@ describe("PanelTransformationSrv", () => {
         const query = {
             ...fixtures.query,
             scopedVars: {
-                region: {value: "eu"}
+                region: { value: "eu" }
             },
             targets: [{
                 ...fixtures.queryTarget,
@@ -114,7 +114,7 @@ describe("PanelTransformationSrv", () => {
         ]);
     });
 
-    it("should transform tables", () => {
+    it("should transform a CSV table", () => {
         const query = {
             ...fixtures.query,
             targets: [{
@@ -122,7 +122,6 @@ describe("PanelTransformationSrv", () => {
                 format: TargetFormat.Table
             }]
         };
-        /* tslint:disable:no-trailing-whitespace */
         const results: TargetResult[] = [{
             target: query.targets[0],
             metrics: [{
@@ -131,11 +130,10 @@ describe("PanelTransformationSrv", () => {
                     id: 1,
                     name: "bpftrace.script.script1.output",
                     values: [[`
-Tracing tcp connections. Hit Ctrl-C to end.
-TIME     PID      COMM             SADDR                                   SPORT  DADDR                                   DPORT 
-15:45:05 6085     pmproxy          0:0:4b2::a00:0                          45572  0:0:21ad::                              44321 
-15:45:05 6085     pmproxy          127.0.0.1                               59890  127.0.0.1                               44321 
-15:45:07 6085     pmproxy          0:0:8b2::a00:0                          45576  0:0:21ad::                              44321 
+TIME,PID,COMM,SADDR,SPORT,DADDR,DPORT
+15:45:05,6085,pmproxy,0:0:4b2::a00:0,45572,0:0:21ad::,44321
+15:45:05,6085,pmproxy,127.0.0.1,59890,127.0.0.1,44321
+15:45:07,6085,pmproxy,0:0:8b2::a00:0,45576,0:0:21ad::,44321
 `, 1400]],
                     labels: {
                         agent: "bpftrace",
@@ -144,7 +142,6 @@ TIME     PID      COMM             SADDR                                   SPORT
                 }]
             }]
         }];
-
 
         const result = ctx.transformationSrv.transform(query, results, () => "");
         expect(result).toStrictEqual([{
@@ -181,6 +178,54 @@ TIME     PID      COMM             SADDR                                   SPORT
                 "45576",
                 "0:0:21ad::",
                 "44321"
+            ]],
+            "type": "table"
+        }]);
+    });
+
+    it("should transform a CSV table with quotes", async () => {
+        const query = {
+            ...fixtures.query,
+            targets: [{
+                ...fixtures.queryTarget,
+                format: TargetFormat.Table
+            }]
+        };
+        const results: TargetResult[] = [{
+            target: query.targets[0],
+            metrics: [{
+                name: "metric",
+                instances: [{
+                    id: 1,
+                    name: "bpftrace.script.script1.output",
+                    values: [[`
+PID,COMM,FD,ERR,PATH,MIX1,MIX2
+123,"some,command",0,0,'/home/user/strange,folder',"'",'"'
+`, 1400]],
+                    labels: {}
+                }]
+            }]
+        }];
+
+        const result = ctx.transformationSrv.transform(query, results, () => "");
+        expect(result).toStrictEqual([{
+            "columns": [
+                { "text": "PID" },
+                { "text": "COMM" },
+                { "text": "FD" },
+                { "text": "ERR" },
+                { "text": "PATH" },
+                { "text": "MIX1" },
+                { "text": "MIX2" }
+            ],
+            "rows": [[
+                "123",
+                "some,command",
+                "0",
+                "0",
+                "/home/user/strange,folder",
+                "'",
+                '"'
             ]],
             "type": "table"
         }]);

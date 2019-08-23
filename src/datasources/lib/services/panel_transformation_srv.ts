@@ -55,34 +55,58 @@ export default class PanelTransformationSrv {
         });
     }
 
-    transformStringToTable(tableText: string) {
+    private *parseCsvLine(line: string) {
+        let quote = "";
+        let record = "";
+        for (const char of line) {
+            // no quotation
+            if (quote.length === 0) {
+                if (char === '"' || char === "'") { // start quotation
+                    quote = char;
+                }
+                else if (char === ',') {
+                    yield record;
+                    record = "";
+                }
+                else {
+                    record += char;
+                }
+            }
+            // inside quotation
+            else {
+                if (char === quote) { // end quotation
+                    quote = "";
+                }
+                else {
+                    record += char;
+                }
+            }
+        }
+        if (record.length > 0)
+            yield record;
+    }
+
+    transformCsvToTable(tableText: string) {
         const table: TableData = { columns: [], rows: [], type: 'table' };
         const lines = tableText.split('\n');
-        const columnSizes: [number, number | undefined][] = [];
-
         for (let line of lines) {
             line = line.trim();
-            if (line.length === 0 || line.includes("Ctrl-C"))
+            if (line.length === 0)
                 continue;
 
             if (table.columns.length === 0) {
-                const tableHeaders = line.split(/\s\s+/);
-                for (let i = 0; i < tableHeaders.length; i++) {
-                    const colStartAt = line.indexOf(tableHeaders[i]);
-                    const colEndAt = i + 1 < tableHeaders.length ? line.indexOf(tableHeaders[i + 1]) - 1 : undefined;
-                    table.columns.push({ text: tableHeaders[i] });
-                    columnSizes.push([colStartAt, colEndAt]);
-                }
+                const header = Array.from(this.parseCsvLine(line));
+                table.columns = header.map(title => ({ text: title }));
             }
             else {
-                const row = columnSizes.map((colSize: any) => line.substring(colSize[0], colSize[1]).trim());
+                const row = Array.from(this.parseCsvLine(line));
                 table.rows.push(row);
             }
         }
         return table;
     }
 
-    transformMultipleMetricsToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn, ) {
+    transformMultipleMetricsToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn) {
         const table: TableData = { columns: [], rows: [], type: 'table' };
         table.columns = results.map(targetResult => ({
             text: this.getLabel(query, targetResult.target, defaultLegendFormatter, targetResult.metrics[0].name)
@@ -104,13 +128,12 @@ export default class PanelTransformationSrv {
         return table;
     }
 
-    transformToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn, ) {
-        if (results.length === 1 && results[0].metrics.length === 1) {
-            const firstMetric = results[0].metrics[0];
-            if (firstMetric.instances.length === 1 &&
-                firstMetric.instances[0].labels.agent === "bpftrace" &&
-                firstMetric.instances[0].labels.metrictype === "output") {
-                return this.transformStringToTable((firstMetric.instances[0] as MetricInstance<string>).values[0][0]);
+    transformToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn) {
+        if (results.length === 1 && results[0].metrics.length === 1 && results[0].metrics[0].instances.length === 1) {
+            const instance = results[0].metrics[0].instances[0];
+            const lastValue = instance.values[instance.values.length - 1][0];
+            if (_.isString(lastValue) && lastValue.includes(',')) {
+                return this.transformCsvToTable(lastValue);
             }
         }
         return this.transformMultipleMetricsToTable(query, results, defaultLegendFormatter);
