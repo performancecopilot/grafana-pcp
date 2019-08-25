@@ -8,8 +8,8 @@
     "tables": true,
     "info": {
         "logos": {
-            "small": "../performancecopilot-pcp-app/img/pcp-logo.svg",
-            "large": "../performancecopilot-pcp-app/img/pcp-logo.svg"
+            "small": "img/eBPF.png",
+            "large": "img/eBPF.png"
         }
     }
 }

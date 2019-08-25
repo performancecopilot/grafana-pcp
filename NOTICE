@@ -4,3 +4,4 @@ Copyright (c) 2019 Red Hat
 Copyright (c) 2019 Netflix
 
 Thanks to Jason Koch for the initial pcp-live datasource implementation and the host overview dashboard.
+The Linux BPF Pony (used for the bpftrace datasource) was created by Deirdré Straughan using General Zoi's pony creator.
