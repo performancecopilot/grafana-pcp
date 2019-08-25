@@ -118,7 +118,8 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
                     legendFormat: target.legendFormat,
                     url: url,
                     container: container,
-                    endpoint: this.getOrCreateEndpoint(url, container)
+                    endpoint: this.getOrCreateEndpoint(url, container),
+                    uid: `${query.panelId}/${target.refId}`
                 };
             });
     }

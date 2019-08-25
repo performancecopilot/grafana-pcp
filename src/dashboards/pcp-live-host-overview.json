@@ -3237,7 +3237,6 @@
     "to": "now+2s"
   },
   "timepicker": {
-    "hidden": false,
     "refresh_intervals": [
       "1s",
       "2s",

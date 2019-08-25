@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { QueryCtrl } from 'grafana/app/plugins/sdk';
+declare var ace: any;
 
 export abstract class PCPQueryCtrl extends QueryCtrl {
 
@@ -25,21 +26,33 @@ export abstract class PCPQueryCtrl extends QueryCtrl {
         this.panelCtrl.refresh();
     }
 
-    removeTextCompleter() {
-        if (!("ace" in window))
-            return;
+    private tryRemoveTextCompleter(mode: string) {
+        if (!ace)
+            return false;
 
-        const { textCompleter } = (window as any).ace.acequire('ace/ext/language_tools');
+        const { textCompleter } = ace.acequire('ace/ext/language_tools');
         if (!textCompleter)
-            return;
+            return false;
 
-        for (const codeEditor of Array.from<any>(document.getElementsByTagName('code-editor'))) {
+        let removed = false;
+        for (const codeEditor of Array.from<any>(document.querySelectorAll(`code-editor[data-mode=${mode}]`))) {
             const completers = Array.from(codeEditor.env.editor.completers);
             const idx = completers.indexOf(textCompleter);
             if (idx >= 0) {
                 completers.splice(idx, 1);
                 codeEditor.env.editor.completers = completers;
             }
+            removed = true;
+        }
+        return removed;
+    }
+
+    removeTextCompleter(mode: string) {
+        if (!this.tryRemoveTextCompleter(mode)) {
+            // method called before code-editor is in DOM -> try again in 2s
+            // quite hacky, but there's no proper way to access the codeEditor without
+            // editing the directive (code_editor.ts) in Grafana's source code
+            setTimeout(this.tryRemoveTextCompleter.bind(this, mode), 2000);
         }
     }
 }

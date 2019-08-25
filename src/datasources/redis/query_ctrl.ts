@@ -33,7 +33,7 @@ export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
     }
 
     getCompleter() {
-        this.removeTextCompleter();
+        this.removeTextCompleter("pmseries");
         const dashboardVariables = Object.keys(getDashboardVariables(this.variableSrv));
         return new PCPRedisCompleter(this.datasource, dashboardVariables);
     }

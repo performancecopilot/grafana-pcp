@@ -117,13 +117,13 @@ export class Context {
                 });
                 return response.data;
             }
-            catch (e) {
+            catch (error) {
                 // pmproxy throws an exception if exactly one metric is requested
                 // and this metric is not found
-                if (e.data && !e.data.success)
+                if (_.has(error, 'data.message') && error.data.message.includes("Unknown metric name"))
                     return { metrics: [] };
                 else
-                    throw e;
+                    throw error;
             }
         }
         else {

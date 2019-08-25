@@ -129,7 +129,10 @@ export default class PanelTransformationSrv {
     }
 
     transformToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn) {
-        if (results.length === 1 && results[0].metrics.length === 1 && results[0].metrics[0].instances.length === 1) {
+        if (results.length === 1 &&
+            results[0].metrics.length === 1 &&
+            results[0].metrics[0].instances.length === 1 &&
+            results[0].metrics[0].instances[0].values.length > 0) {
             const instance = results[0].metrics[0].instances[0];
             const lastValue = instance.values[instance.values.length - 1][0];
             if (_.isString(lastValue) && lastValue.includes(',')) {

@@ -16,8 +16,8 @@ export default class DataStore {
 
             const storedInstance = metricStore.get(instanceId)!;
             if (storedInstance) {
-                // do not store history for the bpftrace control and output metrics
-                if (storedInstance.labels.agent === "bpftrace" && ["control", "output"].includes(storedInstance.labels.metrictype as string))
+                // do not store history for the bpftrace control metrics
+                if (storedInstance.labels.agent === "bpftrace" && storedInstance.labels.metrictype === "control")
                     storedInstance.values = [];
                 storedInstance.values.push([instance.value, pollTimeEpochMs]);
             }

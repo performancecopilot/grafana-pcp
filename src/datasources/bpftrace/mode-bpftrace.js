@@ -43,6 +43,10 @@ ace.define("ace/mode/bpftrace_highlight_rules", ["require", "exports", "module",
             "support.function": builtinFunctions
         }, "identifier");
 
+        // cannot make custom scopes for probe, filter and action block:
+        // can't parse bpftrace grammar with a finite state machine
+        // is } closing a previously opened { or closing the action block?
+        // ==> cannot count depth, therefore do depth counting in completer
         this.$rules = {
             "start": [{
                 token: "comment",
@@ -60,7 +64,7 @@ ace.define("ace/mode/bpftrace_highlight_rules", ["require", "exports", "module",
             }, {
                 token: "keyword.control.probe",
                 regex: "BEGIN|END|" + ["(k|u)(ret)?probe", "tracepoint", "usdt", "profile", "interval",
-                    "software", "hardware", "watchpoint"].map(p => `${p}:[a-zA-Z0-9_\\-:.]*`).join("|")
+                    "software", "hardware", "watchpoint"].map(p => `${p}:[a-zA-Z0-9_\\-:./]*`).join("|")
             }, {
                 token: "string",
                 regex: '".*?"'
@@ -117,6 +121,10 @@ ace.define("ace/mode/bpftrace", ["require", "exports", "module", "ace/lib/oop", 
     var Mode = function () {
         this.HighlightRules = BPFtraceHighlightRules;
         this.$behaviour = this.$defaultBehaviour;
+        // overwrite keywordCompleter
+        this.completer = {
+            getCompletions: function(editor, session, pos, prefix, callback) { callback(null, []); }
+        };
     };
     oop.inherits(Mode, TextMode);
 

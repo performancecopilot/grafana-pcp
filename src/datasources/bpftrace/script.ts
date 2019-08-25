@@ -79,7 +79,7 @@ export default class BPFtraceScript {
         else if (format === TargetFormat.Table) {
             const metric = await this.findMetricForMetricType(pmapiSrv, MetricType.Output);
             if (!metric)
-                throw new Error("Table format is only supported with printf() BPFtrace scripts.");
+                throw new Error("Please printf() a table in CSV format in the BPFtrace script.");
             return [metric];
         }
         throw new Error("Unsupported panel format.");

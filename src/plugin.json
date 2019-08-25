@@ -63,6 +63,11 @@
             "type": "dashboard",
             "name": "PCP Live Container Overview",
             "path": "dashboards/pcp-live-container-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP bpftrace System Analysis",
+            "path": "dashboards/pcp-bpftrace-system-analysis.json"
         }
     ],
     "dependencies": {

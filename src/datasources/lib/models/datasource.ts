@@ -9,6 +9,7 @@ export enum TargetFormat {
 }
 
 export interface Query {
+    panelId: number;
     timezone: string;
     interval: string;
     intervalMs: number;
@@ -30,9 +31,11 @@ export interface QueryTarget<EP extends Endpoint = Endpoint> {
     format: TargetFormat;
     legendFormat?: string;
 
-    endpoint?: EP;
+    // only live and bpftrace
     url?: string;
-    container?: string;
+    container?: string; // only live
+    endpoint?: EP;
+    uid?: string;
 }
 
 
