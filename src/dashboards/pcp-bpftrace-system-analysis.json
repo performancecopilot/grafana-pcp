@@ -37,7 +37,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1566668690891,
+  "iteration": 1566997244431,
   "links": [],
   "panels": [
     {
@@ -533,9 +533,50 @@
       "fontSize": "100%",
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 24,
         "x": 0,
         "y": 37
+      },
+      "id": 32,
+      "links": [],
+      "options": {},
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 0,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "date"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "/*\n * tcplife - Trace TCP session lifespans with connection details.\n *\n * See BPF Performance Tools, Chapter 10, for an explanation of this tool.\n *\n * Copyright (c) 2019 Brendan Gregg.\n * Licensed under the Apache License, Version 2.0 (the \"License\").\n * This was originally created for the BPF Performance Tools book\n * published by Addison Wesley. ISBN-13: 9780136554820\n * When copying or porting, include this comment.\n *\n * 17-Apr-2019  Brendan Gregg   Created this.\n * 28-Aug-2019  Andreas Gerstmayr   added CSV output\n */\n// include: @output\n// table-retain-lines: 10\n\n#include <net/tcp_states.h>\n#include <net/sock.h>\n#include <linux/socket.h>\n#include <linux/tcp.h>\n\nBEGIN\n{\n\tprintf(\"%s,%s,%s,%s,%s,%s,\", \"PID\", \"COMM\",\n\t    \"LADDR\", \"LPORT\", \"RADDR\", \"RPORT\");\n\tprintf(\"%s,%s,%s\\n\", \"TX_KB\", \"RX_KB\", \"MS\");\n}\n\nkprobe:tcp_set_state\n{\n\t$sk = (struct sock *)arg0;\n\t$newstate = arg1;\n\n\t/*\n\t * This tool includes PID and comm context. From TCP this is best\n\t * effort, and may be wrong in some situations. It does this:\n\t * - record timestamp on any state < TCP_FIN_WAIT1\n\t *\tnote some state transitions may not be present via this kprobe\n\t * - cache task context on:\n\t *\tTCP_SYN_SENT: tracing from client\n\t *\tTCP_LAST_ACK: client-closed from server\n\t * - do output on TCP_CLOSE:\n\t *\tfetch task context if cached, or use current task\n\t */\n\n\t// record first timestamp seen for this socket\n\tif ($newstate < TCP_FIN_WAIT1 && @birth[$sk] == 0) {\n\t\t@birth[$sk] = nsecs;\n\t}\n\n\t// record PID & comm on SYN_SENT\n\tif ($newstate == TCP_SYN_SENT || $newstate == TCP_LAST_ACK) {\n\t\t@skpid[$sk] = pid;\n\t\t@skcomm[$sk] = comm;\n\t}\n\n\t// session ended: calculate lifespan and print\n\tif ($newstate == TCP_CLOSE && @birth[$sk]) {\n\t\t$delta_ms = (nsecs - @birth[$sk]) / 1000000;\n\t\t$lport = $sk->__sk_common.skc_num;\n\t\t$dport = $sk->__sk_common.skc_dport;\n\t\t$dport = ($dport >> 8) | (($dport << 8) & 0xff00);\n\t\t$tp = (struct tcp_sock *)$sk;\n\t\t$pid = @skpid[$sk];\n\t\t$comm = @skcomm[$sk];\n\t\tif ($comm == \"\") {\n\t\t\t// not cached, use current task\n\t\t\t$pid = pid;\n\t\t\t$comm = comm;\n\t\t}\n\n\t\t$family = $sk->__sk_common.skc_family;\n\t\t$saddr = ntop(0);\n\t\t$daddr = ntop(0);\n\t\tif ($family == AF_INET) {\n\t\t\t$saddr = ntop(AF_INET, $sk->__sk_common.skc_rcv_saddr);\n\t\t\t$daddr = ntop(AF_INET, $sk->__sk_common.skc_daddr);\n\t\t} else {\n\t\t\t// AF_INET6\n\t\t\t$saddr = ntop(AF_INET6,\n\t\t\t    $sk->__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr8);\n\t\t\t$daddr = ntop(AF_INET6,\n\t\t\t    $sk->__sk_common.skc_v6_daddr.in6_u.u6_addr8);\n\t\t}\n\t\tprintf(\"%d,%s,%s,%d,%s,%d,\", $pid,\n\t\t    $comm, $saddr, $lport, $daddr, $dport);\n\t\tprintf(\"%d,%d,%d\\n\", $tp->bytes_acked / 1024,\n\t\t    $tp->bytes_received / 1024, $delta_ms);\n\n\t\tdelete(@birth[$sk]);\n\t\tdelete(@skpid[$sk]);\n\t\tdelete(@skcomm[$sk]);\n\t}\n}",
+          "format": "table",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "trace TCP sessions",
+      "transform": "table",
+      "type": "table"
+    },
+    {
+      "columns": [],
+      "datasource": "$datasource",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 45
       },
       "id": 22,
       "links": [],
@@ -576,7 +617,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 37
+        "y": 45
       },
       "id": 24,
       "links": [],
@@ -617,7 +658,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 45
+        "y": 53
       },
       "id": 26,
       "links": [],
@@ -658,7 +699,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 45
+        "y": 53
       },
       "id": 28,
       "links": [],
@@ -702,7 +743,6 @@
     "list": [
       {
         "current": {
-          "tags": [],
           "text": "PCP bpftrace",
           "value": "PCP bpftrace"
         },
