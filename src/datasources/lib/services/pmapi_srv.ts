@@ -216,11 +216,16 @@ export class Context {
 
     @Context.ensureContext
     async children(prefix: string): Promise<ChildrenResponse> {
-        const response = await this.datasourceRequest({
-            url: `${this.url}/pmapi/${this.context}/${this.d}children`,
-            params: { prefix: prefix }
-        });
-        return response.data;
+        if (this.isPmproxy) {
+            const response = await this.datasourceRequest({
+                url: `${this.url}/pmapi/${this.context}/${this.d}children`,
+                params: { prefix: prefix }
+            });
+            return response.data;
+        }
+        else {
+            return { nonleaf: [], leaf: [] };
+        }
     }
 }
 

@@ -17,15 +17,18 @@ export class PCPBPFtraceDatasource extends PCPLiveDatasourceBase<BPFtraceEndpoin
 
     doPollAll() {
         return Promise.all(this.endpointRegistry.list().map(async endpoint => {
-            endpoint.datastore.cleanExpiredMetrics();
-            endpoint.pollSrv.cleanExpiredMetrics();
-            endpoint.scriptRegistry.cleanupExpiredScripts();
+            endpoint.datastore.cleanup();
+            endpoint.pollSrv.cleanup();
+            endpoint.scriptRegistry.cleanup();
             await endpoint.pollSrv.poll();
         }));
     }
 
     configureEndpoint(endpoint: BPFtraceEndpoint) {
         endpoint.scriptRegistry = new ScriptRegistry(endpoint.pmapiSrv, endpoint.pollSrv, endpoint.datastore, this.keepPollingMs);
+    }
+
+    onTargetUpdate(prevValue: QueryTarget, newValue: QueryTarget) {
     }
 
     async handleTarget(endpoint: BPFtraceEndpoint, query: Query, target: QueryTarget) {

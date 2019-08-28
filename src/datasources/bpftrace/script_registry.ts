@@ -6,24 +6,17 @@ import BPFtraceScript, { ScriptStatus } from './script';
 
 export default class ScriptRegistry {
 
-    // currently active (requested) scripts
     private scripts: Record<string, BPFtraceScript> = {}; // {code: BPFtraceScript}
-
-    // a script which failed immediately will fail every time
-    // reasons: no variable found, invalid name, ...
-    private failedScripts: Record<string, BPFtraceScript> = {}; // {code: BPFtraceScript}
 
     constructor(private pmapiSrv: PmapiSrv, private pollSrv: PollSrv, private datastore: DataStore, private keepPollingMs: number) {
     }
 
-    async register(code: string) {
-        console.debug("registering script", code.split('\n'));
-
+    async storeControlMetric(metric: string, value: string) {
         // create temporary context, required so that the PMDA can identify
         // the client who sent the pmStore message
         const localPmapiSrv = new PmapiSrv(this.pmapiSrv.context.newInstance());
         try {
-            await localPmapiSrv.storeMetricValue("bpftrace.control.register", code);
+            await localPmapiSrv.storeMetricValue(metric, value);
         }
         catch (error) {
             if (error instanceof MissingMetricsError)
@@ -31,51 +24,39 @@ export default class ScriptRegistry {
             else
                 throw error;
         }
-        const response = await localPmapiSrv.getMetricValues(["bpftrace.control.register"]);
+        return await localPmapiSrv.getMetricValues([metric]);
+    }
 
+    async register(code: string) {
+        console.debug("registering script", code.split('\n'));
+        const response = await this.storeControlMetric("bpftrace.control.register", code);
         const registerResponse = JSON.parse(response.values[0].instances[0].value as string);
         console.debug("script register response", registerResponse);
         if (_.isEmpty(registerResponse))
             throw new Error("PMDA returned an empty response when registering this script.");
 
-        const script = new BPFtraceScript(registerResponse, code);
-        if (script.hasFailed()) {
-            this.failedScripts[code] = script;
-        }
-        else {
-            this.scripts[code] = script;
-            try {
-                await this.pollSrv.ensurePolling(script.getControlMetrics());
-            }
-            catch (error) {
-                if (error instanceof MissingMetricsError) {
-                    // script just got registered, ignore missing metrics
-                }
-                else {
-                    // re-throw on other errors
-                    throw error;
-                }
-            }
-        }
-        return script;
+        return new BPFtraceScript(registerResponse, code);
     }
 
-    deregister(script: BPFtraceScript) {
+    async deregister(script: BPFtraceScript) {
+        console.log("deregistering script", script);
         this.pollSrv.removeMetricsFromPolling(script.getControlMetrics());
         delete this.scripts[script.code];
+
+        //const response = await this.storeControlMetric("bpftrace.control.deregister", script.name);
     }
 
     async ensureActive(code: string): Promise<BPFtraceScript> {
-        if (code in this.failedScripts) {
-            return this.failedScripts[code];
+        let script = this.scripts[code];
+        const isExistingScript = !!script;
+        if (!isExistingScript) {
+            script = await this.register(code);
+            this.scripts[code] = script;
         }
 
-        const script = this.scripts[code];
-        if (!script) {
-            return await this.register(code);
-        }
+        if (script.hasFailed())
+            return script;
 
-        script.lastRequested = new Date().getTime();
         try {
             await this.pollSrv.ensurePolling(script.getControlMetrics());
         }
@@ -101,7 +82,12 @@ export default class ScriptRegistry {
             }
         }
 
-        script.syncState(this.datastore);
+        // if the script got registered in this function call,
+        // don't sync state as we didn't poll the state yet
+        if (isExistingScript) {
+            script.syncState(this.datastore);
+        }
+
         if (script.status === ScriptStatus.Stopped) {
             if (script.exit_code === 0) {
                 console.debug(`script ${script.name} was stopped on the server, restarting...`);
@@ -109,16 +95,14 @@ export default class ScriptRegistry {
                 return await this.register(code);
             }
             else {
-                // script failed, move to failed scripts
-                console.debug(`script ${script.name} failed, moving to failedScripts`);
+                console.debug(`script ${script.name} failed`);
                 this.deregister(script);
-                this.failedScripts[code] = script;
             }
         }
         return script;
     }
 
-    cleanupExpiredScripts() {
+    cleanup() {
         const scriptExpiry = new Date().getTime() - this.keepPollingMs;
         this.scripts = _.pickBy(this.scripts, (script: BPFtraceScript) => script.lastRequested > scriptExpiry);
     }

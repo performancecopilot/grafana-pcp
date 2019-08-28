@@ -9,6 +9,7 @@ export enum TargetFormat {
 }
 
 export interface Query {
+    dashboardId: number;
     panelId: number;
     timezone: string;
     interval: string;

@@ -247,7 +247,7 @@
       "reverseYBuckets": false,
       "targets": [
         {
-          "expr": "/*\n * runqlat.bt\tCPU scheduler run queue latency as a histogram.\n *\t\tFor Linux, uses bpftrace, eBPF.\n *\n * This is a bpftrace version of the bcc tool of the same name.\n *\n * Copyright 2018 Netflix, Inc.\n * Licensed under the Apache License, Version 2.0 (the \"License\")\n *\n * 17-Sep-2018\tBrendan Gregg\tCreated this.\n */\n// include: @usecs\n\n#include <linux/sched.h>\n\nBEGIN\n{\n\tprintf(\"Tracing CPU scheduler... Hit Ctrl-C to end.\\n\");\n}\n\ntracepoint:sched:sched_wakeup,\ntracepoint:sched:sched_wakeup_new\n{\n\t@qtime[args->pid] = nsecs;\n}\n\ntracepoint:sched:sched_switch\n{\n\tif (args->prev_state == TASK_RUNNING) {\n\t\t@qtime[args->prev_pid] = nsecs;\n\t}\n\n\t$ns = @qtime[args->next_pid];\n\tif ($ns) {\n\t\t@usecs = hist((nsecs - $ns) / 1000);\n\t}\n\tdelete(@qtime[args->next_pid]);\n}\n\nEND\n{\n\tclear(@qtime);\n}",
+          "expr": "/*\n * runqlat.bt\tCPU scheduler run queue latency as a histogram.\n *\t\tFor Linux, uses bpftrace, eBPF.\n *\n * This is a bpftrace version of the bcc tool of the same name.\n *\n * Copyright 2018 Netflix, Inc.\n * Licensed under the Apache License, Version 2.0 (the \"License\")\n *\n * 17-Sep-2018\tBrendan Gregg\tCreated this.\n */\n// include: @usecs\n\n#include <linux/sched.h>\n\ntracepoint:sched:sched_wakeup,\ntracepoint:sched:sched_wakeup_new\n{\n\t@qtime[args->pid] = nsecs;\n}\n\ntracepoint:sched:sched_switch\n{\n\tif (args->prev_state == TASK_RUNNING) {\n\t\t@qtime[args->prev_pid] = nsecs;\n\t}\n\n\t$ns = @qtime[args->next_pid];\n\tif ($ns) {\n\t\t@usecs = hist((nsecs - $ns) / 1000);\n\t}\n\tdelete(@qtime[args->next_pid]);\n}",
           "format": "heatmap",
           "refId": "A"
         }
@@ -386,7 +386,7 @@
       "reverseYBuckets": false,
       "targets": [
         {
-          "expr": "/*\n * biolatency.bt\tBlock I/O latency as a histogram.\n *\t\t\tFor Linux, uses bpftrace, eBPF.\n *\n * This is a bpftrace version of the bcc tool of the same name.\n *\n * Copyright 2018 Netflix, Inc.\n * Licensed under the Apache License, Version 2.0 (the \"License\")\n *\n * 13-Sep-2018\tBrendan Gregg\tCreated this.\n */\n// include: @usecs\n\nBEGIN\n{\n\tprintf(\"Tracing block device I/O... Hit Ctrl-C to end.\\n\");\n}\n\nkprobe:blk_account_io_start\n{\n\t@start[arg0] = nsecs;\n}\n\nkprobe:blk_account_io_done\n/@start[arg0]/\n{\n\t@usecs = hist((nsecs - @start[arg0]) / 1000);\n\tdelete(@start[arg0]);\n}\n\nEND\n{\n\tclear(@start);\n}",
+          "expr": "/*\n * biolatency.bt\tBlock I/O latency as a histogram.\n *\t\t\tFor Linux, uses bpftrace, eBPF.\n *\n * This is a bpftrace version of the bcc tool of the same name.\n *\n * Copyright 2018 Netflix, Inc.\n * Licensed under the Apache License, Version 2.0 (the \"License\")\n *\n * 13-Sep-2018\tBrendan Gregg\tCreated this.\n */\n// include: @usecs\n\nkprobe:blk_account_io_start\n{\n\t@start[arg0] = nsecs;\n}\n\nkprobe:blk_account_io_done\n/@start[arg0]/\n{\n\t@usecs = hist((nsecs - @start[arg0]) / 1000);\n\tdelete(@start[arg0]);\n}",
           "format": "heatmap",
           "refId": "A"
         }

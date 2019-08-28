@@ -8,6 +8,9 @@ import { TargetResult } from '../models/metrics';
 import * as fixtures from './lib/fixtures';
 
 class Datasource extends PCPLiveDatasourceBase {
+    onTargetUpdate(prevValue: QueryTarget, newValue: QueryTarget) {
+    }
+
     async handleTarget(endpoint: Endpoint, query: Query, target: QueryTarget): Promise<TargetResult> {
         const results = endpoint.datastore.queryMetrics(target, [target.expr], query.range.from.valueOf(), query.range.to.valueOf());
         await this.applyTransformations(endpoint.pmapiSrv, results);

@@ -9,7 +9,7 @@ export default class PCPBPFtraceCompleter {
 
     static probeCache: Record<string, Completion[]> = {};
 
-    identifierRegexps = [/[a-zA-Z0-9_\-:./]/];
+    identifierRegexps = [/[a-zA-Z0-9_\-:.]/];
 
     metadataCompletions: Completion[] = [];
     probeCompletions: Completion[] = []; // probes except kprobe, software, hardware, tracepoint (PMDA returns these probes)

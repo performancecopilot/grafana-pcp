@@ -48,7 +48,7 @@ export default class PollSrv {
         }
     }
 
-    cleanExpiredMetrics() {
+    cleanup() {
         const pollExpiry = new Date().getTime() - this.keepPollingMs;
         this.requestedMetrics = _.pickBy(this.requestedMetrics, (lastRequested: number) => lastRequested > pollExpiry);
     }

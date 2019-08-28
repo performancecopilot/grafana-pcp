@@ -7,6 +7,7 @@ import { isBlank } from './utils';
 import { Transformations } from './transformations';
 import { QueryTarget, Query } from './models/datasource';
 import { TargetResult, MetricInstance } from './models/metrics';
+import DashboardObserver from './dashboard_observer';
 import "core-js/stable/array/flat";
 
 export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
@@ -21,6 +22,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
 
     endpointRegistry: EndpointRegistry<EP>;
     transformations: PanelTransformations;
+    dashboardObserver: DashboardObserver;
 
     constructor(readonly instanceSettings: any, private backendSrv: any, private templateSrv: any) {
         this.name = instanceSettings.name;
@@ -36,6 +38,8 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
 
         this.endpointRegistry = new EndpointRegistry();
         this.transformations = new PanelTransformations(this.templateSrv);
+        this.dashboardObserver = new DashboardObserver();
+        this.dashboardObserver.onTargetUpdate = this.onTargetUpdate;
     }
 
     configureEndpoint(_endpoint: EP) {
@@ -119,7 +123,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
                     url: url,
                     container: container,
                     endpoint: this.getOrCreateEndpoint(url, container),
-                    uid: `${query.panelId}/${target.refId}`
+                    uid: `${query.dashboardId}/${query.panelId}/${target.refId}`
                 };
             });
     }
@@ -133,6 +137,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
         }
     }
 
+    abstract onTargetUpdate(prevValue: QueryTarget, newValue: QueryTarget): void;
     abstract async handleTarget(endpoint: EP, query: Query, target: QueryTarget<EP>): Promise<TargetResult>;
 
     static defaultLegendFormatter(metric: string, instance: MetricInstance<number | string> | undefined, labels: Record<string, any>) {
@@ -152,6 +157,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
         if (!_.every(targets, ['format', targets[0].format]))
             throw new Error("Format must be the same for all queries of a panel.");
 
+        this.dashboardObserver.refresh(targets);
         const targetsPerEndpoint = _.groupBy(targets, target => target.endpoint!.id);
         const promises = Object.values(targetsPerEndpoint).map(targets => this.queryTargetsByEndpoint(query, targets));
         const targetResults = await Promise.all(promises);

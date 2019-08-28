@@ -263,7 +263,7 @@ describe("ScriptRegistry", () => {
         expect(ctx.context.store).toHaveBeenCalledTimes(1);
 
         dateMock.advanceBy(25000);
-        ctx.scriptRegistry.cleanupExpiredScripts();
+        ctx.scriptRegistry.cleanup();
 
         await registerScript();
         expect(ctx.context.store).toHaveBeenCalledTimes(2);

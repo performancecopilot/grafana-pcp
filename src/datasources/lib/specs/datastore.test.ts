@@ -302,7 +302,7 @@ describe("DataStore", () => {
 
         // clean metrics older than 5min
         dateMock.advanceTo(6 * 60 * 1000);
-        ctx.datastore.cleanExpiredMetrics();
+        ctx.datastore.cleanup();
 
         const result = ctx.datastore.queryMetric("metric.single", 0, Infinity);
         expect(result).toMatchObject([{

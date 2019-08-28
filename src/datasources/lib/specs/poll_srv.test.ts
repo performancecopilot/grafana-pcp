@@ -108,7 +108,7 @@ describe("PollSrv", () => {
         // max age is 20s
         // metric1 was requested 10s back, metric2 and metric3 30s back
         dateMock.advanceTo(40000);
-        ctx.pollSrv.cleanExpiredMetrics();
+        ctx.pollSrv.cleanup();
         await ctx.pollSrv.poll();
         expect(ctx.context.fetch).toHaveBeenCalledWith(["metric1"]);
     });

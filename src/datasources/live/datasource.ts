@@ -16,10 +16,13 @@ export class PCPLiveDatasource extends PCPLiveDatasourceBase<Endpoint> {
 
     doPollAll() {
         return Promise.all(this.endpointRegistry.list().map(async endpoint => {
-            endpoint.datastore.cleanExpiredMetrics();
-            endpoint.pollSrv.cleanExpiredMetrics();
+            endpoint.datastore.cleanup();
+            endpoint.pollSrv.cleanup();
             await endpoint.pollSrv.poll();
         }));
+    }
+
+    onTargetUpdate(prevValue: QueryTarget, newValue: QueryTarget) {
     }
 
     async handleTarget(endpoint: Endpoint, query: Query, target: QueryTarget): Promise<TargetResult> {
@@ -31,6 +34,7 @@ export class PCPLiveDatasource extends PCPLiveDatasourceBase<Endpoint> {
     async queryTargetsByEndpoint(query: Query, targets: QueryTarget[]) {
         // endpoint is the same for all targets, ensured by _.groupBy() in query()
         const endpoint = targets[0].endpoint!;
+        targets.forEach(target => this.dashboardObserver.addTargetDependency(target, target.expr));
         await endpoint.pollSrv.ensurePolling(targets.map(target => target.expr));
         return super.queryTargetsByEndpoint(query, targets);
     }
