@@ -3,7 +3,7 @@
     "name": "Performance Co-Pilot",
     "id": "performancecopilot-pcp-app",
     "info": {
-        "description": "Performance Co-Pilot App for Grafana",
+        "description": "Performance Co-Pilot Grafana Plugin",
         "author": {
             "name": "Performance Co-Pilot and Netflix",
             "url": "https://pcp.io"
