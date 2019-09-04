@@ -1,11 +1,11 @@
 import { TargetFormat } from '../lib/models/datasource';
-import PCPLiveCompleter from './completer';
+import PCPVectorCompleter from './completer';
 import { PCPQueryCtrl } from "../lib/pcp_query_ctrl";
 import { getDashboardVariables } from '../lib/utils';
 import './mode-pcp';
 
-export class PCPLiveDatasourceQueryCtrl extends PCPQueryCtrl {
-    static templateUrl = 'datasources/live/partials/query.editor.html';
+export class PCPVectorDatasourceQueryCtrl extends PCPQueryCtrl {
+    static templateUrl = 'datasources/vector/partials/query.editor.html';
 
     formats: any = [];
 
@@ -50,7 +50,7 @@ export class PCPLiveDatasourceQueryCtrl extends PCPQueryCtrl {
 
     getCompleter() {
         this.removeTextCompleter("pcp");
-        return new PCPLiveCompleter(this.datasource, this.target);
+        return new PCPVectorCompleter(this.datasource, this.target);
     }
 
 }

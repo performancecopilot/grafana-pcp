@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.0 (unreleased)
+
+- Renamed PCP Live to PCP Vector
+
 ## 0.0.7 (2019-08-16)
 
 - Initial release of grafana-pcp

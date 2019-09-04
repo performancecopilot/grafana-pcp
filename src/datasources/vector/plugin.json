@@ -1,0 +1,15 @@
+{
+    "name": "PCP Vector",
+    "id": "pcp-vector-datasource",
+    "type": "datasource",
+    "metrics": true,
+    "alerting": false,
+    "annotations": false,
+    "tables": true,
+    "info": {
+        "logos": {
+            "small": "img/vector.png",
+            "large": "img/vector.png"
+        }
+    }
+}

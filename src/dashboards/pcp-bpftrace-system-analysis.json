@@ -778,6 +778,6 @@
     ]
   },
   "timezone": "",
-  "title": "bpftrace System Analysis",
+  "title": "PCP bpftrace System Analysis",
   "version": 1
 }

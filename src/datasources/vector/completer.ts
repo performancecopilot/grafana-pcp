@@ -1,11 +1,11 @@
-import { PCPLiveDatasource } from "./datasource";
+import { PCPVectorDatasource } from "./datasource";
 import { MetricMetadata } from "../lib/models/pmapi";
 
-export default class PCPLiveCompleter {
+export default class PCPVectorCompleter {
 
     identifierRegexps = [/[a-zA-Z0-9_.]/];
 
-    constructor(private datasource: PCPLiveDatasource, private target: any) {
+    constructor(private datasource: PCPVectorDatasource, private target: any) {
     }
 
     getCompletions(editor: any, session: any, pos: any, prefix: any, callback: any) {
@@ -39,7 +39,7 @@ export default class PCPLiveCompleter {
     }
 
     async findMetricCompletions(token: any) {
-        // don't do this in constructor of PCPLiveCompleter, as the user could
+        // don't do this in constructor of PCPVectorCompleter, as the user could
         // change the endpoint settings of the query, but the constructor is only called once
         const [url, container] = this.datasource.getConnectionParams(this.target, {});
         const endpoint = this.datasource.getOrCreateEndpoint(url, container);

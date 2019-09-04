@@ -4,7 +4,7 @@ import { Endpoint } from "../lib/endpoint_registry";
 import { Query, PmapiQueryTarget } from "../lib/models/datasource";
 import { TargetResult } from "../lib/models/metrics";
 
-export class PCPLiveDatasource extends PmapiDatasourceBase<Endpoint> {
+export class PCPVectorDatasource extends PmapiDatasourceBase<Endpoint> {
 
     /* @ngInject */
     constructor(instanceSettings: any, backendSrv: any, templateSrv: any) {

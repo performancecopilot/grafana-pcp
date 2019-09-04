@@ -43,7 +43,7 @@
         },
         {
             "type": "datasource",
-            "name": "PCP Live"
+            "name": "PCP Vector"
         },
         {
             "type": "datasource",
@@ -56,13 +56,13 @@
         },
         {
             "type": "dashboard",
-            "name": "PCP Live Host Overview",
-            "path": "dashboards/pcp-live-host-overview.json"
+            "name": "PCP Vector Host Overview",
+            "path": "dashboards/pcp-vector-host-overview.json"
         },
         {
             "type": "dashboard",
-            "name": "PCP Live Container Overview",
-            "path": "dashboards/pcp-live-container-overview.json"
+            "name": "PCP Vector Container Overview",
+            "path": "dashboards/pcp-vector-container-overview.json"
         },
         {
             "type": "dashboard",

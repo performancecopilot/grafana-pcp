@@ -1,6 +1,6 @@
 import * as dateMock from 'jest-date-mock';
 import HttpServerMock from '../../../lib/specs/lib/http_server_mock';
-import { PCPLiveDatasource } from '../../datasource';
+import { PCPVectorDatasource } from '../../datasource';
 import queryTests from './query';
 import datastoreTests from './datastore';
 import formattingTests from './formatting';
@@ -9,10 +9,10 @@ import queryEditorTests from './query_editor';
 
 export interface TestContext {
     server: HttpServerMock;
-    datasource: PCPLiveDatasource;
+    datasource: PCPVectorDatasource;
 }
 
-describe("PCP Live End-to-End", () => {
+describe("PCP Vector End-to-End", () => {
     const ctx: TestContext = {} as any;
 
     beforeEach(() => {
@@ -34,7 +34,7 @@ describe("PCP Live End-to-End", () => {
                 return str;
             }
         };
-        ctx.datasource = new PCPLiveDatasource(instanceSettings, backendSrv, templateSrv);
+        ctx.datasource = new PCPVectorDatasource(instanceSettings, backendSrv, templateSrv);
         dateMock.advanceTo(20000); // simulate unixtime of 20s (since Jan 1, 1970 UTC)
     });
 

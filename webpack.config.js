@@ -11,7 +11,7 @@ module.exports = {
     entry: {
         'module': './module.ts',
         './datasources/redis/module': './datasources/redis/module.ts',
-        './datasources/live/module': './datasources/live/module.ts',
+        './datasources/vector/module': './datasources/vector/module.ts',
         './datasources/bpftrace/module': './datasources/bpftrace/module.ts'
     },
     devtool: 'source-map',
