@@ -1,11 +1,11 @@
 import _ from 'lodash';
-import { PCPLiveDatasourceBase } from '../lib/datasource_base';
+import { PmapiDatasourceBase } from '../lib/datasource_base';
 import BPFtraceEndpoint from './bpftrace_endpoint';
 import ScriptRegistry from './script_registry';
-import { Query, QueryTarget } from '../lib/models/datasource';
+import { Query, PmapiQueryTarget } from '../lib/models/datasource';
 import { ScriptStatus } from './script';
 
-export class PCPBPFtraceDatasource extends PCPLiveDatasourceBase<BPFtraceEndpoint> {
+export class PCPBPFtraceDatasource extends PmapiDatasourceBase<BPFtraceEndpoint> {
 
     /* @ngInject */
     constructor(instanceSettings: any, backendSrv: any, templateSrv: any) {
@@ -17,21 +17,32 @@ export class PCPBPFtraceDatasource extends PCPLiveDatasourceBase<BPFtraceEndpoin
 
     doPollAll() {
         return Promise.all(this.endpointRegistry.list().map(async endpoint => {
+            this.dashboardObserver.cleanup();
             endpoint.datastore.cleanup();
-            endpoint.pollSrv.cleanup();
-            endpoint.scriptRegistry.cleanup();
             await endpoint.pollSrv.poll();
         }));
     }
 
     configureEndpoint(endpoint: BPFtraceEndpoint) {
-        endpoint.scriptRegistry = new ScriptRegistry(endpoint.pmapiSrv, endpoint.pollSrv, endpoint.datastore, this.keepPollingMs);
+        endpoint.scriptRegistry = new ScriptRegistry(endpoint.pmapiSrv, endpoint.pollSrv, endpoint.datastore);
     }
 
-    onTargetUpdate(prevValue: QueryTarget, newValue: QueryTarget) {
+    async onTargetUpdate(prevValue: PmapiQueryTarget<BPFtraceEndpoint>, newValue: PmapiQueryTarget<BPFtraceEndpoint>) {
+        if (prevValue.endpoint !== newValue.endpoint || prevValue.expr !== newValue.expr)
+            this.onTargetInactive(prevValue);
     }
 
-    async handleTarget(endpoint: BPFtraceEndpoint, query: Query, target: QueryTarget) {
+    async onTargetInactive(target: PmapiQueryTarget<BPFtraceEndpoint>) {
+        if (!this.dashboardObserver.existMatchingTarget(target, { endpoint: target.endpoint, expr: target.expr })) {
+            const endpoint = target.endpoint;
+            const script = endpoint.scriptRegistry.getScript(target.expr);
+            endpoint.pollSrv.removeMetricsFromPolling(script.getAllDataMetrics());
+            endpoint.scriptRegistry.deregister(script);
+        }
+    }
+
+    async handleTarget(query: Query, target: PmapiQueryTarget<BPFtraceEndpoint>) {
+        const endpoint = target.endpoint;
         const script = await endpoint.scriptRegistry.ensureActive(target.expr);
         let metrics: string[];
 

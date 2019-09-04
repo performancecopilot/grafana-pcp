@@ -25,7 +25,6 @@ export default class BPFtraceScript {
 
     // additional properties by ScriptRegistry
     readonly code: string;
-    lastRequested: number;
 
     constructor(registerResponse: any, code: string) {
         this.name = registerResponse.name;
@@ -35,7 +34,6 @@ export default class BPFtraceScript {
         this.output = registerResponse.output;
 
         this.code = code;
-        this.lastRequested = new Date().getTime();
     }
 
     hasFailed() {
@@ -66,9 +64,13 @@ export default class BPFtraceScript {
         return null;
     }
 
+    getAllDataMetrics() {
+        return this.vars.map(var_ => this.getDataMetric(var_));
+    }
+
     async getDataMetrics(pmapiSrv: PmapiSrv, format: TargetFormat) {
         if (format === TargetFormat.TimeSeries) {
-            return this.vars.map(var_ => this.getDataMetric(var_));
+            return this.getAllDataMetrics();
         }
         else if (format === TargetFormat.Heatmap) {
             const metric = await this.findMetricForMetricType(pmapiSrv, MetricType.Histogram);

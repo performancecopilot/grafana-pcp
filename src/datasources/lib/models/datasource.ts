@@ -1,5 +1,3 @@
-import { Endpoint } from "../endpoint_registry";
-
 export type DatasourceRequestFn = (options: any) => any;
 
 export enum TargetFormat {
@@ -23,7 +21,7 @@ export interface Query {
     targets: QueryTarget[];
 }
 
-export interface QueryTarget<EP extends Endpoint = Endpoint> {
+export interface QueryTarget {
     refId: string;
     hide?: boolean;
 
@@ -32,11 +30,15 @@ export interface QueryTarget<EP extends Endpoint = Endpoint> {
     format: TargetFormat;
     legendFormat?: string;
 
-    // only live and bpftrace
     url?: string;
-    container?: string; // only live
-    endpoint?: EP;
-    uid?: string;
+    container?: string | undefined;
+}
+
+export interface PmapiQueryTarget<EP> extends QueryTarget {
+    uid: string;
+    url: string;
+    container: string | undefined;
+    endpoint: EP;
 }
 
 

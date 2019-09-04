@@ -1,5 +1,5 @@
-import ScriptRegistry from "../script_registry";
 import * as dateMock from 'jest-date-mock';
+import ScriptRegistry from "../script_registry";
 import { PmapiSrv, Context } from "../../lib/services/pmapi_srv";
 import DataStore from "../../lib/datastore";
 import PollSrv from "../../lib/services/poll_srv";
@@ -22,8 +22,8 @@ describe("ScriptRegistry", () => {
         } as any;
         ctx.pmapiSrv = new PmapiSrv(ctx.context);
         ctx.datastore = new DataStore(ctx.pmapiSrv, 5 * 60 * 1000);
-        ctx.pollSrv = new PollSrv(ctx.pmapiSrv, ctx.datastore, 20 * 1000);
-        ctx.scriptRegistry = new ScriptRegistry(ctx.pmapiSrv, ctx.pollSrv, ctx.datastore, 20 * 1000);
+        ctx.pollSrv = new PollSrv(ctx.pmapiSrv, ctx.datastore);
+        ctx.scriptRegistry = new ScriptRegistry(ctx.pmapiSrv, ctx.pollSrv, ctx.datastore);
     });
 
     const registerScript = async () => {
@@ -130,16 +130,29 @@ describe("ScriptRegistry", () => {
         });
         await ctx.pollSrv.poll();
 
+        // next ensureActive will deregister failed script
+        ctx.context.fetch.mockResolvedValueOnce({
+            "timestamp": 5,
+            "values": [{
+                "pmid": "1.0.1",
+                "name": "bpftrace.control.deregister",
+                "instances": [{
+                    "instance": null,
+                    "value": '{"success": true}'
+                }]
+            }]
+        });
+
         const script = await ctx.scriptRegistry.ensureActive("kretprobe:vfs_read { @bytes = hist(retval); }");
         expect(script).toMatchObject({
             "status": "stopped",
             "output": "syntax error",
             "exit_code": 1
         });
-        expect(ctx.context.store).toHaveBeenCalledTimes(1);
-        expect(ctx.context.fetch).toHaveBeenCalledTimes(2);
+        expect(ctx.context.store).toHaveBeenCalledTimes(2);
+        expect(ctx.context.fetch).toHaveBeenCalledTimes(3);
         await ctx.pollSrv.poll(); // no metrics to poll
-        expect(ctx.context.fetch).toHaveBeenCalledTimes(2);
+        expect(ctx.context.fetch).toHaveBeenCalledTimes(3);
     });
 
     it("should restart a stopped script", async () => {
@@ -212,7 +225,19 @@ describe("ScriptRegistry", () => {
         ctx.context.metric.mockResolvedValueOnce({
             metrics: []
         });
-        // then it will register the script again
+        // then it will deregister the script
+        ctx.context.fetch.mockResolvedValueOnce({
+            "timestamp": 5,
+            "values": [{
+                "pmid": "1.0.1",
+                "name": "bpftrace.control.deregister",
+                "instances": [{
+                    "instance": null,
+                    "value": '{"success": true}'
+                }]
+            }]
+        });
+        // and register it again
         ctx.context.fetch.mockResolvedValueOnce({
             "timestamp": 5,
             "values": [{
@@ -254,18 +279,6 @@ describe("ScriptRegistry", () => {
         expect(script).toMatchObject({
             "status": "started"
         });
-        expect(ctx.context.store).toHaveBeenCalledTimes(2);
-    });
-
-    it("should remove scripts which weren't requested in a specified time period", async () => {
-        await registerScript();
-        await registerScript();
-        expect(ctx.context.store).toHaveBeenCalledTimes(1);
-
-        dateMock.advanceBy(25000);
-        ctx.scriptRegistry.cleanup();
-
-        await registerScript();
-        expect(ctx.context.store).toHaveBeenCalledTimes(2);
+        expect(ctx.context.store).toHaveBeenCalledTimes(3);
     });
 });

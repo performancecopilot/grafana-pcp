@@ -8,7 +8,7 @@ export default class ScriptRegistry {
 
     private scripts: Record<string, BPFtraceScript> = {}; // {code: BPFtraceScript}
 
-    constructor(private pmapiSrv: PmapiSrv, private pollSrv: PollSrv, private datastore: DataStore, private keepPollingMs: number) {
+    constructor(private pmapiSrv: PmapiSrv, private pollSrv: PollSrv, private datastore: DataStore) {
     }
 
     async storeControlMetric(metric: string, value: string) {
@@ -39,11 +39,17 @@ export default class ScriptRegistry {
     }
 
     async deregister(script: BPFtraceScript) {
-        console.log("deregistering script", script);
+        console.debug("deregistering script", script);
         this.pollSrv.removeMetricsFromPolling(script.getControlMetrics());
         delete this.scripts[script.code];
 
-        //const response = await this.storeControlMetric("bpftrace.control.deregister", script.name);
+        const response = await this.storeControlMetric("bpftrace.control.deregister", script.name);
+        const deregisterResponse = JSON.parse(response.values[0].instances[0].value as string);
+        console.debug("script deregister response", deregisterResponse);
+    }
+
+    getScript(code: string) {
+        return this.scripts[code];
     }
 
     async ensureActive(code: string): Promise<BPFtraceScript> {
@@ -69,10 +75,10 @@ export default class ScriptRegistry {
                     // ignore error
                 }
                 else {
-                    // missing metrics, register script again
+                    // some control metric is missing, register script again
                     console.debug(`script ${script.name} got deregistered on the PMDA ` +
                         `(missing metrics: ${error.metrics.join(', ')}), register it again...`);
-                    this.deregister(script);
+                    await this.deregister(script);
                     return await this.register(code);
                 }
             }
@@ -91,20 +97,14 @@ export default class ScriptRegistry {
         if (script.status === ScriptStatus.Stopped) {
             if (script.exit_code === 0) {
                 console.debug(`script ${script.name} was stopped on the server, restarting...`);
-                this.deregister(script);
                 return await this.register(code);
             }
             else {
                 console.debug(`script ${script.name} failed`);
-                this.deregister(script);
+                await this.deregister(script);
             }
         }
         return script;
-    }
-
-    cleanup() {
-        const scriptExpiry = new Date().getTime() - this.keepPollingMs;
-        this.scripts = _.pickBy(this.scripts, (script: BPFtraceScript) => script.lastRequested > scriptExpiry);
     }
 
 }

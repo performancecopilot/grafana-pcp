@@ -16,12 +16,12 @@
   </div>
   <div class="gf-form-inline">
     <div class="gf-form">
-      <span class="gf-form-label width-10">Keep polling</span>
+      <span class="gf-form-label width-10">Inactivity Timeout</span>
       <input type="text" class="gf-form-input gf-form-input--has-help-icon width-8"
-        ng-model="ctrl.current.jsonData.keepPolling" spellcheck="false" placeholder="20s"
+        ng-model="ctrl.current.jsonData.inactivityTimeoutMs" spellcheck="false" placeholder="20s"
         ng-pattern="/^\d+[Mwdhmsy]$/"></input>
       <info-popover mode="right-absolute">
-        Keep polling metrics until a specified time period after they have been last requested.
+        Deregister bpftrace scripts after a specified time period if they haven't been requested.
       </info-popover>
     </div>
   </div>

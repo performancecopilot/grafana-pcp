@@ -57,6 +57,7 @@ export default (ctx: TestContext) => {
                 expr: "metric1"
             }, {
                 ...fixtures.queryTarget,
+                refId: "B",
                 expr: "metric2"
             }]
         };
@@ -65,6 +66,7 @@ export default (ctx: TestContext) => {
             ...fixtures.query,
             targets: [{
                 ...fixtures.queryTarget,
+                refId: "B",
                 expr: "metric2"
             }]
         };

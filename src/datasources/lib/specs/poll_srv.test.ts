@@ -16,7 +16,7 @@ describe("PollSrv", () => {
         } as any;
         ctx.pmapiSrv = new PmapiSrv(ctx.context);
         ctx.datastore = new DataStore(ctx.pmapiSrv, 5 * 60 * 1000);
-        ctx.pollSrv = new PollSrv(ctx.pmapiSrv, ctx.datastore, 20 * 1000);
+        ctx.pollSrv = new PollSrv(ctx.pmapiSrv, ctx.datastore);
     });
 
     it("should poll", async () => {
@@ -76,39 +76,6 @@ describe("PollSrv", () => {
             ]
         });
 
-        await ctx.pollSrv.poll();
-        expect(ctx.context.fetch).toHaveBeenCalledWith(["metric1"]);
-    });
-
-    it("should remove metrics which weren't requested in a specified time period", async () => {
-        ctx.context.metric.mockResolvedValueOnce({
-            metrics: [{
-                ...fixtures.metricMetadataSingle,
-                name: "metric1"
-            }, {
-                ...fixtures.metricMetadataSingle,
-                name: "metric2"
-            }, {
-                ...fixtures.metricMetadataSingle,
-                name: "metric3"
-            }]
-        });
-        ctx.context.fetch.mockResolvedValueOnce({
-            "timestamp": 5,
-            "values": [
-                { pmid: "1.0.1", name: "metric1", instances: [] }
-            ]
-        });
-
-        dateMock.advanceTo(10000);
-        await ctx.pollSrv.ensurePolling(["metric1", "metric2", "metric3"]);
-        dateMock.advanceTo(30000);
-        await ctx.pollSrv.ensurePolling(["metric1"]);
-
-        // max age is 20s
-        // metric1 was requested 10s back, metric2 and metric3 30s back
-        dateMock.advanceTo(40000);
-        ctx.pollSrv.cleanup();
         await ctx.pollSrv.poll();
         expect(ctx.context.fetch).toHaveBeenCalledWith(["metric1"]);
     });

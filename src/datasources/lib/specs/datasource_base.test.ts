@@ -1,19 +1,22 @@
 import _ from 'lodash';
-import { PCPLiveDatasourceBase } from "../datasource_base";
+import { PmapiDatasourceBase } from "../datasource_base";
 import { Endpoint } from "../endpoint_registry";
 import DataStore from "../datastore";
 import { PmapiSrv, Context } from '../services/pmapi_srv';
-import { Query, QueryTarget, TDatapoint } from '../models/datasource';
+import { Query, TDatapoint, PmapiQueryTarget } from '../models/datasource';
 import { TargetResult } from '../models/metrics';
 import * as fixtures from './lib/fixtures';
 
-class Datasource extends PCPLiveDatasourceBase {
-    onTargetUpdate(prevValue: QueryTarget, newValue: QueryTarget) {
+class Datasource extends PmapiDatasourceBase<Endpoint> {
+    async onTargetUpdate(prevValue: PmapiQueryTarget<Endpoint>, newValue: PmapiQueryTarget<Endpoint>) {
     }
 
-    async handleTarget(endpoint: Endpoint, query: Query, target: QueryTarget): Promise<TargetResult> {
-        const results = endpoint.datastore.queryMetrics(target, [target.expr], query.range.from.valueOf(), query.range.to.valueOf());
-        await this.applyTransformations(endpoint.pmapiSrv, results);
+    async onTargetInactive(target: PmapiQueryTarget<Endpoint>): Promise<void> {
+    }
+
+    async handleTarget(query: Query, target: PmapiQueryTarget<Endpoint>): Promise<TargetResult> {
+        const results = target.endpoint.datastore.queryMetrics(target, [target.expr], query.range.from.valueOf(), query.range.to.valueOf());
+        await this.applyTransformations(target.endpoint.pmapiSrv, results);
         return results;
     }
 }
@@ -156,6 +159,12 @@ describe("DatasourceBase", () => {
             }]
         });
 
+        const endpoint = {
+            id: "",
+            pmapiSrv: ctx.pmapiSrv,
+            pollSrv: {} as any,
+            datastore
+        };
         const query = {
             ...fixtures.query,
             range: {
@@ -165,16 +174,11 @@ describe("DatasourceBase", () => {
             targets: [{
                 ...fixtures.queryTarget,
                 expr: "metric.single",
+                endpoint
             }]
         };
-        const endpoint = {
-            id: "",
-            pmapiSrv: ctx.pmapiSrv,
-            pollSrv: {} as any,
-            datastore
-        };
-        const result1 = _.cloneDeep(await ctx.datasource.handleTarget(endpoint, query, query.targets[0]));
-        const result2 = await ctx.datasource.handleTarget(endpoint, query, query.targets[0]);
+        const result1 = _.cloneDeep(await ctx.datasource.handleTarget(query, query.targets[0] as any));
+        const result2 = await ctx.datasource.handleTarget(query, query.targets[0] as any);
 
         expect(result1).toMatchObject({
             metrics: [{
