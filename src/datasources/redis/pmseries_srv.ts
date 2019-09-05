@@ -63,7 +63,8 @@ class PmSeriesApi {
             url: `${this.url}/series/metrics`,
             params: { match: pattern }
         });
-        return response.data;
+        const metrics = response.data;
+        return _.isArray(metrics) ? metrics : []; // TODO: on error (no metrics found), pmproxy returns an object (should be an empty array)
     }
 
     async labels(series: string[]): Promise<LabelsResponse[]> {

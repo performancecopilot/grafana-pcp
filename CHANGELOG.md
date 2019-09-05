@@ -2,7 +2,8 @@
 
 ## 1.0.0 (unreleased)
 
-- Renamed PCP Live to PCP Vector
+- help texts for all datasources (visible with the **[ ? ]** button in the query editor)
+- renamed PCP Live to PCP Vector
 
 ### Vector & bpftrace
 - if the metric/script gets changed in the query editor, immeditately stop polling the old metric/deregister the old script
