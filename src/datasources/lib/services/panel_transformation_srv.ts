@@ -108,20 +108,23 @@ export default class PanelTransformationSrv {
 
     transformMultipleMetricsToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn) {
         const table: TableData = { columns: [], rows: [], type: 'table' };
-        table.columns = results.map(targetResult => ({
-            text: this.getLabel(query, targetResult.target, defaultLegendFormatter, targetResult.metrics[0].name)
-        }));
-        const instanceNames = results[0].metrics[0].instances.map(instance => instance.name);
-        if (instanceNames.length > 0 && _.isNumber(instanceNames[0]))
-            instanceNames.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+        table.columns = results.flatMap(targetResult => targetResult.metrics.map(metric => ({
+            text: this.getLabel(query, targetResult.target, defaultLegendFormatter, metric.name)
+        })));
+        table.columns.unshift({ text: "instance" });
+
+        const instanceNames = _.uniq(results.flatMap(targetResult => targetResult.metrics.flatMap(metric =>
+            metric.instances.map(instance => instance.name))));
         for (const instanceName of instanceNames) {
-            const row: (number | string)[] = [];
+            const row: (number | string)[] = [instanceName];
             for (const targetResult of results) {
-                const instance = (targetResult.metrics[0] as Metric<number | string>).instances.find(instance => instance.name === instanceName);
-                if (instance && instance.values.length > 0)
-                    row.push(instance.values[instance.values.length - 1][0]);
-                else
-                    row.push('?');
+                for (const metric of targetResult.metrics) {
+                    const instance = metric.instances.find(instance => instance.name === instanceName);
+                    if (instance && instance.values.length > 0)
+                        row.push(instance.values[instance.values.length - 1][0]);
+                    else
+                        row.push('');
+                }
             }
             table.rows.push(row);
         }

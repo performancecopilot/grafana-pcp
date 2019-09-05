@@ -3,6 +3,7 @@ import { PCPRedisDatasource } from "../../redis/datasource";
 import * as fixtures from './lib/fixtures';
 import { TargetResult } from "../models/metrics";
 import { TargetFormat } from "../models/datasource";
+import { PCPVectorDatasource } from "../../vector/datasource";
 
 describe("PanelTransformationSrv", () => {
     const ctx: { templateSrv: any, transformationSrv: PanelTransformationSrv } = {} as any;
@@ -227,6 +228,116 @@ PID,COMM,FD,ERR,PATH,MIX1,MIX2
                 "'",
                 '"'
             ]],
+            "type": "table"
+        }]);
+    });
+
+    it("should transform multiple queries into a table", () => {
+        const query = {
+            ...fixtures.query,
+            targets: [{
+                ...fixtures.queryTarget,
+                expr: "metric1",
+                format: TargetFormat.Table,
+            }, {
+                ...fixtures.queryTarget,
+                expr: "metric2",
+                format: TargetFormat.Table,
+            }, {
+                ...fixtures.queryTarget,
+                expr: "single",
+                format: TargetFormat.Table,
+            }]
+        };
+        const results: TargetResult[] = [{
+            target: query.targets[0],
+            metrics: [{
+                name: "metric1",
+                instances: [
+                    { id: 0, name: "sda", values: [[1, 1000], [2, 2000]], labels: {} },
+                    { id: 1, name: "nvme", values: [[3, 1000], [4, 2000]], labels: {} }
+                ]
+            }]
+        }, {
+            target: query.targets[1],
+            metrics: [{
+                name: "metric2",
+                instances: [
+                    { id: 1, name: "nvme", values: [[5, 1000], [6, 2000]], labels: {} },
+                    { id: 2, name: "hda", values: [[7, 1000], [8, 2000]], labels: {} }
+                ]
+            }]
+        }, {
+            target: query.targets[2],
+            metrics: [{
+                name: "single",
+                instances: [
+                    { id: null, name: "", values: [[9, 1000], [10, 2000]], labels: {} }
+                ]
+            }]
+        }];
+
+        const result = ctx.transformationSrv.transform(query, results, PCPVectorDatasource.defaultLegendFormatter);
+        expect(result).toStrictEqual([{
+            "columns": [
+                { "text": "instance" },
+                { "text": "metric1" },
+                { "text": "metric2" },
+                { "text": "single" }
+            ],
+            "rows": [
+                ["sda", 2, "", ""],
+                ["nvme", 4, 6, ""],
+                ["hda", "", 8, ""],
+                ["", "", "", 10]
+            ],
+            "type": "table"
+        }]);
+    });
+
+    it("should transform multiple queries into a table and transform legends", () => {
+        const query = {
+            ...fixtures.query,
+            targets: [{
+                ...fixtures.queryTarget,
+                expr: "metric1",
+                format: TargetFormat.Table,
+                legendFormat: "TX"
+            }, {
+                ...fixtures.queryTarget,
+                expr: "disk.dev.read",
+                format: TargetFormat.Table,
+                legendFormat: "$metric"
+            }]
+        };
+        const results: TargetResult[] = [{
+            target: query.targets[0],
+            metrics: [{
+                name: "metric1",
+                instances: [
+                    { id: 0, name: "sda", values: [[1, 1000], [2, 2000]], labels: {} }
+                ]
+            }]
+        }, {
+            target: query.targets[1],
+            metrics: [{
+                name: "disk.dev.read",
+                instances: [
+                    { id: 0, name: "sda", values: [[3, 1000], [4, 2000]], labels: {} }
+                ]
+            }]
+        }];
+
+        const result = ctx.transformationSrv.transform(query, results, PCPVectorDatasource.defaultLegendFormatter);
+        expect(result).toStrictEqual([{
+            "columns": [
+                { "text": "instance" },
+                { "text": "TX" },
+                { "text": "disk.dev.read" }
+            ],
+            "rows": [
+                ["sda", 2, 4]
+            ],
             "type": "table"
         }]);
     });
