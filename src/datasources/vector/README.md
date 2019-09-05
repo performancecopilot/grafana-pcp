@@ -10,10 +10,12 @@ Transforms the data for the heatmap panel.
 Instance names have to be in the following format: `<lower_bound>-<upper_bound>`, for example `512-1023` (the bcc PMDA produces histograms in this format).
 
 **The following settings have to be set in the heatmap panel options:**
-| Setting        | Value               |
+
+| Setting        | Value                   |
 | -------------- | ----------------------- |
 | *Format*       | **Time Series Buckets** |
 | *Bucket bound* | **Upper**               |
+
 &nbsp;
 
 #### Table

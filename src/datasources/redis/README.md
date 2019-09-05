@@ -20,6 +20,7 @@ The following variables can be used in the legend format box:
 | `$metric0`    | last part of metric name | `read`          |
 | `$instance`   | instance name            | `sda`           |
 | `$some_label` | label value              | anything        |
+
 &nbsp;
 
 ### Query Functions
@@ -29,6 +30,7 @@ The following functions are available for dashboard variables of type *Query*:
 | -------- | ----------- | ------- |
 | `metrics([pattern])` | returns all metrics matching a glob pattern (if no pattern is defined, all metrics are returned) | `metrics(disk.*)` |
 | `label_values(metric, label)` | returns all label values for the specified label of the specified metric | `label_values(kernel.all.uptime, hostname)` |
+
 &nbsp;
 
 ### More Information

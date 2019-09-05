@@ -9,10 +9,12 @@ If there are multiple variables (or scripts) defined, all values will be combine
 Transforms bpftrace histograms into heatmaps.
 
 **The following settings have to be set in the heatmap panel options:**
+
 | Setting        | Value                   |
 | -------------- | ----------------------- |
 | *Format*       | **Time Series Buckets** |
 | *Bucket bound* | **Upper**               |
+
 &nbsp;
 
 #### Table
@@ -27,6 +29,7 @@ The following variables can be used in the legend format box:
 | ------------- |----------------------- |
 | `$metric0`    | bpftrace variable name |
 | `$instance`   | bpftrace map key       |
+
 &nbsp;
 
 ### More Information
