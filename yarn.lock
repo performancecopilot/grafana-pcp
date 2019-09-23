@@ -830,23 +830,23 @@
     reflect-metadata "^0.1.12"
     tslib "^1.8.1"
 
-"@grafana/data@6.4.0-pre-fd21e0ba1":
-  version "6.4.0-pre-fd21e0ba1"
-  resolved "https://registry.yarnpkg.com/@grafana/data/-/data-6.4.0-pre-fd21e0ba1.tgz#6b9ddcd99fa8c81abf9d42483cfaacc65a622bf6"
-  integrity sha512-EZWPBHyJmWGmOHdd9GrSH9XG9juNkaeIJqPIt8eBtkNYWP245lZS5vkwsr58CazVfQhiWaQDa5EAa/mZ0lsGbQ==
+"@grafana/data@6.4.0-beta.1":
+  version "6.4.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@grafana/data/-/data-6.4.0-beta.1.tgz#1864b552932eaf27b6b1d6d630d69975d2614d7e"
+  integrity sha512-wY2VgAO8b1dLn2qXBi3c3ENWsGglns/NaiWTDVXSorSfJlvH8jTrDt6Rn7iRXSiLsD8cJ0vZ2djg+5AvYpupng==
 
-"@grafana/ui@^6.4.0-alpha.44-7ca77b8a9":
-  version "6.4.0-pre-fd21e0ba1"
-  resolved "https://registry.yarnpkg.com/@grafana/ui/-/ui-6.4.0-pre-fd21e0ba1.tgz#94ac347291504459fc174130d153859f355e9ee0"
-  integrity sha512-9dJAe8+UcNsC4n/QHTzPW3l341xEGu4sqR0bii4YbNXD2s3zw93svQKgZ7Tc4jSLjCiw0YdHG3wLmZJFizpc0w==
+"@grafana/ui@^6.4.0-beta.1":
+  version "6.4.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@grafana/ui/-/ui-6.4.0-beta.1.tgz#dc2953ff87fe106d7afce54c72be68598858b531"
+  integrity sha512-MrE3PWTrMY6drWEoviMDjF8jhJH3qA5AK+/pENSLrYOVixJx+yYr9Bn+i2ScbftRjahBHE4TX0oUAmB7g4SAxw==
   dependencies:
-    "@grafana/data" "6.4.0-pre-fd21e0ba1"
+    "@grafana/data" "6.4.0-beta.1"
     "@torkelo/react-select" "2.1.1"
     "@types/react-color" "2.17.0"
     classnames "2.2.6"
     d3 "5.9.1"
     jquery "3.4.1"
-    lodash "4.17.14"
+    lodash "4.17.15"
     moment "2.24.0"
     papaparse "4.6.3"
     rc-time-picker "^3.7.2"
@@ -4923,12 +4923,7 @@ lodash.sortby@^4.7.0:
   resolved "https://registry.yarnpkg.com/lodash.sortby/-/lodash.sortby-4.7.0.tgz#edd14c824e2cc9c1e0b0a1b42bb5210516a42438"
   integrity sha1-7dFMgk4sycHgsKG0K7UhBRakJDg=
 
-lodash@4.17.14:
-  version "4.17.14"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.14.tgz#9ce487ae66c96254fe20b599f21b6816028078ba"
-  integrity sha512-mmKYbW3GLuJeX+iGP+Y7Gp1AiGHGbXHCOh/jZmrawMmsE7MS4znI3RL2FsjbqOyMayHInjOeykW7PEajUk1/xw==
-
-lodash@>4.17.4, lodash@^4.0.1, lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.4:
+lodash@4.17.15, lodash@>4.17.4, lodash@^4.0.1, lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.4:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==

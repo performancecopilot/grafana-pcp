@@ -27,7 +27,7 @@
     "@babel/preset-env": "^7.5.0",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.3.3",
-    "@grafana/ui": "^6.4.0-alpha.44-7ca77b8a9",
+    "@grafana/ui": "^6.4.0-beta.1",
     "@types/benchmark": "^1.0.31",
     "@types/d3": "^5.7.2",
     "@types/grafana": "github:CorpGlory/types-grafana",
