@@ -25,12 +25,12 @@ export class PCPVectorDatasourceQueryCtrl extends PCPQueryCtrl {
     }
 
     getDefaultFormat() {
-        if (this.panelCtrl.panel.type === 'table') {
+        if (this.panelCtrl.panel.type === 'table')
             return TargetFormat.Table;
-        } else if (this.panelCtrl.panel.type === 'heatmap') {
+        else if (this.panelCtrl.panel.type === 'heatmap')
             return TargetFormat.Heatmap;
-        }
-        return TargetFormat.TimeSeries;
+        else
+            return TargetFormat.TimeSeries;
     }
 
     async getContainers() {

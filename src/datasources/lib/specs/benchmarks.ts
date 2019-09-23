@@ -1,8 +1,9 @@
 import Benchmark from "benchmark";
 import DataStore from "../datastore";
 import { Transformations } from "../transformations";
-import { Datapoint } from "../models/datasource";
+import { Datapoint, TargetFormat } from "../models/datasource";
 import { MetricInstance } from "../models/metrics";
+import * as fixtures from './lib/fixtures';
 
 interface BenchmarkCase {
     setup?: () => void;
@@ -92,7 +93,7 @@ class CounterValues {
     }
 
     run(deferred: any) {
-        Transformations.applyTransformations("counter", "", this.values);
+        Transformations.applyTransformations(TargetFormat.TimeSeries, { ...fixtures.metricMetadataSingle, sem: "counter" }, this.values);
         deferred.resolve();
     }
 

@@ -1,15 +1,16 @@
 import _ from 'lodash';
-import { TDatapoint, Datapoint } from './models/datasource';
+import { TDatapoint, Datapoint, TargetFormat } from './models/datasource';
 import { TransformationFn } from './models/metrics';
+import { MetricMetadata } from './models/pmapi';
 //import './specs/benchmarks';
 
 export class Transformations {
 
-    static applyTransformations(semantics: string, units: string, datapoints: TDatapoint[]) {
+    static applyTransformations(format: TargetFormat, metadata: MetricMetadata, datapoints: TDatapoint[]) {
         const transformations: TransformationFn[] = [];
-        if (semantics === "counter") {
+        if (metadata.sem === "counter" && format !== TargetFormat.FlameGraph) {
             transformations.push(Transformations.counter);
-            if (units === "nanosec")
+            if (metadata.units === "nanosec")
                 transformations.push(Transformations.divideBy(1000 * 1000 * 1000));
         }
 

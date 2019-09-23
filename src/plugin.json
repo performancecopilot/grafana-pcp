@@ -50,6 +50,10 @@
             "name": "PCP bpftrace"
         },
         {
+            "type": "panel",
+            "name": "FlameGraph"
+        },
+        {
             "type": "dashboard",
             "name": "PCP Redis Host Overview",
             "path": "dashboards/pcp-redis-host-overview.json"

@@ -133,7 +133,7 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
         for (const metric of results.metrics) {
             const metadata = await pmapiSrv.getMetricMetadata(metric.name);
             for (const instance of metric.instances) {
-                instance.values = Transformations.applyTransformations(metadata.sem, metadata.units, instance.values as any);
+                instance.values = Transformations.applyTransformations(results.target.format, metadata, instance.values as any);
             }
         }
     }
@@ -143,7 +143,7 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
     abstract async handleTarget(query: Query, target: PmapiQueryTarget<EP>): Promise<TargetResult>;
 
     static defaultLegendFormatter(metric: string, instance: MetricInstance<number | string> | undefined, labels: Record<string, any>) {
-        return instance && instance.name !== "" ? instance.name : metric;
+        return instance && instance.id !== null ? instance.name : metric;
     }
 
     async queryTargetsByEndpoint(query: Query, targets: PmapiQueryTarget<EP>[]) {

@@ -4,6 +4,7 @@ export enum TargetFormat {
     TimeSeries = "time_series",
     Table = "table",
     Heatmap = "heatmap",
+    FlameGraph = "flamegraph",
 }
 
 export interface Query {

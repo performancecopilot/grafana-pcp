@@ -53,6 +53,45 @@ describe("PanelTransformationSrv", () => {
         }]);
     });
 
+    it("should handle empty instance names", () => {
+        const query = {
+            ...fixtures.query,
+            targets: [{
+                ...fixtures.queryTarget
+            }]
+        };
+        const targetResults: TargetResult[] = [{
+            target: query.targets[0],
+            metrics: [{
+                name: "disk.dev.read",
+                instances: [{
+                    id: 1,
+                    name: "inst1",
+                    values: [],
+                    labels: {
+                        "label1": "value1"
+                    }
+                }, {
+                    id: 2,
+                    name: "",
+                    values: [],
+                    labels: {
+                        "label2": "value2"
+                    }
+                }]
+            }],
+        }];
+
+        const result = ctx.transformationSrv.transform(query, targetResults, PCPVectorDatasource.defaultLegendFormatter);
+        expect(result).toStrictEqual([{
+            target: "inst1",
+            datapoints: []
+        }, {
+            target: "",
+            datapoints: []
+        }]);
+    });
+
     it("should use default for pmseries labels", () => {
         const query = {
             ...fixtures.query,

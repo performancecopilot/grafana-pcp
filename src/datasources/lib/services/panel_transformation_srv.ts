@@ -131,7 +131,7 @@ export default class PanelTransformationSrv {
         return table;
     }
 
-    transformToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn) {
+    transformToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn): TableData {
         if (results.length === 1 &&
             results[0].metrics.length === 1 &&
             results[0].metrics[0].instances.length === 1 &&
@@ -143,6 +143,13 @@ export default class PanelTransformationSrv {
             }
         }
         return this.transformMultipleMetricsToTable(query, results, defaultLegendFormatter);
+    }
+
+    transformToFlameGraph(metric: Metric<number>): TimeSeriesData[] {
+        return metric.instances.map(instance => ({
+            target: instance.name,
+            datapoints: instance.values.slice(-1) // truncate array to last element, also works fine with empty array
+        }));
     }
 
     transform(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn): PanelData[] {
@@ -160,11 +167,13 @@ export default class PanelTransformationSrv {
         else if (format === TargetFormat.Table) {
             return [this.transformToTable(query, results, defaultLegendFormatter)];
         }
+        else if (format === TargetFormat.FlameGraph) {
+            return results.flatMap(targetResult => targetResult.metrics.flatMap((metric: Metric<number>) =>
+                this.transformToFlameGraph(metric)
+            ));
+        }
         else {
-            throw {
-                message: `Invalid target format '${format}', possible options: ` +
-                    `${TargetFormat.TimeSeries}, ${TargetFormat.Heatmap}, ${TargetFormat.Table}`
-            };
+            throw { message: `Invalid target format '${format}'.` };
         }
     }
 

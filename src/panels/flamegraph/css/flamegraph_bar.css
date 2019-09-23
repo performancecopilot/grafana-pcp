@@ -1,0 +1,14 @@
+.flamegraph-bar {
+   display: flex;
+   justify-content: right;
+   align-items: center;
+   height: 40px;
+}
+
+.flamegraph-bar button {
+   margin: 0 4px;
+}
+
+.flamegraph-bar label {
+   margin-top: -2px;
+}

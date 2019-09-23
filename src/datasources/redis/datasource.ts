@@ -130,7 +130,7 @@ export class PCPRedisDatasource {
     }
 
     static defaultLegendFormatter(metric: string, instance: MetricInstance<number | string> | undefined, labels: Record<string, any>) {
-        let label = instance && instance.name !== "" ? instance.name : metric;
+        let label = instance && instance.id !== null ? instance.name : metric;
         if (!_.isEmpty(labels)) {
             const pairs: string[] = [];
             for (const label of ["hostname", "source"]) {

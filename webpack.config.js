@@ -9,10 +9,11 @@ module.exports = {
     },
     context: path.join(__dirname, 'src'),
     entry: {
-        'module': './module.ts',
+        './module': './module.ts',
         './datasources/redis/module': './datasources/redis/module.ts',
         './datasources/vector/module': './datasources/vector/module.ts',
-        './datasources/bpftrace/module': './datasources/bpftrace/module.ts'
+        './datasources/bpftrace/module': './datasources/bpftrace/module.ts',
+        './panels/flamegraph/module': './panels/flamegraph/module.tsx'
     },
     devtool: 'source-map',
     output: {
@@ -22,6 +23,8 @@ module.exports = {
     },
     externals: [
         'lodash',
+        'react',
+        '@grafana/ui',
         function (context, request, callback) {
             var prefix = 'grafana/';
             if (request.indexOf(prefix) === 0) {

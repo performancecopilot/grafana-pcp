@@ -80,7 +80,7 @@
             "doc": "Process name"
         },
         {
-            "name": "stack",
+            "name": "kstack",
             "doc": "Kernel stack trace"
         },
         {

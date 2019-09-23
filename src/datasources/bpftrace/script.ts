@@ -5,7 +5,8 @@ import { TargetFormat } from '../lib/models/datasource';
 
 enum MetricType {
     Histogram = "histogram",
-    Output = "output"
+    Output = "output",
+    Stacks = "stacks"
 }
 
 export enum ScriptStatus {
@@ -82,6 +83,12 @@ export default class BPFtraceScript {
             const metric = await this.findMetricForMetricType(pmapiSrv, MetricType.Output);
             if (!metric)
                 throw new Error("Please printf() a table in CSV format in the BPFtrace script.");
+            return [metric];
+        }
+        else if (format === TargetFormat.FlameGraph) {
+            const metric = await this.findMetricForMetricType(pmapiSrv, MetricType.Stacks);
+            if (!metric)
+                throw new Error("Cannot find any sampled stacks in this BPFtrace script. Try: profile:hz:99 { @[kstack] = count(); }");
             return [metric];
         }
         throw new Error("Unsupported panel format.");
