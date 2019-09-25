@@ -2734,7 +2734,7 @@ d3-fetch@1:
 
 "d3-flame-graph@github:andreasgerstmayr/d3-flame-graph#updates":
   version "2.1.2"
-  resolved "https://codeload.github.com/andreasgerstmayr/d3-flame-graph/tar.gz/b7b0745d2298b8485669b64cd4dd3054cf6011d4"
+  resolved "https://codeload.github.com/andreasgerstmayr/d3-flame-graph/tar.gz/8954e380aa0ceb9d0a7f968f0d995f43995041bf"
   dependencies:
     d3-array "^1.2.4"
     d3-ease "^1.0.5"

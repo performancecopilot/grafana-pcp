@@ -2,7 +2,7 @@ import _ from "lodash";
 import React, { PureComponent } from "react";
 import { dateTime } from "@grafana/data";
 import { Tooltip } from "@grafana/ui";
-import { select, selectAll } from 'd3-selection';
+import { select } from 'd3-selection';
 import { flamegraph, FlameGraph, StackFrame } from 'd3-flame-graph';
 import 'd3-flame-graph/dist/d3-flamegraph.css';
 import './css/flamegraph.css';
@@ -118,8 +118,7 @@ export class FlameGraphChart extends PureComponent<Props, State> {
     }
 
     drawFlameGraph() {
-        select(this.container.current).selectAll('svg').remove();
-        selectAll('.d3-flame-graph-tip').remove(); // if the flamegraph is redrawn, open tooltips don't close
+        this.flamegraph.destroy();
 
         this.flamegraph = this.createFlameGraph();
         select(this.container.current)
