@@ -72,10 +72,15 @@
             "type": "dashboard",
             "name": "PCP bpftrace System Analysis",
             "path": "dashboards/pcp-bpftrace-system-analysis.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP bpftrace Flame Graphs",
+            "path": "dashboards/pcp-bpftrace-flame-graphs.json"
         }
     ],
     "dependencies": {
-        "grafanaVersion": "6.x.x",
+        "grafanaVersion": "6.3.4",
         "plugins": []
     }
 }

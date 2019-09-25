@@ -3218,7 +3218,7 @@
           "text": "PCP Vector",
           "value": "PCP Vector"
         },
-        "hide": 0,
+        "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,

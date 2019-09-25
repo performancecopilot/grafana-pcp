@@ -4,6 +4,6 @@ export interface Options {
 }
 
 export const defaults: Options = {
-    minSamples: 3,
-    hideUnresolvedStackFrames: true
+    minSamples: 1,
+    hideUnresolvedStackFrames: false
 };

@@ -2248,7 +2248,7 @@
           "text": "PCP Redis",
           "value": "PCP Redis"
         },
-        "hide": 0,
+        "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
