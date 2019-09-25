@@ -3,27 +3,15 @@ import React, { PureComponent } from 'react';
 import memoizeOne from "memoize-one";
 import { PanelProps, Tooltip } from '@grafana/ui';
 import { Options } from './types';
-import { generateFlameGraphModel, Stack } from './model';
+import { generateFlameGraphModel } from './model';
 import { FlameGraphChart } from "./FlameGraphChart";
-import { FlameGraph } from "d3-flame-graph";
 
-
-interface State {
-    flamegraph: FlameGraph;
-    stacks: Stack;
-}
-
-export class FlameGraphPanel extends PureComponent<PanelProps<Options>, State> {
-
-    constructor(props: PanelProps<Options>) {
-        super(props);
-    }
+export class FlameGraphPanel extends PureComponent<PanelProps<Options>> {
 
     computeModel = memoizeOne(generateFlameGraphModel);
 
     render() {
         const stacks = this.computeModel(this.props.data, this.props.options);
-
         if (stacks.children.length === 0) {
             return (
                 <div className="datapoints-warning">
@@ -37,9 +25,8 @@ export class FlameGraphPanel extends PureComponent<PanelProps<Options>, State> {
             );
         }
 
-        return (
-            <FlameGraphChart stacks={stacks} width={this.props.width} height={this.props.height} />
-        );
+        const timestamp = (this.props.data.series[0] as any).rows[0][1];
+        return (<FlameGraphChart width={this.props.width} height={this.props.height} stacks={stacks} timestamp={timestamp} />);
     }
 
 }

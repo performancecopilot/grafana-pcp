@@ -25,6 +25,7 @@ module.exports = {
         'lodash',
         'react',
         '@grafana/ui',
+        '@grafana/data',
         function (context, request, callback) {
             var prefix = 'grafana/';
             if (request.indexOf(prefix) === 0) {

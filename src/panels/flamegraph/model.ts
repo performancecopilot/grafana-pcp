@@ -1,14 +1,9 @@
 import { PanelData } from "@grafana/ui";
+import { StackFrame } from 'd3-flame-graph';
 import { Options } from "./types";
 
-export interface Stack {
-    name: string;
-    value: number;
-    children: Stack[];
-}
-
-export function generateFlameGraphModel(panelData: PanelData, options: Options): Stack {
-    const root: Stack = { name: "root", value: 0, children: [] };
+export function generateFlameGraphModel(panelData: PanelData, options: Options): StackFrame {
+    const root: StackFrame = { name: "root", value: 0, children: [] };
 
     for (const dataFrame of panelData.series) {
         const count = (dataFrame as any).rows[0][0];

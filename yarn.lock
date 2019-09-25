@@ -830,7 +830,7 @@
     reflect-metadata "^0.1.12"
     tslib "^1.8.1"
 
-"@grafana/data@6.4.0-beta.1":
+"@grafana/data@6.4.0-beta.1", "@grafana/data@^6.4.0-beta.1":
   version "6.4.0-beta.1"
   resolved "https://registry.yarnpkg.com/@grafana/data/-/data-6.4.0-beta.1.tgz#1864b552932eaf27b6b1d6d630d69975d2614d7e"
   integrity sha512-wY2VgAO8b1dLn2qXBi3c3ENWsGglns/NaiWTDVXSorSfJlvH8jTrDt6Rn7iRXSiLsD8cJ0vZ2djg+5AvYpupng==

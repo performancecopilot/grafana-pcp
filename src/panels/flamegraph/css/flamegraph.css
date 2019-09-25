@@ -1,0 +1,40 @@
+.theme-dark svg.d3-flame-graph rect {
+   stroke: rgb(33, 33, 36);
+}
+
+.flamegraph-bar {
+   display: flex;
+   height: 40px;
+   align-items: center;
+   margin-bottom: 10px;
+}
+
+.flamegraph-bar .left {
+   flex: 1;
+   justify-content: flex-start;
+}
+
+.flamegraph-bar .center {
+   display: flex;
+   flex: 1;
+   justify-content: center;
+}
+
+.flamegraph-bar .right {
+   display: flex;
+   flex: 1;
+   justify-content: flex-end;
+}
+
+.flamegraph-bar .date {
+   font-size: 12px;
+}
+
+
+.flamegraph-bar button {
+   margin: 0 4px;
+}
+
+.flamegraph-bar label {
+   margin-top: -2px;
+}
