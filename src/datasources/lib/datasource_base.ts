@@ -5,24 +5,24 @@ import PanelTransformations from './services/panel_transformation_srv';
 import { PmapiSrv, Context } from "./services/pmapi_srv";
 import { isBlank } from './utils';
 import { Transformations } from './transformations';
-import { QueryTarget, Query } from './models/datasource';
+import { QueryTarget, Query, PmapiQueryTarget } from './models/datasource';
 import { TargetResult, MetricInstance } from './models/metrics';
 import DashboardObserver from './dashboard_observer';
 import "core-js/stable/array/flat";
 
-export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
+export abstract class PmapiDatasourceBase<EP extends Endpoint> {
 
     name: string;
     withCredentials: boolean;
     headers: any;
 
     protected pollIntervalMs: number; // poll metric sources every X ms
-    keepPollingMs: number; // we will keep polling a metric for up to X ms after it was last requested
+    inactivityTimeoutMs: number; // we will keep polling a metric for up to X ms after it was last requested
     localHistoryAgeMs: number; // age out time
 
     endpointRegistry: EndpointRegistry<EP>;
     transformations: PanelTransformations;
-    dashboardObserver: DashboardObserver;
+    dashboardObserver: DashboardObserver<EP>;
 
     constructor(readonly instanceSettings: any, private backendSrv: any, private templateSrv: any) {
         this.name = instanceSettings.name;
@@ -33,13 +33,14 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
         }
 
         this.pollIntervalMs = kbn.interval_to_ms(instanceSettings.jsonData.pollInterval || '1s');
-        this.keepPollingMs = kbn.interval_to_ms(instanceSettings.jsonData.keepPolling || '20s');
+        this.inactivityTimeoutMs = kbn.interval_to_ms(instanceSettings.jsonData.inactivityTimeoutMs || '20s');
         this.localHistoryAgeMs = kbn.interval_to_ms(instanceSettings.jsonData.localHistoryAge || '5m');
 
         this.endpointRegistry = new EndpointRegistry();
         this.transformations = new PanelTransformations(this.templateSrv);
-        this.dashboardObserver = new DashboardObserver();
-        this.dashboardObserver.onTargetUpdate = this.onTargetUpdate;
+        this.dashboardObserver = new DashboardObserver(this.inactivityTimeoutMs);
+        this.dashboardObserver.onTargetUpdate = this.onTargetUpdate.bind(this);
+        this.dashboardObserver.onTargetInactive = this.onTargetInactive.bind(this);
     }
 
     configureEndpoint(_endpoint: EP) {
@@ -48,7 +49,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
     getOrCreateEndpoint(url: string, container: string | undefined) {
         let endpoint = this.endpointRegistry.find(url, container);
         if (!endpoint) {
-            endpoint = this.endpointRegistry.create(this.doRequest.bind(this), url, container, this.keepPollingMs, this.localHistoryAgeMs);
+            endpoint = this.endpointRegistry.create(this.doRequest.bind(this), url, container, this.localHistoryAgeMs);
             this.configureEndpoint(endpoint);
         }
         return endpoint;
@@ -62,7 +63,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
 
     async testDatasource() {
         if (isBlank(this.instanceSettings.url))
-            return { status: 'error', message: "Please specify a URL in the datasource settings." };
+            return { status: 'success', message: "To use this data source, please configure the URL in the query editor." };
 
         const pmapiSrv = new PmapiSrv(new Context(this.doRequest.bind(this), this.instanceSettings.url, this.instanceSettings.jsonData.container));
         try {
@@ -110,7 +111,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
         return [url, container];
     }
 
-    buildQueryTargets(query: Query): QueryTarget<EP>[] {
+    buildQueryTargets(query: Query): PmapiQueryTarget<EP>[] {
         return query.targets
             .filter(target => !target.hide && !isBlank(target.expr) && !target.isTyping)
             .map(target => {
@@ -120,10 +121,10 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
                     expr: this.templateSrv.replace(target.expr.trim(), query.scopedVars),
                     format: target.format,
                     legendFormat: target.legendFormat,
+                    uid: `${query.dashboardId}/${query.panelId}/${target.refId}`,
                     url: url,
                     container: container,
-                    endpoint: this.getOrCreateEndpoint(url, container),
-                    uid: `${query.dashboardId}/${query.panelId}/${target.refId}`
+                    endpoint: this.getOrCreateEndpoint(url, container)
                 };
             });
     }
@@ -132,22 +133,21 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
         for (const metric of results.metrics) {
             const metadata = await pmapiSrv.getMetricMetadata(metric.name);
             for (const instance of metric.instances) {
-                instance.values = Transformations.applyTransformations(metadata.sem, metadata.units, instance.values as any);
+                instance.values = Transformations.applyTransformations(results.target.format, metadata, instance.values as any);
             }
         }
     }
 
-    abstract onTargetUpdate(prevValue: QueryTarget, newValue: QueryTarget): void;
-    abstract async handleTarget(endpoint: EP, query: Query, target: QueryTarget<EP>): Promise<TargetResult>;
+    abstract async onTargetUpdate(prevValue: PmapiQueryTarget<EP>, newValue: PmapiQueryTarget<EP>): Promise<void>;
+    abstract async onTargetInactive(target: PmapiQueryTarget<EP>): Promise<void>;
+    abstract async handleTarget(query: Query, target: PmapiQueryTarget<EP>): Promise<TargetResult>;
 
     static defaultLegendFormatter(metric: string, instance: MetricInstance<number | string> | undefined, labels: Record<string, any>) {
-        return instance && instance.name !== "" ? instance.name : metric;
+        return instance && instance.id !== null ? instance.name : metric;
     }
 
-    async queryTargetsByEndpoint(query: Query, targets: QueryTarget<EP>[]) {
-        // endpoint is the same for all targets, ensured by _.groupBy() in query()
-        const endpoint = targets[0].endpoint;
-        return await Promise.all(targets.map(target => this.handleTarget(endpoint!, query, target)));
+    async queryTargetsByEndpoint(query: Query, targets: PmapiQueryTarget<EP>[]) {
+        return await Promise.all(targets.map(target => this.handleTarget(query, target)));
     }
 
     async query(query: Query) {
@@ -161,7 +161,7 @@ export abstract class PCPLiveDatasourceBase<EP extends Endpoint = Endpoint> {
         const targetsPerEndpoint = _.groupBy(targets, target => target.endpoint!.id);
         const promises = Object.values(targetsPerEndpoint).map(targets => this.queryTargetsByEndpoint(query, targets));
         const targetResults = await Promise.all(promises);
-        const panelData = this.transformations.transform(query, targetResults.flat(), PCPLiveDatasourceBase.defaultLegendFormatter);
+        const panelData = this.transformations.transform(query, targetResults.flat(), PmapiDatasourceBase.defaultLegendFormatter);
         return { data: panelData };
     }
 }

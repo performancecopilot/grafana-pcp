@@ -746,7 +746,7 @@
           "text": "PCP bpftrace",
           "value": "PCP bpftrace"
         },
-        "hide": 0,
+        "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
@@ -778,6 +778,6 @@
     ]
   },
   "timezone": "",
-  "title": "bpftrace System Analysis",
+  "title": "PCP bpftrace System Analysis",
   "version": 1
 }

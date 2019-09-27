@@ -1,8 +1,8 @@
 import _ from "lodash";
-import { PCPLiveDatasource } from "./datasource";
+import { PCPVectorDatasource } from "./datasource";
 
-export class PCPLiveConfigCtrl {
-    static templateUrl = 'datasources/live/partials/config.html';
+export class PCPVectorConfigCtrl {
+    static templateUrl = 'datasources/vector/partials/config.html';
     current: any;
 
     /* @ngInject */
@@ -14,7 +14,7 @@ export class PCPLiveConfigCtrl {
     async getContainers() {
         const instanceSettings = _.cloneDeep(this.current);
         instanceSettings.jsonData.pollInterval = '0s'; // otherwise setInterval will be called in constructor
-        const datasource = new PCPLiveDatasource(instanceSettings, this.backendSrv, this.templateSrv);
+        const datasource = new PCPVectorDatasource(instanceSettings, this.backendSrv, this.templateSrv);
 
         let containers: any = [];
         try {

@@ -1,5 +1,6 @@
 import { Transformations } from "../transformations";
-import { TDatapoint } from "../models/datasource";
+import { TDatapoint, TargetFormat } from "../models/datasource";
+import * as fixtures from './lib/fixtures';
 
 describe("Transformations", () => {
 
@@ -10,7 +11,12 @@ describe("Transformations", () => {
             [700, 3000] as TDatapoint,
         ];
 
-        const result = Transformations.applyTransformations("counter", "", datapoints);
+        const metadata = {
+            ...fixtures.metricMetadataSingle,
+            sem: "counter"
+        };
+
+        const result = Transformations.applyTransformations(TargetFormat.TimeSeries, metadata, datapoints);
         const expected = [
             [100, 2000],
             [200, 3000]

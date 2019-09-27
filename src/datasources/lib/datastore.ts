@@ -56,14 +56,20 @@ export default class DataStore {
     queryMetric(metric: string, from: number, to: number): MetricInstance<number | string>[] {
         if (!(metric in this.store))
             return [];
-        return Array.from(this.store[metric], ([, instance]) => ({
-            id: instance.id,
-            name: instance.name,
-            values: instance.values.filter(dataPoint => (
-                from <= dataPoint[1] && dataPoint[1] <= to
-            )),
-            labels: instance.labels
-        }));
+
+        const instances: MetricInstance<number | string>[] = [];
+        for (const [, instance] of this.store[metric]) {
+            const values = instance.values.filter(dataPoint => (from <= dataPoint[1] && dataPoint[1] <= to));
+            if (values.length > 0) {
+                instances.push({
+                    id: instance.id,
+                    name: instance.name,
+                    values,
+                    labels: instance.labels
+                });
+            }
+        }
+        return instances;
     }
 
     queryMetrics(target: any, metrics: string[], from: number, to: number): TargetResult {

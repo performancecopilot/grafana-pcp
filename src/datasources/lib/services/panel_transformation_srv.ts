@@ -108,27 +108,30 @@ export default class PanelTransformationSrv {
 
     transformMultipleMetricsToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn) {
         const table: TableData = { columns: [], rows: [], type: 'table' };
-        table.columns = results.map(targetResult => ({
-            text: this.getLabel(query, targetResult.target, defaultLegendFormatter, targetResult.metrics[0].name)
-        }));
-        const instanceNames = results[0].metrics[0].instances.map(instance => instance.name);
-        if (instanceNames.length > 0 && _.isNumber(instanceNames[0]))
-            instanceNames.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+        table.columns = results.flatMap(targetResult => targetResult.metrics.map(metric => ({
+            text: this.getLabel(query, targetResult.target, defaultLegendFormatter, metric.name)
+        })));
+        table.columns.unshift({ text: "instance" });
+
+        const instanceNames = _.uniq(results.flatMap(targetResult => targetResult.metrics.flatMap(metric =>
+            metric.instances.map(instance => instance.name))));
         for (const instanceName of instanceNames) {
-            const row: (number | string)[] = [];
+            const row: (number | string)[] = [instanceName];
             for (const targetResult of results) {
-                const instance = (targetResult.metrics[0] as Metric<number | string>).instances.find(instance => instance.name === instanceName);
-                if (instance && instance.values.length > 0)
-                    row.push(instance.values[instance.values.length - 1][0]);
-                else
-                    row.push('?');
+                for (const metric of targetResult.metrics) {
+                    const instance = metric.instances.find(instance => instance.name === instanceName);
+                    if (instance && instance.values.length > 0)
+                        row.push(instance.values[instance.values.length - 1][0]);
+                    else
+                        row.push('');
+                }
             }
             table.rows.push(row);
         }
         return table;
     }
 
-    transformToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn) {
+    transformToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn): TableData {
         if (results.length === 1 &&
             results[0].metrics.length === 1 &&
             results[0].metrics[0].instances.length === 1 &&
@@ -140,6 +143,13 @@ export default class PanelTransformationSrv {
             }
         }
         return this.transformMultipleMetricsToTable(query, results, defaultLegendFormatter);
+    }
+
+    transformToFlameGraph(metric: Metric<number>): TimeSeriesData[] {
+        return metric.instances.map(instance => ({
+            target: instance.name,
+            datapoints: instance.values.slice(-1) // truncate array to last element, also works fine with empty array
+        }));
     }
 
     transform(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn): PanelData[] {
@@ -157,11 +167,13 @@ export default class PanelTransformationSrv {
         else if (format === TargetFormat.Table) {
             return [this.transformToTable(query, results, defaultLegendFormatter)];
         }
+        else if (format === TargetFormat.FlameGraph) {
+            return results.flatMap(targetResult => targetResult.metrics.flatMap((metric: Metric<number>) =>
+                this.transformToFlameGraph(metric)
+            ));
+        }
         else {
-            throw {
-                message: `Invalid target format '${format}', possible options: ` +
-                    `${TargetFormat.TimeSeries}, ${TargetFormat.Heatmap}, ${TargetFormat.Table}`
-            };
+            throw { message: `Invalid target format '${format}'.` };
         }
     }
 

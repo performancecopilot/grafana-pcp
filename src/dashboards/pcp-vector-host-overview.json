@@ -21,8 +21,8 @@
     },
     {
       "type": "datasource",
-      "id": "pcp-live-datasource",
-      "name": "PCP Live",
+      "id": "pcp-vector-datasource",
+      "name": "PCP Vector",
       "version": "0.0.1"
     }
   ],
@@ -3209,22 +3209,22 @@
   "schemaVersion": 18,
   "style": "dark",
   "tags": [
-    "pcp-live"
+    "pcp-vector"
   ],
   "templating": {
     "list": [
       {
         "current": {
-          "text": "PCP Live",
-          "value": "PCP Live"
+          "text": "PCP Vector",
+          "value": "PCP Vector"
         },
-        "hide": 0,
+        "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "datasource",
         "options": [],
-        "query": "pcp-live-datasource",
+        "query": "pcp-vector-datasource",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -3250,6 +3250,6 @@
     ]
   },
   "timezone": "",
-  "title": "Live Host Overview",
+  "title": "PCP Vector Host Overview",
   "version": 1
 }

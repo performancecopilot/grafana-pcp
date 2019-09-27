@@ -2248,7 +2248,7 @@
           "text": "PCP Redis",
           "value": "PCP Redis"
         },
-        "hide": 0,
+        "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
@@ -2264,14 +2264,14 @@
         "allValue": null,
         "current": {},
         "datasource": "$datasource",
-        "definition": "label_values(kernel.all.sysfork, hostname)",
+        "definition": "label_values(kernel.all.uptime, hostname)",
         "hide": 0,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "host",
         "options": [],
-        "query": "label_values(kernel.all.sysfork, hostname)",
+        "query": "label_values(kernel.all.uptime, hostname)",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -2314,6 +2314,6 @@
     ]
   },
   "timezone": "",
-  "title": "Host Overview",
+  "title": "PCP Redis Host Overview",
   "version": 1
 }

@@ -20,16 +20,19 @@ export class PCPBPFtraceDatasourceQueryCtrl extends PCPQueryCtrl {
             { text: "Time series", value: TargetFormat.TimeSeries },
             { text: "Table", value: TargetFormat.Table },
             { text: "Heatmap", value: TargetFormat.Heatmap },
+            { text: "Flame Graph", value: TargetFormat.FlameGraph },
         ];
     }
 
     getDefaultFormat() {
-        if (this.panelCtrl.panel.type === 'table') {
+        if (this.panelCtrl.panel.type === 'table')
             return TargetFormat.Table;
-        } else if (this.panelCtrl.panel.type === 'heatmap') {
+        else if (this.panelCtrl.panel.type === 'heatmap')
             return TargetFormat.Heatmap;
-        }
-        return TargetFormat.TimeSeries;
+        else if (this.panelCtrl.panel.type === 'pcp-flamegraph-panel')
+            return TargetFormat.FlameGraph;
+        else
+            return TargetFormat.TimeSeries;
     }
 
     getCompleter() {

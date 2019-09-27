@@ -15,7 +15,7 @@ export interface Instance {
 
 export interface MetricValue {
     series: string;
-    timestamp: number;
+    timestamp: number; // milliseconds
     instance?: string;
     value: string;
 }
