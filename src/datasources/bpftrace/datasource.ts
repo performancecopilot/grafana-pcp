@@ -3,7 +3,7 @@ import { PmapiDatasourceBase } from '../lib/datasource_base';
 import BPFtraceEndpoint from './bpftrace_endpoint';
 import ScriptRegistry from './script_registry';
 import { Query, PmapiQueryTarget } from '../lib/models/datasource';
-import { ScriptStatus } from './script';
+import { Status } from './script';
 
 export class PCPBPFtraceDatasource extends PmapiDatasourceBase<BPFtraceEndpoint> {
 
@@ -33,24 +33,19 @@ export class PCPBPFtraceDatasource extends PmapiDatasourceBase<BPFtraceEndpoint>
     }
 
     async onTargetInactive(target: PmapiQueryTarget<BPFtraceEndpoint>) {
-        if (!this.dashboardObserver.existMatchingTarget(target, { endpoint: target.endpoint, expr: target.expr })) {
-            const endpoint = target.endpoint;
-            const script = endpoint.scriptRegistry.getScript(target.expr);
-            endpoint.pollSrv.removeMetricsFromPolling(script.getAllDataMetrics());
-            endpoint.scriptRegistry.deregister(script);
-        }
+        target.endpoint.scriptRegistry.deregister(target.uid);
     }
 
     async handleTarget(query: Query, target: PmapiQueryTarget<BPFtraceEndpoint>) {
         const endpoint = target.endpoint;
-        const script = await endpoint.scriptRegistry.ensureActive(target.expr);
+        const script = await endpoint.scriptRegistry.ensureActive(target.uid, target.expr);
         let metrics: string[];
 
-        if (script.status === ScriptStatus.Started || script.status === ScriptStatus.Starting) {
-            metrics = await script.getDataMetrics(endpoint.pmapiSrv, target.format);
+        if (script.state.status === Status.Started || script.state.status === Status.Starting) {
+            metrics = endpoint.scriptRegistry.getDataMetrics(script, target.format);
         }
         else {
-            throw new Error(`BPFtrace error:\n\n${script.output}`);
+            throw new Error(`BPFtrace error:\n\n${script.state.error}`);
         }
 
         await endpoint.pollSrv.ensurePolling(metrics);

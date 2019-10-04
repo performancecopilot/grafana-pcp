@@ -39,6 +39,18 @@ export class MissingMetricsError extends Error {
     }
 }
 
+export class PermissionError extends Error {
+    readonly metrics: string[];
+    constructor(metrics: string[], message?: string) {
+        const s = metrics.length !== 1 ? 's' : '';
+        if (!message)
+            message = `Insufficient permissions to store metric${s} ${metrics.join(', ')}.`;
+        super(message);
+        this.metrics = metrics;
+        Object.setPrototypeOf(this, PermissionError.prototype);
+    }
+}
+
 export class Context {
 
     private context: string;
@@ -206,6 +218,10 @@ export class Context {
             if ((this.isPmproxy && _.has(error, 'data.message') && error.data.message.includes("failed to lookup metric")) ||
                 (this.isPmwebd && _.isString(error.data) && error.data.includes("-12357")))
                 throw new MissingMetricsError([metric]);
+            else if ((this.isPmproxy && _.has(error, 'data.message') &&
+                error.data.message.includes("No permission to perform requested operation")) ||
+                (this.isPmwebd && _.isString(error.data) && error.data.includes("-12387")))
+                throw new PermissionError([metric]);
             else if ((this.isPmproxy && _.has(error, 'data.message') && error.data.message.includes("Bad input")) ||
                 (this.isPmwebd && _.isString(error.data) && error.data.includes("-12400")))
                 return { success: false };

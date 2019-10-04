@@ -154,7 +154,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "tracepoint:syscalls:sys_enter_open, tracepoint:syscalls:sys_enter_openat { @open = count(); }\ntracepoint:syscalls:sys_enter_read { @read = count(); }\ntracepoint:syscalls:sys_enter_write { @write = count(); }\ntracepoint:syscalls:sys_enter_recvmsg { @recvmsg = count(); }\ntracepoint:syscalls:sys_enter_sendmsg { @sendmsg = count(); }\ntracepoint:syscalls:sys_enter_fork { @fork = count(); }\ntracepoint:syscalls:sys_enter_execve, tracepoint:syscalls:sys_enter_execveat { @execve = count(); }",
+          "expr": "tracepoint:syscalls:sys_enter_open, tracepoint:syscalls:sys_enter_openat { @open = count(); }\ntracepoint:syscalls:sys_enter_read { @read = count(); }\ntracepoint:syscalls:sys_enter_write { @write = count(); }\ntracepoint:syscalls:sys_enter_recvmsg { @recvmsg = count(); }\ntracepoint:syscalls:sys_enter_sendmsg { @sendmsg = count(); }\ntracepoint:syscalls:sys_enter_execve, tracepoint:syscalls:sys_enter_execveat { @execve = count(); }",
           "format": "time_series",
           "legendFormat": "$metric0",
           "refId": "A"

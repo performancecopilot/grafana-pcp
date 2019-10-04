@@ -1,12 +1,15 @@
 import _ from 'lodash';
-import { PmapiSrv, MissingMetricsError } from "../lib/services/pmapi_srv";
+import { PmapiSrv, MissingMetricsError, PermissionError } from "../lib/services/pmapi_srv";
 import PollSrv from '../lib/services/poll_srv';
 import DataStore from '../lib/datastore';
-import BPFtraceScript, { ScriptStatus } from './script';
+import { Script, MetricType, Status } from './script';
+import { MetricInstance } from '../lib/models/metrics';
+import { TargetFormat } from '../lib/models/datasource';
 
 export default class ScriptRegistry {
 
-    private scripts: Record<string, BPFtraceScript> = {}; // {code: BPFtraceScript}
+    private scripts: Record<string, Script> = {}; // scripts[script_id] = script
+    private targetToScriptId: Record<string, string> = {}; // targetToScriptId[target_id] = script_id
 
     constructor(private pmapiSrv: PmapiSrv, private pollSrv: PollSrv, private datastore: DataStore) {
     }
@@ -21,89 +24,125 @@ export default class ScriptRegistry {
         catch (error) {
             if (error instanceof MissingMetricsError)
                 throw new Error("Please install the bpftrace PMDA to use this datasource.");
+            else if (error instanceof PermissionError)
+                throw new Error("You don't have permission to register bpftrace scripts. " +
+                    "Please check the datasource authentication settings and the bpftrace PMDA configuration (bpftrace.conf).");
             else
                 throw error;
         }
-        return await localPmapiSrv.getMetricValues([metric]);
+
+        const response = await localPmapiSrv.getMetricValues([metric]);
+        return JSON.parse(response.values[0].instances[0].value as string);
     }
 
-    async register(code: string) {
+    async register(code: string): Promise<Script> {
         console.debug("registering script", code.split('\n'));
         const response = await this.storeControlMetric("bpftrace.control.register", code);
-        const registerResponse = JSON.parse(response.values[0].instances[0].value as string);
-        console.debug("script register response", registerResponse);
-        if (_.isEmpty(registerResponse))
+        console.debug("script register response", response);
+        if (_.isEmpty(response))
             throw new Error("PMDA returned an empty response when registering this script.");
-
-        return new BPFtraceScript(registerResponse, code);
+        return response;
     }
 
-    async deregister(script: BPFtraceScript) {
+    async deregister(uid: string) {
+        const scriptId = this.targetToScriptId[uid];
+        if (!scriptId)
+            return;
+        const script = this.scripts[scriptId];
+        if (!script)
+            return;
+
         console.debug("deregistering script", script);
-        this.pollSrv.removeMetricsFromPolling(script.getControlMetrics());
-        delete this.scripts[script.code];
+        this.pollSrv.removeMetricsFromPolling(this.getAllDataMetrics(script));
 
-        const response = await this.storeControlMetric("bpftrace.control.deregister", script.name);
-        const deregisterResponse = JSON.parse(response.values[0].instances[0].value as string);
-        console.debug("script deregister response", deregisterResponse);
+        const response = await this.storeControlMetric("bpftrace.control.deregister", script.script_id);
+        console.debug("script deregister response", response);
     }
 
-    getScript(code: string) {
-        return this.scripts[code];
+    syncScripts() {
+        const queryResult = this.datastore.queryMetric("bpftrace.info.scripts_json", 0, Infinity);
+        if (queryResult.length === 0 || queryResult[0].values.length === 0)
+            return;
+
+        const values = (queryResult[0] as MetricInstance<string>).values;
+        // when using pmproxy, datastore doesn't retain old values of metrics
+        // with agent=bpftrace, metrictype=control
+        // however, with pmwebd, it does retain old values
+        const scriptsList = JSON.parse(values[values.length - 1][0]);
+        this.scripts = _.keyBy(scriptsList, 'script_id');
     }
 
-    async ensureActive(code: string): Promise<BPFtraceScript> {
-        let script = this.scripts[code];
-        const isExistingScript = !!script;
-        if (!isExistingScript) {
+    private getDataMetric(script: Script, varName: string) {
+        const scriptIdOrName = script.metadata.name || script.script_id;
+        varName = varName.substring(1) || "root";
+        return `bpftrace.scripts.${scriptIdOrName}.data.${varName}`;
+    }
+
+    getAllDataMetrics(script: Script) {
+        return Object.keys(script.variables).map(varName => this.getDataMetric(script, varName));
+    }
+
+    private findMetricForMetricType(script: Script, metrictype: MetricType) {
+        if (Object.keys(script.variables).length === 1)
+            return this.getDataMetric(script, Object.keys(script.variables)[0]);
+        for (const [varName, varDef] of Object.entries(script.variables)) {
+            if (varDef.metrictype === metrictype)
+                return this.getDataMetric(script, varName);
+        }
+        return null;
+    }
+
+    getDataMetrics(script: Script, format: TargetFormat) {
+        if (format === TargetFormat.TimeSeries) {
+            return this.getAllDataMetrics(script);
+        }
+        else if (format === TargetFormat.Heatmap) {
+            const metric = this.findMetricForMetricType(script, MetricType.Histogram);
+            if (!metric)
+                throw new Error("Cannot find any histogram in this BPFtrace script.");
+            return [metric];
+        }
+        else if (format === TargetFormat.Table) {
+            const metric = this.findMetricForMetricType(script, MetricType.Output);
+            if (!metric)
+                throw new Error("Please printf() a table in CSV format in the BPFtrace script.");
+            return [metric];
+        }
+        else if (format === TargetFormat.FlameGraph) {
+            const metric = this.findMetricForMetricType(script, MetricType.Stacks);
+            if (!metric)
+                throw new Error("Cannot find any sampled stacks in this BPFtrace script. Try: profile:hz:99 { @[kstack] = count(); }");
+            return [metric];
+        }
+        throw new Error("Unsupported panel format.");
+    }
+
+    async ensureActive(uid: string, code: string): Promise<Script> {
+        await this.pollSrv.ensurePolling(["bpftrace.info.scripts_json"]);
+        this.syncScripts(); // todo: only call once per json fetch
+
+        const scriptId = this.targetToScriptId[uid];
+        let script: Script;
+        if (!scriptId) {
             script = await this.register(code);
-            this.scripts[code] = script;
+            this.scripts[script.script_id] = script;
+            this.targetToScriptId[uid] = script.script_id;
         }
-
-        if (script.hasFailed())
-            return script;
-
-        try {
-            await this.pollSrv.ensurePolling(script.getControlMetrics());
-        }
-        catch (error) {
-            // missing script metrics on the PMDA, e.g. PMDA was restarted or script expired
-            // pollSrv requested metric, pmproxy didn't include it in response, therefore PmApi removed
-            // metric metadata from cache and ensurePolling requested it again, but pmproxy didn't return it => exception
-            if (error instanceof MissingMetricsError) {
-                if (script.status === ScriptStatus.Starting) {
-                    // ignore error
-                }
-                else {
-                    // some control metric is missing, register script again
-                    console.debug(`script ${script.name} got deregistered on the PMDA ` +
-                        `(missing metrics: ${error.metrics.join(', ')}), register it again...`);
-                    await this.deregister(script);
-                    return await this.register(code);
-                }
-            }
-            else {
-                // other error, re-throw
-                throw error;
+        else {
+            script = this.scripts[scriptId];
+            if (!script) {
+                script = await this.register(code);
+                this.scripts[script.script_id] = script;
+                this.targetToScriptId[uid] = script.script_id;
             }
         }
 
-        // if the script got registered in this function call,
-        // don't sync state as we didn't poll the state yet
-        if (isExistingScript) {
-            script.syncState(this.datastore);
+        if (script.state.status === Status.Stopped) {
+            const response = await this.storeControlMetric("bpftrace.control.start", script.script_id);
+            console.debug(`restarted script ${script.script_id}, response:`, response);
+            script.state.status = Status.Starting;
         }
 
-        if (script.status === ScriptStatus.Stopped) {
-            if (script.exit_code === 0) {
-                console.debug(`script ${script.name} was stopped on the server, restarting...`);
-                return await this.register(code);
-            }
-            else {
-                console.debug(`script ${script.name} failed`);
-                await this.deregister(script);
-            }
-        }
         return script;
     }
 

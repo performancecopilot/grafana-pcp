@@ -11,7 +11,7 @@ export class PCPBPFtraceDatasourceQueryCtrl extends PCPQueryCtrl {
 
     /* @ngInject */
     constructor($scope: any, $injector: any) {
-        super($scope, $injector, 5000);
+        super($scope, $injector, 3000);
 
         this.target.expr = this.target.expr || "";
         this.target.format = this.target.format || this.getDefaultFormat();
