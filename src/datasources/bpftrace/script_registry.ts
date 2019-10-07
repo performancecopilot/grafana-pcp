@@ -22,9 +22,7 @@ export default class ScriptRegistry {
             await localPmapiSrv.storeMetricValue(metric, value);
         }
         catch (error) {
-            if (error instanceof MissingMetricsError)
-                throw new Error("Please install the bpftrace PMDA to use this datasource.");
-            else if (error instanceof PermissionError)
+            if (error instanceof PermissionError)
                 throw new Error("You don't have permission to register bpftrace scripts. " +
                     "Please check the datasource authentication settings and the bpftrace PMDA configuration (bpftrace.conf).");
             else
@@ -118,7 +116,16 @@ export default class ScriptRegistry {
     }
 
     async ensureActive(uid: string, code: string): Promise<Script> {
-        await this.pollSrv.ensurePolling(["bpftrace.info.scripts_json"]);
+        try {
+            await this.pollSrv.ensurePolling(["bpftrace.info.scripts_json"]);
+        }
+        catch (error) {
+            if (error instanceof MissingMetricsError)
+                throw new Error("Please install the bpftrace PMDA to use this datasource.");
+            else
+                throw error;
+        }
+
         this.syncScripts(); // todo: only call once per json fetch
 
         const scriptId = this.targetToScriptId[uid];
