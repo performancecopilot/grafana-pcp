@@ -231,6 +231,11 @@ export class Context {
     }
 
     @Context.ensureContext
+    storeBeacon(metric: string, value: string): boolean {
+        return navigator.sendBeacon(`${this.url}/pmapi/${this.context}/${this.d}store?name=${metric}`, value);
+    }
+
+    @Context.ensureContext
     async children(prefix: string): Promise<ChildrenResponse> {
         if (this.isPmproxy) {
             const response = await this.datasourceRequest({
@@ -303,6 +308,10 @@ export class PmapiSrv {
 
     async storeMetricValue(metric: string, value: string): Promise<StoreResponse> {
         return await this.context.store(metric, value);
+    }
+
+    storeBeacon(metric: string, value: string): boolean {
+        return this.context.storeBeacon(metric, value);
     }
 
     async getChildren(prefix: string): Promise<ChildrenResponse> {
