@@ -16,17 +16,17 @@ It presents a unifying abstraction for all of the performance data in a system, 
 * enhanced Berkeley Packet Filter (eBPF) tracing using [bpftrace](https://www.mankier.com/8/bpftrace) scripts
 * automatic rate conversation for counter metrics
 * heatmap and table support
-* auto completion of metric names<sup>1,2</sup>, qualifier keys and values<sup>2</sup>, and bpftrace probes, builtin variables and functions<sup>3</sup>
-* display of semantics, units and help texts of metrics<sup>1</sup> and bpftrace builtins<sup>3</sup>
+* auto completion of metric names [1,2], qualifier keys and values [1], and bpftrace probes, builtin variables and functions [3]
+* display of semantics, units and help texts of metrics [2] and bpftrace builtins [3]
 * legend templating support with `$metric`, `$metric0`, `$instance`, `$some_label`, `$some_dashboard_variable`
-* container support<sup>1,2</sup>
-* support for custom endpoint URL<sup>1,2,3</sup> and container<sup>1</sup> setting per query
+* container support [1,2]
+* support for custom endpoint URL [1,2,3] and container [2] setting per query
 * support for repeated panels
 * sample dashboards for all datasources
 
-<sup>1</sup> PCP Redis
-<sup>2</sup> PCP Vector
-<sup>3</sup> PCP bpftrace
+[1] PCP Redis
+[2] PCP Vector
+[3] PCP bpftrace
 
 
 # Datasources
@@ -58,5 +58,6 @@ $ sudo systemctl restart grafana-server
 Clone the git repository at https://github.com/performancecopilot/grafana-pcp and type:
 
 ```
+yarn install
 yarn run build
 ```
