@@ -13,6 +13,8 @@ export class PCPBPFtraceDatasource extends PmapiDatasourceBase<BPFtraceEndpoint>
 
         if (this.pollIntervalMs > 0)
             setInterval(this.doPollAll.bind(this), this.pollIntervalMs);
+
+        window.addEventListener("unload", this.deregisterAllScripts.bind(this), false);
     }
 
     doPollAll() {
@@ -23,8 +25,14 @@ export class PCPBPFtraceDatasource extends PmapiDatasourceBase<BPFtraceEndpoint>
         }));
     }
 
+    deregisterAllScripts() {
+        for (const endpoint of this.endpointRegistry.list()) {
+            endpoint.scriptRegistry.deregisterAllScripts();
+        }
+    }
+
     configureEndpoint(endpoint: BPFtraceEndpoint) {
-        endpoint.scriptRegistry = new ScriptRegistry(endpoint.pmapiSrv, endpoint.pollSrv, endpoint.datastore);
+        endpoint.scriptRegistry = new ScriptRegistry(endpoint.pmapiSrv, endpoint.pollSrv);
     }
 
     async onTargetUpdate(prevValue: PmapiQueryTarget<BPFtraceEndpoint>, newValue: PmapiQueryTarget<BPFtraceEndpoint>) {
@@ -42,7 +50,7 @@ export class PCPBPFtraceDatasource extends PmapiDatasourceBase<BPFtraceEndpoint>
         let metrics: string[];
 
         if (script.state.status === Status.Started || script.state.status === Status.Starting) {
-            metrics = endpoint.scriptRegistry.getDataMetrics(script, target.format);
+            metrics = endpoint.scriptRegistry.getMetrics(script, target.format);
         }
         else {
             throw new Error(`BPFtrace error:\n\n${script.state.error}`);

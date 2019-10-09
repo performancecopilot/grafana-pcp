@@ -23,7 +23,7 @@ describe.skip("ScriptRegistry", () => {
         ctx.pmapiSrv = new PmapiSrv(ctx.context);
         ctx.datastore = new DataStore(ctx.pmapiSrv, 5 * 60 * 1000);
         ctx.pollSrv = new PollSrv(ctx.pmapiSrv, ctx.datastore);
-        ctx.scriptRegistry = new ScriptRegistry(ctx.pmapiSrv, ctx.pollSrv, ctx.datastore);
+        ctx.scriptRegistry = new ScriptRegistry(ctx.pmapiSrv, ctx.pollSrv);
     });
 
     const registerScript = async () => {
