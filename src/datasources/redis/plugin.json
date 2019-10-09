@@ -15,8 +15,8 @@
     "info": {
         "description": "fast, scalable time series aggregation across multiple hosts",
         "logos": {
-            "small": "../performancecopilot-pcp-app/img/pcp-logo.svg",
-            "large": "../performancecopilot-pcp-app/img/pcp-logo.svg"
+            "small": "img/redis.png",
+            "large": "img/redis.png"
         },
         "links": [
             {
