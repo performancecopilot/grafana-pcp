@@ -18,7 +18,7 @@
     <div class="gf-form">
       <span class="gf-form-label width-10">Inactivity Timeout</span>
       <input type="text" class="gf-form-input gf-form-input--has-help-icon width-8"
-        ng-model="ctrl.current.jsonData.inactivityTimeoutMs" spellcheck="false" placeholder="20s"
+        ng-model="ctrl.current.jsonData.inactivityTimeoutMs" spellcheck="false" placeholder="50s"
         ng-pattern="/^\d+[Mwdhmsy]$/"></input>
       <info-popover mode="right-absolute">
         Deregister bpftrace scripts after a specified time period if they haven't been requested.
@@ -29,7 +29,7 @@
     <div class="gf-form">
       <span class="gf-form-label width-10">History age</span>
       <input type="text" class="gf-form-input gf-form-input--has-help-icon width-8"
-        ng-model="ctrl.current.jsonData.historyAge" spellcheck="false" placeholder="5m"
+        ng-model="ctrl.current.jsonData.historyAge" spellcheck="false" placeholder="10m"
         ng-pattern="/^\d+[Mwdhmsy]$/"></input>
       <info-popover mode="right-absolute">
         Retention time of the in-browser metric storage.

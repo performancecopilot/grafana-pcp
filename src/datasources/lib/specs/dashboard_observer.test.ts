@@ -32,7 +32,8 @@ describe("DashboardObserver", () => {
             url: 'http://localhost',
             jsonData: {
                 pollIntervalMs: 0,
-                scriptSyncIntervalMs: 0
+                scriptSyncIntervalMs: 0,
+                inactivityTimeoutMs: '20s'
             }
         };
         const templateSrv = {

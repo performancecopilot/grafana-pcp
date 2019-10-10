@@ -20,7 +20,9 @@ describe("PCP Vector End-to-End", () => {
             url: 'http://localhost:44322',
             jsonData: {
                 pollIntervalMs: 0,
-                scriptSyncIntervalMs: 0
+                scriptSyncIntervalMs: 0,
+                inactivityTimeoutMs: '20s',
+                localHistoryAge: '5m'
             }
         };
         ctx.server = new HttpServerMock(instanceSettings.url, false);

@@ -33,8 +33,8 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
         }
 
         this.pollIntervalMs = kbn.interval_to_ms(instanceSettings.jsonData.pollInterval || '1s');
-        this.inactivityTimeoutMs = kbn.interval_to_ms(instanceSettings.jsonData.inactivityTimeoutMs || '20s');
-        this.localHistoryAgeMs = kbn.interval_to_ms(instanceSettings.jsonData.localHistoryAge || '5m');
+        this.inactivityTimeoutMs = kbn.interval_to_ms(instanceSettings.jsonData.inactivityTimeoutMs || '50s');
+        this.localHistoryAgeMs = kbn.interval_to_ms(instanceSettings.jsonData.localHistoryAge || '10m');
 
         this.endpointRegistry = new EndpointRegistry();
         this.transformations = new PanelTransformations(this.templateSrv);
