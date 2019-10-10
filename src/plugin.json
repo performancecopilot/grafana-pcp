@@ -51,7 +51,7 @@
         },
         {
             "type": "panel",
-            "name": "FlameGraph"
+            "name": "Flame Graph"
         },
         {
             "type": "dashboard",
