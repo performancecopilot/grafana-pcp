@@ -8,6 +8,12 @@
       "version": "6.3.4"
     },
     {
+      "type": "panel",
+      "id": "graph",
+      "name": "Graph",
+      "version": ""
+    },
+    {
       "type": "datasource",
       "id": "pcp-bpftrace-datasource",
       "name": "PCP bpftrace",
@@ -16,8 +22,14 @@
     {
       "type": "panel",
       "id": "pcp-flamegraph-panel",
-      "name": "FlameGraph",
+      "name": "Flame Graph",
       "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "pcp-vector-datasource",
+      "name": "PCP Vector",
+      "version": "1.0.0"
     }
   ],
   "annotations": {},
@@ -25,16 +37,110 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1569428286615,
+  "iteration": 1570709789467,
   "links": [],
   "panels": [
     {
-      "datasource": "$datasource",
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "$vector_datasource",
+      "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
-        "h": 9,
+        "h": 4,
         "w": 24,
         "x": 0,
         "y": 0
+      },
+      "id": 5,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "container": "",
+          "expr": "kernel.cpu.util.user",
+          "format": "time_series",
+          "refId": "A"
+        },
+        {
+          "container": "",
+          "expr": "kernel.cpu.util.sys",
+          "format": "time_series",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "CPU Utilization",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "datasource": "$bpftrace_datasource",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 4
       },
       "id": 2,
       "options": {
@@ -54,12 +160,12 @@
       "type": "pcp-flamegraph-panel"
     },
     {
-      "datasource": "$datasource",
+      "datasource": "$bpftrace_datasource",
       "gridPos": {
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 9
+        "y": 12
       },
       "id": 3,
       "options": {
@@ -96,9 +202,26 @@
         "includeAll": false,
         "label": null,
         "multi": false,
-        "name": "datasource",
+        "name": "bpftrace_datasource",
         "options": [],
         "query": "pcp-bpftrace-datasource",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "PCP Vector",
+          "value": "PCP Vector"
+        },
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "vector_datasource",
+        "options": [],
+        "query": "pcp-vector-datasource",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
