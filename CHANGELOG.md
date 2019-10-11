@@ -1,24 +1,29 @@
 # Change Log
 
-## 1.0.0 (unreleased)
+## 1.0.0 (2019-10-11)
 
-- help texts for all datasources (visible with the **[ ? ]** button in the query editor)
-- renamed PCP Live to PCP Vector
+### bpftrace
 
-### Vector & bpftrace
-- if the metric/script gets changed in the query editor, immeditately stop polling the old metric/deregister the old script
-- improve pmwebd compatibility
+- support for Flame Graphs
+- context-sensitive auto completion for bpftrace probes, builtin variables and functions incl. help texts
+- parse output of bpftrace scripts (e.g. using `printf()`) as CSV and display it in the Grafana table panel
+- sample dashboards (BPFtrace System Analysis, BPFtrace Flame Graphs)
 
 ### Vector
 
 - table output: show instance name in left column
 - table output: support non-matching instance names (cells of metrics which don't have the specific instance will be blank)
 
-### bpftrace
+### Vector & bpftrace
+- if the metric/script gets changed in the query editor, immeditately stop polling the old metric/deregister the old script
+- improve pmwebd compatibility
 
-- context-sensitive auto completion for bpftrace probes, builtin variables and functions incl. help texts
-- parse output of bpftrace scripts (e.g. using `printf()`) as CSV and display it in the Grafana table panel
-- include sample dashboard
+### miscellaneous
+
+- help texts for all datasources (visible with the **[ ? ]** button in the query editor)
+- renamed PCP Live to PCP Vector
+- logos for all datasources
+- improved error handling
 
 ## 0.0.7 (2019-08-16)
 
