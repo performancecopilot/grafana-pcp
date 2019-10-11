@@ -16,8 +16,8 @@ export class FlameGraphPanel extends PureComponent<PanelProps<Options>> {
             return (
                 <div className="datapoints-warning">
                     <span className="small">
-                        No data to show
-                        <Tooltip content="Nothing returned by data query" placement="top">
+                        Sampling, waiting for data...
+                        <Tooltip content="Data query didn't return anything yet" placement="top">
                             <i className="grafana-tip fa fa-question-circle" />
                         </Tooltip>
                     </span>
