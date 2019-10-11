@@ -6,6 +6,7 @@ import { Transformations } from '../lib/transformations';
 import { Query, QueryTarget, TDatapoint } from '../lib/models/datasource';
 import { TargetResult, Metric, MetricInstance } from '../lib/models/metrics';
 import { MetricValue } from './models/pmseries';
+import { NetworkError } from '../lib/models/errors';
 
 export class PCPRedisDatasource {
 
@@ -31,7 +32,12 @@ export class PCPRedisDatasource {
     async doRequest(options: any) {
         options.withCredentials = this.withCredentials;
         options.headers = this.headers;
-        return await this.backendSrv.datasourceRequest(options);
+        try {
+            return await this.backendSrv.datasourceRequest(options);
+        }
+        catch (error) {
+            throw new NetworkError(error);
+        }
     }
 
     async testDatasource() {
@@ -41,14 +47,14 @@ export class PCPRedisDatasource {
         try {
             const response = await this.pmSeriesSrv.ping();
             if (response.status !== 200) {
-                throw { statusText: "Invalid response code" };
+                throw { message: "Invalid response code returned from datasource" };
             }
             return { status: 'success', message: "Data source is working" };
         }
         catch (error) {
             return {
                 status: 'error',
-                message: error && error.statusText ? `Error: ${error.statusText}` : `Could not connect to ${this.instanceSettings.url}`
+                message: error.message
             };
         }
     }

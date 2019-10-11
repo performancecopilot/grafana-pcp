@@ -10,19 +10,7 @@ export class PCPBPFtraceDatasource extends PmapiDatasourceBase<BPFtraceEndpoint>
     /* @ngInject */
     constructor(instanceSettings: any, backendSrv: any, templateSrv: any) {
         super(instanceSettings, backendSrv, templateSrv);
-
-        if (this.pollIntervalMs > 0)
-            setInterval(this.doPollAll.bind(this), this.pollIntervalMs);
-
         window.addEventListener("unload", this.deregisterAllScripts.bind(this), false);
-    }
-
-    doPollAll() {
-        return Promise.all(this.endpointRegistry.list().map(async endpoint => {
-            this.dashboardObserver.cleanup();
-            endpoint.datastore.cleanup();
-            await endpoint.pollSrv.poll();
-        }));
     }
 
     deregisterAllScripts() {

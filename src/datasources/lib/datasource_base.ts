@@ -9,6 +9,7 @@ import { QueryTarget, Query, PmapiQueryTarget } from './models/datasource';
 import { TargetResult, MetricInstance } from './models/metrics';
 import DashboardObserver from './dashboard_observer';
 import "core-js/stable/array/flat";
+import { NetworkError } from './models/errors';
 
 export abstract class PmapiDatasourceBase<EP extends Endpoint> {
 
@@ -23,6 +24,8 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
     endpointRegistry: EndpointRegistry<EP>;
     transformations: PanelTransformations;
     dashboardObserver: DashboardObserver<EP>;
+
+    backgroundErrors: Set<string>;
 
     constructor(readonly instanceSettings: any, private backendSrv: any, private templateSrv: any) {
         this.name = instanceSettings.name;
@@ -41,6 +44,25 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
         this.dashboardObserver = new DashboardObserver(this.inactivityTimeoutMs);
         this.dashboardObserver.onTargetUpdate = this.onTargetUpdate.bind(this);
         this.dashboardObserver.onTargetInactive = this.onTargetInactive.bind(this);
+
+        this.backgroundErrors = new Set();
+        if (this.pollIntervalMs > 0)
+            setInterval(this.doPollAll.bind(this), this.pollIntervalMs);
+    }
+
+    async doPollAll() {
+        try {
+            await Promise.all(this.endpointRegistry.list().map(async endpoint => {
+                this.dashboardObserver.cleanup();
+                endpoint.datastore.cleanup();
+                await endpoint.pollSrv.poll();
+            }));
+            return true;
+        }
+        catch (error) {
+            this.backgroundErrors.add(error.message);
+            return false;
+        }
     }
 
     configureEndpoint(_endpoint: EP) {
@@ -58,7 +80,12 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
     async doRequest(options: any) {
         options.withCredentials = this.withCredentials;
         options.headers = this.headers;
-        return await this.backendSrv.datasourceRequest(options);
+        try {
+            return await this.backendSrv.datasourceRequest(options);
+        }
+        catch (error) {
+            throw new NetworkError(error);
+        }
     }
 
     async testDatasource() {
@@ -71,10 +98,9 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
             return { status: 'success', message: "Data source is working" };
         }
         catch (error) {
-            const errorText = error && error.statusText ? `Error: ${error.statusText}` : `Could not connect to ${this.instanceSettings.url}`;
             return {
                 status: 'success',
-                message: `${errorText}. To use this data source, ` +
+                message: `${error.message}. To use this data source, ` +
                     "please configure the URL in the query editor."
             };
         }
@@ -151,6 +177,12 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
     }
 
     async query(query: Query) {
+        if (this.backgroundErrors.size > 0) {
+            const errors = Array.from(this.backgroundErrors).join('\n');
+            this.backgroundErrors.clear();
+            throw new Error(errors);
+        }
+
         const targets = this.buildQueryTargets(query);
         if (targets.length === 0)
             return { data: [] };

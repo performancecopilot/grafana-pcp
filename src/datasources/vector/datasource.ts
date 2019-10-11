@@ -9,17 +9,6 @@ export class PCPVectorDatasource extends PmapiDatasourceBase<Endpoint> {
     /* @ngInject */
     constructor(instanceSettings: any, backendSrv: any, templateSrv: any) {
         super(instanceSettings, backendSrv, templateSrv);
-
-        if (this.pollIntervalMs > 0)
-            setInterval(this.doPollAll.bind(this), this.pollIntervalMs);
-    }
-
-    doPollAll() {
-        return Promise.all(this.endpointRegistry.list().map(async endpoint => {
-            this.dashboardObserver.cleanup();
-            endpoint.datastore.cleanup();
-            await endpoint.pollSrv.poll();
-        }));
     }
 
     async onTargetUpdate(prevValue: PmapiQueryTarget<Endpoint>, newValue: PmapiQueryTarget<Endpoint>) {
