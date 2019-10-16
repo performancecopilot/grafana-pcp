@@ -93,7 +93,7 @@ class CounterValues {
     }
 
     run(deferred: any) {
-        Transformations.applyTransformations(TargetFormat.TimeSeries, { ...fixtures.metricMetadataSingle, sem: "counter" }, this.values);
+        Transformations.applyTransformations(TargetFormat.TimeSeries, "counter", "bytes", this.values);
         deferred.resolve();
     }
 

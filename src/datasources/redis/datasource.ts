@@ -118,7 +118,7 @@ export class PCPRedisDatasource {
                 metricInstances.push({
                     id: instanceId,
                     name: instanceName,
-                    values: Transformations.applyTransformations(descriptions[series].semantics, descriptions[series].units, datapoints),
+                    values: Transformations.applyTransformations(target.format, descriptions[series].semantics, descriptions[series].units, datapoints),
                     labels: instanceId !== "" ? labels[instanceId] : labels[series]
                 });
             }

@@ -21,3 +21,7 @@ export interface TargetResult {
 }
 
 export type TransformationFn = (datapoints: TDatapoint[]) => TDatapoint[];
+
+
+export type Semantics = "instant" | "counter" | "discrete";
+export type Units = string;

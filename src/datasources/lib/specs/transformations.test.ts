@@ -11,12 +11,7 @@ describe("Transformations", () => {
             [700, 3000] as TDatapoint,
         ];
 
-        const metadata = {
-            ...fixtures.metricMetadataSingle,
-            sem: "counter"
-        };
-
-        const result = Transformations.applyTransformations(TargetFormat.TimeSeries, metadata, datapoints);
+        const result = Transformations.applyTransformations(TargetFormat.TimeSeries, "counter", "bytes", datapoints);
         const expected = [
             [100, 2000],
             [200, 3000]

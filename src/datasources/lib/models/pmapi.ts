@@ -1,4 +1,4 @@
-import { Labels } from "./metrics";
+import { Labels, Semantics, Units } from "./metrics";
 
 export interface MetricMetadata {
     series?: string;
@@ -6,8 +6,8 @@ export interface MetricMetadata {
     pmid: string;
     indom?: string;
     type: string;
-    sem: string;
-    units: string;
+    sem: Semantics;
+    units: Units;
     labels: Labels;
     "text-oneline": string;
     "text-help": string;
