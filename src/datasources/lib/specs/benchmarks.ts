@@ -3,7 +3,6 @@ import DataStore from "../datastore";
 import { Transformations } from "../transformations";
 import { Datapoint, TargetFormat } from "../models/datasource";
 import { MetricInstance } from "../models/metrics";
-import * as fixtures from './lib/fixtures';
 
 interface BenchmarkCase {
     setup?: () => void;

@@ -1,6 +1,5 @@
 import { Transformations } from "../transformations";
 import { TDatapoint, TargetFormat } from "../models/datasource";
-import * as fixtures from './lib/fixtures';
 
 describe("Transformations", () => {
 
