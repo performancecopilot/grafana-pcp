@@ -5,7 +5,7 @@ import DataStore from "../../lib/datastore";
 import PollSrv from "../../lib/services/poll_srv";
 import * as fixtures from '../../lib/specs/lib/fixtures';
 
-describe.skip("ScriptRegistry", () => {
+describe("ScriptRegistry", () => {
     const ctx: {
         context: jest.Mocked<Context>, pmapiSrv: PmapiSrv, datastore: DataStore,
         pollSrv: PollSrv, scriptRegistry: ScriptRegistry
@@ -35,32 +35,23 @@ describe.skip("ScriptRegistry", () => {
                 "name": "bpftrace.control.register",
                 "instances": [{
                     "instance": null,
-                    "value": '{"name": "script1", "vars": ["usecs"], "status": "started", "output": ""}'
+                    "value": JSON.stringify({
+                        ...fixtures.script,
+                        "state": {
+                            "status": "starting",
+                            "pid": -1,
+                            "exit_code": 0,
+                            "error": "",
+                            "probes": 0
+                        }
+                    })
                 }]
             }]
         });
         ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
                 ...fixtures.metricMetadataSingle,
-                name: "bpftrace.scripts.script1.status",
-                labels: {
-                    agent: "bpftrace",
-                    metrictype: "control"
-                }
-            }, {
-                ...fixtures.metricMetadataSingle,
-                name: "bpftrace.scripts.script1.exit_code",
-                labels: {
-                    agent: "bpftrace",
-                    metrictype: "control"
-                }
-            }, {
-                ...fixtures.metricMetadataSingle,
-                name: "bpftrace.scripts.script1.output",
-                labels: {
-                    agent: "bpftrace",
-                    metrictype: "output"
-                }
+                name: "bpftrace.info.scripts_json"
             }]
         });
         await ctx.scriptRegistry.ensureActive("1/1/A", "kretprobe:vfs_read { @bytes = hist(retval); }");
@@ -73,118 +64,62 @@ describe.skip("ScriptRegistry", () => {
         expect(ctx.context.store).toHaveBeenCalledTimes(1);
     });
 
-    it("should register a failed script only once", async () => {
-        ctx.context.store.mockResolvedValueOnce({ success: true });
-        ctx.context.fetch.mockResolvedValueOnce({
-            "timestamp": 5,
-            "values": [{
-                "pmid": "1.0.1",
-                "name": "bpftrace.control.register",
-                "instances": [{
-                    "instance": null,
-                    "value": '{"name": "", "vars": [], "status": "stopped", "output": "no variable found"}'
-                }]
-            }]
-        });
-
-        let script = await ctx.scriptRegistry.ensureActive("1/1/A", "kretprobe:vfs_read { bytes = hist(retval); }");
-        expect(script).toMatchObject({
-            "status": "stopped",
-            "output": "no variable found"
-        });
-
-        script = await ctx.scriptRegistry.ensureActive("1/1/A", "kretprobe:vfs_read { bytes = hist(retval); }");
-        expect(script).toMatchObject({
-            "status": "stopped",
-            "output": "no variable found"
-        });
-        expect(ctx.context.store).toHaveBeenCalledTimes(1);
-    });
-
     it("should handle a failed script, after the script started", async () => {
         await registerScript();
         ctx.context.fetch.mockResolvedValueOnce({
             "timestamp": 5,
             "values": [{
                 "pmid": "1.0.1",
-                "name": "bpftrace.scripts.script1.status",
+                "name": "bpftrace.info.scripts_json",
                 "instances": [{
                     "instance": null,
-                    "value": "stopped"
-                }]
-            }, {
-                "pmid": "1.0.1",
-                "name": "bpftrace.scripts.script1.output",
-                "instances": [{
-                    "instance": null,
-                    "value": "syntax error"
-                }]
-            }, {
-                "pmid": "633356298",
-                "name": "bpftrace.scripts.script1.exit_code",
-                "instances": [{
-                    "instance": null,
-                    "value": 1
+                    "value": JSON.stringify([{
+                        ...fixtures.script,
+                        "state": {
+                            "status": "error",
+                            "pid": -1,
+                            "exit_code": 0,
+                            "error": "syntax error",
+                            "probes": 0
+                        }
+                    }])
                 }]
             }]
         });
         await ctx.pollSrv.poll();
 
-        // next ensureActive will deregister failed script
-        ctx.context.fetch.mockResolvedValueOnce({
-            "timestamp": 5,
-            "values": [{
-                "pmid": "1.0.1",
-                "name": "bpftrace.control.deregister",
-                "instances": [{
-                    "instance": null,
-                    "value": '{"success": true}'
-                }]
-            }]
-        });
-
         const script = await ctx.scriptRegistry.ensureActive("1/1/A", "kretprobe:vfs_read { @bytes = hist(retval); }");
         expect(script).toMatchObject({
-            "status": "stopped",
-            "output": "syntax error",
-            "exit_code": 1
+            "state": {
+                "status": "error",
+                "error": "syntax error"
+            }
         });
-        expect(ctx.context.store).toHaveBeenCalledTimes(2);
-        expect(ctx.context.fetch).toHaveBeenCalledTimes(3);
-        await ctx.pollSrv.poll(); // no metrics to poll
-        expect(ctx.context.fetch).toHaveBeenCalledTimes(3);
+        expect(ctx.context.store).toHaveBeenCalledTimes(1);
     });
 
     it("should restart a stopped script", async () => {
         await registerScript();
-
-        // sync state: set status to stopped, exit_code to 0
         ctx.context.fetch.mockResolvedValueOnce({
             "timestamp": 5,
             "values": [{
                 "pmid": "1.0.1",
-                "name": "bpftrace.scripts.script1.status",
+                "name": "bpftrace.info.scripts_json",
                 "instances": [{
                     "instance": null,
-                    "value": "stopped"
-                }]
-            }, {
-                "pmid": "1.0.1",
-                "name": "bpftrace.scripts.script1.output",
-                "instances": [{
-                    "instance": null,
-                    "value": ""
-                }]
-            }, {
-                "pmid": "633356298",
-                "name": "bpftrace.scripts.script1.exit_code",
-                "instances": [{
-                    "instance": null,
-                    "value": 0
+                    "value": JSON.stringify([{
+                        ...fixtures.script,
+                        "state": {
+                            "status": "stopped",
+                            "pid": -1,
+                            "exit_code": 0,
+                            "error": "",
+                            "probes": 0
+                        }
+                    }])
                 }]
             }]
         });
-
         await ctx.pollSrv.poll();
 
         // ensureActive should call register again, to restart the script
@@ -196,7 +131,16 @@ describe.skip("ScriptRegistry", () => {
                 "name": "bpftrace.control.register",
                 "instances": [{
                     "instance": null,
-                    "value": '{"name": "script1", "vars": ["usecs"], "status": "started", "output": ""}'
+                    "value": JSON.stringify({
+                        ...fixtures.script,
+                        "state": {
+                            "status": "starting",
+                            "pid": -1,
+                            "exit_code": 0,
+                            "error": "",
+                            "probes": 0
+                        }
+                    })
                 }]
             }]
         });
@@ -205,7 +149,9 @@ describe.skip("ScriptRegistry", () => {
         expect(ctx.context.fetch).toHaveBeenCalledTimes(3);
         expect(ctx.context.store).toHaveBeenCalledTimes(2);
         expect(script).toMatchObject({
-            "status": "started"
+            "state": {
+                "status": "starting"
+            }
         });
     });
 
@@ -213,31 +159,22 @@ describe.skip("ScriptRegistry", () => {
         await registerScript();
         expect(ctx.context.fetch).toHaveBeenCalledTimes(1);
 
-        // poll status metrics, but metric doesn't exist anymore on the server
-        ctx.context.fetch.mockResolvedValueOnce({
-            "timestamp": 5,
-            "values": []
-        });
-        // will remove metric metadata
-        await ctx.pollSrv.poll();
-
-        // ensureActive tries to fetch metadata (not in cache anymore), but it doesn't exist
-        ctx.context.metric.mockResolvedValueOnce({
-            metrics: []
-        });
-        // then it will deregister the script
+        // sync running scripts with the server
         ctx.context.fetch.mockResolvedValueOnce({
             "timestamp": 5,
             "values": [{
                 "pmid": "1.0.1",
-                "name": "bpftrace.control.deregister",
+                "name": "bpftrace.info.scripts_json",
                 "instances": [{
                     "instance": null,
-                    "value": '{"success": true}'
+                    "value": JSON.stringify([])
                 }]
             }]
         });
-        // and register it again
+        await ctx.pollSrv.poll();
+
+        // ensureActive should call register again
+        ctx.context.store.mockResolvedValueOnce({ success: true });
         ctx.context.fetch.mockResolvedValueOnce({
             "timestamp": 5,
             "values": [{
@@ -245,40 +182,26 @@ describe.skip("ScriptRegistry", () => {
                 "name": "bpftrace.control.register",
                 "instances": [{
                     "instance": null,
-                    "value": '{"name": "script1", "vars": ["usecs"], "status": "started", "output": ""}'
+                    "value": JSON.stringify({
+                        ...fixtures.script,
+                        "state": {
+                            "status": "starting",
+                            "pid": -1,
+                            "exit_code": 0,
+                            "error": "",
+                            "probes": 0
+                        }
+                    })
                 }]
-            }]
-        });
-        // and ensurePolling will fetch metadata
-        ctx.context.metric.mockResolvedValueOnce({
-            metrics: [{
-                ...fixtures.metricMetadataSingle,
-                name: "bpftrace.scripts.script1.status",
-                labels: {
-                    agent: "bpftrace",
-                    metrictype: "control"
-                }
-            }, {
-                ...fixtures.metricMetadataSingle,
-                name: "bpftrace.scripts.script1.exit_code",
-                labels: {
-                    agent: "bpftrace",
-                    metrictype: "control"
-                }
-            }, {
-                ...fixtures.metricMetadataSingle,
-                name: "bpftrace.scripts.script1.output",
-                labels: {
-                    agent: "bpftrace",
-                    metrictype: "output"
-                }
             }]
         });
 
         const script = await ctx.scriptRegistry.ensureActive("1/1/A", "kretprobe:vfs_read { @bytes = hist(retval); }");
         expect(script).toMatchObject({
-            "status": "started"
+            "state": {
+                "status": "starting"
+            }
         });
-        expect(ctx.context.store).toHaveBeenCalledTimes(3);
+        expect(ctx.context.store).toHaveBeenCalledTimes(2);
     });
 });

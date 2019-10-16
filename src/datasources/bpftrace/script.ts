@@ -32,11 +32,15 @@ export interface State {
     exit_code: number;
     error: string;
     probes: number;
-    data: Record<string, any>;
 }
 
 export interface Script {
     script_id: string;
+    username: string | null;
+    persistent: boolean;
+    created_at: string;
+    last_accessed_at: string;
+    code: string;
     state: State;
     variables: Record<string, VariableDefinition>;
     metadata: ScriptMetadata;
