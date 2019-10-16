@@ -172,9 +172,8 @@ export class PCPRedisDatasource {
         const finish = Math.round(query.range.to.valueOf() / 1000);
         const samples = Math.round((query.range.to.valueOf() - query.range.from.valueOf()) / query.intervalMs);
         const interval = query.interval;
-        const zone = query.timezone === "browser" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC";
 
-        const instances = await this.pmSeriesSrv.getValues(seriesList, { start, finish, samples, interval, zone });
+        const instances = await this.pmSeriesSrv.getValues(seriesList, { start, finish, samples, interval });
         const descriptions = await this.pmSeriesSrv.getDescriptions(seriesList);
         const instanceValuesGroupedBySeries = _.groupBy(instances, "series");
         const labels = this.pmSeriesSrv.getMetricAndInstanceLabels(seriesList);
