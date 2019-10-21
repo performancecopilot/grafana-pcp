@@ -169,12 +169,15 @@ export class PCPRedisDatasource {
             }
         }
 
-        const start = Math.round(query.range.from.valueOf() / 1000);
-        const finish = Math.round(query.range.to.valueOf() / 1000);
+        const sampleIntervalSec = 10; // guessed sample interval
+        // request a bigger time frame to fill the chart (otherwise left and right border of chart is empty)
+        // because of the rate conversation of counters first datapoint is "lost" -> expand timeframe at the beginning
+        const start = Math.round(query.range.from.valueOf() / 1000) - 2 * sampleIntervalSec;
+        const finish = Math.round(query.range.to.valueOf() / 1000) + sampleIntervalSec;
         const samples = Math.round((query.range.to.valueOf() - query.range.from.valueOf()) / query.intervalMs);
-        const interval = query.interval;
+        // const interval = query.interval;
 
-        const instances = await this.pmSeriesSrv.getValues(seriesList, { start, finish, samples, interval });
+        const instances = await this.pmSeriesSrv.getValues(seriesList, { start, finish, samples });
         const descriptions = await this.pmSeriesSrv.getDescriptions(seriesList);
         const instanceValuesGroupedBySeries = _.groupBy(instances, "series");
         const labels = this.pmSeriesSrv.getMetricAndInstanceLabels(seriesList);

@@ -16,9 +16,6 @@ export default class DataStore {
 
             const storedInstance = metricStore.get(instanceId)!;
             if (storedInstance) {
-                // do not store history for the bpftrace control metrics
-                if (storedInstance.labels.agent === "bpftrace" && storedInstance.labels.metrictype === "control")
-                    storedInstance.values = [];
                 storedInstance.values.push([instance.value, pollTimeEpochMs]);
             }
             else {
@@ -32,6 +29,7 @@ export default class DataStore {
                     if (indom)
                         instanceName = indom.name;
                 }
+                // TODO: if indom not found, try again next time?
 
                 metricStore.set(instanceId, {
                     id: instanceId,

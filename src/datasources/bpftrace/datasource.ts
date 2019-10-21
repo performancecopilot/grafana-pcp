@@ -45,7 +45,12 @@ export class PCPBPFtraceDatasource extends PmapiDatasourceBase<BPFtraceEndpoint>
         }
 
         await endpoint.pollSrv.ensurePolling(metrics);
-        const results = endpoint.datastore.queryMetrics(target, metrics, query.range.from.valueOf(), query.range.to.valueOf());
+
+        // request a bigger time frame to fill the chart (otherwise left and right border of chart is empty)
+        // because of the rate conversation of counters first datapoint is "lost" -> expand timeframe at the beginning
+        const from = query.range.from.valueOf() - 2 * this.pollIntervalMs;
+        const to = query.range.to.valueOf() + this.pollIntervalMs;
+        const results = endpoint.datastore.queryMetrics(target, metrics, from, to);
         await this.applyTransformations(endpoint.pmapiSrv, results);
         return results;
     }
