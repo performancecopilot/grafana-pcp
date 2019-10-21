@@ -12,6 +12,10 @@ export class FlameGraphPanelEditor extends PureComponent<PanelEditorProps<Option
         this.props.onOptionsChange({ ...this.props.options, hideUnresolvedStackFrames: !this.props.options.hideUnresolvedStackFrames });
     };
 
+    onHideIdleStacksToggle = () => {
+        this.props.onOptionsChange({ ...this.props.options, hideIdleStacks: !this.props.options.hideIdleStacks });
+    };
+
     render() {
         return (
             <>
@@ -28,6 +32,8 @@ export class FlameGraphPanelEditor extends PureComponent<PanelEditorProps<Option
                     </div>
                     <Switch label="Hide unresolved" labelClass="width-8" checked={this.props.options.hideUnresolvedStackFrames}
                         onChange={this.onHideUnresolvedStackFramesToggle} />
+                    <Switch label="Hide idle stacks" labelClass="width-8" checked={this.props.options.hideIdleStacks}
+                        onChange={this.onHideIdleStacksToggle} />
                 </div>
             </>
         );

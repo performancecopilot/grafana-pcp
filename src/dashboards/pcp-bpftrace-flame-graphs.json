@@ -144,6 +144,7 @@
       },
       "id": 2,
       "options": {
+        "hideIdleStacks": true,
         "hideUnresolvedStackFrames": false,
         "minSamples": 1
       },
@@ -169,6 +170,7 @@
       },
       "id": 3,
       "options": {
+        "hideIdleStacks": false,
         "hideUnresolvedStackFrames": true,
         "minSamples": 1
       },
