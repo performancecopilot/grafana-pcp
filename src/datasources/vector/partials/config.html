@@ -5,17 +5,6 @@
 <div class="gf-form-group">
   <div class="gf-form-inline">
     <div class="gf-form">
-      <span class="gf-form-label width-10">Container</span>
-      <gf-form-dropdown css-class="gf-form-input--has-help-icon width-16" model="ctrl.current.jsonData.container"
-        get-options="ctrl.getContainers()" allow-custom="true">
-      </gf-form-dropdown>
-      <info-popover mode="right-absolute">
-        Specify an individual container to be queried. Leave blank to query the host system.
-      </info-popover>
-    </div>
-  </div>
-  <div class="gf-form-inline">
-    <div class="gf-form">
       <span class="gf-form-label width-10">Poll interval</span>
       <input type="text" class="gf-form-input gf-form-input--has-help-icon width-8"
         ng-model="ctrl.current.jsonData.pollInterval" spellcheck="false" placeholder="1s"
