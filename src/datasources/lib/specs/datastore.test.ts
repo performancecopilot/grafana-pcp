@@ -158,51 +158,6 @@ describe("DataStore", () => {
         }]);
     });
 
-    it("should remove old data from bpftrace control variables", async () => {
-        ctx.context.metric.mockResolvedValueOnce({
-            metrics: [{
-                ...fixtures.metricMetadataSingle,
-                name: "bpftrace.scripts.script1.output",
-                labels: {
-                    agent: "bpftrace",
-                    metrictype: "control"
-                }
-            }]
-        });
-
-        await ctx.datastore.ingest({
-            "timestamp": 5,
-            "values": [{
-                "pmid": "1.0.1",
-                "name": "bpftrace.scripts.script1.output",
-                "instances": [{
-                    "instance": null,
-                    "value": "line1\n"
-                }]
-            }]
-        });
-        await ctx.datastore.ingest({
-            "timestamp": 6,
-            "values": [{
-                "pmid": "1.0.1",
-                "name": "bpftrace.scripts.script1.output",
-                "instances": [{
-                    "instance": null,
-                    "value": "line1\nline2\n"
-                }]
-            }]
-        });
-
-        const result = ctx.datastore.queryMetric("bpftrace.scripts.script1.output", 0, Infinity);
-        expect(result).toMatchObject([{
-            "values": [["line1\nline2\n", 6000]],
-            "labels": {
-                "agent": "bpftrace",
-                "metrictype": "control"
-            }
-        }]);
-    });
-
     it("should return metrics in time range", async () => {
         ctx.context.metric.mockResolvedValueOnce({
             metrics: [{

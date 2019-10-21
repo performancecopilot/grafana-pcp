@@ -8,9 +8,9 @@ export default (ctx: TestContext) => {
             fixtures.PmProxy.context(1),
             fixtures.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
             fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "metric1", value: 100 }]),
-            fixtures.PmProxy.fetchSingleMetric(1, 11, [{ name: "metric1", value: 200 }]),
-            fixtures.PmProxy.fetchSingleMetric(1, 12, [{ name: "metric1", value: 300 }]),
-            fixtures.PmProxy.fetchSingleMetric(1, 13, [{ name: "metric1", value: 400 }]),
+            fixtures.PmProxy.fetchSingleMetric(1, 20, [{ name: "metric1", value: 200 }]),
+            fixtures.PmProxy.fetchSingleMetric(1, 30, [{ name: "metric1", value: 300 }]),
+            fixtures.PmProxy.fetchSingleMetric(1, 40, [{ name: "metric1", value: 400 }]),
         ]);
 
         const query = {
@@ -20,8 +20,8 @@ export default (ctx: TestContext) => {
                 expr: "metric1"
             }],
             range: {
-                from: new Date(11000),
-                to: new Date(12000)
+                from: new Date(20000),
+                to: new Date(30000)
             },
         };
 
@@ -39,8 +39,8 @@ export default (ctx: TestContext) => {
             data: [{
                 target: "metric1",
                 datapoints: [
-                    [200, 11000],
-                    [300, 12000]
+                    [200, 20000],
+                    [300, 30000]
                 ]
             }]
         });
