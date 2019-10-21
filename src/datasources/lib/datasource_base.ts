@@ -68,7 +68,7 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
     configureEndpoint(_endpoint: EP) {
     }
 
-    getOrCreateEndpoint(url: string, container: string | undefined) {
+    getOrCreateEndpoint(url: string, container?: string) {
         let endpoint = this.endpointRegistry.find(url, container);
         if (!endpoint) {
             endpoint = this.endpointRegistry.create(this.doRequest.bind(this), url, container, this.localHistoryAgeMs);

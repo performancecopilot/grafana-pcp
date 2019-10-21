@@ -3,10 +3,12 @@ import PCPVectorCompleter from './completer';
 import { PCPQueryCtrl } from "../lib/pcp_query_ctrl";
 import { getDashboardVariables } from '../lib/utils';
 import './mode-pcp';
+import { PCPVectorDatasource } from './datasource';
 
 export class PCPVectorDatasourceQueryCtrl extends PCPQueryCtrl {
     static templateUrl = 'datasources/vector/partials/query.editor.html';
 
+    datasource: PCPVectorDatasource;
     formats: any = [];
 
     /* @ngInject */
@@ -37,7 +39,8 @@ export class PCPVectorDatasourceQueryCtrl extends PCPQueryCtrl {
         const dashboardVariables = Object.keys(getDashboardVariables(this.variableSrv));
         const [url,] = this.datasource.getConnectionParams(this.target, {});
         const endpoint = this.datasource.getOrCreateEndpoint(url);
-        const containersMetricsResponse = await endpoint.context.fetch(['containers.name']);
+
+        const containersMetricsResponse = await endpoint.pmapiSrv.getMetricValues(['containers.name']);
         const containers = containersMetricsResponse.values[0].instances
             .map((instance: any) => ({ text: instance.value, value: instance.value }));
 
