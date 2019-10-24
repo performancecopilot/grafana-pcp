@@ -1,0 +1,417 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="960" height="500">
+
+	<style type="text/css">
+		svg {
+			margin: 20px auto;
+		}
+
+		rect {
+			stroke: rgb(33, 33, 36);
+			fill-opacity: .8;
+		}
+	</style>
+
+	<g transform="translate(0,306)" width="960" height="18" name="root" class="frame">
+		<rect height="18" fill="rgb(217,157,38)" width="960"></rect>
+	</g>
+	<g transform="translate(2.441301470075943,288)" width="7.892426670382498" height="18" name="unix`0xfffffffffb800c86"
+		class="frame">
+		<rect height="18" fill="rgb(221,140,34)" width="7.892426670382498"></rect>
+	</g>
+	<g transform="translate(10.33372814045844,288)" width="72.92134048630949" height="18" name="unix`0xfffffffffb800c91"
+		class="frame">
+		<rect height="18" fill="rgb(221,140,34)" width="72.92134048630949"></rect>
+	</g>
+	<g transform="translate(83.25506862676792,288)" width="8.644882602940154" height="18" name="unix`0xfffffffffb800ca0"
+		class="frame">
+		<rect height="18" fill="rgb(221,140,34)" width="8.644882602940154"></rect>
+	</g>
+	<g transform="translate(92.03372117327388,288)" width="867.9662788267261" height="18" name="unix`sys_syscall"
+		class="frame">
+		<rect height="18" fill="rgb(224,131,31)" width="867.9662788267261"></rect>
+	</g>
+	<g transform="translate(2.508186441858845,270)" width="5.936041245732598" height="18" name="genunix`syscall_mstate"
+		class="frame">
+		<rect height="18" fill="rgb(230,103,25)" width="5.936041245732598"></rect>
+	</g>
+	<g transform="translate(11.40388768898488,270)" width="70.98167630460532" height="18" name="genunix`post_syscall"
+		class="frame">
+		<rect height="18" fill="rgb(219,152,36)" width="70.98167630460532"></rect>
+	</g>
+	<g transform="translate(83.372117327388,270)" width="6.889152093638957" height="18" name="genunix`syscall_mstate"
+		class="frame">
+		<rect height="18" fill="rgb(230,103,25)" width="6.889152093638957"></rect>
+	</g>
+	<g transform="translate(92.28453981745976,270)" width="830.5274158712464" height="18" name="genunix`open"
+		class="frame">
+		<rect height="18" fill="rgb(207,201,48)" width="830.5274158712464"></rect>
+	</g>
+	<g transform="translate(923.2132655194035,270)" width="22.33958057548943" height="18" name="genunix`syscall_mstate"
+		class="frame">
+		<rect height="18" fill="rgb(230,103,25)" width="22.33958057548943"></rect>
+	</g>
+	<g transform="translate(12.407162265728418,252)" width="35.04772521424093" height="18" name="genunix`disp_lock_exit"
+		class="frame">
+		<rect height="18" fill="rgb(219,152,36)" width="35.04772521424093"></rect>
+	</g>
+	<g transform="translate(47.47160872291507,252)" width="11.203232773636172" height="18" name="genunix`thread_lock"
+		class="frame">
+		<rect height="18" fill="rgb(227,118,28)" width="11.203232773636172"></rect>
+	</g>
+	<g transform="translate(60.04598341810074,252)" width="13.009127011774538" height="18" name="unix`lock_try"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="13.009127011774538"></rect>
+	</g>
+	<g transform="translate(92.40158851807983,252)" width="830.1595485264405" height="18" name="genunix`openat"
+		class="frame">
+		<rect height="18" fill="rgb(212,182,43)" width="830.1595485264405"></rect>
+	</g>
+	<g transform="translate(923.2132655194035,252)" width="7.022922037204786" height="18"
+		name="genunix`gethrtime_unscaled" class="frame">
+		<rect height="18" fill="rgb(221,142,34)" width="7.022922037204786"></rect>
+	</g>
+	<g transform="translate(13.059290740611718,234)" width="33.32543719083118" height="18" name="unix`do_splx"
+		class="frame">
+		<rect height="18" fill="rgb(213,174,42)" width="33.32543719083118"></rect>
+	</g>
+	<g transform="translate(50.481432453145686,234)" width="6.688497178290254" height="18" name="unix`splr"
+		class="frame">
+		<rect height="18" fill="rgb(228,112,27)" width="6.688497178290254"></rect>
+	</g>
+	<g transform="translate(93.43830558071484,234)" width="826.7651362084581" height="18" name="genunix`copen"
+		class="frame">
+		<rect height="18" fill="rgb(224,128,31)" width="826.7651362084581"></rect>
+	</g>
+	<g transform="translate(923.9322789660697,234)" width="6.136696161081332" height="18" name="unix`tsc_read"
+		class="frame">
+		<rect height="18" fill="rgb(235,83,20)" width="6.136696161081332"></rect>
+	</g>
+	<g transform="translate(95.71239462133352,216)" width="22.791054135024037" height="18" name="genunix`falloc"
+		class="frame">
+		<rect height="18" fill="rgb(232,97,23)" width="22.791054135024037"></rect>
+	</g>
+	<g transform="translate(123.72047655542394,216)" width="12.189786107433997" height="18" name="genunix`unfalloc"
+		class="frame">
+		<rect height="18" fill="rgb(227,115,28)" width="12.189786107433997"></rect>
+	</g>
+	<g transform="translate(135.91026266285795,216)" width="774.8958405908173" height="18" name="genunix`vn_openat"
+		class="frame">
+		<rect height="18" fill="rgb(223,134,32)" width="774.8958405908173"></rect>
+	</g>
+	<g transform="translate(910.8061032536752,216)" width="5.066536612554913" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="5.066536612554913"></rect>
+	</g>
+	<g transform="translate(95.71239462133352,198)" width="5.233749042012126" height="18" name="genunix`audit_falloc"
+		class="frame">
+		<rect height="18" fill="rgb(232,95,23)" width="5.233749042012126"></rect>
+	</g>
+	<g transform="translate(102.1667943983836,198)" width="9.213404863094826" height="18" name="genunix`ufalloc"
+		class="frame">
+		<rect height="18" fill="rgb(235,82,20)" width="9.213404863094826"></rect>
+	</g>
+	<g transform="translate(123.72047655542394,198)" width="5.685222601546709" height="18" name="genunix`audit_unfalloc"
+		class="frame">
+		<rect height="18" fill="rgb(233,90,22)" width="5.685222601546709"></rect>
+	</g>
+	<g transform="translate(135.91026266285795,198)" width="770.4312687243086" height="18" name="genunix`lookupnameat"
+		class="frame">
+		<rect height="18" fill="rgb(227,116,28)" width="770.4312687243086"></rect>
+	</g>
+	<g transform="translate(135.91026266285795,180)" width="768.8093081585731" height="18"
+		name="genunix`lookupnameatcred" class="frame">
+		<rect height="18" fill="rgb(227,116,28)" width="768.8093081585731"></rect>
+	</g>
+	<g transform="translate(135.91026266285795,162)" width="747.121856057967" height="18" name="genunix`lookuppnatcred"
+		class="frame">
+		<rect height="18" fill="rgb(228,114,27)" width="747.121856057967"></rect>
+	</g>
+	<g transform="translate(883.1993311502821,162)" width="11.487493903713535" height="18" name="genunix`pn_get_buf"
+		class="frame">
+		<rect height="18" fill="rgb(215,169,40)" width="11.487493903713535"></rect>
+	</g>
+	<g transform="translate(894.9878074270188,162)" width="5.350797742632203" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="5.350797742632203"></rect>
+	</g>
+	<g transform="translate(137.09747091200444,144)" width="739.7812304047934" height="18" name="genunix`lookuppnvp"
+		class="frame">
+		<rect height="18" fill="rgb(228,114,27)" width="739.7812304047934"></rect>
+	</g>
+	<g transform="translate(883.6173622239253,144)" width="9.999303281543916" height="18" name="unix`copystr"
+		class="frame">
+		<rect height="18" fill="rgb(227,116,28)" width="9.999303281543916"></rect>
+	</g>
+	<g transform="translate(139.0204138507629,126)" width="488.52783390231997" height="18" name="genunix`fop_lookup"
+		class="frame">
+		<rect height="18" fill="rgb(215,166,40)" width="488.52783390231997"></rect>
+	</g>
+	<g transform="translate(629.3206995053298,126)" width="7.591444297359473" height="18" name="genunix`pn_getcomponent"
+		class="frame">
+		<rect height="18" fill="rgb(216,165,39)" width="7.591444297359473"></rect>
+	</g>
+	<g transform="translate(636.9121438026893,126)" width="92.91994704939732" height="18" name="genunix`traverse"
+		class="frame">
+		<rect height="18" fill="rgb(233,92,22)" width="92.91994704939732"></rect>
+	</g>
+	<g transform="translate(730.5511042987528,126)" width="116.09558977217304" height="18" name="genunix`vn_rele"
+		class="frame">
+		<rect height="18" fill="rgb(227,117,28)" width="116.09558977217304"></rect>
+	</g>
+	<g transform="translate(849.2384867275134,126)" width="9.614714693792195" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="9.614714693792195"></rect>
+	</g>
+	<g transform="translate(858.8532014213057,126)" width="6.337351076429982" height="18" name="unix`mutex_exit"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="6.337351076429982"></rect>
+	</g>
+	<g transform="translate(144.02006549153484,108)" width="32.92412736013377" height="18" name="genunix`vn_setpath"
+		class="frame">
+		<rect height="18" fill="rgb(227,116,28)" width="32.92412736013377"></rect>
+	</g>
+	<g transform="translate(176.9441928516686,108)" width="332.5353584616456" height="18" name="lofs`lo_lookup"
+		class="frame">
+		<rect height="18" fill="rgb(230,104,25)" width="332.5353584616456"></rect>
+	</g>
+	<g transform="translate(510.1316797881976,108)" width="14.98223367937019" height="18" name="unix`bcopy"
+		class="frame">
+		<rect height="18" fill="rgb(235,85,20)" width="14.98223367937019"></rect>
+	</g>
+	<g transform="translate(525.1139134675677,108)" width="15.835017069602166" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="15.835017069602166"></rect>
+	</g>
+	<g transform="translate(540.9489305371699,108)" width="5.635058872709493" height="18" name="unix`mutex_exit"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="5.635058872709493"></rect>
+	</g>
+	<g transform="translate(546.5839894098795,108)" width="44.461784992684414" height="18" name="unix`strlen"
+		class="frame">
+		<rect height="18" fill="rgb(229,107,26)" width="44.461784992684414"></rect>
+	</g>
+	<g transform="translate(591.2798718038041,108)" width="15.818295826656481" height="18" name="zfs`zfs_lookup"
+		class="frame">
+		<rect height="18" fill="rgb(220,148,35)" width="15.818295826656481"></rect>
+	</g>
+	<g transform="translate(644.7042430153975,108)" width="40.3650804709817" height="18" name="genunix`vn_vfsrlock"
+		class="frame">
+		<rect height="18" fill="rgb(230,105,25)" width="40.3650804709817"></rect>
+	</g>
+	<g transform="translate(685.0693234863793,108)" width="39.66278826726121" height="18" name="genunix`vn_vfsunlock"
+		class="frame">
+		<rect height="18" fill="rgb(231,102,24)" width="39.66278826726121"></rect>
+	</g>
+	<g transform="translate(731.0694628300703,108)" width="111.84839406395874" height="18" name="genunix`fop_inactive"
+		class="frame">
+		<rect height="18" fill="rgb(215,168,40)" width="111.84839406395874"></rect>
+	</g>
+	<g transform="translate(144.02006549153484,90)" width="15.61764091130775" height="18" name="genunix`kmem_alloc"
+		class="frame">
+		<rect height="18" fill="rgb(240,61,15)" width="15.61764091130775"></rect>
+	</g>
+	<g transform="translate(177.5461575977147,90)" width="108.18644185884483" height="18" name="genunix`fop_lookup"
+		class="frame">
+		<rect height="18" fill="rgb(215,166,40)" width="108.18644185884483"></rect>
+	</g>
+	<g transform="translate(286.3847279314428,90)" width="121.11196265589074" height="18" name="genunix`traverse"
+		class="frame">
+		<rect height="18" fill="rgb(233,92,22)" width="121.11196265589074"></rect>
+	</g>
+	<g transform="translate(407.8478366891938,90)" width="5.618337629763808" height="18" name="genunix`vfs_matchops"
+		class="frame">
+		<rect height="18" fill="rgb(235,83,20)" width="5.618337629763808"></rect>
+	</g>
+	<g transform="translate(417.5127151118232,90)" width="70.42987528739641" height="18" name="lofs`makelonode"
+		class="frame">
+		<rect height="18" fill="rgb(239,65,16)" width="70.42987528739641"></rect>
+	</g>
+	<g transform="translate(489.4307810213891,90)" width="5.434403957360843" height="18" name="unix`atomic_add_32"
+		class="frame">
+		<rect height="18" fill="rgb(236,79,19)" width="5.434403957360843"></rect>
+	</g>
+	<g transform="translate(595.9618198286072,90)" width="5.166864070229238" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="5.166864070229238"></rect>
+	</g>
+	<g transform="translate(645.5737476485754,90)" width="10.500940569915755" height="18" name="genunix`rwst_tryenter"
+		class="frame">
+		<rect height="18" fill="rgb(235,84,20)" width="10.500940569915755"></rect>
+	</g>
+	<g transform="translate(656.074688218491,90)" width="16.26976938619105" height="18"
+		name="genunix`vn_vfslocks_getlock" class="frame">
+		<rect height="18" fill="rgb(231,101,24)" width="16.26976938619105"></rect>
+	</g>
+	<g transform="translate(672.3444576046821,90)" width="7.6081655403051585" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="7.6081655403051585"></rect>
+	</g>
+	<g transform="translate(689.0824217933534,90)" width="15.099282379990306" height="18"
+		name="genunix`vn_vfslocks_rele" class="frame">
+		<rect height="18" fill="rgb(231,101,24)" width="15.099282379990306"></rect>
+	</g>
+	<g transform="translate(704.1817041733437,90)" width="13.761582944332176" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="13.761582944332176"></rect>
+	</g>
+	<g transform="translate(717.9432871176759,90)" width="5.952762488678367" height="18" name="unix`mutex_exit"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="5.952762488678367"></rect>
+	</g>
+	<g transform="translate(732.3402772939455,90)" width="105.46087925869159" height="18" name="lofs`lo_inactive"
+		class="frame">
+		<rect height="18" fill="rgb(230,104,25)" width="105.46087925869159"></rect>
+	</g>
+	<g transform="translate(148.04988504145473,72)" width="6.119974918135593" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="6.119974918135593"></rect>
+	</g>
+	<g transform="translate(181.4422072040688,72)" width="90.2779906639727" height="18" name="ufs`ufs_lookup"
+		class="frame">
+		<rect height="18" fill="rgb(230,107,25)" width="90.2779906639727"></rect>
+	</g>
+	<g transform="translate(289.27750296105336,72)" width="55.882393924615045" height="18" name="genunix`vn_vfsrlock"
+		class="frame">
+		<rect height="18" fill="rgb(230,105,25)" width="55.882393924615045"></rect>
+	</g>
+	<g transform="translate(345.1598968856684,72)" width="59.828607259806326" height="18" name="genunix`vn_vfsunlock"
+		class="frame">
+		<rect height="18" fill="rgb(231,102,24)" width="59.828607259806326"></rect>
+	</g>
+	<g transform="translate(421.4422072040687,72)" width="19.88155786246777" height="18" name="genunix`vn_alloc"
+		class="frame">
+		<rect height="18" fill="rgb(232,94,23)" width="19.88155786246777"></rect>
+	</g>
+	<g transform="translate(458.04500801226214,72)" width="5.317355256740779" height="18" name="unix`atomic_cas_64"
+		class="frame">
+		<rect height="18" fill="rgb(236,79,19)" width="5.317355256740779"></rect>
+	</g>
+	<g transform="translate(467.3252978471399,72)" width="10.701595485264406" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="10.701595485264406"></rect>
+	</g>
+	<g transform="translate(645.5737476485754,72)" width="5.250470284957878" height="18"
+		name="genunix`rwst_enter_common" class="frame">
+		<rect height="18" fill="rgb(232,95,23)" width="5.250470284957878"></rect>
+	</g>
+	<g transform="translate(657.0110778234517,72)" width="8.912422490071812" height="18" name="genunix`kmem_alloc"
+		class="frame">
+		<rect height="18" fill="rgb(240,61,15)" width="8.912422490071812"></rect>
+	</g>
+	<g transform="translate(690.7378248449803,72)" width="7.641608026196636" height="18" name="genunix`kmem_free"
+		class="frame">
+		<rect height="18" fill="rgb(238,72,17)" width="7.641608026196636"></rect>
+	</g>
+	<g transform="translate(734.0124015885181,72)" width="88.8399637706403" height="18" name="lofs`freelonode"
+		class="frame">
+		<rect height="18" fill="rgb(215,165,40)" width="88.8399637706403"></rect>
+	</g>
+	<g transform="translate(181.94384449244055,54)" width="30.817250748972327" height="18" name="genunix`dnlc_lookup"
+		class="frame">
+		<rect height="18" fill="rgb(219,149,36)" width="30.817250748972327"></rect>
+	</g>
+	<g transform="translate(214.61715320838843,54)" width="10.835365428830208" height="18" name="ufs`ufs_iaccess"
+		class="frame">
+		<rect height="18" fill="rgb(232,96,23)" width="10.835365428830208"></rect>
+	</g>
+	<g transform="translate(226.15481084093912,54)" width="16.386818086811115" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="16.386818086811115"></rect>
+	</g>
+	<g transform="translate(242.54162892775025,54)" width="5.8524350310039885" height="18" name="unix`mutex_exit"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="5.8524350310039885"></rect>
+	</g>
+	<g transform="translate(248.39406395875423,54)" width="8.778652546505956" height="18" name="unix`rw_enter"
+		class="frame">
+		<rect height="18" fill="rgb(228,111,27)" width="8.778652546505956"></rect>
+	</g>
+	<g transform="translate(257.1727165052602,54)" width="7.340625653173554" height="18" name="unix`rw_exit"
+		class="frame">
+		<rect height="18" fill="rgb(229,108,26)" width="7.340625653173554"></rect>
+	</g>
+	<g transform="translate(290.8158573120601,54)" width="12.27339232216261" height="18" name="genunix`rwst_tryenter"
+		class="frame">
+		<rect height="18" fill="rgb(235,84,20)" width="12.27339232216261"></rect>
+	</g>
+	<g transform="translate(303.0892496342227,54)" width="22.690726677349673" height="18"
+		name="genunix`vn_vfslocks_getlock" class="frame">
+		<rect height="18" fill="rgb(231,101,24)" width="22.690726677349673"></rect>
+	</g>
+	<g transform="translate(325.77997631157234,54)" width="12.156343621542547" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="12.156343621542547"></rect>
+	</g>
+	<g transform="translate(337.93631993311493,54)" width="6.203581132864233" height="18" name="unix`mutex_exit"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="6.203581132864233"></rect>
+	</g>
+	<g transform="translate(351.4972479620984,54)" width="23.744164982930407" height="18"
+		name="genunix`vn_vfslocks_rele" class="frame">
+		<rect height="18" fill="rgb(231,101,24)" width="23.744164982930407"></rect>
+	</g>
+	<g transform="translate(375.2414129450288,54)" width="20.09893402076221" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="20.09893402076221"></rect>
+	</g>
+	<g transform="translate(395.340346965791,54)" width="8.561276388211514" height="18" name="unix`mutex_exit"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="8.561276388211514"></rect>
+	</g>
+	<g transform="translate(424.98711070856257,54)" width="7.0898070089876875" height="18" name="genunix`vn_reinit"
+		class="frame">
+		<rect height="18" fill="rgb(226,122,29)" width="7.0898070089876875"></rect>
+	</g>
+	<g transform="translate(432.07691771755026,54)" width="5.317355256740726" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="5.317355256740726"></rect>
+	</g>
+	<g transform="translate(739.01205322929,54)" width="27.80742701874175" height="18" name="genunix`vn_free"
+		class="frame">
+		<rect height="18" fill="rgb(225,127,30)" width="27.80742701874175"></rect>
+	</g>
+	<g transform="translate(773.8925660140736,54)" width="15.132724865881677" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="15.132724865881677"></rect>
+	</g>
+	<g transform="translate(789.0252908799553,54)" width="5.986204974569738" height="18" name="unix`mutex_exit"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="5.986204974569738"></rect>
+	</g>
+	<g transform="translate(795.011495854525,54)" width="20.700898766808322" height="18" name="unix`strlen"
+		class="frame">
+		<rect height="18" fill="rgb(229,107,26)" width="20.700898766808322"></rect>
+	</g>
+	<g transform="translate(295.2302654497317,36)" width="5.635058872709546" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="5.635058872709546"></rect>
+	</g>
+	<g transform="translate(303.97547551034614,36)" width="13.293388141851867" height="18" name="genunix`kmem_alloc"
+		class="frame">
+		<rect height="18" fill="rgb(240,61,15)" width="13.293388141851867"></rect>
+	</g>
+	<g transform="translate(353.15265101372523,36)" width="11.58782136138786" height="18" name="genunix`kmem_free"
+		class="frame">
+		<rect height="18" fill="rgb(238,72,17)" width="11.58782136138786"></rect>
+	</g>
+	<g transform="translate(424.98711070856257,36)" width="5.3340764996865175" height="18" name="genunix`vn_recycle"
+		class="frame">
+		<rect height="18" fill="rgb(227,116,28)" width="5.3340764996865175"></rect>
+	</g>
+	<g transform="translate(742.6907266773496,36)" width="13.126175712394641" height="18" name="genunix`kmem_free"
+		class="frame">
+		<rect height="18" fill="rgb(238,72,17)" width="13.126175712394641"></rect>
+	</g>
+	<g transform="translate(756.6195220511391,36)" width="5.250470284957878" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="5.250470284957878"></rect>
+	</g>
+	<g transform="translate(306.78464432522804,18)" width="6.337351076430036" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="6.337351076430036"></rect>
+	</g>
+	<g transform="translate(355.7277224273669,18)" width="5.283912770849302" height="18" name="unix`mutex_enter"
+		class="frame">
+		<rect height="18" fill="rgb(236,78,19)" width="5.283912770849302"></rect>
+	</g>
+</svg>
