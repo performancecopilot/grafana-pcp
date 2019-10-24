@@ -4,7 +4,7 @@ import EndpointRegistry, { Endpoint } from './endpoint_registry';
 import PanelTransformations from './services/panel_transformation_srv';
 import { PmapiSrv, Context } from "./services/pmapi_srv";
 import { isBlank } from './utils';
-import { Transformations } from './transformations';
+import { ValueTransformationSrv } from './services/value_transformation_srv';
 import { QueryTarget, Query, PmapiQueryTarget } from './models/datasource';
 import { TargetResult, MetricInstance } from './models/metrics';
 import DashboardObserver from './dashboard_observer';
@@ -159,7 +159,8 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
         for (const metric of results.metrics) {
             const metadata = await pmapiSrv.getMetricMetadata(metric.name);
             for (const instance of metric.instances) {
-                instance.values = Transformations.applyTransformations(results.target.format, metadata.sem, metadata.units, instance.values as any);
+                instance.values = ValueTransformationSrv.applyTransformations(results.target.format, metadata.sem,
+                    metadata.units, instance.values as any);
             }
         }
     }

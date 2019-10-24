@@ -1,6 +1,5 @@
 import _ from "lodash";
 import React, { PureComponent } from "react";
-import { dateTime } from "@grafana/data";
 import { Tooltip } from "@grafana/ui";
 import { select } from 'd3-selection';
 import { flamegraph, FlameGraph, StackFrame } from 'd3-flame-graph';
@@ -11,12 +10,12 @@ interface Props {
     width: number;
     height: number;
     stacks: StackFrame;
-    timestamp: number;
+    title: string;
 }
 
 interface State {
     stacks: StackFrame;
-    timestamp: number;
+    title: string;
     zoomed: boolean;
     searchText: string;
 }
@@ -33,7 +32,7 @@ export class FlameGraphChart extends PureComponent<Props, State> {
         this.flamegraph = this.createFlameGraph();
         this.state = {
             stacks: { name: "root", value: 0, children: [] },
-            timestamp: 0,
+            title: "",
             zoomed: false,
             searchText: ""
         };
@@ -81,22 +80,21 @@ export class FlameGraphChart extends PureComponent<Props, State> {
         if (!FlameGraphChart.isPaused(prevState)) {
             // copy props over to state if we're not in paused mode
             return {
-                timestamp: nextProps.timestamp,
-                stacks: nextProps.stacks
+                stacks: nextProps.stacks,
+                title: nextProps.title
             };
         }
         return null;
     }
 
     render() {
-        const date = dateTime(this.state.timestamp).format("YYYY-MM-DD HH:mm:ss");
         return (
             <>
                 <div className="flamegraph-bar gf-form">
                     <div className="left" />
                     <div className="center">
                         <span className="date">
-                            {date}
+                            {this.state.title}
                             {FlameGraphChart.isPaused(this.state) && (<span> (paused
                                 <Tooltip content="Reset zoom and search text to sync with selected time range" placement="top">
                                     <i className="grafana-tip fa fa-question-circle" />

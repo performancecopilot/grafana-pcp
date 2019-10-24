@@ -24,8 +24,9 @@ function readStacks(root: StackFrame, options: Options, stacks: string[], count:
 export function generateFlameGraphModel(panelData: PanelData, options: Options): StackFrame {
     const root: StackFrame = { name: "root", value: 0, children: [] };
 
+    // dataFrame == target == PCP instance
     for (const dataFrame of panelData.series) {
-        const count = (dataFrame as any).rows[0][0];
+        const count = (dataFrame as any as { rows: number[][] }).rows.reduce((prev, cur) => prev + cur[0], 0);
         // skip samples of empty stack or too less samples
         if (!dataFrame.name || count < options.minSamples)
             continue;

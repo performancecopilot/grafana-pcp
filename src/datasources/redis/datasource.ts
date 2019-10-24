@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { isBlank } from '../lib/utils';
 import { PmSeriesSrv } from './pmseries_srv';
 import PanelTransformations from '../lib/services/panel_transformation_srv';
-import { Transformations } from '../lib/transformations';
+import { ValueTransformationSrv } from '../lib/services/value_transformation_srv';
 import { Query, QueryTarget, TDatapoint } from '../lib/models/datasource';
 import { TargetResult, Metric, MetricInstance } from '../lib/models/metrics';
 import { MetricValue } from './models/pmseries';
@@ -118,7 +118,7 @@ export class PCPRedisDatasource {
                 metricInstances.push({
                     id: instanceId,
                     name: instanceName,
-                    values: Transformations.applyTransformations(target.format, descriptions[series].semantics,
+                    values: ValueTransformationSrv.applyTransformations(target.format, descriptions[series].semantics,
                         descriptions[series].units, datapoints),
                     labels: instanceId !== "" ? labels[instanceId] : labels[series]
                 });

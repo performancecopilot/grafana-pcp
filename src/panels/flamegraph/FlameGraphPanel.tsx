@@ -3,6 +3,7 @@ import React, { PureComponent } from 'react';
 import memoizeOne from "memoize-one";
 import { PanelProps, Tooltip } from '@grafana/ui';
 import { Options } from './types';
+import { dateTime } from "@grafana/data";
 import { generateFlameGraphModel } from './model';
 import { FlameGraphChart } from "./FlameGraphChart";
 
@@ -25,8 +26,11 @@ export class FlameGraphPanel extends PureComponent<PanelProps<Options>> {
             );
         }
 
-        const timestamp = (this.props.data.series[0] as any).rows[0][1];
-        return (<FlameGraphChart width={this.props.width} height={this.props.height} stacks={stacks} timestamp={timestamp} />);
+        const firstDataFrame: any = this.props.data.series[0];
+        const fromDate = dateTime(firstDataFrame.rows[0][1]).format("HH:mm:ss");
+        const toDate = dateTime(firstDataFrame.rows[firstDataFrame.rows.length - 1][1]).format("HH:mm:ss");
+        const title = `${fromDate} - ${toDate}`;
+        return (<FlameGraphChart width={this.props.width} height={this.props.height} stacks={stacks} title={title} />);
     }
 
 }

@@ -1,6 +1,6 @@
 import Benchmark from "benchmark";
 import DataStore from "../datastore";
-import { Transformations } from "../transformations";
+import { ValueTransformationSrv } from "../services/value_transformation_srv";
 import { Datapoint, TargetFormat } from "../models/datasource";
 import { MetricInstance } from "../models/metrics";
 
@@ -92,7 +92,7 @@ class CounterValues {
     }
 
     run(deferred: any) {
-        Transformations.applyTransformations(TargetFormat.TimeSeries, "counter", "bytes", this.values);
+        ValueTransformationSrv.applyTransformations(TargetFormat.TimeSeries, "counter", "bytes", this.values);
         deferred.resolve();
     }
 

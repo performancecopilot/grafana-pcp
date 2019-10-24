@@ -148,7 +148,7 @@ export default class PanelTransformationSrv {
     transformToFlameGraph(metric: Metric<number>): TimeSeriesData[] {
         return metric.instances.map(instance => ({
             target: instance.name,
-            datapoints: instance.values.slice(-1) // truncate array to last element, also works fine with empty array
+            datapoints: instance.values
         }));
     }
 
