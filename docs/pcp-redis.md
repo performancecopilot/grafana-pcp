@@ -29,6 +29,7 @@ The 'dist' directory for this datasource is pre-built, committed to the git repo
 Otherwise, install this as a datasource plugin manually as follows.
  * clone the github source: `git clone https://github.com/performancecopilot/grafana-pcp-redis`
  * change directory to the just-cloned datasource: `cd grafana-pcp-redis`
+ * checkout the release branch: `git checkout release-1.0.0`
  * symlink the dist directory into the grafana plugins directory: `sudo ln -sf $PWD/dist /var/lib/grafana/plugins/pcp`
  * re-start grafana: `systemctl restart grafana-server`
 
