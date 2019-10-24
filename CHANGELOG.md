@@ -1,5 +1,25 @@
 # Change Log
 
+## 1.0.1 (2019-10-24)
+
+### Flame Graphs
+
+- aggregate stack counts by selected time range in the Grafana UI
+- add option to hide idle stacks
+
+### Vector
+
+- fix container dropdown in query editor
+- remove container setting from datasource settings page
+
+### Redis
+
+- fix value transformations (e.g. rate conversation of counters)
+
+### All
+
+- request more datapoints from the datasource to fill the borders of the graph panel
+
 ## 1.0.0 (2019-10-11)
 
 ### bpftrace
