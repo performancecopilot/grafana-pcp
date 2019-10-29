@@ -34,13 +34,26 @@ export class ValueTransformationSrv {
                 return datapoints;
 
             let prev = datapoints[0];
-            for (let i = 1; i < datapoints.length; i++) {
+            let i = 1;
+            while (i < datapoints.length) {
                 const cur = datapoints[i].slice() as Datapoint<number>; // copy datapoint
-                const deltaSec = (cur[1] - prev[1]) / 1000;
-                if (round)
-                    datapoints[i][0] = Math.ceil((cur[0] - prev[0]) / deltaSec);
-                else
-                    datapoints[i][0] = (cur[0] - prev[0]) / deltaSec;
+                if (cur[0] >= prev[0]) {
+                    const deltaSec = (cur[1] - prev[1]) / 1000;
+                    if (round)
+                        datapoints[i][0] = Math.ceil((cur[0] - prev[0]) / deltaSec);
+                    else
+                        datapoints[i][0] = (cur[0] - prev[0]) / deltaSec;
+                    i++;
+                }
+                else {
+                    // counter wrap
+                    // we don't know if the counter wrapped multiple times
+                    // between two samples, so let's skip this value
+                    datapoints.splice(i, 1);
+
+                    // as we removed one element from the array, i is now the index of the next element
+                    // therefore no i++ required here
+                }
                 prev = cur;
             }
 

@@ -14,6 +14,18 @@ describe("ValueTransformationSrv", () => {
         ]);
     });
 
+    it("should handle counter value wraps", () => {
+        expect(ValueTransformationSrv.applyTransformations(TargetFormat.TimeSeries, "counter", "bytes", [
+            [400, 1000],
+            [500, 2000],
+            [300, 3000],
+            [900, 4000]
+        ])).toStrictEqual([
+            [100, 2000],
+            [600, 4000]
+        ]);
+    });
+
     it("should perform rate-conversation for flame graphs (with rounding)", () => {
         expect(ValueTransformationSrv.applyTransformations(TargetFormat.FlameGraph, "counter", "bytes", [
             [1, 1000], // sampled once
