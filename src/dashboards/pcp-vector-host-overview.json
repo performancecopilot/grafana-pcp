@@ -470,7 +470,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Per-CPU ms/s busy (User)",
+      "title": "Per-CPU busy (User)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -487,10 +487,10 @@
       "yaxes": [
         {
           "decimals": null,
-          "format": "ms",
+          "format": "percentunit",
           "label": "",
           "logBase": 1,
-          "max": "1000",
+          "max": "1",
           "min": "0",
           "show": true
         },
@@ -555,7 +555,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Per-CPU ms/s busy (Sys)",
+      "title": "Per-CPU busy (Sys)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -572,10 +572,10 @@
       "yaxes": [
         {
           "decimals": null,
-          "format": "ms",
+          "format": "percentunit",
           "label": "",
           "logBase": 1,
-          "max": "1000",
+          "max": "1",
           "min": "0",
           "show": true
         },
@@ -2830,11 +2830,13 @@
         {
           "expr": "disk.dev.read_rawactive",
           "format": "time_series",
+          "legendFormat": "read $instance",
           "refId": "B"
         },
         {
           "expr": "disk.dev.write_rawactive",
           "format": "time_series",
+          "legendFormat": "write $instance",
           "refId": "D"
         }
       ],
@@ -2858,7 +2860,7 @@
       },
       "yaxes": [
         {
-          "format": "ms",
+          "format": "percentunit",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -2919,11 +2921,13 @@
         {
           "expr": "disk.dev.read",
           "format": "time_series",
+          "legendFormat": "read $instance",
           "refId": "B"
         },
         {
           "expr": "disk.dev.write",
           "format": "time_series",
+          "legendFormat": "write $instance",
           "refId": "D"
         }
       ],
@@ -3008,11 +3012,13 @@
         {
           "expr": "disk.dev.read_bytes",
           "format": "time_series",
+          "legendFormat": "read $instance",
           "refId": "B"
         },
         {
           "expr": "disk.dev.write_bytes",
           "format": "time_series",
+          "legendFormat": "write $instance",
           "refId": "D"
         }
       ],
@@ -3036,7 +3042,7 @@
       },
       "yaxes": [
         {
-          "format": "Bps",
+          "format": "KBs",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -3120,11 +3126,11 @@
       },
       "yaxes": [
         {
-          "format": "percent",
+          "format": "percentunit",
           "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
+          "max": "1",
+          "min": "0",
           "show": true
         },
         {

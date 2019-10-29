@@ -37,4 +37,15 @@ describe("ValueTransformationSrv", () => {
         ]);
     });
 
+    it("should convert time based counters to rate utilization", () => {
+        expect(ValueTransformationSrv.applyTransformations(TargetFormat.TimeSeries, "counter", "millisec", [
+            [1000, 1000],
+            [2000, 2000],
+            [7000, 3000]
+        ])).toStrictEqual([
+            [1, 2000],
+            [5, 3000]
+        ]);
+    });
+
 });

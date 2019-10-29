@@ -295,7 +295,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Per-CPU ms/s busy (User)",
+      "title": "Per-CPU busy (User)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -312,10 +312,10 @@
       "yaxes": [
         {
           "decimals": null,
-          "format": "ms",
+          "format": "percentunit",
           "label": "",
           "logBase": 1,
-          "max": "1000",
+          "max": "1",
           "min": "0",
           "show": true
         },
@@ -381,7 +381,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Per-CPU ms/s busy (Sys)",
+      "title": "Per-CPU busy (Sys)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -398,10 +398,10 @@
       "yaxes": [
         {
           "decimals": null,
-          "format": "ms",
+          "format": "percentunit",
           "label": "",
           "logBase": 1,
-          "max": "1000",
+          "max": "1",
           "min": "0",
           "show": true
         },
@@ -1917,13 +1917,13 @@
           "expr": "disk.dev.read_rawactive{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "B",
-          "legendFormat": "$instance"
+          "legendFormat": "read $instance"
         },
         {
           "expr": "disk.dev.write_rawactive{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "D",
-          "legendFormat": "$instance"
+          "legendFormat": "write $instance"
         }
       ],
       "thresholds": [],
@@ -1946,7 +1946,7 @@
       },
       "yaxes": [
         {
-          "format": "ms",
+          "format": "percentunit",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -2008,13 +2008,13 @@
           "expr": "disk.dev.read{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "B",
-          "legendFormat": "$instance"
+          "legendFormat": "read $instance"
         },
         {
           "expr": "disk.dev.write{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "D",
-          "legendFormat": "$instance"
+          "legendFormat": "write $instance"
         }
       ],
       "thresholds": [],
@@ -2099,13 +2099,13 @@
           "expr": "disk.dev.read_bytes{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "B",
-          "legendFormat": "$instance"
+          "legendFormat": "read $instance"
         },
         {
           "expr": "disk.dev.write_bytes{hostname == \"$host\"}",
           "format": "time_series",
           "refId": "D",
-          "legendFormat": "$instance"
+          "legendFormat": "write $instance"
         }
       ],
       "thresholds": [],
@@ -2128,7 +2128,7 @@
       },
       "yaxes": [
         {
-          "format": "Bps",
+          "format": "KBs",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -2213,11 +2213,11 @@
       },
       "yaxes": [
         {
-          "format": "percent",
+          "format": "percentunit",
           "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
+          "max": "1",
+          "min": "0",
           "show": true
         },
         {

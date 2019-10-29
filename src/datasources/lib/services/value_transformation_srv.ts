@@ -5,14 +5,22 @@ import { TransformationFn, Semantics, Units } from '../models/metrics';
 
 export class ValueTransformationSrv {
 
+    static PCP_UNITS = {
+        "nanosec": 1000 * 1000 * 1000,
+        "microsec": 1000 * 1000,
+        "millisec": 1000,
+    };
+
     static applyTransformations(format: TargetFormat, semantics: Semantics, units: Units, datapoints: TDatapoint[]) {
         const transformations: TransformationFn[] = [];
         if (semantics === "counter") {
             const round = format === TargetFormat.FlameGraph;
             transformations.push(ValueTransformationSrv.counter(round));
 
-            if (units === "nanosec")
-                transformations.push(ValueTransformationSrv.divideBy(1000 * 1000 * 1000));
+            if (units in this.PCP_UNITS) {
+                // for time based counters, convert to time utilization
+                transformations.push(ValueTransformationSrv.divideBy(this.PCP_UNITS[units]));
+            }
         }
 
         const datapointsCopy = _.cloneDeep(datapoints);
