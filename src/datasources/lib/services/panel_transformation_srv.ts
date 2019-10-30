@@ -86,8 +86,21 @@ export default class PanelTransformationSrv {
             yield record;
     }
 
-    transformCsvToTable(tableText: string) {
+    transformCsvToTable(results: TargetResult[]) {
         const table: TableData = { columns: [], rows: [], type: 'table' };
+        let tableText = "";
+
+        if (results.length === 1 &&
+            results[0].metrics.length === 1 &&
+            results[0].metrics[0].instances.length === 1 &&
+            results[0].metrics[0].instances[0].values.length > 0) {
+            const instance = results[0].metrics[0].instances[0];
+            const lastValue = instance.values[instance.values.length - 1][0];
+            if (_.isString(lastValue) && lastValue.includes(',')) {
+                tableText = lastValue;
+            }
+        }
+
         const lines = tableText.split('\n');
         for (let line of lines) {
             line = line.trim();
@@ -106,7 +119,7 @@ export default class PanelTransformationSrv {
         return table;
     }
 
-    transformMultipleMetricsToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn) {
+    transformMetricsToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn) {
         const table: TableData = { columns: [], rows: [], type: 'table' };
         table.columns = results.flatMap(targetResult => targetResult.metrics.map(metric => ({
             text: this.getLabel(query, targetResult.target, defaultLegendFormatter, metric.name)
@@ -131,20 +144,6 @@ export default class PanelTransformationSrv {
         return table;
     }
 
-    transformToTable(query: Query, results: TargetResult[], defaultLegendFormatter: DefaultLegendFormatterFn): TableData {
-        if (results.length === 1 &&
-            results[0].metrics.length === 1 &&
-            results[0].metrics[0].instances.length === 1 &&
-            results[0].metrics[0].instances[0].values.length > 0) {
-            const instance = results[0].metrics[0].instances[0];
-            const lastValue = instance.values[instance.values.length - 1][0];
-            if (_.isString(lastValue) && lastValue.includes(',')) {
-                return this.transformCsvToTable(lastValue);
-            }
-        }
-        return this.transformMultipleMetricsToTable(query, results, defaultLegendFormatter);
-    }
-
     transformToFlameGraph(metric: Metric<number>): TimeSeriesData[] {
         return metric.instances.map(instance => ({
             target: instance.name,
@@ -164,8 +163,11 @@ export default class PanelTransformationSrv {
                 this.transformToHeatmap(metric)
             ));
         }
-        else if (format === TargetFormat.Table) {
-            return [this.transformToTable(query, results, defaultLegendFormatter)];
+        else if (format === TargetFormat.MetricsTable) {
+            return [this.transformMetricsToTable(query, results, defaultLegendFormatter)];
+        }
+        else if (format === TargetFormat.CsvTable) {
+            return [this.transformCsvToTable(results)];
         }
         else if (format === TargetFormat.FlameGraph) {
             return results.flatMap(targetResult => targetResult.metrics.flatMap((metric: Metric<number>) =>

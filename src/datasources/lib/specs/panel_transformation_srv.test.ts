@@ -159,7 +159,7 @@ describe("PanelTransformationSrv", () => {
             ...fixtures.query,
             targets: [{
                 ...fixtures.queryTarget,
-                format: TargetFormat.Table
+                format: TargetFormat.CsvTable
             }]
         };
         const results: TargetResult[] = [{
@@ -228,7 +228,7 @@ TIME,PID,COMM,SADDR,SPORT,DADDR,DPORT
             ...fixtures.query,
             targets: [{
                 ...fixtures.queryTarget,
-                format: TargetFormat.Table
+                format: TargetFormat.CsvTable
             }]
         };
         const results: TargetResult[] = [{
@@ -277,15 +277,15 @@ PID,COMM,FD,ERR,PATH,MIX1,MIX2
             targets: [{
                 ...fixtures.queryTarget,
                 expr: "metric1",
-                format: TargetFormat.Table,
+                format: TargetFormat.MetricsTable,
             }, {
                 ...fixtures.queryTarget,
                 expr: "metric2",
-                format: TargetFormat.Table,
+                format: TargetFormat.MetricsTable,
             }, {
                 ...fixtures.queryTarget,
                 expr: "single",
-                format: TargetFormat.Table,
+                format: TargetFormat.MetricsTable,
             }]
         };
         const results: TargetResult[] = [{
@@ -340,12 +340,12 @@ PID,COMM,FD,ERR,PATH,MIX1,MIX2
             targets: [{
                 ...fixtures.queryTarget,
                 expr: "metric1",
-                format: TargetFormat.Table,
+                format: TargetFormat.MetricsTable,
                 legendFormat: "TX"
             }, {
                 ...fixtures.queryTarget,
                 expr: "disk.dev.read",
-                format: TargetFormat.Table,
+                format: TargetFormat.MetricsTable,
                 legendFormat: "$metric"
             }]
         };

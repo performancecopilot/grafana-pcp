@@ -18,7 +18,7 @@ export class PCPBPFtraceDatasourceQueryCtrl extends PCPQueryCtrl {
 
         this.formats = [
             { text: "Time series", value: TargetFormat.TimeSeries },
-            { text: "Table", value: TargetFormat.Table },
+            { text: "Table (CSV)", value: TargetFormat.CsvTable },
             { text: "Heatmap", value: TargetFormat.Heatmap },
             { text: "Flame Graph", value: TargetFormat.FlameGraph },
         ];
@@ -26,7 +26,7 @@ export class PCPBPFtraceDatasourceQueryCtrl extends PCPQueryCtrl {
 
     getDefaultFormat() {
         if (this.panelCtrl.panel.type === 'table')
-            return TargetFormat.Table;
+            return TargetFormat.CsvTable;
         else if (this.panelCtrl.panel.type === 'heatmap')
             return TargetFormat.Heatmap;
         else if (this.panelCtrl.panel.type === 'pcp-flamegraph-panel')

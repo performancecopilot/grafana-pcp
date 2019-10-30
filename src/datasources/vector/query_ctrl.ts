@@ -21,14 +21,14 @@ export class PCPVectorDatasourceQueryCtrl extends PCPQueryCtrl {
 
         this.formats = [
             { text: "Time series", value: TargetFormat.TimeSeries },
-            { text: "Table", value: TargetFormat.Table },
+            { text: "Table", value: TargetFormat.MetricsTable },
             { text: "Heatmap", value: TargetFormat.Heatmap },
         ];
     }
 
     getDefaultFormat() {
         if (this.panelCtrl.panel.type === 'table')
-            return TargetFormat.Table;
+            return TargetFormat.MetricsTable;
         else if (this.panelCtrl.panel.type === 'heatmap')
             return TargetFormat.Heatmap;
         else

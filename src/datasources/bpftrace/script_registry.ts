@@ -29,7 +29,7 @@ export default class ScriptRegistry {
                 throw new Error("Cannot find any histogram in this BPFtrace script.");
             return [foundVar[0]];
         }
-        else if (format === TargetFormat.Table) {
+        else if (format === TargetFormat.CsvTable) {
             const foundVar = Object.entries(script.variables).find(([_varName, varDef]) => varDef.metrictype === MetricType.Output);
             if (!foundVar)
                 throw new Error("Please printf() a table in CSV format in the BPFtrace script.");

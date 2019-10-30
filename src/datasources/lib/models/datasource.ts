@@ -2,7 +2,8 @@ export type DatasourceRequestFn = (options: any) => any;
 
 export enum TargetFormat {
     TimeSeries = "time_series",
-    Table = "table",
+    MetricsTable = "metrics_table",
+    CsvTable = "csv_table",
     Heatmap = "heatmap",
     FlameGraph = "flamegraph",
 }
