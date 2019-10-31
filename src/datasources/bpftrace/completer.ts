@@ -31,7 +31,7 @@ export default class PCPBPFtraceCompleter {
     genDocHTML(title: string, doc: string) {
         title = _.escape(title);
         doc = _.escape(doc);
-        doc = doc.replace(/```(.+?)```/g, "<pre>$1</pre>");
+        doc = doc.replace(/```([^]+?)```/g, "<pre>$1</pre>");
         doc = doc.replace(/`(.+?)`/g, "<code>$1</code>");
         return `<b>${title}</b><hr />${doc}`;
     }

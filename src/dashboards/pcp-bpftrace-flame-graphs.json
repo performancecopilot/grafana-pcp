@@ -150,7 +150,7 @@
       },
       "targets": [
         {
-          "expr": "profile:hz:99 { @[kstack] = count(); }",
+          "expr": "/*\n * sample kernel stacks every 99 Hz, and clear map every 5 seconds\n *\n * 30-Oct-2019  Andreas Gerstmayr  Created this.\n */\n// include: @stacks\n// custom-output-block\n\nprofile:hz:99 { @stacks[kstack] = count(); }\n\ninterval:s:1 {\n  print(@stacks);\n  @cnt++;\n  if (@cnt >= 5) {\n    clear(@stacks);\n    @cnt = 0;\n  }\n}",
           "format": "flamegraph",
           "refId": "A"
         }
@@ -176,7 +176,7 @@
       },
       "targets": [
         {
-          "expr": "profile:hz:99 { @[ustack] = count(); }",
+          "expr": "/*\n * sample user stacks every 99 Hz, and clear map every 5 seconds\n *\n * 30-Oct-2019  Andreas Gerstmayr  Created this.\n */\n// include: @stacks\n// custom-output-block\n\nprofile:hz:99 { @stacks[ustack] = count(); }\n\ninterval:s:1 {\n  print(@stacks);\n  @cnt++;\n  if (@cnt >= 5) {\n    clear(@stacks);\n    @cnt = 0;\n  }\n}",
           "format": "flamegraph",
           "refId": "A"
         }
