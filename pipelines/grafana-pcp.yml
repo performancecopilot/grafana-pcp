@@ -13,16 +13,16 @@ jobs:
       versionSpec: 10.x
     displayName: Install node.js
 
-  - script: npm install
+  - script: yarn install
     displayName: Install dependencies
 
-  - script: npm run lint
+  - script: yarn run lint
     displayName: Run linters
 
-  - script: npm run build
+  - script: yarn run build
     displayName: Build
 
-  - script: npm run coverage
+  - script: yarn run coverage
     displayName: Run tests
 
   - script: |

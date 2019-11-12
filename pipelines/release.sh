@@ -9,7 +9,7 @@ PLUGIN_NAME="grafana-pcp"
 VERSION=$(cat src/plugin.json | jq '.info.version' | sed 's/"//g')
 RELEASE_NOTES=$(awk '/^## / {s++} s == 1 {print}' CHANGELOG.md)
 
-npm run build
+yarn run build
 git add --force dist/
 git commit -m "release $VERSION"
 git tag -f v${VERSION}
