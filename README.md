@@ -49,8 +49,8 @@ extract it to `/var/lib/grafana/plugins`, restart grafana, enable the Performanc
 plugin and setup the datasources.
 
 ```
-$ wget https://github.com/performancecopilot/grafana-pcp/archive/v0.0.7.tar.gz
-$ sudo tar xfz v0.0.7.tar.gz -C /var/lib/grafana/plugins
+$ wget https://github.com/performancecopilot/grafana-pcp/archive/v1.0.1.tar.gz
+$ sudo tar xfz v1.0.1.tar.gz -C /var/lib/grafana/plugins
 $ sudo systemctl restart grafana-server 
 ```
 
