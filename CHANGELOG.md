@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.0.2 (2019-11-12)
+
+- handle counter wraps (overflows)
+- convert time based counters to time utilization
+
 ## 1.0.1 (2019-10-24)
 
 ### Flame Graphs

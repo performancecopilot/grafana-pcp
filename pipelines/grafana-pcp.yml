@@ -1,0 +1,38 @@
+pool:
+  vmImage: "ubuntu-latest"
+
+jobs:
+- job: build
+  displayName: Build
+  steps:
+  - checkout: self
+    persistCredentials: true
+
+  - task: NodeTool@0
+    inputs:
+      versionSpec: 10.x
+    displayName: Install node.js
+
+  - script: npm install
+    displayName: Install dependencies
+
+  - script: npm run lint
+    displayName: Run linters
+
+  - script: npm run build
+    displayName: Build
+
+  - script: npm run coverage
+    displayName: Run tests
+
+  - script: |
+      wget -q https://github.com/github/hub/releases/download/v2.13.0/hub-linux-amd64-2.13.0.tgz
+      tar xfz hub-linux-amd64-2.13.0.tgz
+      export PATH=$PATH:$(pwd)/hub-linux-amd64-2.13.0/bin
+
+      git config user.name "Azure Pipelines Automation"
+      ./pipelines/release.sh
+    condition: and(succeeded(), eq(variables['release'], 'true'))
+    displayName: Release on GitHub
+    env:
+      GITHUB_TOKEN: $(github_token)
