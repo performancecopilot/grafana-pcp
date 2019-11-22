@@ -1,0 +1,28 @@
+{
+    "name": "PCP Redis",
+    "id": "pcp-redis-datasource",
+    "type": "datasource",
+    "category": "tsdb",
+    "metrics": true,
+    "alerting": false,
+    "annotations": false,
+    "tables": true,
+    "queryOptions": {
+        "maxDataPoints": true,
+        "minInterval": true,
+        "cacheTimeout": true
+    },
+    "info": {
+        "description": "fast, scalable time series aggregation across multiple hosts",
+        "logos": {
+            "small": "img/redis.png",
+            "large": "img/redis.png"
+        },
+        "links": [
+            {
+                "name": "GitHub",
+                "url": "https://github.com/performancecopilot/grafana-pcp"
+            }
+        ]
+    }
+}

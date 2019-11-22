@@ -1,0 +1,86 @@
+{
+    "type": "app",
+    "name": "Performance Co-Pilot",
+    "id": "performancecopilot-pcp-app",
+    "info": {
+        "description": "Performance Co-Pilot Grafana Plugin",
+        "author": {
+            "name": "Performance Co-Pilot and Netflix",
+            "url": "https://pcp.io"
+        },
+        "keywords": [
+            "performancecopilot",
+            "pcp",
+            "ebpf",
+            "bpftrace",
+            "containers"
+        ],
+        "logos": {
+            "small": "img/pcp-logo.svg",
+            "large": "img/pcp-logo.svg"
+        },
+        "links": [
+            {
+                "name": "GitHub",
+                "url": "https://github.com/performancecopilot/grafana-pcp"
+            },
+            {
+                "name": "License",
+                "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/LICENSE"
+            },
+            {
+                "name": "Notice",
+                "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/NOTICE"
+            }
+        ],
+        "version": "1.0.3",
+        "updated": "2019-11-22"
+    },
+    "includes": [
+        {
+            "type": "datasource",
+            "name": "PCP Redis"
+        },
+        {
+            "type": "datasource",
+            "name": "PCP Vector"
+        },
+        {
+            "type": "datasource",
+            "name": "PCP bpftrace"
+        },
+        {
+            "type": "panel",
+            "name": "Flame Graph"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Redis Host Overview",
+            "path": "dashboards/pcp-redis-host-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector Host Overview",
+            "path": "dashboards/pcp-vector-host-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector Container Overview",
+            "path": "dashboards/pcp-vector-container-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP bpftrace System Analysis",
+            "path": "dashboards/pcp-bpftrace-system-analysis.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP bpftrace Flame Graphs",
+            "path": "dashboards/pcp-bpftrace-flame-graphs.json"
+        }
+    ],
+    "dependencies": {
+        "grafanaVersion": "6.3.4",
+        "plugins": []
+    }
+}
