@@ -2757,18 +2757,19 @@ d3-fetch@1:
   dependencies:
     d3-dsv "1"
 
-"d3-flame-graph@github:spiermar/d3-flame-graph#50a71a2cd834183e3a0cf3b76c66f9f967a5f459":
-  version "2.1.2"
-  resolved "https://codeload.github.com/spiermar/d3-flame-graph/tar.gz/50a71a2cd834183e3a0cf3b76c66f9f967a5f459"
+d3-flame-graph@^2.1.3:
+  version "2.1.8"
+  resolved "https://registry.yarnpkg.com/d3-flame-graph/-/d3-flame-graph-2.1.8.tgz#9161f11e297a930f19c52f45b7ce9d40824ee250"
+  integrity sha512-H6NCz4QJZqgqPyWvvE/IDv23DD0YulNHneCSKFtlZBptFcSxKiRDuymfq9zUl+bRbaYrUH3f7JhObjlCSogItQ==
   dependencies:
     d3-array "^1.2.4"
     d3-ease "^1.0.5"
-    d3-format "^1.3.2"
+    d3-format "^1.4.1"
     d3-hierarchy "^1.1.8"
-    d3-scale "^2.1.2"
-    d3-selection "^1.3.2"
+    d3-scale "^2.2.2"
+    d3-selection "^1.4.0"
     d3-tip "0.9.1"
-    d3-transition "^1.1.3"
+    d3-transition "^1.2.0"
 
 d3-force@1:
   version "1.2.1"
@@ -2780,10 +2781,15 @@ d3-force@1:
     d3-quadtree "1"
     d3-timer "1"
 
-d3-format@1, d3-format@^1.3.2:
+d3-format@1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/d3-format/-/d3-format-1.4.1.tgz#c45f74b17c5a290c072a4ba7039dd19662cd5ce6"
   integrity sha512-TUswGe6hfguUX1CtKxyG2nymO+1lyThbkS1ifLX0Sr+dOQtAD5gkrffpHnx+yHNKUZ0Bmg5T4AjUQwugPDrm0g==
+
+d3-format@^1.4.1:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/d3-format/-/d3-format-1.4.2.tgz#2a8c0ebf500f315981c2110eaaf70b82f472cb2b"
+  integrity sha512-gco1Ih54PgMsyIXgttLxEhNy/mXxq8+rLnCb5shQk+P5TsiySrwWU5gpB4zen626J4LIwBxHvDChyA8qDm57ww==
 
 d3-geo@1:
   version "1.11.6"
@@ -2832,7 +2838,7 @@ d3-scale-chromatic@1:
     d3-color "1"
     d3-interpolate "1"
 
-d3-scale@2, d3-scale@^2.1.2:
+d3-scale@2, d3-scale@^2.2.2:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/d3-scale/-/d3-scale-2.2.2.tgz#4e880e0b2745acaaddd3ede26a9e908a9e17b81f"
   integrity sha512-LbeEvGgIb8UMcAa0EATLNX0lelKWGYDQiPdHj+gLblGVhGLyNbaCn3EvrJf0A3Y/uOOU5aD6MTh5ZFCdEwGiCw==
@@ -2844,7 +2850,7 @@ d3-scale@2, d3-scale@^2.1.2:
     d3-time "1"
     d3-time-format "2"
 
-d3-selection@1, d3-selection@^1.1.0, d3-selection@^1.3.0, d3-selection@^1.3.2, d3-selection@^1.4.0:
+d3-selection@1, d3-selection@^1.1.0, d3-selection@^1.3.0, d3-selection@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/d3-selection/-/d3-selection-1.4.0.tgz#ab9ac1e664cf967ebf1b479cc07e28ce9908c474"
   integrity sha512-EYVwBxQGEjLCKF2pJ4+yrErskDnz5v403qvAid96cNdCMr8rmCYfY5RGzWz24mdIbxmDf6/4EAH+K9xperD5jg==
@@ -2881,10 +2887,22 @@ d3-tip@0.9.1:
     d3-collection "^1.0.4"
     d3-selection "^1.3.0"
 
-d3-transition@1, d3-transition@^1.1.3:
+d3-transition@1:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/d3-transition/-/d3-transition-1.2.0.tgz#f538c0e21b2aa1f05f3e965f8567e81284b3b2b8"
   integrity sha512-VJ7cmX/FPIPJYuaL2r1o1EMHLttvoIuZhhuAlRoOxDzogV8iQS6jYulDm3xEU3TqL80IZIhI551/ebmCMrkvhw==
+  dependencies:
+    d3-color "1"
+    d3-dispatch "1"
+    d3-ease "1"
+    d3-interpolate "1"
+    d3-selection "^1.1.0"
+    d3-timer "1"
+
+d3-transition@^1.2.0:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/d3-transition/-/d3-transition-1.3.2.tgz#a98ef2151be8d8600543434c1ca80140ae23b398"
+  integrity sha512-sc0gRU4PFqZ47lPVHloMn9tlPcv8jxgOQg+0zjhfZXMQuvppjG6YuwdMBE0TuqCZjeJkLecku/l9R0JPcRhaDA==
   dependencies:
     d3-color "1"
     d3-dispatch "1"

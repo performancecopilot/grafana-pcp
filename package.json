@@ -63,7 +63,7 @@
     "webpack-cli": "^3.3.5"
   },
   "dependencies": {
-    "d3-flame-graph": "github:spiermar/d3-flame-graph#50a71a2cd834183e3a0cf3b76c66f9f967a5f459",
+    "d3-flame-graph": "^2.1.3",
     "expr-eval": "^1.2.2",
     "lodash": "^4.17.14",
     "uglifyjs-webpack-plugin": "^2.1.2"
