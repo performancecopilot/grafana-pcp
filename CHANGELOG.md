@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.3 (2019-11-22)
+
+- fix flame graph dependency (`flamegraph.destroy` error in javascript console)
+
 ## 1.0.2 (2019-11-12)
 
 - handle counter wraps (overflows)

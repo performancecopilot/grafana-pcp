@@ -6,6 +6,7 @@
 It presents a unifying abstraction for all of the performance data in a system, and many tools for interrogating, retrieving and processing that data.
 
 [![Vector Overview](docs/img/vector-overview.png)](docs/img/vector-overview.png)
+[![bpftrace Flame Graph](docs/img/bpftrace-flame-graph.png)](docs/img/bpftrace-flame-graph.png)
 [![Vector metrics autocompletion](docs/img/vector-metric-autocompletion.png)](docs/img/vector-metric-autocompletion.png)
 [![bpftrace probe autocompletion](docs/img/bpftrace-probe-autocompletion.png)](docs/img/bpftrace-probe-autocompletion.png)
 [more screenshots](docs/img)
@@ -49,8 +50,8 @@ extract it to `/var/lib/grafana/plugins`, restart grafana, enable the Performanc
 plugin and setup the datasources.
 
 ```
-$ wget https://github.com/performancecopilot/grafana-pcp/archive/v1.0.1.tar.gz
-$ sudo tar xfz v1.0.1.tar.gz -C /var/lib/grafana/plugins
+$ wget https://github.com/performancecopilot/grafana-pcp/archive/v1.0.3.tar.gz
+$ sudo tar xfz v1.0.3.tar.gz -C /var/lib/grafana/plugins
 $ sudo systemctl restart grafana-server 
 ```
 
