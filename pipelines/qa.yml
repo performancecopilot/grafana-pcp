@@ -1,0 +1,23 @@
+pool:
+  vmImage: "ubuntu-latest"
+
+jobs:
+- job: qa
+  displayName: QA
+  steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: 10.x
+    displayName: Install node.js
+
+  - script: yarn install
+    displayName: Install dependencies
+
+  - script: yarn run lint
+    displayName: Run linters
+
+  - script: yarn run build
+    displayName: Build
+
+  - script: yarn run coverage
+    displayName: Run tests

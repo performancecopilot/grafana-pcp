@@ -1,9 +1,11 @@
+trigger: none
+
 pool:
   vmImage: "ubuntu-latest"
 
 jobs:
-- job: build
-  displayName: Build
+- job: release
+  displayName: Release
   steps:
   - checkout: self
     persistCredentials: true
@@ -22,7 +24,7 @@ jobs:
   - script: yarn run build
     displayName: Build
 
-  - script: yarn run coverage
+  - script: yarn run test
     displayName: Run tests
 
   - script: |
@@ -32,7 +34,6 @@ jobs:
 
       git config user.name "Azure Pipelines Automation"
       ./pipelines/release.sh
-    condition: and(succeeded(), eq(variables['release'], 'true'))
     displayName: Release on GitHub
     env:
       GITHUB_TOKEN: $(github_token)
