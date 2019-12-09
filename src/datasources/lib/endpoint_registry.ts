@@ -5,6 +5,7 @@ import { DatasourceRequestFn } from "./models/datasource";
 
 export interface Endpoint {
     id: string;
+    pcpVersion: string;
     pmapiSrv: PmapiSrv;
     pollSrv: PollSrv;
     datastore: DataStore;
@@ -24,13 +25,16 @@ export default class EndpointRegistry<T extends Endpoint> {
         return this.endpoints[id];
     }
 
-    create(datasourceRequest: DatasourceRequestFn, url: string, container: string | undefined, localHistoryAgeMs: number) {
+    async create(datasourceRequest: DatasourceRequestFn, url: string, container: string | undefined, localHistoryAgeMs: number) {
         const id = this.generateId(url, container);
         const pmapiSrv = new PmapiSrv(new Context(datasourceRequest, url, container));
         const datastore = new DataStore(pmapiSrv, localHistoryAgeMs);
         const pollSrv = new PollSrv(pmapiSrv, datastore);
 
-        this.endpoints[id] = { id, pmapiSrv, datastore, pollSrv } as T;
+        const versionMetric = await pmapiSrv.getMetricValues(["pmcd.version"]);
+        const pcpVersion = versionMetric.values[0].instances[0].value as string;
+
+        this.endpoints[id] = { id, pcpVersion, pmapiSrv, datastore, pollSrv } as T;
         return this.endpoints[id];
     }
 

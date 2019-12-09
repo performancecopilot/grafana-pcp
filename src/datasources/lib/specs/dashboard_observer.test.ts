@@ -5,6 +5,7 @@ import { PmapiDatasourceBase } from '../datasource_base';
 import { PmapiQueryTarget, Query } from '../models/datasource';
 import { TargetResult } from '../models/metrics';
 import * as fixtures from './lib/fixtures';
+import HttpServerMock from './lib/http_server_mock';
 
 class Datasource extends PmapiDatasourceBase<Endpoint> {
     onTargetUpdate(prevValue: PmapiQueryTarget<Endpoint>, newValue: PmapiQueryTarget<Endpoint>): Promise<void> {
@@ -39,9 +40,17 @@ describe("DashboardObserver", () => {
         const templateSrv = {
             replace: (x: string) => x
         };
+        const server = new HttpServerMock(instanceSettings.url, false);
+        server.addResponses([
+            fixtures.PmProxy.context(1),
+            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }])
+        ]);
+        const backendSrv = {
+            datasourceRequest: server.doRequest.bind(server)
+        };
         ctx.onTargetUpdate = jest.fn();
         ctx.onTargetInactive = jest.fn();
-        ctx.datasource = new Datasource(instanceSettings, null, templateSrv);
+        ctx.datasource = new Datasource(instanceSettings, backendSrv, templateSrv);
         ctx.datasource.dashboardObserver.onTargetUpdate = ctx.onTargetUpdate;
         ctx.datasource.dashboardObserver.onTargetInactive = ctx.onTargetInactive;
     });

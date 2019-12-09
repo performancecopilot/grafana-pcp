@@ -73,7 +73,7 @@ export default class PCPBPFtraceCompleter {
         // don't do this in constructor of PCPBPFtraceCompleter, as the user could
         // change the endpoint settings of the query, but the constructor is only called once
         const [url, container] = this.datasource.getConnectionParams(this.target, {});
-        const endpoint = this.datasource.getOrCreateEndpoint(url, container);
+        const endpoint = await this.datasource.getOrCreateEndpoint(url, container);
 
         if (!PCPBPFtraceCompleter.probeCache[endpoint.id]) {
             const result = await endpoint.pmapiSrv.getMetricValues(["bpftrace.info.tracepoints"]);

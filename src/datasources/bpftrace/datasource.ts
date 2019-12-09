@@ -4,6 +4,7 @@ import BPFtraceEndpoint from './bpftrace_endpoint';
 import ScriptRegistry from './script_registry';
 import { Query, PmapiQueryTarget } from '../lib/models/datasource';
 import { Status } from './script';
+import { versionCmp } from '../lib/utils';
 
 export class PCPBPFtraceDatasource extends PmapiDatasourceBase<BPFtraceEndpoint> {
 
@@ -34,9 +35,12 @@ export class PCPBPFtraceDatasource extends PmapiDatasourceBase<BPFtraceEndpoint>
 
     async handleTarget(query: Query, target: PmapiQueryTarget<BPFtraceEndpoint>) {
         const endpoint = target.endpoint;
+        if (target.minPcpVersion && versionCmp(target.minPcpVersion, endpoint.pcpVersion) > 0) {
+            throw new Error(`This target requires PCP version ${target.minPcpVersion}, however PCP version ${endpoint.pcpVersion} is installed.`);
+        }
+
         const script = await endpoint.scriptRegistry.ensureActive(target.uid, target.expr);
         let metrics: string[];
-
         if (script.state.status === Status.Started || script.state.status === Status.Starting) {
             metrics = endpoint.scriptRegistry.getMetrics(script, target.format);
         }

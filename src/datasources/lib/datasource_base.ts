@@ -8,8 +8,8 @@ import { ValueTransformationSrv } from './services/value_transformation_srv';
 import { QueryTarget, Query, PmapiQueryTarget } from './models/datasource';
 import { TargetResult, MetricInstance } from './models/metrics';
 import DashboardObserver from './dashboard_observer';
-import "core-js/stable/array/flat";
 import { NetworkError } from './models/errors';
+import "core-js/stable/array/flat";
 
 export abstract class PmapiDatasourceBase<EP extends Endpoint> {
 
@@ -68,10 +68,10 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
     configureEndpoint(_endpoint: EP) {
     }
 
-    getOrCreateEndpoint(url: string, container?: string) {
+    async getOrCreateEndpoint(url: string, container?: string) {
         let endpoint = this.endpointRegistry.find(url, container);
         if (!endpoint) {
-            endpoint = this.endpointRegistry.create(this.doRequest.bind(this), url, container, this.localHistoryAgeMs);
+            endpoint = await this.endpointRegistry.create(this.doRequest.bind(this), url, container, this.localHistoryAgeMs);
             this.configureEndpoint(endpoint);
         }
         return endpoint;
@@ -114,7 +114,7 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
             throw new Error("Please specify a connection URL in the datasource settings.");
 
         query = this.templateSrv.replace(query);
-        const endpoint = this.getOrCreateEndpoint(this.instanceSettings.url, this.instanceSettings.jsonData.container);
+        const endpoint = await this.getOrCreateEndpoint(this.instanceSettings.url, this.instanceSettings.jsonData.container);
         const response = await endpoint.pmapiSrv.getMetricValues([query]);
         return response.values[0].instances.map(instance => ({ text: instance.value, value: instance.value }));
     }
@@ -137,22 +137,30 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
         return [url, container];
     }
 
-    buildQueryTargets(query: Query): PmapiQueryTarget<EP>[] {
-        return query.targets
-            .filter(target => !target.hide && !isBlank(target.expr) && !target.isTyping)
-            .map(target => {
-                const [url, container] = this.getConnectionParams(target, query.scopedVars);
-                return {
-                    refId: target.refId,
-                    expr: this.templateSrv.replace(target.expr.trim(), query.scopedVars),
-                    format: target.format,
-                    legendFormat: target.legendFormat,
-                    uid: `${query.dashboardId}/${query.panelId}/${target.refId}`,
-                    url: url,
-                    container: container,
-                    endpoint: this.getOrCreateEndpoint(url, container)
-                };
+    async buildQueryTargets(query: Query): Promise<PmapiQueryTarget<EP>[]> {
+        // iterative execution because getOrCreateEndpoint is async and
+        // a target can consume the created endpoint from the previous target
+        // (if url and container is matching)
+
+        const targets: PmapiQueryTarget<EP>[] = [];
+        for (const target of query.targets) {
+            if (target.hide || isBlank(target.expr) || target.isTyping)
+                continue;
+
+            const [url, container] = this.getConnectionParams(target, query.scopedVars);
+            targets.push({
+                refId: target.refId,
+                expr: this.templateSrv.replace(target.expr.trim(), query.scopedVars),
+                format: target.format,
+                legendFormat: target.legendFormat,
+                minPcpVersion: target.minPcpVersion,
+                uid: `${query.dashboardId}/${query.panelId}/${target.refId}`,
+                url: url,
+                container: container,
+                endpoint: await this.getOrCreateEndpoint(url, container)
             });
+        }
+        return targets;
     }
 
     async applyTransformations(pmapiSrv: PmapiSrv, results: TargetResult) {
@@ -184,7 +192,7 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
             throw new Error(errors);
         }
 
-        const targets = this.buildQueryTargets(query);
+        const targets = await this.buildQueryTargets(query);
         if (targets.length === 0)
             return { data: [] };
         if (!_.every(targets, ['format', targets[0].format]))

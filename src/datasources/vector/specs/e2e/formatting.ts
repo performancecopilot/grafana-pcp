@@ -6,6 +6,7 @@ export default (ctx: TestContext) => {
     it("should support legend templating", async () => {
         ctx.server.addResponses([
             fixtures.PmProxy.context(1),
+            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.PmProxy.kernelAllLoad.metric,
             fixtures.PmProxy.kernelAllLoad.indom,
             fixtures.PmProxy.kernelAllLoad.fetch
@@ -53,6 +54,7 @@ export default (ctx: TestContext) => {
     it("should convert to heatmaps", async () => {
         ctx.server.addResponses([
             fixtures.PmProxy.context(1),
+            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
             fixtures.PmProxy.indom(1, "metric1", [
                 { instance: 0, name: "-inf--1" },

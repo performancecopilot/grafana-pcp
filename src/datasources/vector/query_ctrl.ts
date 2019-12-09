@@ -38,7 +38,7 @@ export class PCPVectorDatasourceQueryCtrl extends PCPQueryCtrl {
     async getContainers() {
         const dashboardVariables = Object.keys(getDashboardVariables(this.variableSrv));
         const [url,] = this.datasource.getConnectionParams(this.target, {});
-        const endpoint = this.datasource.getOrCreateEndpoint(url);
+        const endpoint = await this.datasource.getOrCreateEndpoint(url);
 
         const containersMetricsResponse = await endpoint.pmapiSrv.getMetricValues(['containers.name']);
         const containers = containersMetricsResponse.values[0].instances

@@ -6,6 +6,7 @@ export default (ctx: TestContext) => {
     it("should return datapoints in range", async () => {
         ctx.server.addResponses([
             fixtures.PmProxy.context(1),
+            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
             fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "metric1", value: 100 }]),
             fixtures.PmProxy.fetchSingleMetric(1, 20, [{ name: "metric1", value: 200 }]),
@@ -49,6 +50,7 @@ export default (ctx: TestContext) => {
     it("should clean expired datapoints", async () => {
         ctx.server.addResponses([
             fixtures.PmProxy.context(1),
+            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
             fixtures.PmProxy.fetchSingleMetric(1, 2 * 60, [{ name: "metric1", value: 100 }]),
             fixtures.PmProxy.fetchSingleMetric(1, 4 * 60, [{ name: "metric1", value: 200 }]),

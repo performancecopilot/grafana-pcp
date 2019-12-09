@@ -33,14 +33,16 @@ export interface QueryTarget {
     legendFormat?: string;
 
     url?: string;
-    container?: string | undefined;
+    container?: string;
+    minPcpVersion?: string;
 }
 
 export interface PmapiQueryTarget<EP> extends QueryTarget {
     uid: string;
     url: string;
-    container: string | undefined;
+    container?: string;
     endpoint: EP;
+    minPcpVersion?: string;
 }
 
 

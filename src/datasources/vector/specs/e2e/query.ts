@@ -5,6 +5,7 @@ export default (ctx: TestContext) => {
     it("should perform rate-conversation of a counter with no instance domains", async () => {
         ctx.server.addResponses([
             fixtures.PmProxy.context(1),
+            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.PmProxy.kernelAllSysfork.metric,
             fixtures.PmProxy.kernelAllSysfork.fetch(10, 100),
             fixtures.PmProxy.kernelAllSysfork.fetch(11, 200),
@@ -63,6 +64,7 @@ export default (ctx: TestContext) => {
     it("should perform a query with instance domains", async () => {
         ctx.server.addResponses([
             fixtures.PmProxy.context(1),
+            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.PmProxy.kernelAllLoad.metric,
             fixtures.PmProxy.kernelAllLoad.indom,
             fixtures.PmProxy.kernelAllLoad.fetch
@@ -106,6 +108,7 @@ export default (ctx: TestContext) => {
     it("should handle requesting metadata of non existing metrics", async () => {
         ctx.server.addResponses([
             fixtures.PmProxy.context(1),
+            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.PmProxy.metric(1, [], ["non.existing.metric"]),
             fixtures.PmProxy.metric(1, [{ name: "existing.metric", semantics: "instant" }], ["non.existing.metric,existing.metric"]),
         ]);
@@ -142,6 +145,7 @@ export default (ctx: TestContext) => {
     it("should get a new context if current context is expired", async () => {
         ctx.server.addResponses([
             fixtures.PmProxy.context(1),
+            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
             fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "metric1", value: 100 }]),
             fixtures.PmProxy.contextExpired(1, "/"),
