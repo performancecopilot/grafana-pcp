@@ -300,7 +300,8 @@ export class PmProxy {
         };
     }
 
-    static fetchSingleMetric(context: number, timestamp: number, metrics: { name: string, value: number | string }[], requestedMetrics: string[] = []) {
+    static fetchSingleMetric(context: number, timestamp: number, metrics: { name: string, value: number | string }[],
+        requestedMetrics: string[] = []) {
         if (requestedMetrics.length === 0)
             requestedMetrics = metrics.map(metric => metric.name);
 
