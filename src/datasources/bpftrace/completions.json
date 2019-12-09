@@ -14,6 +14,11 @@
             "name": "table-retain-lines",
             "value": "table-retain-lines: ",
             "doc": "retain only the specified number of lines, keeping the header line\n\nexample: ```// table-retain-lines: 10```"
+        },
+        {
+            "name": "custom-output-block",
+            "value": "custom-output-block",
+            "doc": "script is using a custom output block\n\nexample: ```// custom-output-block\ninterval:s:1 { print(@bytes); }```"
         }
     ],
     "probes": [
