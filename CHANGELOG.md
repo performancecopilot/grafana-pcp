@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.0.4 (unreleased)
+
+### Enhancements
+- **flame graphs:** clean flame graph stacks every 5s (reduces CPU load)
+- implement version checks
+
 ## 1.0.3 (2019-11-22)
 
 - fix flame graph dependency (`flamegraph.destroy` error in javascript console)
