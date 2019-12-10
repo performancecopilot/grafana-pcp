@@ -68,5 +68,8 @@
     "lodash": "^4.17.14",
     "uglifyjs-webpack-plugin": "^2.1.2"
   },
+  "resolutions": {
+    "terser-webpack-plugin": "^1.4.2"
+  },
   "homepage": "https://github.com/performancecopilot/grafana-pcp"
 }
