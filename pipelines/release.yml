@@ -1,4 +1,5 @@
 trigger: none
+pr: none
 
 pool:
   vmImage: "ubuntu-latest"
@@ -9,11 +10,6 @@ jobs:
   steps:
   - checkout: self
     persistCredentials: true
-
-  - task: NodeTool@0
-    inputs:
-      versionSpec: 10.x
-    displayName: Install node.js
 
   - script: yarn install
     displayName: Install dependencies
