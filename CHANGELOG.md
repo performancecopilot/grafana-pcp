@@ -1,10 +1,14 @@
 # Change Log
 
-## 1.0.4 (unreleased)
+## 1.0.4 (2019-12-11)
 
 ### Enhancements
 - **flame graphs:** clean flame graph stacks every 5s (reduces CPU load)
-- implement version checks
+- **general:** implement PCP version checks
+
+### Bug Fixes
+- **build:** remove `weak` dependency (doesn't work with Node.js 12)
+- **build:** upgrade `terser-webpack-plugin` to mitigate XSS vulnerability in the `serialize-javascript` transitive dependency
 
 ## 1.0.3 (2019-11-22)
 
