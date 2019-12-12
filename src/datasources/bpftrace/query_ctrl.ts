@@ -1,8 +1,8 @@
 import { TargetFormat } from '../lib/models/datasource';
 import { PCPQueryCtrl } from '../lib/pcp_query_ctrl';
 import PCPBPFtraceCompleter from './completer';
+import { load_mode } from './mode-bpftrace';
 import './css/query-editor.css';
-import './mode-bpftrace';
 
 export class PCPBPFtraceDatasourceQueryCtrl extends PCPQueryCtrl {
     static templateUrl = 'datasources/bpftrace/partials/query.editor.html';
@@ -37,6 +37,7 @@ export class PCPBPFtraceDatasourceQueryCtrl extends PCPQueryCtrl {
 
     getCompleter() {
         this.removeTextCompleter("bpftrace");
+        load_mode((window as any).ace);
         return new PCPBPFtraceCompleter(this.datasource, this.target);
     }
 

@@ -2,8 +2,8 @@ import { TargetFormat } from '../lib/models/datasource';
 import PCPVectorCompleter from './completer';
 import { PCPQueryCtrl } from "../lib/pcp_query_ctrl";
 import { getDashboardVariables } from '../lib/utils';
-import './mode-pcp';
 import { PCPVectorDatasource } from './datasource';
+import { load_mode } from './mode-pcp';
 
 export class PCPVectorDatasourceQueryCtrl extends PCPQueryCtrl {
     static templateUrl = 'datasources/vector/partials/query.editor.html';
@@ -53,6 +53,7 @@ export class PCPVectorDatasourceQueryCtrl extends PCPQueryCtrl {
 
     getCompleter() {
         this.removeTextCompleter("pcp");
+        load_mode((window as any).ace);
         return new PCPVectorCompleter(this.datasource, this.target);
     }
 

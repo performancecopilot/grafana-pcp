@@ -33,8 +33,8 @@
                 "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/NOTICE"
             }
         ],
-        "version": "1.0.4",
-        "updated": "2019-12-11"
+        "version": "2.0.0-beta1",
+        "updated": "2019-12-12"
     },
     "includes": [
         {
@@ -80,7 +80,7 @@
         }
     ],
     "dependencies": {
-        "grafanaVersion": "6.3.4",
+        "grafanaVersion": "6.5.0",
         "plugins": []
     }
 }

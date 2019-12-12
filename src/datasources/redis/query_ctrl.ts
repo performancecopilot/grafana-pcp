@@ -1,8 +1,8 @@
 import { PCPQueryCtrl } from '../lib/pcp_query_ctrl';
 import PCPRedisCompleter from './completer';
-import './mode-pmseries';
 import { getDashboardVariables } from '../lib/utils';
 import { TargetFormat } from '../lib/models/datasource';
+import { load_mode } from './mode-pmseries';
 
 export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
     static templateUrl = 'datasources/redis/partials/query.editor.html';
@@ -34,6 +34,7 @@ export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
 
     getCompleter() {
         this.removeTextCompleter("pmseries");
+        load_mode((window as any).ace);
         const dashboardVariables = Object.keys(getDashboardVariables(this.variableSrv));
         return new PCPRedisCompleter(this.datasource, dashboardVariables);
     }

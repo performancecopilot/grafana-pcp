@@ -2,8 +2,6 @@ import _ from "lodash";
 import { PCPBPFtraceDatasource } from "./datasource";
 import * as completions from './completions.json';
 import { Completion } from "../lib/models/ace";
-declare var ace: any;
-const { TokenIterator } = ace.acequire('ace/token_iterator');
 
 export default class PCPBPFtraceCompleter {
 
@@ -95,6 +93,8 @@ export default class PCPBPFtraceCompleter {
     }
 
     async findCompletions(editor: any, session: any, pos: any, prefix: any): Promise<Completion[]> {
+        // ace will be defined *after* the editor is loaded, therefore we can't import it at the top of the file
+        const { TokenIterator } = (window as any).ace.acequire('ace/token_iterator');
         const iterator = new TokenIterator(session, pos.row, pos.column);
         let depth = 0;
         let filter = 0;

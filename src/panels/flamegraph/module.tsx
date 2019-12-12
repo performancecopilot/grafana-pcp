@@ -1,4 +1,4 @@
-import { PanelPlugin } from '@grafana/ui';
+import { PanelPlugin } from '@grafana/data';
 import { FlameGraphPanel } from './FlameGraphPanel';
 import { FlameGraphPanelEditor } from './FlameGraphPanelEditor';
 import { defaults, Options } from './types';

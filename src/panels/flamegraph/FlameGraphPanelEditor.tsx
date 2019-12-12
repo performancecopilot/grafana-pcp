@@ -1,5 +1,6 @@
 import React, { PureComponent } from "react";
-import { PanelEditorProps, Switch, Input } from "@grafana/ui";
+import { PanelEditorProps } from "@grafana/data";
+import { Switch, Input } from "@grafana/ui";
 import { Options } from "./types";
 
 export class FlameGraphPanelEditor extends PureComponent<PanelEditorProps<Options>> {

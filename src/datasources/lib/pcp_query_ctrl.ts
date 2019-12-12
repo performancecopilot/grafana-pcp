@@ -36,6 +36,9 @@ export abstract class PCPQueryCtrl extends QueryCtrl {
 
         let removed = false;
         for (const codeEditor of Array.from<any>(document.querySelectorAll(`code-editor[data-mode=${mode}]`))) {
+            if (!codeEditor.env)
+                continue;
+
             const completers = Array.from(codeEditor.env.editor.completers);
             const idx = completers.indexOf(textCompleter);
             if (idx >= 0) {

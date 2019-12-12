@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.0.0-beta1 (2019-12-12)
+
+- support Grafana 6.5+, drop support for Grafana < 6.5
+
 ## 1.0.4 (2019-12-11)
 
 ### Enhancements

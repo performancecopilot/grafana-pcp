@@ -1,11 +1,11 @@
 import _ from "lodash";
 import React, { PureComponent } from 'react';
 import memoizeOne from "memoize-one";
-import { PanelProps, Tooltip } from '@grafana/ui';
-import { Options } from './types';
-import { dateTime } from "@grafana/data";
-import { generateFlameGraphModel } from './model';
+import { dateTime, PanelProps } from "@grafana/data";
+import { Tooltip } from "@grafana/ui";
 import { FlameGraphChart } from "./FlameGraphChart";
+import { generateFlameGraphModel } from './model';
+import { Options } from './types';
 
 export class FlameGraphPanel extends PureComponent<PanelProps<Options>> {
 
