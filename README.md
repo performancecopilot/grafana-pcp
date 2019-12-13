@@ -5,11 +5,11 @@
 [Performance Co-Pilot (PCP)](https://pcp.io) provides a framework and services to support system-level performance monitoring and management.
 It presents a unifying abstraction for all of the performance data in a system, and many tools for interrogating, retrieving and processing that data.
 
-[![Vector Overview](docs/img/vector-overview.png)](docs/img/vector-overview.png)
-[![bpftrace Flame Graph](docs/img/bpftrace-flame-graph.png)](docs/img/bpftrace-flame-graph.png)
-[![Vector metrics autocompletion](docs/img/vector-metric-autocompletion.png)](docs/img/vector-metric-autocompletion.png)
-[![bpftrace probe autocompletion](docs/img/bpftrace-probe-autocompletion.png)](docs/img/bpftrace-probe-autocompletion.png)
-[more screenshots](docs/img)
+[![Vector Overview](docs/_static/img/vector-overview.png)](docs/_static/img/vector-overview.png)
+[![bpftrace Flame Graph](docs/_static/img/bpftrace-flame-graph.png)](docs/_static/img/bpftrace-flame-graph.png)
+[![Vector metrics autocompletion](docs/_static/img/vector-metric-autocompletion.png)](docs/_static/img/vector-metric-autocompletion.png)
+[![bpftrace probe autocompletion](docs/_static/img/bpftrace-probe-autocompletion.png)](docs/_static/img/bpftrace-probe-autocompletion.png)
+[more screenshots](docs/_static/img)
 
 ## Features
 * analysis of historical PCP metrics using [pmseries](https://www.mankier.com/1/pmseries) query language
@@ -23,31 +23,31 @@ It presents a unifying abstraction for all of the performance data in a system, 
 * container support [1,2]
 * support for custom endpoint URL [1,2,3] and container [2] setting per query
 * support for repeated panels
-* sample dashboards for all datasources
+* sample dashboards for all data sources
 
 [1] PCP Redis
 [2] PCP Vector
 [3] PCP bpftrace
 
 
-# Datasources
+# Data Sources
 
 ## PCP Redis
-This datasource queries the fast, scalable time series capabilities provided by the pmseries(1) functionality.
+This data source queries the fast, scalable time series capabilities provided by the pmseries(1) functionality.
 It is intended to query **historical** data across **multiple hosts** and supports filtering based on labels.
 
 ## PCP Vector
-The PCP Vector datasource shows **live, on-host metrics** from the real-time pmwebapi(3) interfaces.
+The PCP Vector data source shows **live, on-host metrics** from the real-time pmwebapi(3) interfaces.
 It is intended for individual host, on-demand performance monitoring and includes container support.
 
 ## PCP bpftrace
-The PCP bpftrace datasource supports system introspection using bpftrace(8) scripts.
+The PCP bpftrace data source supports system introspection using bpftrace(8) scripts.
 It connects to the bpftrace PMDA and runs bpftrace scripts on the host.
 
 # Installation
 Download a release tarball from https://github.com/performancecopilot/grafana-pcp/releases,
 extract it to `/var/lib/grafana/plugins`, restart grafana, enable the Performance Co-Pilot
-plugin and setup the datasources.
+plugin and setup the data sources.
 
 ```
 $ wget https://github.com/performancecopilot/grafana-pcp/archive/v1.0.3.tar.gz
