@@ -6,11 +6,11 @@ Quickstart
 Installation
 ------------
 
-.. prompt:: bash $
+.. code-block:: console
 
-    sudo dnf install grafana-pcp
-    sudo systemctl restart grafana-server
-    sudo systemctl start pmproxy
+    $ sudo dnf install grafana-pcp
+    $ sudo systemctl restart grafana-server
+    $ sudo systemctl start pmproxy
 
 After Grafana and grafana-pcp is installed, you can enable the plugin:
 Open the Grafana configuration, go to Plugins, select *Performance Co-Pilot* and click the *Enable* button.

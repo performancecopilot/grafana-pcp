@@ -42,7 +42,6 @@ with open('../src/plugin.json') as f:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx-prompt',
     'recommonmark'
 ]
 

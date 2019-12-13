@@ -9,10 +9,10 @@ This is the recommended method of installing grafana-pcp.
 Fedora
 ^^^^^^
 
-.. prompt:: bash $
+.. code-block:: console
 
-    sudo dnf install grafana-pcp
-    sudo systemctl restart grafana-server
+    $ sudo dnf install grafana-pcp
+    $ sudo systemctl restart grafana-server
 
 
 From GitHub
@@ -32,12 +32,12 @@ From Source
 
 The `yarn packge manager <https://yarnpkg.com>`_ is required for building grafana-pcp.
 
-.. prompt:: bash $
+.. code-block:: console
 
-    git clone https://github.com/performancecopilot/grafana-pcp.git
-    yarn install
-    yarn run build
-    sudo ln -s $(pwd) /var/lib/grafana/plugins
-    sudo systemctl restart grafana-server
+    $ git clone https://github.com/performancecopilot/grafana-pcp.git
+    $ yarn install
+    $ yarn run build
+    $ sudo ln -s $(pwd) /var/lib/grafana/plugins
+    $ sudo systemctl restart grafana-server
 
 For interactive development, run ``yarn run watch``.

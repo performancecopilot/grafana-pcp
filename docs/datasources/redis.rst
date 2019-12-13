@@ -10,23 +10,13 @@ This data source provides a native interface between `Grafana <https://grafana.c
 Under the hood, the data source makes REST API query requests to the PCP `pmproxy`_ service, which can be running either locally or on a remote host.
 The pmproxy daemon can be local or remote, and uses the Redis time-series database (local or remote) for persistent storage.
 
-Setup
------
+Setup Redis and PCP daemons
+---------------------------
 
-Install Redis
-^^^^^^^^^^^^^
-
-.. parsed-literal::
+.. code-block:: console
 
     $ sudo dnf install redis
-    $ sudo systemctl start redis
-
-Start Performance Co-Pilot daemons
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. parsed-literal::
-
-    $ sudo systemctl start pmlogger pmproxy
+    $ sudo systemctl start redis pmlogger pmproxy
 
 Query Formats
 -------------

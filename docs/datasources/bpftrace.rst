@@ -1,6 +1,15 @@
 PCP bpftrace
 ============
 
+bpftrace PMDA installation
+--------------------------
+
+.. code-block:: console
+
+    $ sudo dnf install pcp-pmda-bpftrace
+    $ cd /var/lib/pcp/pmdas/bpftrace
+    $ sudo ./Install
+
 Query Formats
 -------------
 
