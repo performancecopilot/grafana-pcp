@@ -30,7 +30,7 @@ If there is no package available for your distribution, you can install a releas
 From Source
 -----------
 
-The `yarn packge manager <https://yarnpkg.com>`_ is required for building grafana-pcp.
+The `yarn package manager <https://yarnpkg.com>`_ is required for building grafana-pcp.
 
 .. code-block:: console
 
