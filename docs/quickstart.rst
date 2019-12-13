@@ -31,6 +31,10 @@ All other fields can be left to their default values.
 .. note::
    Make sure the URL text box actually contains a value (font color should be white) and not the placeholder value (light grey text).
 
+.. note::
+   The Redis and bpftrace data sources need additional configuration on the collector host.
+   See :doc:`datasources/redis` and :doc:`datasources/bpftrace`.
+
 Dashboards
 ----------
 
