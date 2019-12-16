@@ -10,6 +10,12 @@
 
 - support Grafana 6.5+, drop support for Grafana < 6.5
 
+## 1.0.5 (2019-12-16)
+
+- **redis:** set default sample interval to `60s` (fixes empty graph borders)
+- **build:** upgrade `copy-webpack-plugin` to mitigate XSS vulnerability in the `serialize-javascript` transitive dependency
+- **build:** remove deprecated `uglify-webpack-plugin`
+
 ## 1.0.4 (2019-12-11)
 
 ### Enhancements
