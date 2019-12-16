@@ -169,7 +169,7 @@ export class PCPRedisDatasource {
             }
         }
 
-        const sampleIntervalSec = 10; // guessed sample interval
+        const sampleIntervalSec = 60; // guessed sample interval
         // request a bigger time frame to fill the chart (otherwise left and right border of chart is empty)
         // because of the rate conversation of counters first datapoint is "lost" -> expand timeframe at the beginning
         const start = Math.round(query.range.from.valueOf() / 1000) - 2 * sampleIntervalSec;

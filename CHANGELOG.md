@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.5 (unreleased)
+
+- **redis:** set default sample interval to `60s` (fixes empty graph borders)
+
 ## 1.0.4 (2019-12-11)
 
 ### Enhancements
