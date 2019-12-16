@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.0.0 (unreleased)
+
+- **redis:** set default sample interval to `60s` (fixes empty graph borders)
+
 ## 2.0.0-beta1 (2019-12-12)
 
 - support Grafana 6.5+, drop support for Grafana < 6.5
