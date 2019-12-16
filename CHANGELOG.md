@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.0.5 (unreleased)
+## 1.0.5 (2019-12-16)
 
 - **redis:** set default sample interval to `60s` (fixes empty graph borders)
 - **build:** upgrade `copy-webpack-plugin` to mitigate XSS vulnerability in the `serialize-javascript` transitive dependency
