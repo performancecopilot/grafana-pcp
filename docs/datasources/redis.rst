@@ -18,6 +18,22 @@ Setup Redis and PCP daemons
     $ sudo dnf install redis
     $ sudo systemctl start redis pmlogger pmproxy
 
+Query Language
+--------------
+
+Syntax: ``[metric.name] '{metadata qualifiers}'``
+
+Examples:
+
+.. code-block:: c
+
+    kernel.all.load
+    kernel.all.load{hostname == "web01"}
+    network.interface.in.bytes{agent == "linux"}
+
+Documentation of the pmseries query language can be found in the `man page of pmseries <https://www.mankier.com/1/pmseries#Timeseries_Queries>`_.
+
+
 Query Formats
 -------------
 
