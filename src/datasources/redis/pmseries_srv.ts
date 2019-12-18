@@ -8,6 +8,11 @@ export interface LabelsResponse {
     labels: Labels;
 }
 
+export interface MetricNamesResponse {
+    series: string;
+    name: string;
+}
+
 class PmSeriesApi {
 
     constructor(private datasourceRequest: DatasourceRequestFn, private url: string) {
@@ -67,6 +72,15 @@ class PmSeriesApi {
         return _.isArray(metrics) ? metrics : []; // TODO: on error (no metrics found), pmproxy returns an object (should be an empty array)
     }
 
+    async metricsSeries(series: string[]): Promise<MetricNamesResponse[]> {
+        const response = await this.datasourceRequest({
+            url: `${this.url}/series/metrics`,
+            params: { series: series.join(',') }
+        });
+        const metricNames = response.data;
+        return _.isArray(metricNames) ? metricNames : []; // TODO: on error (no metrics found), pmproxy returns an object (should be an empty array)
+    }
+
     async labels(series: string[]): Promise<LabelsResponse[]> {
         const response = await this.datasourceRequest({
             url: `${this.url}/series/labels`,
@@ -84,6 +98,7 @@ export class PmSeriesSrv {
     private instanceCache: Record<string, Record<string, Instance>> = {}; // instanceCache[series][instance] = instance;
     private labelCache: Record<string, Labels> = {}; // labelCache[series_or_instance] = labels;
     private metricNamesCache: Record<string, string[]> = {}; // metricNamesCache[prefix] = name[];
+    private metricNameOfSeriesCache: Record<string, string> = {};
 
     constructor(datasourceRequest: DatasourceRequestFn, url: string) {
         this.pmSeriesApi = new PmSeriesApi(datasourceRequest, url);
@@ -106,6 +121,17 @@ export class PmSeriesSrv {
             }
         }
         return _.pick(this.descriptionCache, series);
+    }
+
+    async getMetricNames(series: string[]): Promise<Record<string, string>> {
+        const requiredSeries = _.difference(series, Object.keys(this.metricNameOfSeriesCache));
+        if (requiredSeries.length > 0) {
+            const metricNames = await this.pmSeriesApi.metricsSeries(requiredSeries);
+            for (const metricName of metricNames) {
+                this.metricNameOfSeriesCache[metricName.series] = metricName.name;
+            }
+        }
+        return _.pick(this.metricNameOfSeriesCache, series);
     }
 
     async getInstances(series: string[], ignoreCache = false): Promise<Record<string, Record<string, Instance>>> {

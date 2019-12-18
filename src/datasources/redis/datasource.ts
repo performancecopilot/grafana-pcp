@@ -96,6 +96,7 @@ export class PCPRedisDatasource {
     }
 
     async handleTarget(instancesValuesGroupedBySeries: Record<string, MetricValue[]>,
+        metricNames: Record<string, string>,
         descriptions: any, labels: any, target: QueryTarget): Promise<TargetResult> {
         const metrics: Metric<number | string>[] = [];
 
@@ -125,7 +126,7 @@ export class PCPRedisDatasource {
             }
 
             metrics.push({
-                name: target.expr, // TODO: metric, not expression
+                name: metricNames[series],
                 instances: metricInstances
             });
         }
@@ -179,10 +180,11 @@ export class PCPRedisDatasource {
 
         const instances = await this.pmSeriesSrv.getValues(seriesList, { start, finish, samples });
         const descriptions = await this.pmSeriesSrv.getDescriptions(seriesList);
+        const metricNames = await this.pmSeriesSrv.getMetricNames(seriesList);
         const instanceValuesGroupedBySeries = _.groupBy(instances, "series");
         const labels = this.pmSeriesSrv.getMetricAndInstanceLabels(seriesList);
         const targetResults = await Promise.all(targets.map(target => this.handleTarget(
-            _.pick(instanceValuesGroupedBySeries, seriesByExpr[target.expr]), descriptions, labels, target
+            _.pick(instanceValuesGroupedBySeries, seriesByExpr[target.expr]), metricNames, descriptions, labels, target
         )));
         const panelData = this.transformations.transform(query, targetResults, PCPRedisDatasource.defaultLegendFormatter);
         return {
