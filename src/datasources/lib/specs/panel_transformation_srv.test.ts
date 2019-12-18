@@ -1,6 +1,6 @@
 import PanelTransformationSrv from "../services/panel_transformation_srv";
 import { PCPRedisDatasource } from "../../redis/datasource";
-import * as fixtures from './lib/fixtures';
+import fixtures from './lib/fixtures';
 import { TargetResult } from "../models/metrics";
 import { TargetFormat } from "../models/datasource";
 import { PCPVectorDatasource } from "../../vector/datasource";
@@ -22,12 +22,12 @@ describe("PanelTransformationSrv", () => {
 
     it("should update labels", () => {
         const query = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             scopedVars: {
                 region: { value: "eu" }
             },
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 legendFormat: "a $metric $metric0 $instance $label1 $region b"
             }]
         };
@@ -55,9 +55,9 @@ describe("PanelTransformationSrv", () => {
 
     it("should handle empty instance names", () => {
         const query = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget
+                ...fixtures.grafana.queryTarget
             }]
         };
         const targetResults: TargetResult[] = [{
@@ -94,9 +94,9 @@ describe("PanelTransformationSrv", () => {
 
     it("should use default for pmseries labels", () => {
         const query = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget
+                ...fixtures.grafana.queryTarget
             }]
         };
         const results: TargetResult[] = [{
@@ -124,9 +124,9 @@ describe("PanelTransformationSrv", () => {
 
     it("should transform heatmaps", () => {
         const query = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 format: TargetFormat.Heatmap,
             }]
         };
@@ -156,9 +156,9 @@ describe("PanelTransformationSrv", () => {
 
     it("should transform a CSV table", () => {
         const query = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 format: TargetFormat.CsvTable
             }]
         };
@@ -225,9 +225,9 @@ TIME,PID,COMM,SADDR,SPORT,DADDR,DPORT
 
     it("should transform a CSV table with quotes", async () => {
         const query = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 format: TargetFormat.CsvTable
             }]
         };
@@ -273,17 +273,17 @@ PID,COMM,FD,ERR,PATH,MIX1,MIX2
 
     it("should transform multiple queries into a table", () => {
         const query = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "metric1",
                 format: TargetFormat.MetricsTable,
             }, {
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "metric2",
                 format: TargetFormat.MetricsTable,
             }, {
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "single",
                 format: TargetFormat.MetricsTable,
             }]
@@ -336,14 +336,14 @@ PID,COMM,FD,ERR,PATH,MIX1,MIX2
 
     it("should transform multiple queries into a table and transform legends", () => {
         const query = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "metric1",
                 format: TargetFormat.MetricsTable,
                 legendFormat: "TX"
             }, {
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "disk.dev.read",
                 format: TargetFormat.MetricsTable,
                 legendFormat: "$metric"

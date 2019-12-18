@@ -5,7 +5,7 @@ import DataStore from "../datastore";
 import { PmapiSrv, Context } from '../services/pmapi_srv';
 import { Query, TDatapoint, PmapiQueryTarget } from '../models/datasource';
 import { TargetResult } from '../models/metrics';
-import * as fixtures from './lib/fixtures';
+import fixtures from './lib/fixtures';
 
 class Datasource extends PmapiDatasourceBase<Endpoint> {
     async onTargetUpdate(prevValue: PmapiQueryTarget<Endpoint>, newValue: PmapiQueryTarget<Endpoint>) {
@@ -42,13 +42,13 @@ describe("DatasourceBase", () => {
     it("should perform rate-conversation for counters", async () => {
         ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
-                ...fixtures.metricMetadataSingle,
+                ...fixtures.grafana.metricMetadataSingle,
                 sem: "counter"
             }]
         });
 
         const targetResult = {
-            target: fixtures.queryTarget,
+            target: fixtures.grafana.queryTarget,
             metrics: [{
                 name: "metric.single",
                 instances: [{
@@ -80,14 +80,14 @@ describe("DatasourceBase", () => {
     it("should perform utilization-conversation for time-based counters", async () => {
         ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
-                ...fixtures.metricMetadataSingle,
+                ...fixtures.grafana.metricMetadataSingle,
                 sem: "counter",
                 units: "nanosec"
             }]
         });
 
         const targetResult = {
-            target: fixtures.queryTarget,
+            target: fixtures.grafana.queryTarget,
             metrics: [{
                 name: "metric.single",
                 instances: [{
@@ -119,7 +119,7 @@ describe("DatasourceBase", () => {
     it("should not modify the datastore", async () => {
         ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
-                ...fixtures.metricMetadataSingle,
+                ...fixtures.grafana.metricMetadataSingle,
                 sem: "counter"
             }]
         });
@@ -166,13 +166,13 @@ describe("DatasourceBase", () => {
             datastore
         };
         const query = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             range: {
                 from: new Date(1000),
                 to: new Date(3000)
             },
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "metric.single",
                 endpoint
             }]

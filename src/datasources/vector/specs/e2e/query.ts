@@ -1,21 +1,21 @@
 import { TestContext } from './datasource.test';
-import * as fixtures from '../../../lib/specs/lib/fixtures';
+import fixtures from '../../../lib/specs/lib/fixtures';
 
 export default (ctx: TestContext) => {
     it("should perform rate-conversation of a counter with no instance domains", async () => {
         ctx.server.addResponses([
-            fixtures.PmProxy.context(1),
-            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
-            fixtures.PmProxy.kernelAllSysfork.metric,
-            fixtures.PmProxy.kernelAllSysfork.fetch(10, 100),
-            fixtures.PmProxy.kernelAllSysfork.fetch(11, 200),
-            fixtures.PmProxy.kernelAllSysfork.fetch(12, 400)
+            fixtures.pmapi.PmProxy.context(1),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
+            fixtures.pmapi.PmProxy.kernelAllSysfork.metric,
+            fixtures.pmapi.PmProxy.kernelAllSysfork.fetch(10, 100),
+            fixtures.pmapi.PmProxy.kernelAllSysfork.fetch(11, 200),
+            fixtures.pmapi.PmProxy.kernelAllSysfork.fetch(12, 400)
         ]);
 
         const query = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "kernel.all.sysfork",
             }]
         };
@@ -63,17 +63,17 @@ export default (ctx: TestContext) => {
 
     it("should perform a query with instance domains", async () => {
         ctx.server.addResponses([
-            fixtures.PmProxy.context(1),
-            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
-            fixtures.PmProxy.kernelAllLoad.metric,
-            fixtures.PmProxy.kernelAllLoad.indom,
-            fixtures.PmProxy.kernelAllLoad.fetch
+            fixtures.pmapi.PmProxy.context(1),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
+            fixtures.pmapi.PmProxy.kernelAllLoad.metric,
+            fixtures.pmapi.PmProxy.kernelAllLoad.indom,
+            fixtures.pmapi.PmProxy.kernelAllLoad.fetch
         ]);
 
         const query = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "kernel.all.load"
             }]
         };
@@ -107,16 +107,16 @@ export default (ctx: TestContext) => {
 
     it("should handle requesting metadata of non existing metrics", async () => {
         ctx.server.addResponses([
-            fixtures.PmProxy.context(1),
-            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
-            fixtures.PmProxy.metric(1, [], ["non.existing.metric"]),
-            fixtures.PmProxy.metric(1, [{ name: "existing.metric", semantics: "instant" }], ["non.existing.metric,existing.metric"]),
+            fixtures.pmapi.PmProxy.context(1),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
+            fixtures.pmapi.PmProxy.metric(1, [], ["non.existing.metric"]),
+            fixtures.pmapi.PmProxy.metric(1, [{ name: "existing.metric", semantics: "instant" }], ["non.existing.metric,existing.metric"]),
         ]);
 
         const query1 = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "non.existing.metric"
             }]
         };
@@ -125,12 +125,12 @@ export default (ctx: TestContext) => {
         });
 
         const query2 = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "non.existing.metric",
             }, {
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "existing.metric",
             }]
         };
@@ -144,19 +144,19 @@ export default (ctx: TestContext) => {
 
     it("should get a new context if current context is expired", async () => {
         ctx.server.addResponses([
-            fixtures.PmProxy.context(1),
-            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
-            fixtures.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
-            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "metric1", value: 100 }]),
-            fixtures.PmProxy.contextExpired(1, "/"),
-            fixtures.PmProxy.context(2),
-            fixtures.PmProxy.fetchSingleMetric(2, 11, [{ name: "metric1", value: 200 }]),
+            fixtures.pmapi.PmProxy.context(1),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
+            fixtures.pmapi.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "metric1", value: 100 }]),
+            fixtures.pmapi.PmProxy.contextExpired(1, "/"),
+            fixtures.pmapi.PmProxy.context(2),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(2, 11, [{ name: "metric1", value: 200 }]),
         ]);
 
         const query = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "metric1",
             }]
         };

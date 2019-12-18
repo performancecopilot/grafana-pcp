@@ -1,21 +1,21 @@
 import { TestContext } from './datasource.test';
-import * as fixtures from '../../../lib/specs/lib/fixtures';
+import fixtures from '../../../lib/specs/lib/fixtures';
 import { TargetFormat } from '../../../lib/models/datasource';
 
 export default (ctx: TestContext) => {
     it("should support legend templating", async () => {
         ctx.server.addResponses([
-            fixtures.PmProxy.context(1),
-            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
-            fixtures.PmProxy.kernelAllLoad.metric,
-            fixtures.PmProxy.kernelAllLoad.indom,
-            fixtures.PmProxy.kernelAllLoad.fetch
+            fixtures.pmapi.PmProxy.context(1),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
+            fixtures.pmapi.PmProxy.kernelAllLoad.metric,
+            fixtures.pmapi.PmProxy.kernelAllLoad.indom,
+            fixtures.pmapi.PmProxy.kernelAllLoad.fetch
         ]);
 
         const query = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "kernel.all.load",
                 legendFormat: "a $metric $metric0 $instance $hostname $region b"
             }],
@@ -53,29 +53,29 @@ export default (ctx: TestContext) => {
 
     it("should convert to heatmaps", async () => {
         ctx.server.addResponses([
-            fixtures.PmProxy.context(1),
-            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
-            fixtures.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
-            fixtures.PmProxy.indom(1, "metric1", [
+            fixtures.pmapi.PmProxy.context(1),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
+            fixtures.pmapi.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
+            fixtures.pmapi.PmProxy.indom(1, "metric1", [
                 { instance: 0, name: "-inf--1" },
                 { instance: 1, name: "2-3" },
                 { instance: 2, name: "4-inf" }
             ]),
-            fixtures.PmProxy.fetchIndomMetric(1, 10.4, [{
+            fixtures.pmapi.PmProxy.fetchIndomMetric(1, 10.4, [{
                 name: "metric1", instances: [
                     { instance: 0, value: 100 },
                     { instance: 1, value: 200 },
                     { instance: 2, value: 300 }
                 ]
             }]),
-            fixtures.PmProxy.fetchIndomMetric(1, 11.5, [{
+            fixtures.pmapi.PmProxy.fetchIndomMetric(1, 11.5, [{
                 name: "metric1", instances: [
                     { instance: 0, value: 400 },
                     { instance: 1, value: 500 },
                     { instance: 2, value: 600 }
                 ]
             }]),
-            fixtures.PmProxy.fetchIndomMetric(1, 12.6, [{
+            fixtures.pmapi.PmProxy.fetchIndomMetric(1, 12.6, [{
                 name: "metric1", instances: [
                     { instance: 0, value: 700 },
                     { instance: 1, value: 800 },
@@ -85,9 +85,9 @@ export default (ctx: TestContext) => {
         ]);
 
         const query = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "metric1",
                 format: TargetFormat.Heatmap
             }]

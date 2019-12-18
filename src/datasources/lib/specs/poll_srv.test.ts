@@ -2,7 +2,7 @@ import * as dateMock from 'jest-date-mock';
 import PollSrv from "../services/poll_srv";
 import DataStore from "../datastore";
 import { PmapiSrv, Context } from "../services/pmapi_srv";
-import * as fixtures from './lib/fixtures';
+import fixtures from './lib/fixtures';
 
 describe("PollSrv", () => {
     const ctx: { context: jest.Mocked<Context>, pmapiSrv: PmapiSrv, datastore: DataStore, pollSrv: PollSrv } = {} as any;
@@ -22,7 +22,7 @@ describe("PollSrv", () => {
     it("should poll", async () => {
         ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
-                ...fixtures.metricMetadataSingle
+                ...fixtures.grafana.metricMetadataSingle
             }]
         });
 
@@ -55,13 +55,13 @@ describe("PollSrv", () => {
     it("should add and remove metrics to poll", async () => {
         ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
-                ...fixtures.metricMetadataSingle,
+                ...fixtures.grafana.metricMetadataSingle,
                 name: "metric1"
             }, {
-                ...fixtures.metricMetadataSingle,
+                ...fixtures.grafana.metricMetadataSingle,
                 name: "metric2"
             }, {
-                ...fixtures.metricMetadataSingle,
+                ...fixtures.grafana.metricMetadataSingle,
                 name: "metric3"
             }]
         });

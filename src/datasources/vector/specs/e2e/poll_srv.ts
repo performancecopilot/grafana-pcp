@@ -1,20 +1,20 @@
 import * as dateMock from 'jest-date-mock';
 import { TestContext } from './datasource.test';
-import * as fixtures from '../../../lib/specs/lib/fixtures';
+import fixtures from '../../../lib/specs/lib/fixtures';
 
 export default (ctx: TestContext) => {
     it("should remove non existing metrics from polling", async () => {
         ctx.server.addResponses([
-            fixtures.PmProxy.context(1),
-            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
-            fixtures.PmProxy.metric(1, [{ name: "non.existing.metric", semantics: "instant" }]),
-            fixtures.PmProxy.fetchSingleMetric(1, 10, [], ["non.existing.metric"]),
+            fixtures.pmapi.PmProxy.context(1),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
+            fixtures.pmapi.PmProxy.metric(1, [{ name: "non.existing.metric", semantics: "instant" }]),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [], ["non.existing.metric"]),
         ]);
 
         const query1 = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "non.existing.metric"
             }]
         };
@@ -23,18 +23,20 @@ export default (ctx: TestContext) => {
         await ctx.datasource.doPollAll(); // shouldn't request anything
 
         ctx.server.addResponses([
-            fixtures.PmProxy.metric(1, [{ name: "non.existing.metric", semantics: "instant" }, { name: "existing.metric", semantics: "instant" }]),
-            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "existing.metric", value: 100 }], ["non.existing.metric", "existing.metric"]),
-            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "existing.metric", value: 100 }]),
+            fixtures.pmapi.PmProxy.metric(1, [
+                { name: "non.existing.metric", semantics: "instant" },
+                { name: "existing.metric", semantics: "instant" }]),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "existing.metric", value: 100 }], ["non.existing.metric", "existing.metric"]),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "existing.metric", value: 100 }]),
         ]);
 
         const query2 = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "non.existing.metric"
             }, {
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "existing.metric"
             }]
         };
@@ -45,29 +47,29 @@ export default (ctx: TestContext) => {
 
     it("should stop polling expired metrics", async () => {
         ctx.server.addResponses([
-            fixtures.PmProxy.context(1),
-            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
-            fixtures.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }, { name: "metric2", semantics: "instant" }]),
-            fixtures.PmProxy.fetchSingleMetric(1, 30, [{ name: "metric1", value: 100 }, { name: "metric2", value: 200 }]),
-            fixtures.PmProxy.fetchSingleMetric(1, 45, [{ name: "metric2", value: 200 }]),
+            fixtures.pmapi.PmProxy.context(1),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
+            fixtures.pmapi.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }, { name: "metric2", semantics: "instant" }]),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 30, [{ name: "metric1", value: 100 }, { name: "metric2", value: 200 }]),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 45, [{ name: "metric2", value: 200 }]),
         ]);
 
         const queryMetric1AndMetric2 = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 expr: "metric1"
             }, {
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 refId: "B",
                 expr: "metric2"
             }]
         };
 
         const queryMetric2 = {
-            ...fixtures.query,
+            ...fixtures.grafana.query,
             targets: [{
-                ...fixtures.queryTarget,
+                ...fixtures.grafana.queryTarget,
                 refId: "B",
                 expr: "metric2"
             }]

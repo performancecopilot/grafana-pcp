@@ -3,7 +3,7 @@ import ScriptRegistry from "../script_registry";
 import { PmapiSrv, Context } from "../../lib/services/pmapi_srv";
 import DataStore from "../../lib/datastore";
 import PollSrv from "../../lib/services/poll_srv";
-import * as fixtures from '../../lib/specs/lib/fixtures';
+import fixtures from '../../lib/specs/lib/fixtures';
 
 describe("ScriptRegistry", () => {
     const ctx: {
@@ -36,7 +36,7 @@ describe("ScriptRegistry", () => {
                 "instances": [{
                     "instance": null,
                     "value": JSON.stringify({
-                        ...fixtures.script,
+                        ...fixtures.bpftrace.script,
                         "state": {
                             "status": "starting",
                             "pid": -1,
@@ -50,7 +50,7 @@ describe("ScriptRegistry", () => {
         });
         ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
-                ...fixtures.metricMetadataSingle,
+                ...fixtures.grafana.metricMetadataSingle,
                 name: "bpftrace.info.scripts_json"
             }]
         });
@@ -74,7 +74,7 @@ describe("ScriptRegistry", () => {
                 "instances": [{
                     "instance": null,
                     "value": JSON.stringify([{
-                        ...fixtures.script,
+                        ...fixtures.bpftrace.script,
                         "state": {
                             "status": "error",
                             "pid": -1,
@@ -108,7 +108,7 @@ describe("ScriptRegistry", () => {
                 "instances": [{
                     "instance": null,
                     "value": JSON.stringify([{
-                        ...fixtures.script,
+                        ...fixtures.bpftrace.script,
                         "state": {
                             "status": "stopped",
                             "pid": -1,
@@ -132,7 +132,7 @@ describe("ScriptRegistry", () => {
                 "instances": [{
                     "instance": null,
                     "value": JSON.stringify({
-                        ...fixtures.script,
+                        ...fixtures.bpftrace.script,
                         "state": {
                             "status": "starting",
                             "pid": -1,
@@ -183,7 +183,7 @@ describe("ScriptRegistry", () => {
                 "instances": [{
                     "instance": null,
                     "value": JSON.stringify({
-                        ...fixtures.script,
+                        ...fixtures.bpftrace.script,
                         "state": {
                             "status": "starting",
                             "pid": -1,

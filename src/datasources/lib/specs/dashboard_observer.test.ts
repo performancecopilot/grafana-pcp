@@ -4,7 +4,7 @@ import { Endpoint } from "../endpoint_registry";
 import { PmapiDatasourceBase } from '../datasource_base';
 import { PmapiQueryTarget, Query } from '../models/datasource';
 import { TargetResult } from '../models/metrics';
-import * as fixtures from './lib/fixtures';
+import fixtures from './lib/fixtures';
 import HttpServerMock from './lib/http_server_mock';
 
 class Datasource extends PmapiDatasourceBase<Endpoint> {
@@ -42,8 +42,8 @@ describe("DashboardObserver", () => {
         };
         const server = new HttpServerMock(instanceSettings.url, false);
         server.addResponses([
-            fixtures.PmProxy.context(1),
-            fixtures.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }])
+            fixtures.pmapi.PmProxy.context(1),
+            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }])
         ]);
         const backendSrv = {
             datasourceRequest: server.doRequest.bind(server)
@@ -56,9 +56,9 @@ describe("DashboardObserver", () => {
     });
 
     it("should detect changes", async () => {
-        const query = _.cloneDeep(fixtures.query);
+        const query = _.cloneDeep(fixtures.grafana.query);
         query.targets.push({
-            ...fixtures.queryTarget,
+            ...fixtures.grafana.queryTarget,
             expr: "some_query"
         });
         await ctx.datasource.query(query);
@@ -72,9 +72,9 @@ describe("DashboardObserver", () => {
     });
 
     it("should detect inactive targets", async () => {
-        const query = _.cloneDeep(fixtures.query);
+        const query = _.cloneDeep(fixtures.grafana.query);
         query.targets.push({
-            ...fixtures.queryTarget,
+            ...fixtures.grafana.queryTarget,
             expr: "some_query"
         });
 

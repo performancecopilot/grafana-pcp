@@ -1,7 +1,7 @@
 import * as dateMock from 'jest-date-mock';
 import DataStore from "../datastore";
 import { PmapiSrv, Context } from "../services/pmapi_srv";
-import * as fixtures from './lib/fixtures';
+import fixtures from './lib/fixtures';
 
 describe("DataStore", () => {
     const ctx: { context: jest.Mocked<Context>, pmapiSrv: PmapiSrv, datastore: DataStore } = {} as any;
@@ -19,7 +19,7 @@ describe("DataStore", () => {
     it("should ingest single metrics", async () => {
         ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
-                ...fixtures.metricMetadataSingle
+                ...fixtures.grafana.metricMetadataSingle
             }]
         });
 
@@ -67,7 +67,7 @@ describe("DataStore", () => {
         });
         ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
-                ...fixtures.metricMetadataIndom
+                ...fixtures.grafana.metricMetadataIndom
             }]
         });
 
@@ -109,7 +109,7 @@ describe("DataStore", () => {
         });
         ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
-                ...fixtures.metricMetadataIndom
+                ...fixtures.grafana.metricMetadataIndom
             }]
         });
 
@@ -161,7 +161,7 @@ describe("DataStore", () => {
     it("should return metrics in time range", async () => {
         ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
-                ...fixtures.metricMetadataSingle
+                ...fixtures.grafana.metricMetadataSingle
             }]
         });
 
@@ -217,7 +217,7 @@ describe("DataStore", () => {
     it("should clean expired metrics", async () => {
         ctx.context.metric.mockResolvedValueOnce({
             metrics: [{
-                ...fixtures.metricMetadataSingle
+                ...fixtures.grafana.metricMetadataSingle
             }]
         });
 

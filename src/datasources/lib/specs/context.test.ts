@@ -1,6 +1,6 @@
 import HttpServerMock from "./lib/http_server_mock";
 import { Context } from "../services/pmapi_srv";
-import * as fixtures from './lib/fixtures';
+import fixtures from "./lib/fixtures";
 
 describe("context pmwebd compat", () => {
     const ctx: { server: HttpServerMock, context: Context } = {} as any;
@@ -16,11 +16,11 @@ describe("context pmwebd compat", () => {
 
     it("should handle a expired context", async () => {
         ctx.server.addResponses([
-            fixtures.PmWebd.context(1),
-            fixtures.PmWebd.fetchSingleMetric(1, 14, 15, [{ name: "metric1", value: 1 }]),
-            fixtures.PmWebd.contextExpired("/pmapi/1/_fetch"),
-            fixtures.PmWebd.context(2),
-            fixtures.PmWebd.fetchSingleMetric(2, 14, 15, [{ name: "metric2", value: 1 }])
+            fixtures.pmapi.PmWebd.context(1),
+            fixtures.pmapi.PmWebd.fetchSingleMetric(1, 14, 15, [{ name: "metric1", value: 1 }]),
+            fixtures.pmapi.PmWebd.contextExpired("/pmapi/1/_fetch"),
+            fixtures.pmapi.PmWebd.context(2),
+            fixtures.pmapi.PmWebd.fetchSingleMetric(2, 14, 15, [{ name: "metric2", value: 1 }])
         ]);
 
         let result = await ctx.context.fetch(["metric1"]);
@@ -52,9 +52,9 @@ describe("context pmwebd compat", () => {
 
     it("request metric metadata", async () => {
         ctx.server.addResponses([
-            fixtures.PmWebd.context(1),
-            fixtures.PmWebd.metric(1, "kernel.all.sysfork", "counter"),
-            fixtures.PmWebd.metric(1, "kernel.all.load", "counter")
+            fixtures.pmapi.PmWebd.context(1),
+            fixtures.pmapi.PmWebd.metric(1, "kernel.all.sysfork", "counter"),
+            fixtures.pmapi.PmWebd.metric(1, "kernel.all.load", "counter")
         ]);
 
         const result = await ctx.context.metric(["kernel.all.load", "kernel.all.sysfork"]);
@@ -83,8 +83,8 @@ describe("context pmwebd compat", () => {
 
     it("fetch metric", async () => {
         ctx.server.addResponses([
-            fixtures.PmWebd.context(1),
-            fixtures.PmWebd.fetchSingleMetric(1, 14, 15, [{ name: "metric1", value: 1 }])
+            fixtures.pmapi.PmWebd.context(1),
+            fixtures.pmapi.PmWebd.fetchSingleMetric(1, 14, 15, [{ name: "metric1", value: 1 }])
         ]);
 
         const result = await ctx.context.fetch(["metric1"]);
@@ -103,8 +103,8 @@ describe("context pmwebd compat", () => {
 
     it("fetch missing metric", async () => {
         ctx.server.addResponses([
-            fixtures.PmWebd.context(1),
-            fixtures.PmWebd.fetchSingleMetric(1, 14, 15, [], ["metric1"])
+            fixtures.pmapi.PmWebd.context(1),
+            fixtures.pmapi.PmWebd.fetchSingleMetric(1, 14, 15, [], ["metric1"])
         ]);
 
         const result = await ctx.context.fetch(["metric1"]);
