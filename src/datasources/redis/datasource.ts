@@ -4,7 +4,7 @@ import { PmSeriesSrv } from './pmseries_srv';
 import PanelTransformations from '../lib/services/panel_transformation_srv';
 import { ValueTransformationSrv } from '../lib/services/value_transformation_srv';
 import { Query, QueryTarget, TDatapoint } from '../lib/models/datasource';
-import { TargetResult, Metric, MetricInstance } from '../lib/models/metrics';
+import { TargetResult, Metric, MetricInstance, Labels } from '../lib/models/metrics';
 import { MetricValue } from './models/pmseries';
 import { NetworkError } from '../lib/models/errors';
 
@@ -97,7 +97,7 @@ export class PCPRedisDatasource {
 
     async handleTarget(instancesValuesGroupedBySeries: Record<string, MetricValue[]>,
         metricNames: Record<string, string>,
-        descriptions: any, labels: any, target: QueryTarget): Promise<TargetResult> {
+        descriptions: any, labels: Record<string, Labels>, target: QueryTarget): Promise<TargetResult> {
         const metrics: Metric<number | string>[] = [];
 
         for (const series in instancesValuesGroupedBySeries) {
@@ -182,7 +182,7 @@ export class PCPRedisDatasource {
         const descriptions = await this.pmSeriesSrv.getDescriptions(seriesList);
         const metricNames = await this.pmSeriesSrv.getMetricNames(seriesList);
         const instanceValuesGroupedBySeries = _.groupBy(instances, "series");
-        const labels = this.pmSeriesSrv.getMetricAndInstanceLabels(seriesList);
+        const labels = await this.pmSeriesSrv.getMetricAndInstanceLabels(seriesList);
         const targetResults = await Promise.all(targets.map(target => this.handleTarget(
             _.pick(instanceValuesGroupedBySeries, seriesByExpr[target.expr]), metricNames, descriptions, labels, target
         )));
