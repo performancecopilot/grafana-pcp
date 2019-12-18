@@ -3,12 +3,17 @@
 ## 2.0.0 (unreleased)
 
 - **redis:** set default sample interval to `60s` (fixes empty graph borders)
+- **redis:** support wildcards in metric names (e.g. `disk.dev.*`)
 - **build:** upgrade `copy-webpack-plugin` to mitigate XSS vulnerability in the `serialize-javascript` transitive dependency
 - **build:** remove deprecated `uglify-webpack-plugin`
 
 ## 2.0.0-beta1 (2019-12-12)
 
 - support Grafana 6.5+, drop support for Grafana < 6.5
+
+## 1.0.6 (unreleased)
+
+- **redis:** support wildcards in metric names (e.g. `disk.dev.*`)
 
 ## 1.0.5 (2019-12-16)
 
