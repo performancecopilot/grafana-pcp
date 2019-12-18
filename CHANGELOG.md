@@ -3,6 +3,7 @@
 ## 1.0.6 (unreleased)
 
 - **redis:** support wildcards in metric names (e.g. `disk.dev.*`)
+- **redis:** fix label support
 
 ## 1.0.5 (2019-12-16)
 

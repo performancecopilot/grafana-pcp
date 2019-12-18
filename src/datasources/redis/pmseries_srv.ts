@@ -176,7 +176,7 @@ export class PmSeriesSrv {
         return _.pick(this.labelCache, series);
     }
 
-    async getMetricAndInstanceLabels(series: string[]) {
+    async getMetricAndInstanceLabels(series: string[]): Promise<Record<string, Labels>> {
         const descriptions = await this.getDescriptions(series);
         const [seriesWithIndoms, seriesWithoutIndoms] = _.partition(series, serie => descriptions[serie].indom !== PM_INDOM_NULL);
         let instanceIds: string[] = [];
