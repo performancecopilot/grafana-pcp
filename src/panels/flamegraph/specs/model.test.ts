@@ -1,18 +1,38 @@
-import { LoadingState } from "@grafana/data";
+import { LoadingState, PanelData, MutableDataFrame, FieldType } from "@grafana/data";
 import { generateFlameGraphModel } from "../model";
 
 describe("Model", () => {
 
-    // TODO: update to Grafana dataFrames
-    it.skip("should generate flame graph model", () => {
-        const panelData: any = {
+    it("should generate flame graph model", () => {
+        const series = new MutableDataFrame({
+            name: "",
+            fields: [{ name: "time", type: FieldType.time, values: [1] }, { name: "data", values: [1] }],
+        });
+
+        const panelData: PanelData = {
             state: LoadingState.Done,
+            timeRange: null!,
             series: [
-                { name: "", rows: [[1, 1]] },
-                { name: "\n    write+24\n    0x3266377830202020\n", rows: [[2, 2]] },
-                { name: "\n    write+24\n    0x3266377830202020\n    0x123", rows: [[3, 1]] },
-                { name: "\n    writev+24\n    0x400007ffd\n", rows: [[4, 3]] },
-                { name: "\n    zmalloc_get_rss+20\n", rows: [[5, 1]] }
+                new MutableDataFrame({
+                    name: "",
+                    fields: [{ name: "time", type: FieldType.time, values: [1] }, { name: "data", values: [1] }],
+                }),
+                new MutableDataFrame({
+                    name: "\n    write+24\n    0x3266377830202020\n",
+                    fields: [{ name: "time", type: FieldType.time, values: [2] }, { name: "data", values: [2] }],
+                }),
+                new MutableDataFrame({
+                    name: "\n    write+24\n    0x3266377830202020\n    0x123",
+                    fields: [{ name: "time", type: FieldType.time, values: [1] }, { name: "data", values: [3] }],
+                }),
+                new MutableDataFrame({
+                    name: "\n    writev+24\n    0x400007ffd\n",
+                    fields: [{ name: "time", type: FieldType.time, values: [3] }, { name: "data", values: [4] }],
+                }),
+                new MutableDataFrame({
+                    name: "\n    zmalloc_get_rss+20\n",
+                    fields: [{ name: "time", type: FieldType.time, values: [1] }, { name: "data", values: [5] }],
+                })
             ]
         };
 
