@@ -7,6 +7,7 @@ import { Query, QueryTarget, TDatapoint } from '../lib/models/datasource';
 import { TargetResult, Metric, MetricInstance, Labels } from '../lib/models/metrics';
 import { MetricValue } from './models/pmseries';
 import { NetworkError } from '../lib/models/errors';
+import "core-js/stable/array/flat";
 
 export class PCPRedisDatasource {
 
@@ -102,15 +103,20 @@ export class PCPRedisDatasource {
 
         for (const series in instancesValuesGroupedBySeries) {
             const metricInstances: MetricInstance<number | string>[] = [];
+            // for metrics with no indoms, instanceId should be null
+            // however, javascript objects convert keys to strings,
+            // so let's use "" here and change it back later
             const instanceValuesGroupedBySeriesAndInstance = _.groupBy(instancesValuesGroupedBySeries[series], i => i.instance || "");
 
-            for (const instanceId in instanceValuesGroupedBySeriesAndInstance) {
-                const datapoints = instanceValuesGroupedBySeriesAndInstance[instanceId].map(
+            for (const _instanceId in instanceValuesGroupedBySeriesAndInstance) {
+                const instanceId = _instanceId === "" ? null : _instanceId;
+
+                const datapoints = instanceValuesGroupedBySeriesAndInstance[_instanceId].map(
                     instance => [parseFloat(instance.value), instance.timestamp] as TDatapoint
                 );
 
                 let instanceName = "";
-                if (instanceId !== "") {
+                if (instanceId !== null) {
                     const instance = await this.pmSeriesSrv.getInstance(series, instanceId);
                     if (instance)
                         instanceName = instance.name;
@@ -121,7 +127,7 @@ export class PCPRedisDatasource {
                     name: instanceName,
                     values: ValueTransformationSrv.applyTransformations(target.format, descriptions[series].semantics,
                         descriptions[series].units, datapoints),
-                    labels: instanceId !== "" ? labels[instanceId] : labels[series]
+                    labels: instanceId !== null ? labels[instanceId] : labels[series]
                 });
             }
 
@@ -170,12 +176,12 @@ export class PCPRedisDatasource {
             }
         }
 
-        const sampleIntervalSec = 60; // guessed sample interval
+        const sampleIntervalSec = 60; // default sample interval
         // request a bigger time frame to fill the chart (otherwise left and right border of chart is empty)
         // because of the rate conversation of counters first datapoint is "lost" -> expand timeframe at the beginning
-        const start = Math.round(query.range.from.valueOf() / 1000) - 2 * sampleIntervalSec;
-        const finish = Math.round(query.range.to.valueOf() / 1000) + sampleIntervalSec;
-        const samples = Math.round((query.range.to.valueOf() - query.range.from.valueOf()) / query.intervalMs);
+        const start = Math.floor(query.range.from.valueOf() / 1000) - 2 * sampleIntervalSec; // seconds
+        const finish = Math.ceil(query.range.to.valueOf() / 1000) + sampleIntervalSec; // seconds
+        const samples = Math.ceil((finish - start) / (query.intervalMs / 1000));
         // const interval = query.interval;
 
         const instances = await this.pmSeriesSrv.getValues(seriesList, { start, finish, samples });
