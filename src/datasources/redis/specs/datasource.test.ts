@@ -1,9 +1,9 @@
-import HttpServerMock from '../../../lib/specs/lib/http_server_mock';
-import { PCPRedisDatasource } from '../../datasource';
-import { templateSrv } from '../../../lib/specs/lib/template_srv_mock';
-import fixtures from '../../../lib/specs/lib/fixtures';
+import HttpServerMock from '../../lib/specs/lib/http_server_mock';
+import { PCPRedisDatasource } from '../datasource';
+import { templateSrv } from '../../lib/specs/lib/template_srv_mock';
+import fixtures from '../../lib/specs/lib/fixtures';
 
-describe("PCP Redis End-to-End", () => {
+describe("PCP Redis e2e", () => {
     const ctx: { server: HttpServerMock, datasource: PCPRedisDatasource } = {} as any;
 
     beforeEach(() => {

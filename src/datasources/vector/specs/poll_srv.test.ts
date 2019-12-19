@@ -1,8 +1,34 @@
 import * as dateMock from 'jest-date-mock';
-import { TestContext } from './datasource.test';
-import fixtures from '../../../lib/specs/lib/fixtures';
+import fixtures from '../../lib/specs/lib/fixtures';
+import HttpServerMock from '../../lib/specs/lib/http_server_mock';
+import { PCPVectorDatasource } from '../datasource';
+import { templateSrv } from '../../lib/specs/lib/template_srv_mock';
 
-export default (ctx: TestContext) => {
+describe("PCP Vector e2e: PollSrv", () => {
+    const ctx: { server: HttpServerMock, datasource: PCPVectorDatasource } = {} as any;
+
+    beforeEach(() => {
+        const instanceSettings = {
+            url: 'http://localhost:44322',
+            jsonData: {
+                pollIntervalMs: 0,
+                scriptSyncIntervalMs: 0,
+                inactivityTimeoutMs: '20s',
+                localHistoryAge: '5m'
+            }
+        };
+        ctx.server = new HttpServerMock(instanceSettings.url, false);
+        const backendSrv = {
+            datasourceRequest: ctx.server.doRequest.bind(ctx.server)
+        };
+        ctx.datasource = new PCPVectorDatasource(instanceSettings, backendSrv, templateSrv);
+        dateMock.advanceTo(20000); // simulate unixtime of 20s (since Jan 1, 1970 UTC)
+    });
+
+    afterEach(() => {
+        expect(ctx.server.responsesSize()).toBe(0);
+    });
+
     it("should remove non existing metrics from polling", async () => {
         ctx.server.addResponses([
             fixtures.pmapi.PmProxy.context(1),
@@ -95,4 +121,4 @@ export default (ctx: TestContext) => {
         // should request metric2 only (25s-45s, as default keepPollingTime is 20s)
         await ctx.datasource.doPollAll();
     });
-};
+});
