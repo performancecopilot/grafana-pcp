@@ -5,6 +5,7 @@
 - **redis:** set default sample interval to `60s` (fixes empty graph borders)
 - **redis:** support wildcards in metric names (e.g. `disk.dev.*`)
 - **redis:** fix label support
+- **redis:** fix query timespec, add tests
 - **build:** upgrade `copy-webpack-plugin` to mitigate XSS vulnerability in the `serialize-javascript` transitive dependency
 - **build:** remove deprecated `uglify-webpack-plugin`
 
