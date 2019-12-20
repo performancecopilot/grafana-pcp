@@ -26,14 +26,14 @@ export function isBlank(str?: string) {
     return !(str && _.isString(str) && str.trim().length > 0);
 }
 
-export function getDashboardVariables(variableSrv: any): any {
-    const variables = {};
+export function getDashboardVariables(variableSrv: any) {
+    const variables: Record<string, { text: string, value: any }> = {};
     if (!variableSrv.variables) {
         // variables are not defined on the datasource settings page
         return {};
     }
 
-    variableSrv.variables.forEach((variable) => {
+    variableSrv.variables.forEach((variable: any) => {
         let variableValue = variable.current.value;
         if (variableValue === '$__all' || _.isEqual(variableValue, ['$__all'])) {
             if (variable.allValue === null) {

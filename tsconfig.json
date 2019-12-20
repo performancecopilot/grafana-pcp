@@ -20,7 +20,7 @@
         "noImplicitReturns": true,
         "noImplicitThis": false,
         "noImplicitUseStrict": false,
-        "noImplicitAny": false,
+        "noImplicitAny": true,
         "esModuleInterop": true,
         "noUnusedLocals": false,
         "strictNullChecks": true,

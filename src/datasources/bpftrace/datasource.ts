@@ -25,6 +25,8 @@ export class PCPBPFtraceDatasource extends PmapiDatasourceBase<BPFtraceEndpoint>
     }
 
     onTargetUpdate(prevValue: PmapiQueryTarget<BPFtraceEndpoint>, newValue: PmapiQueryTarget<BPFtraceEndpoint>) {
+        // this method gets called if either the expression (the script), format or endpoint changed
+        // deregister bpftrace scripts only if the endpoint or the script changed
         if (prevValue.endpoint !== newValue.endpoint || prevValue.expr !== newValue.expr)
             this.onTargetInactive(prevValue);
     }

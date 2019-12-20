@@ -1,13 +1,13 @@
 /* tslint:disable */
 export function load_mode(ace: any) {
-    ace.define("ace/snippets/bpftrace", ["require", "exports", "module"], function (require, exports, module) {
+    ace.define("ace/snippets/bpftrace", ["require", "exports", "module"], function (require: any, exports: any, module: any) {
         "use strict";
 
         exports.snippets = [];
         exports.scope = "bpftrace";
     });
 
-    ace.define("ace/mode/bpftrace_highlight_rules", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text_highlight_rules"], function (require, exports, module) {
+    ace.define("ace/mode/bpftrace_highlight_rules", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text_highlight_rules"], function (require: any, exports: any, module: any) {
         "use strict";
 
         var oop = require("../lib/oop");
@@ -112,7 +112,7 @@ export function load_mode(ace: any) {
         exports.BPFtraceHighlightRules = BPFtraceHighlightRules;
     });
 
-    ace.define("ace/mode/bpftrace", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text", "ace/mode/bpftrace_highlight_rules"], function (require, exports, module) {
+    ace.define("ace/mode/bpftrace", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text", "ace/mode/bpftrace_highlight_rules"], function (require: any, exports: any, module: any) {
         "use strict";
 
         var oop = require("../lib/oop");
@@ -124,7 +124,7 @@ export function load_mode(ace: any) {
             this.$behaviour = this.$defaultBehaviour;
             // overwrite keywordCompleter
             this.completer = {
-                getCompletions: function (editor, session, pos, prefix, callback) { callback(null, []); }
+                getCompletions: function (editor: any, session: any, pos: any, prefix: any, callback: (e: any, r: any) => void) { callback(null, []); }
             };
         };
         oop.inherits(Mode, TextMode);

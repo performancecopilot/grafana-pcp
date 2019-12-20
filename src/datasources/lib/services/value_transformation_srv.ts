@@ -5,7 +5,7 @@ import { TransformationFn, Semantics, Units } from '../models/metrics';
 
 export class ValueTransformationSrv {
 
-    static PCP_UNITS = {
+    static PCP_UNITS: Record<string, number> = {
         "nanosec": 1000 * 1000 * 1000,
         "microsec": 1000 * 1000,
         "millisec": 1000,

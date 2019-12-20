@@ -43,6 +43,7 @@ export interface PmapiQueryTarget<EP> extends QueryTarget {
     container?: string;
     endpoint: EP;
     minPcpVersion?: string;
+    [name: string]: any;
 }
 
 

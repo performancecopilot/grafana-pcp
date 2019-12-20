@@ -12,11 +12,17 @@ export class PCPVectorDatasource extends PmapiDatasourceBase<Endpoint> {
     }
 
     onTargetUpdate(prevValue: PmapiQueryTarget<Endpoint>, newValue: PmapiQueryTarget<Endpoint>) {
+        // this method gets called if the target changes in any way (expression, format, endpoint)
+        // remove it from polling only if endpoint or expression changes, but *not* if the format changes
         if (prevValue.endpoint !== newValue.endpoint || prevValue.expr !== newValue.expr)
             this.onTargetInactive(prevValue);
     }
 
     onTargetInactive(target: PmapiQueryTarget<Endpoint>) {
+        // example:
+        // panel A requests kernel.cpu.util.user and kernel.cpu.util.sys
+        // panel B requests kernel.cpu.util.user
+        // if panel B gets inactive, don't remove kernel.cpu.util.user from polling, because it's required by panel A
         if (!this.dashboardObserver.existMatchingTarget(target, { endpoint: target.endpoint, expr: target.expr }))
             target.endpoint.pollSrv.removeMetricsFromPolling([target.expr]);
     }

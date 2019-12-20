@@ -1,13 +1,13 @@
 /* tslint:disable */
 export function load_mode(ace: any) {
-    ace.define("ace/snippets/pmseries", ["require", "exports", "module"], function (require, exports, module) {
+    ace.define("ace/snippets/pmseries", ["require", "exports", "module"], function (require: any, exports: any, module: any) {
         "use strict";
 
         exports.snippets = [];
         exports.scope = "pmseries";
     });
 
-    ace.define("ace/mode/pmseries_highlight_rules", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text_highlight_rules"], function (require, exports, module) {
+    ace.define("ace/mode/pmseries_highlight_rules", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text_highlight_rules"], function (require: any, exports: any, module: any) {
         "use strict";
 
         var oop = require("../lib/oop");
@@ -49,7 +49,7 @@ export function load_mode(ace: any) {
         exports.PmSeriesHighlightRules = PmSeriesHighlightRules;
     });
 
-    ace.define("ace/mode/pmseries", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text", "ace/mode/pmseries_highlight_rules"], function (require, exports, module) {
+    ace.define("ace/mode/pmseries", ["require", "exports", "module", "ace/lib/oop", "ace/mode/text", "ace/mode/pmseries_highlight_rules"], function (require: any, exports: any, module: any) {
         "use strict";
 
         var oop = require("../lib/oop");

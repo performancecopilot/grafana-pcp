@@ -116,7 +116,7 @@ class Benchmarks {
             suite = suite.add(benchmark.constructor.name, benchmark.run.bind(benchmark), { defer: true });
         }
         suite
-            .on('cycle', (event) => {
+            .on('cycle', (event: any) => {
                 console.log(String(event.target), "per test", event.target.times.period * 1000, "ms");
             })
             .on('complete', () => {
