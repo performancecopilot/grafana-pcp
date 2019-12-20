@@ -22,10 +22,11 @@
         "noImplicitUseStrict": false,
         "noImplicitAny": true,
         "esModuleInterop": true,
-        "noUnusedLocals": false,
+        "noUnusedLocals": true,
         "strictNullChecks": true,
         "downlevelIteration": true,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "strictBindCallApply": true
     },
     "include": [
         "./src/**/*.ts",
