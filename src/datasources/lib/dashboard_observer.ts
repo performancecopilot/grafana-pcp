@@ -5,13 +5,16 @@ interface ObservedTarget<EP> {
     lastActive: number;
 }
 
+interface Subject<EP> {
+    onTargetUpdate: (prevValue: PmapiQueryTarget<EP>, newValue: PmapiQueryTarget<EP>) => void,
+    onTargetInactive: (target: PmapiQueryTarget<EP>) => void
+}
+
 export default class DashboardObserver<EP> {
 
     private targets: Record<string, ObservedTarget<EP>> = {};
-    onTargetUpdate: (prevValue: PmapiQueryTarget<EP>, newValue: PmapiQueryTarget<EP>) => void;
-    onTargetInactive: (target: PmapiQueryTarget<EP>) => void;
 
-    constructor(private inactivityTimeoutMs: number) {
+    constructor(private inactivityTimeoutMs: number, private subject: Subject<EP>) {
     }
 
     cmpTargets(a: PmapiQueryTarget<EP>, b: PmapiQueryTarget<EP>) {
@@ -27,7 +30,7 @@ export default class DashboardObserver<EP> {
                 this.targets[uid] = { target: Object.assign({}, target), lastActive: new Date().getTime() };
             }
             else if (!this.cmpTargets(prevObservedTarget.target, target)) {
-                this.onTargetUpdate(prevObservedTarget.target, target);
+                this.subject.onTargetUpdate(prevObservedTarget.target, target);
                 this.targets[uid] = { target: Object.assign({}, target), lastActive: new Date().getTime() };
             }
             else {
@@ -43,7 +46,7 @@ export default class DashboardObserver<EP> {
 
             let isMatch = true;
             for (const key in match) {
-                if (this.targets[uid][key] !== match[key]) {
+                if (this.targets[uid].target[key] !== match[key]) {
                     isMatch = false;
                     break;
                 }
@@ -58,7 +61,7 @@ export default class DashboardObserver<EP> {
         const expiry = new Date().getTime() - this.inactivityTimeoutMs;
         for (const uid in this.targets) {
             if (this.targets[uid].lastActive <= expiry) {
-                this.onTargetInactive(this.targets[uid].target);
+                this.subject.onTargetInactive(this.targets[uid].target);
                 delete this.targets[uid];
             }
         }

@@ -41,9 +41,7 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
 
         this.endpointRegistry = new EndpointRegistry();
         this.transformations = new PanelTransformations(this.templateSrv);
-        this.dashboardObserver = new DashboardObserver(this.inactivityTimeoutMs);
-        this.dashboardObserver.onTargetUpdate = this.onTargetUpdate.bind(this);
-        this.dashboardObserver.onTargetInactive = this.onTargetInactive.bind(this);
+        this.dashboardObserver = new DashboardObserver(this.inactivityTimeoutMs, this);
 
         this.backgroundErrors = new Set();
         if (this.pollIntervalMs > 0)
