@@ -7,7 +7,6 @@ import { TargetResult } from '../models/metrics';
 import fixtures from './lib/fixtures';
 import HttpServerMock from './lib/http_server_mock';
 import { templateSrv } from './lib/template_srv_mock';
-import { expression } from '@babel/template';
 
 class Datasource extends PmapiDatasourceBase<Endpoint> {
     onTargetUpdate(prevValue: PmapiQueryTarget<Endpoint>, newValue: PmapiQueryTarget<Endpoint>) {

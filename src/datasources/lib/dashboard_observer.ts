@@ -6,8 +6,8 @@ interface ObservedTarget<EP> {
 }
 
 interface Subject<EP> {
-    onTargetUpdate: (prevValue: PmapiQueryTarget<EP>, newValue: PmapiQueryTarget<EP>) => void,
-    onTargetInactive: (target: PmapiQueryTarget<EP>) => void
+    onTargetUpdate: (prevValue: PmapiQueryTarget<EP>, newValue: PmapiQueryTarget<EP>) => void;
+    onTargetInactive: (target: PmapiQueryTarget<EP>) => void;
 }
 
 export default class DashboardObserver<EP> {
