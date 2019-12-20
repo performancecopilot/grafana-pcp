@@ -24,13 +24,13 @@ export class PCPBPFtraceDatasource extends PmapiDatasourceBase<BPFtraceEndpoint>
         endpoint.scriptRegistry = new ScriptRegistry(endpoint.pmapiSrv, endpoint.pollSrv);
     }
 
-    async onTargetUpdate(prevValue: PmapiQueryTarget<BPFtraceEndpoint>, newValue: PmapiQueryTarget<BPFtraceEndpoint>) {
+    onTargetUpdate(prevValue: PmapiQueryTarget<BPFtraceEndpoint>, newValue: PmapiQueryTarget<BPFtraceEndpoint>) {
         if (prevValue.endpoint !== newValue.endpoint || prevValue.expr !== newValue.expr)
             this.onTargetInactive(prevValue);
     }
 
-    async onTargetInactive(target: PmapiQueryTarget<BPFtraceEndpoint>) {
-        target.endpoint.scriptRegistry.deregister(target.uid);
+    onTargetInactive(target: PmapiQueryTarget<BPFtraceEndpoint>) {
+        void target.endpoint.scriptRegistry.deregister(target.uid);
     }
 
     async handleTarget(query: Query, target: PmapiQueryTarget<BPFtraceEndpoint>) {

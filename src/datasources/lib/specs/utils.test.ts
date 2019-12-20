@@ -22,8 +22,8 @@ describe("Utils", () => {
 
     it("should synchronize functions", async () => {
         const x = new SynchronizedClass(0);
-        x.synchronizedFn("1");
-        x.synchronizedFn("2");
+        void x.synchronizedFn("1");
+        void x.synchronizedFn("2");
         await new Promise((resolve, reject) => setInterval(resolve, 500)); // wait 0.5s
         expect(x.log).toStrictEqual(["start 1", "done 1"]);
     });
@@ -32,16 +32,16 @@ describe("Utils", () => {
         const x = new SynchronizedClass(0);
         const y = new SynchronizedClass(1);
 
-        x.synchronizedFn("1");
-        x.synchronizedFn("2");
-        y.synchronizedFn("3");
-        y.synchronizedFn("4");
+        void x.synchronizedFn("1");
+        void x.synchronizedFn("2");
+        void y.synchronizedFn("3");
+        void y.synchronizedFn("4");
         await new Promise((resolve, reject) => setInterval(resolve, 500)); // wait 0.5s
         expect(x.log).toStrictEqual(["start 1", "done 1"]);
         expect(y.log).toStrictEqual(["start 3", "done 3"]);
 
-        x.synchronizedFn("5");
-        x.synchronizedFn("6");
+        void x.synchronizedFn("5");
+        void x.synchronizedFn("6");
         await new Promise((resolve, reject) => setInterval(resolve, 500)); // wait 0.5s
         expect(x.log).toStrictEqual(["start 1", "done 1", "start 5", "done 5"]);
         expect(y.log).toStrictEqual(["start 3", "done 3"]);

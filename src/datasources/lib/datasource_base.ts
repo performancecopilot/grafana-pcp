@@ -173,8 +173,8 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
         }
     }
 
-    abstract async onTargetUpdate(prevValue: PmapiQueryTarget<EP>, newValue: PmapiQueryTarget<EP>): Promise<void>;
-    abstract async onTargetInactive(target: PmapiQueryTarget<EP>): Promise<void>;
+    abstract onTargetUpdate(prevValue: PmapiQueryTarget<EP>, newValue: PmapiQueryTarget<EP>): void;
+    abstract onTargetInactive(target: PmapiQueryTarget<EP>): void;
     abstract async handleTarget(query: Query, target: PmapiQueryTarget<EP>): Promise<TargetResult>;
 
     static defaultLegendFormatter(metric: string, instance: MetricInstance<number | string> | undefined, labels: Record<string, any>) {

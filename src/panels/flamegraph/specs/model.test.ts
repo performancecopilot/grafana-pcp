@@ -4,11 +4,6 @@ import { generateFlameGraphModel } from "../model";
 describe("Model", () => {
 
     it("should generate flame graph model", () => {
-        const series = new MutableDataFrame({
-            name: "",
-            fields: [{ name: "time", type: FieldType.time, values: [1] }, { name: "data", values: [1] }],
-        });
-
         const panelData: PanelData = {
             state: LoadingState.Done,
             timeRange: null!,

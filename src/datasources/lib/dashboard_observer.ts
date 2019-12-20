@@ -8,8 +8,8 @@ interface ObservedTarget<EP> {
 export default class DashboardObserver<EP> {
 
     private targets: Record<string, ObservedTarget<EP>> = {};
-    onTargetUpdate: (prevValue: PmapiQueryTarget<EP>, newValue: PmapiQueryTarget<EP>) => Promise<void>;
-    onTargetInactive: (target: PmapiQueryTarget<EP>) => Promise<void>;
+    onTargetUpdate: (prevValue: PmapiQueryTarget<EP>, newValue: PmapiQueryTarget<EP>) => void;
+    onTargetInactive: (target: PmapiQueryTarget<EP>) => void;
 
     constructor(private inactivityTimeoutMs: number) {
     }

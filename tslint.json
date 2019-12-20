@@ -86,6 +86,7 @@
         "no-debugger": true,
         "no-empty": false,
         "no-eval": true,
+        "no-floating-promises": true,
         "no-inferrable-types": true,
         "no-namespace": [
             true,

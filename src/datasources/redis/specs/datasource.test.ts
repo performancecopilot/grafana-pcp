@@ -40,7 +40,7 @@ describe("PCP Redis e2e", () => {
             }]
         };
 
-        let result = await ctx.datasource.query(query);
+        const result = await ctx.datasource.query(query);
         expect(result).toStrictEqual({
             data: [{
                 target: 'kernel.all.sysfork {hostname: "web01"}',
@@ -78,7 +78,7 @@ describe("PCP Redis e2e", () => {
             }]
         };
 
-        let result = await ctx.datasource.query(query);
+        const result = await ctx.datasource.query(query);
         expect(result).toStrictEqual({
             data: [{
                 target: "1 minute",

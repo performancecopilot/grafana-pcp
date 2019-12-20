@@ -150,7 +150,7 @@ class Benchmarks {
 (window as any).Benchmark = Benchmark;
 (window as any).runBenchmarks = () => {
     console.log("starting benchmarks...");
-    Benchmarks.runSuite([
+    void Benchmarks.runSuite([
         new IngestWithRateConversation(),
         new IngestWithoutRateConversation(),
         new CounterValues()

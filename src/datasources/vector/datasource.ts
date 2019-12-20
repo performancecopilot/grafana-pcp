@@ -11,12 +11,12 @@ export class PCPVectorDatasource extends PmapiDatasourceBase<Endpoint> {
         super(instanceSettings, backendSrv, templateSrv);
     }
 
-    async onTargetUpdate(prevValue: PmapiQueryTarget<Endpoint>, newValue: PmapiQueryTarget<Endpoint>) {
+    onTargetUpdate(prevValue: PmapiQueryTarget<Endpoint>, newValue: PmapiQueryTarget<Endpoint>) {
         if (prevValue.endpoint !== newValue.endpoint || prevValue.expr !== newValue.expr)
             this.onTargetInactive(prevValue);
     }
 
-    async onTargetInactive(target: PmapiQueryTarget<Endpoint>) {
+    onTargetInactive(target: PmapiQueryTarget<Endpoint>) {
         if (!this.dashboardObserver.existMatchingTarget(target, { endpoint: target.endpoint, expr: target.expr }))
             target.endpoint.pollSrv.removeMetricsFromPolling([target.expr]);
     }
