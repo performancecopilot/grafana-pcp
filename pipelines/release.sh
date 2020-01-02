@@ -1,9 +1,8 @@
-#!/bin/bash
+#!/bin/sh -eu
 #
 # Release process adapted from
 # https://github.com/grafana/kentik-app/blob/master/.circleci/config.yml
 #
-set -e
 
 PLUGIN_NAME="grafana-pcp"
 VERSION=$(cat src/plugin.json | jq '.info.version' | sed 's/"//g')

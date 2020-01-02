@@ -5,31 +5,21 @@ pool:
   vmImage: "ubuntu-latest"
 
 jobs:
-- job: release
-  displayName: Release
-  steps:
-  - checkout: self
-    persistCredentials: true
+  - job: release
+    displayName: Release
+    steps:
+      - checkout: self
+        persistCredentials: true
 
-  - script: yarn install
-    displayName: Install dependencies
+      - template: qa-steps.yml
 
-  - script: yarn run lint
-    displayName: Run linters
+      - script: |
+          wget -q https://github.com/github/hub/releases/download/v2.13.0/hub-linux-amd64-2.13.0.tgz
+          tar xfz hub-linux-amd64-2.13.0.tgz
+          export PATH=$PATH:$(pwd)/hub-linux-amd64-2.13.0/bin
 
-  - script: yarn run build
-    displayName: Build
-
-  - script: yarn run test
-    displayName: Run tests
-
-  - script: |
-      wget -q https://github.com/github/hub/releases/download/v2.13.0/hub-linux-amd64-2.13.0.tgz
-      tar xfz hub-linux-amd64-2.13.0.tgz
-      export PATH=$PATH:$(pwd)/hub-linux-amd64-2.13.0/bin
-
-      git config user.name "Azure Pipelines Automation"
-      ./pipelines/release.sh
-    displayName: Release on GitHub
-    env:
-      GITHUB_TOKEN: $(github_token)
+          git config user.name "Azure Pipelines Automation"
+          ./pipelines/release.sh
+        displayName: Release on GitHub
+        env:
+          GITHUB_TOKEN: $(github_token)

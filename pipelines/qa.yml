@@ -2,21 +2,7 @@ pool:
   vmImage: "ubuntu-latest"
 
 jobs:
-- job: qa
-  displayName: QA
-  steps:
-  - script: yarn install
-    displayName: Install dependencies
-
-  - script: yarn run lint
-    displayName: Run linters
-
-  - script: yarn run build
-    displayName: Build
-
-  - publish: ./dist
-    displayName: Publish build artifacts
-    artifact: grafana-pcp
-
-  - script: yarn run coverage
-    displayName: Run tests
+  - job: qa
+    displayName: QA
+    steps:
+      - template: qa-steps.yml
