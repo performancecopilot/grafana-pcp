@@ -1,9 +1,10 @@
 # Change Log
 
-## 1.0.6 (unreleased)
+## 1.0.6 (2020-01-07)
 
 - **redis:** support wildcards in metric names (e.g. `disk.dev.*`)
 - **redis:** fix label support
+- **redis:** fix legends
 
 ## 1.0.5 (2019-12-16)
 
