@@ -45,7 +45,7 @@ export function valuesIndom(series: string, timeSpec: any, values: { instance: s
     };
 }
 
-export function descs(series: string, semantics = "instant") {
+export function descs(series: string, indom = "none", semantics = "instant") {
     return {
         "request": {
             "url": "^/series/descs$",
@@ -59,7 +59,7 @@ export function descs(series: string, semantics = "instant") {
                 "series": series,
                 "source": "3bd555f3b970fb593bcba57fa9d5d150f4eba544",
                 "pmid": "60.0.14",
-                "indom": "none",
+                "indom": indom,
                 "semantics": semantics,
                 "type": "u64",
                 "units": "count"
@@ -86,23 +86,23 @@ export function metrics(series: string) {
     };
 }
 
-export function labels(series: string) {
+export function labels(series: string[]) {
     return {
         "request": {
             "url": "^/series/labels$",
             "params": {
-                series,
+                series: series.join(","),
             }
         },
         "response": {
             "status": 200,
-            "data": [{
+            "data": series.map(seriesId => ({
                 "series": series,
                 "labels": {
                     "agent": "linux",
-                    "hostname": "web01"
+                    "hostname": `web01`
                 }
-            }]
+            }))
         }
     };
 }

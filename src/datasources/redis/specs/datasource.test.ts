@@ -27,9 +27,9 @@ describe("PCP Redis e2e", () => {
             fixtures.pmseries.valuesNoIndom("4de74f3e9b34fbb12b76590e998fa160cb26ac75",
                 { start: 0 - 2 * 60, finish: 20 + 60, samples: 200 },
                 [{ "timestamp": 1000, "value": "38436" }, { "timestamp": 2000, "value": "38440" }]),
-            fixtures.pmseries.descs("4de74f3e9b34fbb12b76590e998fa160cb26ac75", "counter"),
+            fixtures.pmseries.descs("4de74f3e9b34fbb12b76590e998fa160cb26ac75", "none", "counter"),
             fixtures.pmseries.metrics("4de74f3e9b34fbb12b76590e998fa160cb26ac75"),
-            fixtures.pmseries.labels("4de74f3e9b34fbb12b76590e998fa160cb26ac75")
+            fixtures.pmseries.labels(["4de74f3e9b34fbb12b76590e998fa160cb26ac75"])
         ]);
 
         const query = {
@@ -60,9 +60,9 @@ describe("PCP Redis e2e", () => {
                 { instance: "23afd8ee05118c73e32b6a85507ebe0b82bb1d7d", timestamp: 1000, value: "7.000000e01" },
                 { instance: "f96de1c90abf0daefd6ef63963a6550c195afac1", timestamp: 1000, value: "5.600000e01" }
             ]),
-            fixtures.pmseries.descs("e12bc48d72d0ecb6d4d5a86f23a1a16121b3cdaa"),
+            fixtures.pmseries.descs("e12bc48d72d0ecb6d4d5a86f23a1a16121b3cdaa", "1.1.1"),
             fixtures.pmseries.metrics("e12bc48d72d0ecb6d4d5a86f23a1a16121b3cdaa"),
-            fixtures.pmseries.labels("e12bc48d72d0ecb6d4d5a86f23a1a16121b3cdaa"),
+            fixtures.pmseries.labels(["199f236a02406c5ff7a74c91fa5612e3ef58c459", "23afd8ee05118c73e32b6a85507ebe0b82bb1d7d", "f96de1c90abf0daefd6ef63963a6550c195afac1"]),
             fixtures.pmseries.instances("e12bc48d72d0ecb6d4d5a86f23a1a16121b3cdaa", [
                 { instance: "199f236a02406c5ff7a74c91fa5612e3ef58c459", id: 1, name: "1 minute" },
                 { instance: "23afd8ee05118c73e32b6a85507ebe0b82bb1d7d", id: 5, name: "5 minute" },
