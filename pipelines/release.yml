@@ -14,9 +14,8 @@ jobs:
       - template: qa-steps.yml
 
       - script: |
-          wget -q https://github.com/github/hub/releases/download/v2.13.0/hub-linux-amd64-2.13.0.tgz
-          tar xfz hub-linux-amd64-2.13.0.tgz
-          export PATH=$PATH:$(pwd)/hub-linux-amd64-2.13.0/bin
+          wget -q -O hub-linux-amd64.tgz https://github.com/github/hub/releases/download/v2.13.0/hub-linux-amd64-2.13.0.tgz
+          tar -xf hub-linux-amd64.tgz && sudo mv ./hub-linux-amd64-*/bin/hub /usr/local/bin
 
           git config user.name "Azure Pipelines Automation"
           ./pipelines/release.sh
