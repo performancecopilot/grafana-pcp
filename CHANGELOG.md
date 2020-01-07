@@ -10,10 +10,6 @@
 - **build:** remove deprecated `uglify-webpack-plugin`
 - **flame graphs:** support multidimensional eBPF maps (required to display e.g. the process name)
 
-## 2.0.0-beta1 (2019-12-12)
-
-- support Grafana 6.5+, drop support for Grafana < 6.5
-
 ## 1.0.6 (2020-01-07)
 
 - **redis:** support wildcards in metric names (e.g. `disk.dev.*`)
@@ -25,6 +21,10 @@
 - **redis:** set default sample interval to `60s` (fixes empty graph borders)
 - **build:** upgrade `copy-webpack-plugin` to mitigate XSS vulnerability in the `serialize-javascript` transitive dependency
 - **build:** remove deprecated `uglify-webpack-plugin`
+
+## 2.0.0-beta1 (2019-12-12)
+
+- support Grafana 6.5+, drop support for Grafana < 6.5
 
 ## 1.0.4 (2019-12-11)
 
