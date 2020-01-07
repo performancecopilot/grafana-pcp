@@ -9,8 +9,9 @@ interface FlameGraphModel {
     maxDate: number;
 }
 
-function readStacks(root: StackFrame, options: Options, stacks: string[], count: number) {
+function readStacks(root: StackFrame, options: Options, dataFrameName: string, count: number) {
     let curNode = root;
+    const stacks = dataFrameName.split(/[\n,]/);
     for (let stackFrame of stacks) {
         stackFrame = stackFrame.trim();
         if (!stackFrame || (options.hideUnresolvedStackFrames && stackFrame.startsWith("0x")))
@@ -70,8 +71,7 @@ export function generateFlameGraphModel(panelData: PanelData, options: Options):
             if (!model.maxDate || maxDate > model.maxDate)
                 model.maxDate = maxDate;
 
-            const stacks = dataFrame.name.split('\n');
-            readStacks(model.root, options, stacks, count);
+            readStacks(model.root, options, dataFrame.name, count);
         }
     }
     return model;

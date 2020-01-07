@@ -68,4 +68,57 @@ describe("Model", () => {
         expect(result).toStrictEqual(expected);
     });
 
+    it("should generate flame graph model with process names", () => {
+        const panelData: PanelData = {
+            state: LoadingState.Done,
+            timeRange: null!,
+            series: [
+                new MutableDataFrame({
+                    name: "",
+                    fields: [{ name: "time", type: FieldType.time, values: [1] }, { name: "data", values: [1] }],
+                }),
+                new MutableDataFrame({
+                    name: "swapper/2,\n    write+24\n    0x3266377830202020\n",
+                    fields: [{ name: "time", type: FieldType.time, values: [2] }, { name: "data", values: [2] }],
+                }),
+                new MutableDataFrame({
+                    name: "Xorg,\n    read+24\n    0x123\n    0x456",
+                    fields: [{ name: "time", type: FieldType.time, values: [1] }, { name: "data", values: [3] }],
+                })
+            ]
+        };
+
+        const result = generateFlameGraphModel(panelData, { minSamples: 0, hideUnresolvedStackFrames: false, hideIdleStacks: false });
+        const expected = {
+            root: {
+                name: "root",
+                children: [{
+                    name: "swapper/2",
+                    children: [{
+                        name: "write+24",
+                        children: [{
+                            name: "0x3266377830202020",
+                            children: [],
+                            value: 2
+                        }]
+                    }]
+                }, {
+                    name: "Xorg",
+                    children: [{
+                        name: "read+24",
+                        children: [{
+                            name: "0x123",
+                            children: [{
+                                name: "0x456",
+                                children: [],
+                                value: 3
+                            }]
+                        }]
+                    }]
+                }]
+            },
+        };
+        expect(result).toMatchObject(expected);
+    });
+
 });

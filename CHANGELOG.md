@@ -8,15 +8,17 @@
 - **redis:** fix query timespec, add tests
 - **build:** upgrade `copy-webpack-plugin` to mitigate XSS vulnerability in the `serialize-javascript` transitive dependency
 - **build:** remove deprecated `uglify-webpack-plugin`
+- **flame graphs:** support multidimensional eBPF maps (required to display e.g. the process name)
 
 ## 2.0.0-beta1 (2019-12-12)
 
 - support Grafana 6.5+, drop support for Grafana < 6.5
 
-## 1.0.6 (unreleased)
+## 1.0.6 (2020-01-07)
 
 - **redis:** support wildcards in metric names (e.g. `disk.dev.*`)
 - **redis:** fix label support
+- **redis:** fix legends
 
 ## 1.0.5 (2019-12-16)
 
