@@ -170,15 +170,14 @@ export class PCPRedisDatasource {
             }
         }
 
-        const sampleIntervalSec = 60; // guessed sample interval
+        const interval = query.intervalMs / 1000; // seconds
         // request a bigger time frame to fill the chart (otherwise left and right border of chart is empty)
         // because of the rate conversation of counters first datapoint is "lost" -> expand timeframe at the beginning
-        const start = Math.round(query.range.from.valueOf() / 1000) - 2 * sampleIntervalSec;
-        const finish = Math.round(query.range.to.valueOf() / 1000) + sampleIntervalSec;
-        const samples = Math.round((query.range.to.valueOf() - query.range.from.valueOf()) / query.intervalMs);
-        // const interval = query.interval;
+        const additionalTimeRange = Math.max(interval, 60); // 60s is the default sample interval of pmlogger
+        const start = Math.floor(query.range.from.valueOf() / 1000 - 2 * additionalTimeRange); // seconds
+        const finish = Math.ceil(query.range.to.valueOf() / 1000 + additionalTimeRange); // seconds
 
-        const instances = await this.pmSeriesSrv.getValues(seriesList, { start, finish, samples });
+        const instances = await this.pmSeriesSrv.getValues(seriesList, { start, finish, interval });
         const descriptions = await this.pmSeriesSrv.getDescriptions(seriesList);
         const metricNames = await this.pmSeriesSrv.getMetricNames(seriesList);
         const instanceValuesGroupedBySeries = _.groupBy(instances, "series");

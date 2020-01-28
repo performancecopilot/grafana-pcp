@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.7 (2020-01-29)
+
+- **redis:** fix timespec (fixes empty graphs for large time ranges)
+
 ## 1.0.6 (2020-01-07)
 
 - **redis:** support wildcards in metric names (e.g. `disk.dev.*`)
