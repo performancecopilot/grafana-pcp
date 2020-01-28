@@ -2,13 +2,12 @@
 
 ## 2.0.0 (unreleased)
 
-- **redis:** set default sample interval to `60s` (fixes empty graph borders)
-- **redis:** support wildcards in metric names (e.g. `disk.dev.*`)
-- **redis:** fix label support
-- **redis:** fix query timespec, add tests
-- **build:** upgrade `copy-webpack-plugin` to mitigate XSS vulnerability in the `serialize-javascript` transitive dependency
-- **build:** remove deprecated `uglify-webpack-plugin`
+- **redis:** add tests
 - **flame graphs:** support multidimensional eBPF maps (required to display e.g. the process name)
+
+## 1.0.7 (2020-01-29)
+
+- **redis:** fix timespec (fixes empty graphs for large time ranges)
 
 ## 1.0.6 (2020-01-07)
 

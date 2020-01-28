@@ -28,8 +28,8 @@ export const query: Query = {
     dashboardId: 1,
     panelId: 1,
     timezone: "",
-    interval: "1s",
-    intervalMs: 1000,
+    interval: "20s",
+    intervalMs: 20000,
     maxDataPoints: 100,
     range: {
         from: new Date(0),
