@@ -97,7 +97,7 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
         }
         catch (error) {
             return {
-                status: 'success',
+                status: 'error',
                 message: `${error.message}. To use this data source, ` +
                     "please configure the URL in the query editor."
             };
