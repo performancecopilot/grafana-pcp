@@ -51,6 +51,42 @@ describe("PCP Redis e2e", () => {
         });
     });
 
+    it("should perform a query with a large time range", async () => {
+        ctx.server.addResponses([
+            fixtures.pmseries.query("kernel.all.sysfork", "4de74f3e9b34fbb12b76590e998fa160cb26ac75"),
+            fixtures.pmseries.valuesNoIndom("4de74f3e9b34fbb12b76590e998fa160cb26ac75",
+                { start: 1 * 60 * 60 - 2 * 5 * 60, finish: 2 * 60 * 60 + 5 * 60, interval: 5 * 60 },
+                [{ "timestamp": 1000, "value": "38436" }, { "timestamp": 2000, "value": "38440" }]),
+            fixtures.pmseries.descs("4de74f3e9b34fbb12b76590e998fa160cb26ac75", "none", "counter"),
+            fixtures.pmseries.metrics("4de74f3e9b34fbb12b76590e998fa160cb26ac75"),
+            fixtures.pmseries.labels(["4de74f3e9b34fbb12b76590e998fa160cb26ac75"])
+        ]);
+
+        const query = {
+            ...fixtures.grafana.query,
+            interval: "5m",
+            intervalMs: 5 * 60 * 1000,
+            range: {
+                from: new Date(1 * 60 * 60 * 1000),
+                to: new Date(2 * 60 * 60 * 1000)
+            },
+            targets: [{
+                ...fixtures.grafana.queryTarget,
+                expr: "kernel.all.sysfork"
+            }]
+        };
+
+        const result = await ctx.datasource.query(query);
+        expect(result).toStrictEqual({
+            data: [{
+                target: 'kernel.all.sysfork {hostname: "web01"}',
+                datapoints: [
+                    [4, 2000]
+                ]
+            }]
+        });
+    });
+
     it("should perform a query with instances", async () => {
         ctx.server.addResponses([
             fixtures.pmseries.query("kernel.all.load", "e12bc48d72d0ecb6d4d5a86f23a1a16121b3cdaa"),
