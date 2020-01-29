@@ -1,0 +1,48 @@
+<query-editor-row query-ctrl="ctrl" can-collapse="true" has-text-edit-mode="false">
+  <div class="gf-form-inline">
+    <div class="gf-form gf-form--grow">
+      <code-editor content="ctrl.target.expr" on-change="ctrl.targetChanged()" ng-keyup="ctrl.startTyping()"
+        data-mode="pcp" get-completer="ctrl.getCompleter()">
+      </code-editor>
+    </div>
+  </div>
+
+  <div class="gf-form-inline">
+    <div class="gf-form">
+      <label class="gf-form-label">Legend</label>
+      <input type="text" class="gf-form-input gf-form-input--has-help-icon" ng-model="ctrl.target.legendFormat"
+        spellcheck="false" placeholder="legend format" data-min-length=0 data-items=1000 ng-model-onblur
+        ng-change="ctrl.targetChanged()">
+      </input>
+      <info-popover mode="right-absolute">
+        Controls the name of the time series, using name or pattern. For example
+        <span ng-non-bindable>${instance}</span> will be replaced with the instance name.
+        Available variables: metric, metric0 and instance.
+      </info-popover>
+    </div>
+
+    <div class="gf-form">
+      <label class="gf-form-label width-5">Format</label>
+      <div class="gf-form-select-wrapper width-8">
+        <select class="gf-form-input gf-size-auto" ng-model="ctrl.target.format"
+          ng-options="f.value as f.text for f in ctrl.formats" ng-change="ctrl.targetChanged()"></select>
+      </div>
+    </div>
+
+    <div class="gf-form">
+      <label class="gf-form-label width-4">URL</label>
+      <input type="text" class="gf-form-input" ng-model="ctrl.target.url" spellcheck="false" placeholder="override URL"
+        data-min-length=0 data-items=1000 ng-model-onblur ng-change="ctrl.targetChanged()">
+      </input>
+    </div>
+
+    <div class="gf-form">
+      <label class="gf-form-label width-6">Container</label>
+      <div class="gf-form-select-wrapper width-12">
+        <gf-form-dropdown model="ctrl.target.container" get-options="ctrl.getContainers()"
+          on-change="ctrl.targetChanged()" allow-custom="true">
+        </gf-form-dropdown>
+      </div>
+    </div>
+  </div>
+</query-editor-row>
