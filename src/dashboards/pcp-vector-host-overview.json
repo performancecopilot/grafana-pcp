@@ -1113,70 +1113,6 @@
       }
     },
     {
-      "cards": {
-        "cardPadding": 0,
-        "cardRound": null
-      },
-      "color": {
-        "cardColor": "#b4ff00",
-        "colorScale": "sqrt",
-        "colorScheme": "interpolateOranges",
-        "exponent": 0.5,
-        "max": null,
-        "mode": "spectrum"
-      },
-      "dataFormat": "tsbuckets",
-      "datasource": "$datasource",
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 34
-      },
-      "heatmap": {},
-      "hideZeroBuckets": true,
-      "highlightCards": true,
-      "id": 63,
-      "legend": {
-        "show": false
-      },
-      "links": [],
-      "options": {},
-      "reverseYBuckets": false,
-      "targets": [
-        {
-          "expr": "bcc.runq.latency",
-          "format": "heatmap",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Run queue latency (us)",
-      "tooltip": {
-        "show": true,
-        "showHistogram": false
-      },
-      "type": "heatmap",
-      "xAxis": {
-        "show": true
-      },
-      "xBucketNumber": null,
-      "xBucketSize": null,
-      "yAxis": {
-        "decimals": null,
-        "format": "µs",
-        "logBase": 1,
-        "max": null,
-        "min": null,
-        "show": true,
-        "splitFactor": null
-      },
-      "yBucketBound": "upper",
-      "yBucketNumber": null,
-      "yBucketSize": null
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -3146,69 +3082,6 @@
         "align": false,
         "alignLevel": null
       }
-    },
-    {
-      "cards": {
-        "cardPadding": 0,
-        "cardRound": null
-      },
-      "color": {
-        "cardColor": "#b4ff00",
-        "colorScale": "sqrt",
-        "colorScheme": "interpolateOranges",
-        "exponent": 0.5,
-        "mode": "spectrum"
-      },
-      "dataFormat": "tsbuckets",
-      "datasource": "$datasource",
-      "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 107
-      },
-      "heatmap": {},
-      "hideZeroBuckets": true,
-      "highlightCards": true,
-      "id": 62,
-      "legend": {
-        "show": false
-      },
-      "links": [],
-      "options": {},
-      "reverseYBuckets": false,
-      "targets": [
-        {
-          "expr": "bcc.disk.all.latency",
-          "format": "heatmap",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "BCC disk latency (us)",
-      "tooltip": {
-        "show": true,
-        "showHistogram": false
-      },
-      "type": "heatmap",
-      "xAxis": {
-        "show": true
-      },
-      "xBucketNumber": null,
-      "xBucketSize": null,
-      "yAxis": {
-        "decimals": null,
-        "format": "µs",
-        "logBase": 1,
-        "max": null,
-        "min": null,
-        "show": true,
-        "splitFactor": null
-      },
-      "yBucketBound": "upper",
-      "yBucketNumber": null,
-      "yBucketSize": null
     }
   ],
   "refresh": "1s",
@@ -3257,5 +3130,5 @@
   },
   "timezone": "",
   "title": "PCP Vector Host Overview",
-  "version": 1
+  "version": 2
 }
