@@ -1,6 +1,20 @@
-const baseWebpackConfig = require('./webpack.config');
+const TerserPlugin = require('terser-webpack-plugin');
+const baseConfig = require('./webpack.config');
 
-var conf = baseWebpackConfig;
-conf.mode = 'production';
+var productionConfig = baseConfig;
+productionConfig.forEach(config => {
+    config.mode = 'production';
+    config.optimization = {
+        minimizer: [
+            new TerserPlugin({
+                terserOptions: {
+                    parse: {
+                        bare_returns: true
+                    }
+                }
+            }),
+        ],
+    };
+})
 
-module.exports = conf;
+module.exports = productionConfig;
