@@ -66,10 +66,10 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
     configureEndpoint(_endpoint: EP) {
     }
 
-    async getOrCreateEndpoint(url: string, container?: string) {
+    getOrCreateEndpoint(url: string, container?: string) {
         let endpoint = this.endpointRegistry.find(url, container);
         if (!endpoint) {
-            endpoint = await this.endpointRegistry.create(this.doRequest.bind(this), url, container, this.localHistoryAgeMs);
+            endpoint = this.endpointRegistry.create(this.doRequest.bind(this), url, container, this.localHistoryAgeMs);
             this.configureEndpoint(endpoint);
         }
         return endpoint;
@@ -135,30 +135,23 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
         return [url, container];
     }
 
-    async buildQueryTargets(query: Query): Promise<PmapiQueryTarget<EP>[]> {
-        // iterative execution because getOrCreateEndpoint is async and
-        // a target can consume the created endpoint from the previous target
-        // (if url and container is matching)
-
-        const targets: PmapiQueryTarget<EP>[] = [];
-        for (const target of query.targets) {
-            if (target.hide || isBlank(target.expr) || target.isTyping)
-                continue;
-
-            const [url, container] = this.getConnectionParams(target, query.scopedVars);
-            targets.push({
-                refId: target.refId,
-                expr: this.templateSrv.replace(target.expr.trim(), query.scopedVars),
-                format: target.format,
-                legendFormat: target.legendFormat,
-                minPcpVersion: target.minPcpVersion,
-                uid: `${query.dashboardId}/${query.panelId}/${target.refId}`,
-                url: url,
-                container: container,
-                endpoint: await this.getOrCreateEndpoint(url, container)
+    buildQueryTargets(query: Query): PmapiQueryTarget<EP>[] {
+        return query.targets
+            .filter(target => !target.hide && !isBlank(target.expr) && !target.isTyping)
+            .map(target => {
+                const [url, container] = this.getConnectionParams(target, query.scopedVars);
+                return {
+                    refId: target.refId,
+                    expr: this.templateSrv.replace(target.expr.trim(), query.scopedVars),
+                    format: target.format,
+                    legendFormat: target.legendFormat,
+                    minPcpVersion: target.minPcpVersion,
+                    uid: `${query.dashboardId}/${query.panelId}/${target.refId}`,
+                    url: url,
+                    container: container,
+                    endpoint: this.getOrCreateEndpoint(url, container)
+                };
             });
-        }
-        return targets;
     }
 
     async applyTransformations(pmapiSrv: PmapiSrv, results: TargetResult) {
@@ -190,7 +183,7 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
             throw new Error(errors);
         }
 
-        const targets = await this.buildQueryTargets(query);
+        const targets = this.buildQueryTargets(query);
         if (targets.length === 0)
             return { data: [] };
         if (!_.every(targets, ['format', targets[0].format]))

@@ -33,7 +33,6 @@ describe("PCP Vector e2e: Formatting", () => {
     it("should support legend templating", async () => {
         ctx.server.addResponses([
             fixtures.pmapi.PmProxy.context(1),
-            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.pmapi.PmProxy.kernelAllLoad.metric,
             fixtures.pmapi.PmProxy.kernelAllLoad.indom,
             fixtures.pmapi.PmProxy.kernelAllLoad.fetch
@@ -81,7 +80,6 @@ describe("PCP Vector e2e: Formatting", () => {
     it("should convert to heatmaps", async () => {
         ctx.server.addResponses([
             fixtures.pmapi.PmProxy.context(1),
-            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.pmapi.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
             fixtures.pmapi.PmProxy.indom(1, "metric1", [
                 { instance: 0, name: "-inf--1" },

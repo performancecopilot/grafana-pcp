@@ -32,7 +32,6 @@ describe("PCP Vector e2e: PollSrv", () => {
     it("should remove non existing metrics from polling", async () => {
         ctx.server.addResponses([
             fixtures.pmapi.PmProxy.context(1),
-            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.pmapi.PmProxy.metric(1, [{ name: "non.existing.metric", semantics: "instant" }]),
             fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [], ["non.existing.metric"]),
         ]);
@@ -74,7 +73,6 @@ describe("PCP Vector e2e: PollSrv", () => {
     it("should stop polling expired metrics", async () => {
         ctx.server.addResponses([
             fixtures.pmapi.PmProxy.context(1),
-            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.pmapi.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }, { name: "metric2", semantics: "instant" }]),
             fixtures.pmapi.PmProxy.fetchSingleMetric(1, 30, [{ name: "metric1", value: 100 }, { name: "metric2", value: 200 }]),
             fixtures.pmapi.PmProxy.fetchSingleMetric(1, 45, [{ name: "metric2", value: 200 }]),

@@ -37,8 +37,9 @@ export class PCPBPFtraceDatasource extends PmapiDatasourceBase<BPFtraceEndpoint>
 
     async handleTarget(query: Query, target: PmapiQueryTarget<BPFtraceEndpoint>) {
         const endpoint = target.endpoint;
-        if (target.minPcpVersion && versionCmp(target.minPcpVersion, endpoint.pcpVersion) > 0) {
-            throw new Error(`This target requires PCP version ${target.minPcpVersion}, however PCP version ${endpoint.pcpVersion} is installed.`);
+        const pcpVersion = await endpoint.pmapiSrv.getPcpVersion();
+        if (target.minPcpVersion && versionCmp(target.minPcpVersion, pcpVersion) > 0) {
+            throw new Error(`This target requires PCP version ${target.minPcpVersion}, however PCP version ${pcpVersion} is installed.`);
         }
 
         const script = await endpoint.scriptRegistry.ensureActive(target.uid, target.expr);

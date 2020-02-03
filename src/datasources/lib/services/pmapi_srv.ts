@@ -251,11 +251,21 @@ export class Context {
 }
 
 export class PmapiSrv {
+    private pcpVersion: string;
     private metricMetadataCache: Record<string, MetricMetadata> = {};
     private instanceCache: Record<string, Record<number, IndomInstance>> = {}; // instanceCache[metric][instance_id] = instance
     private childrenCache: Record<string, ChildrenResponse> = {};
 
     constructor(readonly context: Context) {
+    }
+
+    @synchronized
+    async getPcpVersion() {
+        if (!this.pcpVersion) {
+            const versionMetric = await this.getMetricValues(["pmcd.version"]);
+            this.pcpVersion = versionMetric.values[0].instances[0].value as string;
+        }
+        return this.pcpVersion;
     }
 
     async getMetricMetadatas(metrics: string[]): Promise<Record<string, MetricMetadata>> {

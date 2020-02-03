@@ -32,7 +32,6 @@ describe("PCP Vector e2e: Query", () => {
     it("should perform rate-conversation of a counter with no instance domains", async () => {
         ctx.server.addResponses([
             fixtures.pmapi.PmProxy.context(1),
-            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.pmapi.PmProxy.kernelAllSysfork.metric,
             fixtures.pmapi.PmProxy.kernelAllSysfork.fetch(10, 100),
             fixtures.pmapi.PmProxy.kernelAllSysfork.fetch(11, 200),
@@ -91,7 +90,6 @@ describe("PCP Vector e2e: Query", () => {
     it("should perform a query with instance domains", async () => {
         ctx.server.addResponses([
             fixtures.pmapi.PmProxy.context(1),
-            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.pmapi.PmProxy.kernelAllLoad.metric,
             fixtures.pmapi.PmProxy.kernelAllLoad.indom,
             fixtures.pmapi.PmProxy.kernelAllLoad.fetch
@@ -135,7 +133,6 @@ describe("PCP Vector e2e: Query", () => {
     it("should handle requesting metadata of non existing metrics", async () => {
         ctx.server.addResponses([
             fixtures.pmapi.PmProxy.context(1),
-            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.pmapi.PmProxy.metric(1, [], ["non.existing.metric"]),
             fixtures.pmapi.PmProxy.metric(1, [{ name: "existing.metric", semantics: "instant" }], ["non.existing.metric,existing.metric"]),
         ]);
@@ -172,7 +169,6 @@ describe("PCP Vector e2e: Query", () => {
     it("should get a new context if current context is expired", async () => {
         ctx.server.addResponses([
             fixtures.pmapi.PmProxy.context(1),
-            fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "pmcd.version", value: "5.0.2" }]),
             fixtures.pmapi.PmProxy.metric(1, [{ name: "metric1", semantics: "instant" }]),
             fixtures.pmapi.PmProxy.fetchSingleMetric(1, 10, [{ name: "metric1", value: 100 }]),
             fixtures.pmapi.PmProxy.contextExpired(1, "/"),
