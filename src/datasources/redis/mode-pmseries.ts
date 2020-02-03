@@ -1,5 +1,6 @@
 /* tslint:disable */
-export function load_mode(ace: any) {
+declare var ace: any;
+export default () => {
     ace.define("ace/snippets/pmseries", ["require", "exports", "module"], function (require: any, exports: any, module: any) {
         "use strict";
 

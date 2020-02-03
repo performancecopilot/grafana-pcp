@@ -3,7 +3,7 @@ import PCPVectorCompleter from './completer';
 import { PCPQueryCtrl } from "../lib/pcp_query_ctrl";
 import { getDashboardVariables } from '../lib/utils';
 import { PCPVectorDatasource } from './datasource';
-import { load_mode } from './mode-pcp';
+import loadPcpMode from './mode-pcp';
 
 export class PCPVectorDatasourceQueryCtrl extends PCPQueryCtrl {
     static templateUrl = 'datasources/vector/partials/query.editor.html';
@@ -53,7 +53,7 @@ export class PCPVectorDatasourceQueryCtrl extends PCPQueryCtrl {
 
     getCompleter() {
         this.removeTextCompleter("pcp");
-        load_mode((window as any).ace);
+        loadPcpMode();
         return new PCPVectorCompleter(this.datasource, this.target);
     }
 
