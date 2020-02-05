@@ -108,7 +108,7 @@ module.exports = [{
             { from: 'dashboards/*', to: '.' },
         ]),
     ]
-}, {
+}/*, {
     ...baseConfig,
     entry: {
         './dashboards/checklist': './dashboards/checklist/module.ts'
@@ -121,4 +121,4 @@ module.exports = [{
     plugins: [
         new GrafanaScriptedDashboardPlugin(),
     ]
-}];
+}*/];

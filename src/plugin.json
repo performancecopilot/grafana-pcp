@@ -34,7 +34,7 @@
             }
         ],
         "version": "2.0.0",
-        "updated": "2020-01-29"
+        "updated": "2020-02-05"
     },
     "includes": [
         {
@@ -80,7 +80,7 @@
         }
     ],
     "dependencies": {
-        "grafanaVersion": "6.5.0",
+        "grafanaVersion": "6.6.0",
         "plugins": []
     }
 }

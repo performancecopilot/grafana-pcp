@@ -1,12 +1,13 @@
 # Change Log
 
-## 2.0.0 (unreleased)
+## 2.0.0 (2020-02-05)
 
 - **vector, bpftrace**: fix version checks on dashboard load (prevent multiple pmcd.version checks on dashboard load)
 - **vector, bpftrace**: change datasource check box to red if URL is inaccessible
 - **redis:** add tests
 - **flame graphs:** support multidimensional eBPF maps (required to display e.g. the process name)
 - **dashboards**: remove BCC metrics from Vector host overview (because the BCC PMDA isn't installed by default)
+- **misc**: update dependencies
 
 ## 1.0.7 (2020-01-29)
 
