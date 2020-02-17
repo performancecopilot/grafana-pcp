@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.0.1 (2020-02-17)
+
+- **build**: fix production build (implement workaround for [systemjs/systemjs#2117](https://github.com/systemjs/systemjs/issues/2117), [grafana/grafana#21785](https://github.com/grafana/grafana/issues/21785))
+
 ## 2.0.0 (2020-02-17)
 
 - **vector, bpftrace**: fix version checks on dashboard load (prevent multiple pmcd.version checks on dashboard load)

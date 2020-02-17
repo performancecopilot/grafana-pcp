@@ -82,7 +82,7 @@ const baseConfig = {
 module.exports = [{
     ...baseConfig,
     entry: {
-        './module': './module.ts',
+        './module': ['@grafana/ui', './module.ts'],
         './datasources/redis/module': './datasources/redis/module.ts',
         './datasources/vector/module': './datasources/vector/module.ts',
         './datasources/bpftrace/module': './datasources/bpftrace/module.ts',
