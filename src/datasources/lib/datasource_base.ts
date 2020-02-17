@@ -88,7 +88,7 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
 
     async testDatasource() {
         if (isBlank(this.instanceSettings.url))
-            return { status: 'success', message: "To use this data source, please configure the URL in the query editor." };
+            return { status: 'error', message: "Empty URL. To use this data source, please configure the URL in the query editor." };
 
         const pmapiSrv = new PmapiSrv(new Context(this.doRequest.bind(this), this.instanceSettings.url, this.instanceSettings.jsonData.container));
         try {
@@ -98,8 +98,7 @@ export abstract class PmapiDatasourceBase<EP extends Endpoint> {
         catch (error) {
             return {
                 status: 'error',
-                message: `${error.message}. To use this data source, ` +
-                    "please configure the URL in the query editor."
+                message: `${error.message}. To use this data source, please configure the URL in the query editor.`
             };
         }
     }
