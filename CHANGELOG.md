@@ -1,6 +1,6 @@
 # Change Log
 
-## 2.0.0 (2020-02-05)
+## 2.0.0 (2020-02-17)
 
 - **vector, bpftrace**: fix version checks on dashboard load (prevent multiple pmcd.version checks on dashboard load)
 - **vector, bpftrace**: change datasource check box to red if URL is inaccessible
