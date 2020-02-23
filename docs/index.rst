@@ -53,3 +53,8 @@ Getting started
    datasources/redis
    datasources/vector
    datasources/bpftrace
+
+.. toctree::
+   :caption: Troubleshooting
+
+   troubleshooting
