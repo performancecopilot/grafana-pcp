@@ -254,7 +254,6 @@ export class PmapiSrv {
     private pcpVersion: string;
     private metricMetadataCache: Record<string, MetricMetadata> = {};
     private instanceCache: Record<string, Record<number, IndomInstance>> = {}; // instanceCache[metric][instance_id] = instance
-    private childrenCache: Record<string, ChildrenResponse> = {};
 
     constructor(readonly context: Context) {
     }
@@ -325,12 +324,7 @@ export class PmapiSrv {
     }
 
     async getChildren(prefix: string): Promise<ChildrenResponse> {
-        if (prefix in this.childrenCache)
-            return this.childrenCache[prefix];
-
-        const response = await this.context.children(prefix);
-        this.childrenCache[prefix] = response;
-        return this.childrenCache[prefix];
+        return await this.context.children(prefix);
     }
 
     async getLabels(metric: string, instance?: number | null, cacheOnly = false): Promise<Labels> {

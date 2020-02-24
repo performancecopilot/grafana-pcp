@@ -97,7 +97,6 @@ export class PmSeriesSrv {
     private descriptionCache: Record<string, Description> = {}; // descriptionCache[series] = description;
     private instanceCache: Record<string, Record<string, Instance>> = {}; // instanceCache[series][instance] = instance;
     private labelCache: Record<string, Labels> = {}; // labelCache[series_or_instance] = labels;
-    private metricNamesCache: Record<string, string[]> = {}; // metricNamesCache[prefix] = name[];
     private metricNameOfSeriesCache: Record<string, string> = {};
 
     constructor(datasourceRequest: DatasourceRequestFn, url: string) {
@@ -159,10 +158,7 @@ export class PmSeriesSrv {
     }
 
     async getMetrics(pattern: string): Promise<string[]> {
-        if (!(pattern in this.metricNamesCache)) {
-            this.metricNamesCache[pattern] = await this.pmSeriesApi.metrics(pattern);
-        }
-        return this.metricNamesCache[pattern];
+        return await this.pmSeriesApi.metrics(pattern);
     }
 
     async getLabels(series: string[]): Promise<Record<string, Labels>> {
