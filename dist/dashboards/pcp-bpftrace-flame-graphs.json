@@ -1,0 +1,251 @@
+{
+  "__inputs": [],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "6.3.4"
+    },
+    {
+      "type": "panel",
+      "id": "graph",
+      "name": "Graph",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "pcp-bpftrace-datasource",
+      "name": "PCP bpftrace",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "pcp-flamegraph-panel",
+      "name": "Flame Graph",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "pcp-vector-datasource",
+      "name": "PCP Vector",
+      "version": "1.0.0"
+    }
+  ],
+  "annotations": {},
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "iteration": 1570709789467,
+  "links": [],
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "$vector_datasource",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 5,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": false,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "container": "",
+          "expr": "kernel.cpu.util.user",
+          "format": "time_series",
+          "refId": "A"
+        },
+        {
+          "container": "",
+          "expr": "kernel.cpu.util.sys",
+          "format": "time_series",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": "5m",
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "CPU Utilization",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "datasource": "$bpftrace_datasource",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "id": 2,
+      "options": {
+        "hideIdleStacks": true,
+        "hideUnresolvedStackFrames": false,
+        "minSamples": 5
+      },
+      "targets": [
+        {
+          "expr": "/*\n * sample kernel stacks every 99 Hz, and clear map every 5 seconds\n *\n * 30-Oct-2019  Andreas Gerstmayr  Created this.\n */\n// include: @stacks\n// custom-output-block\n\nprofile:hz:99 { @stacks[kstack] = count(); }\n\ninterval:s:1 {\n  print(@stacks);\n  @cnt++;\n  if (@cnt >= 5) {\n    clear(@stacks);\n    @cnt = 0;\n  }\n}",
+          "format": "flamegraph",
+          "minPcpVersion": "5.0.2",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Kernel Stacks",
+      "type": "pcp-flamegraph-panel"
+    },
+    {
+      "datasource": "$bpftrace_datasource",
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 3,
+      "options": {
+        "hideIdleStacks": false,
+        "hideUnresolvedStackFrames": true,
+        "minSamples": 5
+      },
+      "targets": [
+        {
+          "expr": "/*\n * sample user stacks every 99 Hz, and clear map every 5 seconds\n *\n * 30-Oct-2019  Andreas Gerstmayr  Created this.\n */\n// include: @stacks\n// custom-output-block\n\nprofile:hz:99 { @stacks[ustack] = count(); }\n\ninterval:s:1 {\n  print(@stacks);\n  @cnt++;\n  if (@cnt >= 5) {\n    clear(@stacks);\n    @cnt = 0;\n  }\n}",
+          "format": "flamegraph",
+          "minPcpVersion": "5.0.2",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "User Stacks",
+      "type": "pcp-flamegraph-panel"
+    }
+  ],
+  "refresh": "1s",
+  "schemaVersion": 19,
+  "style": "dark",
+  "tags": [
+    "pcp-bpftrace"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "PCP bpftrace",
+          "value": "PCP bpftrace"
+        },
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "bpftrace_datasource",
+        "options": [],
+        "query": "pcp-bpftrace-datasource",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "PCP Vector",
+          "value": "PCP Vector"
+        },
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "vector_datasource",
+        "options": [],
+        "query": "pcp-vector-datasource",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-5s",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "1s",
+      "2s",
+      "5s",
+      "10s"
+    ]
+  },
+  "timezone": "",
+  "title": "PCP bpftrace Flame Graphs",
+  "version": 1
+}
