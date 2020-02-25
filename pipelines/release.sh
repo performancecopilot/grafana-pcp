@@ -5,15 +5,15 @@
 #
 
 PLUGIN_NAME="grafana-pcp"
-VERSION=$(cat src/plugin.json | jq '.info.version' | sed 's/"//g')
+VERSION=$(jq -r '.info.version' src/plugin.json)
 RELEASE_NOTES=$(awk '/^## / {s++} s == 1 {print}' CHANGELOG.md)
 
 yarn run build
 git add --force dist/
 git commit -m "release $VERSION"
-git tag v${VERSION}
-git push origin v${VERSION}
+git tag "v${VERSION}"
+git push origin "v${VERSION}"
 hub release create \
     -m "${PLUGIN_NAME} v${VERSION}" \
     -m "${RELEASE_NOTES}" \
-    v${VERSION}
+    "v${VERSION}"
