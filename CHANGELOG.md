@@ -1,6 +1,6 @@
 # Change Log
 
-## 2.0.2 (unreleased)
+## 2.0.2 (2020-02-25)
 
 * **vector, redis**: remove autocompletion cache (PCP metrics can be added and removed dynamically)
 
