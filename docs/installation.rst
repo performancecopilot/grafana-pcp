@@ -15,16 +15,33 @@ Fedora
     $ sudo systemctl restart grafana-server
 
 
-From GitHub
------------
+GitHub Release
+--------------
 
 If there is no package available for your distribution, you can install a release from GitHub.
+Replace X.Y.Z with the version of grafana-pcp you wish to install.
 
-.. parsed-literal::
+.. code-block:: console
 
-    $ wget \https://github.com/performancecopilot/grafana-pcp/archive/v\ |release|.tar.gz
-    $ sudo tar xfz v\ |release|.tar.gz -C /var/lib/grafana/plugins
+    $ wget https://github.com/performancecopilot/grafana-pcp/archive/vX.Y.Z.tar.gz
+    $ sudo tar xfz vX.Y.Z.tar.gz -C /var/lib/grafana/plugins
     $ sudo systemctl restart grafana-server
+
+
+Container
+---------
+
+You can also run Grafana with grafana-pcp in a container, using podman or docker.
+Keep in mind that with the default configuration every container has its own isolated network, and you won't be able to reach pmproxy through localhost.
+Replace X.Y.Z with the version of grafana-pcp you wish to install.
+
+.. code-block:: console
+
+    $ podman run -e GF_INSTALL_PLUGINS="https://github.com/performancecopilot/grafana-pcp/archive/vX.Y.Z.zip;grafana-pcp" -p 3000:3000 grafana/grafana
+
+.. code-block:: console
+
+    $ docker run -e GF_INSTALL_PLUGINS="https://github.com/performancecopilot/grafana-pcp/archive/vX.Y.Z.zip;grafana-pcp" -p 3000:3000 grafana/grafana
 
 
 From Source
