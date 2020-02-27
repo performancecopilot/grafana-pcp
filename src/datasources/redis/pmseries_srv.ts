@@ -192,9 +192,7 @@ export class PmSeriesSrv {
 
     async getLabels(series: string[]): Promise<Record<string, Labels>> {
         const requiredSeries = _.difference(series, Object.keys(this.labelCache));
-        const notCachedLabelsRequested = requiredSeries.length > 0;
-        const isGetAllQuery = series.length == 0;
-        if (notCachedLabelsRequested || isGetAllQuery) {
+        if (requiredSeries.length > 0) {
             const response = await this.pmSeriesApi.labels(series);
             for (const labels of response) {
                 this.labelCache[labels.series] = labels.labels;
