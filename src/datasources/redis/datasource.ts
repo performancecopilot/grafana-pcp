@@ -158,6 +158,21 @@ export class PCPRedisDatasource {
         return label;
     }
 
+    async getTagKeys() {
+        const result = await this.pmSeriesSrv.getLabelsNames();
+        const keys = result.map(x => ({
+            type: 'string',
+            text: x
+        }));
+        return keys;
+    }
+
+    async getTagValues(option: any) {
+        const result = await this.pmSeriesSrv.getLabelValues([option.key]);
+        const values = result[option.key].map(x => ({ text: x }));
+        return values;
+    }
+
     async query(query: Query) {
         const targets = this.buildQueryTargets(query);
         if (targets.length === 0)

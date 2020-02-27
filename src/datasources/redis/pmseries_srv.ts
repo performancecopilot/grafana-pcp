@@ -8,6 +8,10 @@ export interface LabelsResponse {
     labels: Labels;
 }
 
+export interface LabelsValuesResponse {
+    [propname: string]: string[];
+}
+
 export interface MetricNamesResponse {
     series: string;
     name: string;
@@ -89,6 +93,31 @@ class PmSeriesApi {
         return response.data;
     }
 
+    async labelsNames(): Promise<string[]> {
+        const response = await this.datasourceRequest({
+            url: `${this.url}/series/labels`,
+        });
+        return response.data;
+    }
+
+    async labelsValues(names: string[]): Promise<LabelsValuesResponse> {
+        const response = await this.datasourceRequest({
+            url: `${this.url}/series/labels`,
+            params: { names: names.join(',') },
+        });
+        const labelsValues = response.data;
+        // TODO: on error (no label values for all given label names), pmproxy returns { "success": true }
+        const result: LabelsValuesResponse = {};
+        names.forEach((name) => {
+            if (_.isArray(labelsValues[name])) {
+                result[name] = labelsValues[name];
+            } else {
+                result[name] = [];
+            }
+        });
+        return result;
+    }
+
 }
 
 export class PmSeriesSrv {
@@ -163,13 +192,23 @@ export class PmSeriesSrv {
 
     async getLabels(series: string[]): Promise<Record<string, Labels>> {
         const requiredSeries = _.difference(series, Object.keys(this.labelCache));
-        if (requiredSeries.length > 0) {
+        const notCachedLabelsRequested = requiredSeries.length > 0;
+        const isGetAllQuery = series.length == 0;
+        if (notCachedLabelsRequested || isGetAllQuery) {
             const response = await this.pmSeriesApi.labels(series);
             for (const labels of response) {
                 this.labelCache[labels.series] = labels.labels;
             }
         }
         return _.pick(this.labelCache, series);
+    }
+
+    async getLabelsNames(): Promise<string[]> {
+        return await this.pmSeriesApi.labelsNames();
+    }
+
+    async getLabelValues(names: string[]): Promise<LabelsValuesResponse> {
+        return await this.pmSeriesApi.labelsValues(names);
     }
 
     async getMetricAndInstanceLabels(series: string[]): Promise<Record<string, Labels>> {

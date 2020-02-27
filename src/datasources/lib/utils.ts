@@ -33,6 +33,7 @@ export function getDashboardVariables(variableSrv: any) {
         return {};
     }
 
+    // TODO: fix this breaking when adhoc filtering varibale is set
     variableSrv.variables.forEach((variable: any) => {
         let variableValue = variable.current.value;
         if (variableValue === '$__all' || _.isEqual(variableValue, ['$__all'])) {
