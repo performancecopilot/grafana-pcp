@@ -25,6 +25,7 @@ export const metricMetadataIndom: MetricMetadata = {
 };
 
 export const query: Query = {
+    app: 'dashboard',
     dashboardId: 1,
     panelId: 1,
     timezone: "",

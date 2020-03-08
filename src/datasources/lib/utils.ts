@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { DashboardVariable, DashboardVariableType } from './models/variables';
 
 // typescript decorator which makes sure that this function
 // is called only once at a time
@@ -34,7 +35,8 @@ export function getDashboardVariables(variableSrv: any) {
     }
 
     // TODO: fix this breaking when adhoc filtering varibale is set
-    variableSrv.variables.forEach((variable: any) => {
+    variableSrv.variables.forEach((variable: DashboardVariable) => {
+        if (variable.type === DashboardVariableType.AdHoc) return;
         let variableValue = variable.current.value;
         if (variableValue === '$__all' || _.isEqual(variableValue, ['$__all'])) {
             if (variable.allValue === null) {
@@ -51,6 +53,23 @@ export function getDashboardVariables(variableSrv: any) {
     });
 
     return variables;
+}
+
+export function getAdHocFilters(datasourceName: string | null, variables: Array<any>) {
+    let filters: any = [];
+	if (variables) {
+		for (let i = 0; i < variables.length; i++) {
+			const variable = variables[i];
+			if (variable.type !== DashboardVariableType.AdHoc) {
+				continue;
+			}
+			if (variable.datasource === null || variable.datasource === datasourceName) {
+				filters = filters.concat(variable.filters);
+			}
+		}
+	}
+
+	return filters;
 }
 
 export function versionCmp(v1: string, v2: string): number {

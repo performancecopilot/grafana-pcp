@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { isBlank } from '../lib/utils';
+import { isBlank, getAdHocFilters } from '../lib/utils';
 import { PmSeriesSrv } from './pmseries_srv';
 import PanelTransformations from '../lib/services/panel_transformation_srv';
 import { ValueTransformationSrv } from '../lib/services/value_transformation_srv';
@@ -178,13 +178,16 @@ export class PCPRedisDatasource {
         if (targets.length === 0)
             return { data: [] };
         if (!_.every(targets, ['format', targets[0].format]))
-            throw new Error("Format must be the same for all queries of a panel.");
-
+        throw new Error("Format must be the same for all queries of a panel.");
+        
         const exprs = targets.map(target => target.expr);
         const series = await Promise.all(exprs.map(expr => this.pmSeriesSrv.query(expr)));
         const seriesByExpr = _.zipObject(exprs, series);
         const seriesList = series.flat();
-
+        const datasourceName = this.name;
+        const variables = this.templateSrv.variables;
+        const adHocFilters = getAdHocFilters(datasourceName, variables);
+        console.log(adHocFilters);
         for (const expr in seriesByExpr) {
             if (seriesByExpr[expr].length === 0) {
                 throw new Error(`Could not find any series for ${expr}`);
