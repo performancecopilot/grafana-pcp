@@ -1,5 +1,10 @@
 import _ from "lodash";
-import { DashboardVariable, DashboardVariableType } from './models/variables';
+import { 
+    DashboardVariable,
+    DashboardVariableType,
+    AdHocDashboardVariable,
+    AdHocFilter,
+} from './models/variables';
 
 // typescript decorator which makes sure that this function
 // is called only once at a time
@@ -55,20 +60,21 @@ export function getDashboardVariables(variableSrv: any) {
     return variables;
 }
 
-export function getAdHocFilters(datasourceName: string | null, variables: Array<any>) {
-    let filters: any = [];
+export function getAdHocFilters(datasourceName: string | null, variables: Array<DashboardVariable>): Array<AdHocFilter> {
+    let filters: Array<AdHocFilter> = [];
 	if (variables) {
-		for (let i = 0; i < variables.length; i++) {
-			const variable = variables[i];
-			if (variable.type !== DashboardVariableType.AdHoc) {
-				continue;
-			}
-			if (variable.datasource === null || variable.datasource === datasourceName) {
-				filters = filters.concat(variable.filters);
-			}
-		}
+        variables.forEach(variable => {
+            if (variable.type !== DashboardVariableType.AdHoc) {
+                return;
+            }
+            const adHocVariable: AdHocDashboardVariable = variable as AdHocDashboardVariable;
+            const isMatchingDatasource = adHocVariable.datasource === null || adHocVariable.datasource === datasourceName;            
+            if (isMatchingDatasource) {
+                const variableFilters = variable.filters;
+                filters = filters.concat(variableFilters);
+            }
+        });
 	}
-
 	return filters;
 }
 

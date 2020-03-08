@@ -16,7 +16,7 @@ export interface DashboardVariable {
 export interface AdHocFilter {
     condition: string,
     key: string,
-    operator: string,
+    operator: DashboardVariableFilterOperator,
     value: string,
 }
 
@@ -30,4 +30,13 @@ export interface AdHocDashboardVariable {
     name: string,
     skipUrlSync: boolean,
     type: DashboardVariableType,
+}
+
+export enum DashboardVariableFilterOperator {
+    Equals = '=',
+    NotEquals = '!=',
+    LessThan = '<',
+    GreaterThan = '>',
+    RegexMatch = '=~',
+    RegexNotMatch = '!~',
 }

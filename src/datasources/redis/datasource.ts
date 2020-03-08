@@ -8,6 +8,7 @@ import { TargetResult, Metric, MetricInstance, Labels } from '../lib/models/metr
 import { MetricValue } from './models/pmseries';
 import { NetworkError } from '../lib/models/errors';
 import "core-js/stable/array/flat";
+import { DashboardVariableFilterOperator, AdHocFilter } from '../lib/models/variables';
 
 export class PCPRedisDatasource {
 
@@ -178,16 +179,16 @@ export class PCPRedisDatasource {
         if (targets.length === 0)
             return { data: [] };
         if (!_.every(targets, ['format', targets[0].format]))
-        throw new Error("Format must be the same for all queries of a panel.");
+            throw new Error("Format must be the same for all queries of a panel.");
         
-        const exprs = targets.map(target => target.expr);
-        const series = await Promise.all(exprs.map(expr => this.pmSeriesSrv.query(expr)));
-        const seriesByExpr = _.zipObject(exprs, series);
-        const seriesList = series.flat();
         const datasourceName = this.name;
         const variables = this.templateSrv.variables;
         const adHocFilters = getAdHocFilters(datasourceName, variables);
         console.log(adHocFilters);
+        const exprs = targets.map(target => target.expr);
+        const series = await Promise.all(exprs.map(expr => this.pmSeriesSrv.query(expr)));
+        const seriesByExpr = _.zipObject(exprs, series);
+        const seriesList = series.flat();
         for (const expr in seriesByExpr) {
             if (seriesByExpr[expr].length === 0) {
                 throw new Error(`Could not find any series for ${expr}`);
