@@ -8,7 +8,7 @@ import { TargetResult, Metric, MetricInstance, Labels } from '../lib/models/metr
 import { MetricValue } from './models/pmseries';
 import { NetworkError } from '../lib/models/errors';
 import "core-js/stable/array/flat";
-import { DashboardVariableFilterOperator, AdHocFilter } from '../lib/models/variables';
+import { AdHocFilter, DashboardVariableFilterOperator } from '../lib/models/variables';
 
 export class PCPRedisDatasource {
 
@@ -174,7 +174,32 @@ export class PCPRedisDatasource {
         return values;
     }
 
+    addAdHocFiltersToExpr(expr: string, filters: AdHocFilter[]) {
+        if (filters.length === 0) {
+            return expr;
+        }
+        const openingBracketIndex = expr.indexOf('{');
+        const hasMetadata = openingBracketIndex !== -1;
+        const filterCount = filters.length;
+        const adHocFilterStr = filters.reduce((previousValue, filter, index) => {
+            const modifiedOperator = filter.operator == DashboardVariableFilterOperator.Equals ? '==' : filter.operator;
+            const comma = index !== filterCount - 1 ? ',' : '';
+            const isNumericValue = !isNaN(parseFloat(filter.value)) && isFinite(+filter.value);
+            const formattedValue = isNumericValue ? filter.value : `"${filter.value}"`;
+            return `${previousValue}${filter.key}${modifiedOperator}${formattedValue}${comma}`;
+        }, '');
+        let newExpr;
+        if (hasMetadata) {
+            let appendPoint = openingBracketIndex + 1;
+            newExpr = `${expr.substring(0, appendPoint)}${adHocFilterStr},${expr.substring(appendPoint)}`;
+        } else {
+            newExpr = `${expr}{${adHocFilterStr}}`;
+        }
+        return newExpr;
+    }
+
     async query(query: Query) {
+        console.log(query);
         const targets = this.buildQueryTargets(query);
         if (targets.length === 0)
             return { data: [] };
@@ -184,9 +209,9 @@ export class PCPRedisDatasource {
         const datasourceName = this.name;
         const variables = this.templateSrv.variables;
         const adHocFilters = getAdHocFilters(datasourceName, variables);
-        console.log(adHocFilters);
         const exprs = targets.map(target => target.expr);
-        const series = await Promise.all(exprs.map(expr => this.pmSeriesSrv.query(expr)));
+        const exprsWithAdHocFiltersApplied = exprs.map(expr => this.addAdHocFiltersToExpr(expr, adHocFilters));
+        const series = await Promise.all(exprsWithAdHocFiltersApplied.map(expr => this.pmSeriesSrv.query(expr)));
         const seriesByExpr = _.zipObject(exprs, series);
         const seriesList = series.flat();
         for (const expr in seriesByExpr) {

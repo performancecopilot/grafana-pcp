@@ -38,8 +38,6 @@ export function getDashboardVariables(variableSrv: any) {
         // variables are not defined on the datasource settings page
         return {};
     }
-
-    // TODO: fix this breaking when adhoc filtering varibale is set
     variableSrv.variables.forEach((variable: DashboardVariable) => {
         if (variable.type === DashboardVariableType.AdHoc) return;
         let variableValue = variable.current.value;
