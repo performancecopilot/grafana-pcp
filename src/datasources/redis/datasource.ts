@@ -199,7 +199,6 @@ export class PCPRedisDatasource {
     }
 
     async query(query: Query) {
-        console.log(query);
         const targets = this.buildQueryTargets(query);
         if (targets.length === 0)
             return { data: [] };
