@@ -204,7 +204,6 @@ export class PCPRedisDatasource {
             return { data: [] };
         if (!_.every(targets, ['format', targets[0].format]))
             throw new Error("Format must be the same for all queries of a panel.");
-        
         const datasourceName = this.name;
         const variables = this.templateSrv.variables;
         const adHocFilters = getAdHocFilters(datasourceName, variables);
