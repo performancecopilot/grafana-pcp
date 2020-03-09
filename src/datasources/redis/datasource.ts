@@ -182,7 +182,7 @@ export class PCPRedisDatasource {
         const hasMetadata = openingBracketIndex !== -1;
         const filterCount = filters.length;
         const adHocFilterStr = filters.reduce((previousValue, filter, index) => {
-            const modifiedOperator = filter.operator == DashboardVariableFilterOperator.Equals ? '==' : filter.operator;
+            const modifiedOperator = filter.operator === DashboardVariableFilterOperator.Equals ? '==' : filter.operator;
             const comma = index !== filterCount - 1 ? ',' : '';
             const isNumericValue = !isNaN(parseFloat(filter.value)) && isFinite(+filter.value);
             const formattedValue = isNumericValue ? filter.value : `"${filter.value}"`;
@@ -190,7 +190,7 @@ export class PCPRedisDatasource {
         }, '');
         let newExpr;
         if (hasMetadata) {
-            let appendPoint = openingBracketIndex + 1;
+            const appendPoint = openingBracketIndex + 1;
             newExpr = `${expr.substring(0, appendPoint)}${adHocFilterStr},${expr.substring(appendPoint)}`;
         } else {
             newExpr = `${expr}{${adHocFilterStr}}`;
