@@ -160,7 +160,7 @@ export class PCPRedisDatasource {
     }
 
     async getTagKeys() {
-        const result = await this.pmSeriesSrv.getLabelsNames();
+        const result = await this.pmSeriesSrv.getLabelNames();
         const keys = result.map(x => ({
             type: 'string',
             text: x

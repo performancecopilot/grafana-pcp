@@ -93,14 +93,14 @@ class PmSeriesApi {
         return response.data;
     }
 
-    async labelsNames(): Promise<string[]> {
+    async labelNames(): Promise<string[]> {
         const response = await this.datasourceRequest({
             url: `${this.url}/series/labels`,
         });
         return response.data;
     }
 
-    async labelsValues(names: string[]): Promise<LabelsValuesResponse> {
+    async labelValues(names: string[]): Promise<LabelsValuesResponse> {
         const response = await this.datasourceRequest({
             url: `${this.url}/series/labels`,
             params: { names: names.join(',') },
@@ -201,12 +201,12 @@ export class PmSeriesSrv {
         return _.pick(this.labelCache, series);
     }
 
-    async getLabelsNames(): Promise<string[]> {
-        return await this.pmSeriesApi.labelsNames();
+    async getLabelNames(): Promise<string[]> {
+        return await this.pmSeriesApi.labelNames();
     }
 
     async getLabelValues(names: string[]): Promise<LabelsValuesResponse> {
-        return await this.pmSeriesApi.labelsValues(names);
+        return await this.pmSeriesApi.labelValues(names);
     }
 
     async getMetricAndInstanceLabels(series: string[]): Promise<Record<string, Labels>> {

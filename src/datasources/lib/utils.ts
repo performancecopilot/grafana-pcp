@@ -60,19 +60,20 @@ export function getDashboardVariables(variableSrv: any) {
 
 export function getAdHocFilters(datasourceName: string | null, variables: Array<DashboardVariable>): Array<AdHocFilter> {
     let filters: Array<AdHocFilter> = [];
-    if (variables) {
-        variables.forEach(variable => {
-            if (variable.type !== DashboardVariableType.AdHoc) {
-                return;
-            }
-            const adHocVariable: AdHocDashboardVariable = variable as AdHocDashboardVariable;
-            const isMatchingDatasource = adHocVariable.datasource === null || adHocVariable.datasource === datasourceName;
-            if (isMatchingDatasource) {
-                const variableFilters = variable.filters;
-                filters = filters.concat(variableFilters);
-            }
-        });
+    if (!variables) {
+        return filters;
     }
+    variables.forEach(variable => {
+        if (variable.type !== DashboardVariableType.AdHoc) {
+            return;
+        }
+        const adHocVariable: AdHocDashboardVariable = variable as AdHocDashboardVariable;
+        const isMatchingDatasource = adHocVariable.datasource === null || adHocVariable.datasource === datasourceName;
+        if (isMatchingDatasource) {
+            const variableFilters = variable.filters;
+            filters = filters.concat(variableFilters);
+        }
+    });
     return filters;
 }
 

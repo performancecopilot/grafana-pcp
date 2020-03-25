@@ -21,7 +21,6 @@ export interface AdHocFilter {
 }
 
 export interface AdHocDashboardVariable {
-    $$haskey: string;
     datasource: string;
     defaults: any;
     filters: Array<AdHocFilter>;
