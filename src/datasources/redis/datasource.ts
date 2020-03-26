@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { isBlank } from '../lib/utils';
+import { isBlank, getAdHocFilters } from '../lib/utils';
 import { PmSeriesSrv } from './pmseries_srv';
 import PanelTransformations from '../lib/services/panel_transformation_srv';
 import { ValueTransformationSrv } from '../lib/services/value_transformation_srv';
@@ -8,6 +8,7 @@ import { TargetResult, Metric, MetricInstance, Labels } from '../lib/models/metr
 import { MetricValue } from './models/pmseries';
 import { NetworkError } from '../lib/models/errors';
 import "core-js/stable/array/flat";
+import { AdHocFilter, DashboardVariableFilterOperator } from '../lib/models/variables';
 
 export class PCPRedisDatasource {
 
@@ -158,18 +159,59 @@ export class PCPRedisDatasource {
         return label;
     }
 
+    async getTagKeys() {
+        const result = await this.pmSeriesSrv.getLabelNames();
+        const keys = result.map(x => ({
+            type: 'string',
+            text: x
+        }));
+        return keys;
+    }
+
+    async getTagValues(option: any) {
+        const result = await this.pmSeriesSrv.getLabelValues([option.key]);
+        const values = result[option.key].map(x => ({ text: x }));
+        return values;
+    }
+
+    addAdHocFiltersToExpr(expr: string, filters: AdHocFilter[]) {
+        if (filters.length === 0) {
+            return expr;
+        }
+        const openingBracketIndex = expr.indexOf('{');
+        const hasMetadata = openingBracketIndex !== -1;
+        const filterCount = filters.length;
+        const adHocFilterStr = filters.reduce((previousValue, filter, index) => {
+            const modifiedOperator = filter.operator === DashboardVariableFilterOperator.Equals ? '==' : filter.operator;
+            const comma = index !== filterCount - 1 ? ',' : '';
+            const isNumericValue = !isNaN(parseFloat(filter.value)) && isFinite(+filter.value);
+            const formattedValue = isNumericValue ? filter.value : `"${filter.value}"`;
+            return `${previousValue}${filter.key}${modifiedOperator}${formattedValue}${comma}`;
+        }, '');
+        let newExpr;
+        if (hasMetadata) {
+            const appendPoint = openingBracketIndex + 1;
+            newExpr = `${expr.substring(0, appendPoint)}${adHocFilterStr},${expr.substring(appendPoint)}`;
+        } else {
+            newExpr = `${expr}{${adHocFilterStr}}`;
+        }
+        return newExpr;
+    }
+
     async query(query: Query) {
         const targets = this.buildQueryTargets(query);
         if (targets.length === 0)
             return { data: [] };
         if (!_.every(targets, ['format', targets[0].format]))
             throw new Error("Format must be the same for all queries of a panel.");
-
+        const datasourceName = this.name;
+        const variables = this.templateSrv.variables;
+        const adHocFilters = getAdHocFilters(datasourceName, variables);
         const exprs = targets.map(target => target.expr);
-        const series = await Promise.all(exprs.map(expr => this.pmSeriesSrv.query(expr)));
+        const exprsWithAdHocFiltersApplied = exprs.map(expr => this.addAdHocFiltersToExpr(expr, adHocFilters));
+        const series = await Promise.all(exprsWithAdHocFiltersApplied.map(expr => this.pmSeriesSrv.query(expr)));
         const seriesByExpr = _.zipObject(exprs, series);
         const seriesList = series.flat();
-
         for (const expr in seriesByExpr) {
             if (seriesByExpr[expr].length === 0) {
                 throw new Error(`Could not find any series for ${expr}`);

@@ -8,6 +8,10 @@ export interface LabelsResponse {
     labels: Labels;
 }
 
+export interface LabelsValuesResponse {
+    [propname: string]: string[];
+}
+
 export interface MetricNamesResponse {
     series: string;
     name: string;
@@ -87,6 +91,31 @@ class PmSeriesApi {
             params: { series: series.join(',') }
         });
         return response.data;
+    }
+
+    async labelNames(): Promise<string[]> {
+        const response = await this.datasourceRequest({
+            url: `${this.url}/series/labels`,
+        });
+        return response.data;
+    }
+
+    async labelValues(names: string[]): Promise<LabelsValuesResponse> {
+        const response = await this.datasourceRequest({
+            url: `${this.url}/series/labels`,
+            params: { names: names.join(',') },
+        });
+        const labelsValues = response.data;
+        // TODO: on error (no label values for all given label names), pmproxy returns { "success": true }
+        const result: LabelsValuesResponse = {};
+        names.forEach((name) => {
+            if (_.isArray(labelsValues[name])) {
+                result[name] = labelsValues[name];
+            } else {
+                result[name] = [];
+            }
+        });
+        return result;
     }
 
 }
@@ -170,6 +199,14 @@ export class PmSeriesSrv {
             }
         }
         return _.pick(this.labelCache, series);
+    }
+
+    async getLabelNames(): Promise<string[]> {
+        return await this.pmSeriesApi.labelNames();
+    }
+
+    async getLabelValues(names: string[]): Promise<LabelsValuesResponse> {
+        return await this.pmSeriesApi.labelValues(names);
     }
 
     async getMetricAndInstanceLabels(series: string[]): Promise<Record<string, Labels>> {
