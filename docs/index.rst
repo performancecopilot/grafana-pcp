@@ -33,28 +33,32 @@ Getting started
 * :doc:`installation`
 
 .. toctree::
-   :hidden:
    :caption: Getting started
+   :hidden:
 
    quickstart
    installation
+   screenshots
+   architecture
    CHANGELOG
 
 .. toctree::
-   :titlesonly:
-   :hidden:
    :caption: Data Sources
+   :hidden:
+   :titlesonly:
 
    datasources/index
 
 .. toctree::
    :hidden:
 
+   datasources/authentication
    datasources/redis
    datasources/vector
    datasources/bpftrace
 
 .. toctree::
+   :hidden:
    :caption: Troubleshooting
 
    troubleshooting

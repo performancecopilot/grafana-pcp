@@ -18,6 +18,8 @@ Setup Redis and PCP daemons
     $ sudo dnf install redis
     $ sudo systemctl start redis pmlogger pmproxy
 
+.. _pmseries-query-language:
+
 Query Language
 --------------
 

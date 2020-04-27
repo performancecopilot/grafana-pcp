@@ -58,7 +58,7 @@ export default class ScriptRegistry {
         catch (error) {
             if (error instanceof PermissionError)
                 throw new Error("You don't have permission to register bpftrace scripts. " +
-                    "Please check the datasource authentication settings and the bpftrace PMDA configuration (bpftrace.conf).");
+                    "Please check the bpftrace PMDA configuration (bpftrace.conf) and the datasource authentication settings.");
             else
                 throw error;
         }
