@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import kbn from 'grafana/app/core/utils/kbn';
 import EndpointRegistry, { Endpoint } from './endpoint_registry';
 import PanelTransformations from './services/panel_transformation_srv';
 import { PmapiSrv, Context } from "./services/pmapi_srv";
@@ -10,6 +9,7 @@ import { TargetResult, MetricInstance } from './models/metrics';
 import DashboardObserver from './dashboard_observer';
 import { NetworkError } from './models/errors';
 import "core-js/stable/array/flat";
+import kbn from './kbn';
 
 export abstract class PmapiDatasourceBase<EP extends Endpoint> {
 

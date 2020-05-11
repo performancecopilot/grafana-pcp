@@ -1,70 +1,35 @@
 {
   "name": "pcp-grafana-app",
   "description": "Performance Co-Pilot Grafana Plugin",
-  "main": "index.js",
+  "version": "3.0.0",
   "scripts": {
-    "build": "webpack --config webpack.config.prod.js",
-    "dev": "webpack --mode development",
-    "watch": "webpack --mode development --watch",
-    "test": "jest --silent",
-    "coverage": "jest --coverage --silent",
-    "memleaks": "node --expose-gc ./node_modules/jest-cli/bin/jest.js --runInBand --logHeapUsage --silent",
-    "lint": "tslint --config tslint.json --project tsconfig.json"
+    "build": "grafana-toolkit plugin:build",
+    "test": "grafana-toolkit plugin:test",
+    "dev": "grafana-toolkit plugin:dev",
+    "watch": "grafana-toolkit plugin:dev --watch"
   },
+  "author": "Performance Co-Pilot and Netflix",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/performancecopilot/grafana-pcp",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/performancecopilot/grafana-pcp.git"
   },
-  "author": "Performance Co-Pilot and Netflix",
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/performancecopilot/grafana-pcp/issues"
-  },
-  "engineStrict": true,
   "devDependencies": {
-    "@babel/cli": "^7.5.0",
-    "@babel/core": "^7.5.0",
-    "@babel/preset-env": "^7.5.0",
-    "@babel/preset-react": "^7.0.0",
-    "@babel/preset-typescript": "^7.3.3",
-    "@grafana/data": "^6.6.0",
-    "@grafana/ui": "^6.6.0",
-    "@types/benchmark": "^1.0.31",
-    "@types/d3": "^5.7.2",
+    "@grafana/data": "latest",
+    "@grafana/runtime": "latest",
+    "@grafana/toolkit": "latest",
+    "@grafana/ui": "latest",
+    "@types/lodash": "latest",
     "@types/grafana": "github:CorpGlory/types-grafana",
-    "@types/jest": "^24.0.17",
-    "@types/lodash": "^4.14.123",
-    "babel-jest": "^24.8.0",
-    "babel-loader": "^8.0.5",
-    "babel-plugin-angularjs-annotate": "^0.10.0",
-    "benchmark": "^2.1.4",
-    "clean-webpack-plugin": "^0.1.19",
-    "copy-webpack-plugin": "^5.1.1",
-    "core-js": "^3.1.4",
-    "css-loader": "^1.0.0",
-    "d3-selection": "^1.4.0",
-    "jest": "^24.8.0",
-    "jest-date-mock": "^1.0.7",
-    "jsdom": "~9.12.0",
-    "memoize-one": "^5.1.1",
-    "mocha": "^6.1.4",
-    "prunk": "^1.3.1",
-    "q": "^1.5.0",
-    "regenerator-runtime": "^0.12.1",
-    "request": "^2.88.0",
-    "style-loader": "^0.22.1",
-    "ts-jest": "^24.0.2",
-    "ts-loader": "^4.5.0",
-    "tslint": "^5.18.0",
-    "tslint-config-airbnb": "^5.11.1",
-    "typescript": "^3.5.2",
-    "webpack": "^4.38.0",
-    "webpack-cli": "^3.3.5"
+    "worker-loader": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=12 <13"
   },
   "dependencies": {
-    "d3-flame-graph": "^3.0.2",
-    "expr-eval": "^1.2.2",
-    "lodash": "^4.17.14"
-  },
-  "homepage": "https://github.com/performancecopilot/grafana-pcp"
+    "core-js": "^3.6.5",
+    "d3-flame-graph": "^3.1.1",
+    "rxjs": "6.5.4"
+  }
 }
