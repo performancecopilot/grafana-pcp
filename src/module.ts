@@ -1,5 +1,3 @@
-import { PCPAppConfigCtrl } from './components/config/config';
+import { PCPAppConfigCtrl } from './appconfig/config';
 
-export {
-    PCPAppConfigCtrl as ConfigCtrl,
-};
+export { PCPAppConfigCtrl as ConfigCtrl };

@@ -33,8 +33,9 @@
                 "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/NOTICE"
             }
         ],
-        "version": "2.0.3",
-        "updated": "2020-02-25"
+        "screenshots": [],
+        "version": "%VERSION%",
+        "updated": "%TODAY%"
     },
     "includes": [
         {
@@ -78,9 +79,10 @@
             "name": "PCP bpftrace Flame Graphs",
             "path": "dashboards/pcp-bpftrace-flame-graphs.json"
         }
+
     ],
     "dependencies": {
-        "grafanaVersion": "6.6.0",
+        "grafanaVersion": "6.7.x",
         "plugins": []
     }
 }
