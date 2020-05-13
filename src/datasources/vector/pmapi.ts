@@ -1,16 +1,8 @@
 import { BackendSrvRequest } from '@grafana/runtime';
-import { Labels, MetricMetadata, MetricInstanceValue, InstanceDomain, MetricName } from './pcp';
-
-interface ContextResponse {
-    context: number;
-    labels: Labels;
-}
+import { MetricMetadata, MetricInstanceValue, InstanceDomain, MetricName, Context } from './pcp';
 
 interface MetricsResponse {
     metrics: MetricMetadata[];
-}
-
-interface IndomResponse extends InstanceDomain {
 }
 
 interface MetricInstanceValues {
@@ -27,7 +19,7 @@ export default class PmApi {
     constructor(private datasourceRequest: (options: BackendSrvRequest) => Promise<any>) {
     }
 
-    async createContext(url: string, container?: string): Promise<ContextResponse> {
+    async createContext(url: string, container?: string): Promise<Context> {
         const response = await this.datasourceRequest({
             url: `${url}/pmapi/context`,
             params: { polltimeout: 30 }
@@ -43,26 +35,26 @@ export default class PmApi {
         return contextData;
     }
 
-    async getMetricMetadata(url: string, ctx: number, name: string): Promise<MetricsResponse> {
+    async getMetricMetadata(url: string, ctxid: number, names: string[]): Promise<MetricsResponse> {
         const response = await this.datasourceRequest({
-            url: `${url}/pmapi/${ctx}/metric`,
+            url: `${url}/pmapi/${ctxid}/metric`,
+            params: { names: names.join(",") }
+        });
+        return response.data;
+    }
+
+    async getMetricInstances(url: string, ctxid: number, name: string): Promise<InstanceDomain> {
+        const response = await this.datasourceRequest({
+            url: `${url}/pmapi/${ctxid}/indom`,
             params: { name }
         });
         return response.data;
     }
 
-    async getMetricInstances(url: string, ctx: number, name: string): Promise<IndomResponse> {
+    async getMetricValues(url: string, ctxid: number, names: string[]): Promise<FetchResponse> {
         const response = await this.datasourceRequest({
-            url: `${url}/pmapi/${ctx}/indom`,
-            params: { name }
-        });
-        return response.data;
-    }
-
-    async getMetricValues(url: string, ctx: number, name: string): Promise<FetchResponse> {
-        const response = await this.datasourceRequest({
-            url: `${url}/pmapi/${ctx}/fetch`,
-            params: { name }
+            url: `${url}/pmapi/${ctxid}/fetch`,
+            params: { names: names.join(",") }
         });
         return response.data;
     }

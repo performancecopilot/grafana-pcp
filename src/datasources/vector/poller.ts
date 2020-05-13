@@ -1,182 +1,178 @@
-import { Labels, MetricMetadata, MetricInstance, InstanceValuesSnapshot, MetricName } from './pcp';
-import { DataQueryRequest } from '@grafana/data';
-import { VectorQuery, VectorQueryWithUrl } from './types';
+import { Labels, MetricMetadata, InstanceValuesSnapshot, MetricName, Context } from './pcp';
+import { VectorQueryWithUrl } from './types';
+import PollTimerWorker from './timer.worker'
+import PmApi from './pmapi';
+import { difference } from 'lodash';
 
-type Endpoint = string;
-
-interface Context {
-    context: number;
-    labels: Labels;
-}
-
-interface MetricState {
+interface MetricStore {
     metadata: MetricMetadata;
     instanceLabels: Labels;
-    instances: MetricInstance[];
+    instanceNames: Record<number, string>;
     values: InstanceValuesSnapshot[];
 }
 
-interface EndpointState {
-    context: Context;
-    metrics: Record<MetricName, MetricState[]>;
+interface ActiveMetric {
+    lastRequestedMs: number;
+    deltas: number[];
+};
+
+interface Endpoint {
+    url: string;
+    container?: string;
+
+    context?: Context;
+    errors: any[];
+    activeMetrics: Record<MetricName, ActiveMetric>;
+    metricStore: Record<MetricName, MetricStore>;
 }
 
 interface WorkerState {
-    endpoints: Record<Endpoint, EndpointState>;
-    queries: VectorQueryWithUrl[];
+    endpoints: Endpoint[];
 }
-
-interface PollerRequest {
-    type: "query";
-}
-
-interface QueryRequest extends PollerRequest {
-    type:"query";
-    request: DataQueryRequest<VectorQuery>;
-    targets: VectorQueryWithUrl[];
-}
-// labels: context, metric, indom
 
 export default class Poller {
+    MEDIAN_OVER_LAST_X_REQUESTS = 3;
+
     state: WorkerState;
+    timer: PollTimerWorker;
 
-    constructor(private worker: Worker) {
+    constructor(private pmApi: PmApi) {
         this.state = {
-            contexts: {},
-            metrics: {}
+            endpoints: [],
         };
-        this.worker.onmessage = this.onmessage.bind(this);
+
+        this.timer = new PollTimerWorker();
+        this.timer.onmessage = this.poll.bind(this);
+        this.timer.postMessage({ interval: 1000 });
     }
 
-    onmessage(e: MessageEvent): any {
-        const request = e.data as PollerRequest;
-        switch(request.type) {
-            case "query":
+    async refreshInstanceNames(endpoint: Endpoint, metricStore: MetricStore) {
+        const instancesResponse = await this.pmApi.getMetricInstances(endpoint.url, endpoint.context!.context, metricStore.metadata.name);
+        metricStore.instanceLabels = instancesResponse.labels;
+        metricStore.instanceNames = instancesResponse.instances.reduce((acc, cur) => {
+            acc[cur.instance] = cur.name;
+            return acc;
+        }, metricStore.instanceNames);
+    }
+
+    async pollEndpoint(endpoint: Endpoint) {
+        if (!endpoint.context) {
+            endpoint.context = await this.pmApi.createContext(endpoint.url, endpoint.container);
         }
-        console.log('Worker: Message received from main script4', e.data);
-        this.worker.postMessage("response 3");
-    }
 
-    dummy() {
-        console.log(this.state);
-    }
+        const newMetrics = difference(Object.keys(endpoint.activeMetrics), Object.keys(endpoint.metricStore));
+        if (newMetrics.length > 0) {
+            const metadataResponse = await this.pmApi.getMetricMetadata(endpoint.url, endpoint.context.context, newMetrics);
 
-    /*
-        static async createSnapshot(pmApi: PmApi, context: Context, target: VectorQueryWithUrl, previousSnapshot?: Snapshot): Promise<Snapshot> {
-            // request metric metadatas (semantics, ...) if not existing
-            // TODO: clear cache?
-            let metadata;
-            if (previousSnapshot) {
-                metadata = previousSnapshot.metadata;
+            for (const metadata of metadataResponse.metrics) {
+                let metricStore: MetricStore = {
+                    metadata,
+                    instanceLabels: {},
+                    instanceNames: {},
+                    values: []
+                };
+
+                if (metadata.indom)
+                    await this.refreshInstanceNames(endpoint, metricStore);
+
+                endpoint.metricStore[metadata.name] = metricStore;
             }
-            else {
-                const metadataResponse = await pmApi.getMetricMetadata(target.url, context.context, target.expr);
-                metadata = metadataResponse.metrics.find(metadata => metadata.name == target.expr);
-                if (!metadata) {
-                    throw new Error(`Metric metadata for ${target.expr} not found in response.`);
-                }
-            }
+        }
 
-            // fetch metric values
-            const valuesResponse = await pmApi.getMetricValues(target.url, context.context, target.expr);
-            const metricInstanceValues = valuesResponse.values.find(metricInstanceValues => metricInstanceValues.name == target.expr);
-            if (!metricInstanceValues) {
-                throw new Error(`Metric values for ${target.expr} not found in response.`);
-            }
+        const valuesResponse = await this.pmApi.getMetricValues(endpoint.url, endpoint.context.context, Object.keys(endpoint.activeMetrics));
+        for (const metricInstanceValues of valuesResponse.values) {
+            const metricStore = endpoint.metricStore[metricInstanceValues.name];
 
-            // check if all instances from current values are in previous instance domain
-            // if not, refresh it
-            let instanceDomain: InstanceDomain;
-            if (previousSnapshot) {
-                instanceDomain = previousSnapshot.instanceDomain;
-
+            if (metricStore.metadata.indom) {
                 let needRefresh = false;
-                for (const metricInstanceValue of metricInstanceValues.instances) {
-                    if (!instanceDomain.instances.find(instance => instance.instance == metricInstanceValue.instance)) {
+                for (const instance of metricInstanceValues.instances) {
+                    if (!metricStore.instanceNames[instance.instance]) {
                         needRefresh = true;
                         break;
                     }
                 }
-
                 if (needRefresh)
-                    instanceDomain = await pmApi.getMetricInstances(target.url, context.context, target.expr);
+                    await this.refreshInstanceNames(endpoint, metricStore);
+            }
+
+            metricStore.values.push({
+                timestampMs: valuesResponse.timestamp * 1000,
+                values: metricInstanceValues.instances
+            });
+        }
+    }
+
+    async pollEndpointWithContext(endpoint: Endpoint) {
+        try {
+            await this.pollEndpoint(endpoint);
+        }
+        catch (error) {
+            // TODO: check if context expired
+            if (false) {
+                endpoint.context = await this.pmApi.createContext(endpoint.url, endpoint.container);
+                await this.pollEndpoint(endpoint);
             }
             else {
-                // some redundancy is required here because of TypeScript's strict use-before-assignment checks.. :)
-                instanceDomain = await pmApi.getMetricInstances(target.url, context.context, target.expr);
+                throw error;
             }
-
-            return {
-                time: new Date(),
-                context,
-                metadata: metadata,
-                instanceDomain,
-                fetchTimestampMs: valuesResponse.timestamp * 1000,
-                values: metricInstanceValues.instances
-            };
         }
+    }
 
-        async queryTarget(request: DataQueryRequest<VectorQuery>, target: VectorQueryWithUrl): Promise<MutableDataFrame> {
-            let snapshots = this.state.snapshots[target.expr];
-            if (!snapshots)
-                snapshots = this.state.snapshots[target.expr] = [];
+    getMedian(arr: number[]) {
+        const sorted = arr.sort();
+        const middle = Math.ceil(sorted.length / 2);
+        return sorted.length % 2 == 0 ? (sorted[middle] + sorted[middle - 1]) / 2 : sorted[middle - 1];
+    }
 
-            const endpoint = `${target.url}::${target.container}`;
-            let context = this.state.contexts[endpoint];
-            if (!context)
-                context = this.state.contexts[endpoint] = await this.pmApi.createContext(target.url, target.container);
-
-            const previousSnapshot = snapshots.length > 0 ? snapshots[snapshots.length - 1] : undefined;
-            let currentSnapshot: Snapshot;
+    async poll() {
+        console.debug("poll", this.state);
+        await Promise.all(this.state.endpoints.map(async (endpoint) => {
             try {
-                currentSnapshot = await DataSource.createSnapshot(this.pmApi, context, target, previousSnapshot);
+                await this.pollEndpointWithContext(endpoint);
             }
             catch (error) {
-                // todo: execute only if ctx is expired
-                if (true) {
-                    context = this.state.contexts[endpoint] = await this.pmApi.createContext(target.url, target.container);
-                    currentSnapshot = await DataSource.createSnapshot(this.pmApi, context, target, previousSnapshot);
-                }
-                else {
-                    throw error;
-                }
+                endpoint.errors.push(error);
             }
-            snapshots.push(currentSnapshot);
+        }));
 
-            const dataFrame = new MutableDataFrame();
-            dataFrame.name = target.expr;
-            const timeField = dataFrame.addField({ name: 'time', type: FieldType.time });
+        const deltas = this.state.endpoints.flatMap(ep => Object.values(ep.activeMetrics)).flatMap(am => am.deltas);
+        if (deltas.length > 0) {
+            const medianRequestTime = this.getMedian(deltas);
+            this.timer.postMessage({ interval: medianRequestTime });
+        }
+    }
 
-            const instanceIdToField: Record<number, MutableField> = {};
-            const requestRangeFromMs = request.range?.from.valueOf()!;
-            const requestRangeToMs = request.range?.to.valueOf()!;
+    async query(target: VectorQueryWithUrl): Promise<MetricStore | undefined> {
+        let endpoint = this.state.endpoints.find(ep => ep.url == target.url && ep.container == target.container);
+        if (!endpoint) {
+            endpoint = {
+                url: target.url,
+                container: target.container,
+                errors: [],
+                metricStore: {},
+                activeMetrics: {}
+            };
+            this.state.endpoints.push(endpoint);
+        }
 
-            for (const snapshot of snapshots) {
-                if (!(requestRangeFromMs <= snapshot.fetchTimestampMs && (!request.endTime || snapshot.fetchTimestampMs <= requestRangeToMs))) {
-                    continue;
-                }
+        if (endpoint.errors.length > 0) {
+            const lastError = endpoint.errors.pop();
+            endpoint.errors = [];
+            throw lastError;
+        }
 
-                // create all dataFrame fields in one go, because Grafana automatically matches
-                // the vector length of newly created fields with already existing fields by adding empty data
-                for (const instanceValue of snapshot.values) {
-                    if (!(instanceValue.instance in instanceIdToField)) {
-                        const instance = snapshot.instanceDomain.instances.find(instance => instance.instance == instanceValue.instance);
-                        // it's possible that an instance disappeared between the call to /fetch and /indom
-                        const instanceName = instance ? instance.name : `instance ${instanceValue.instance}`;
-                        instanceIdToField[instanceValue.instance] = dataFrame.addField({ name: instanceName, type: FieldType.number, config: { unit: "bytes" } });
-                    }
-                }
+        const nowMs = new Date().getTime();
+        if (target.expr in endpoint.activeMetrics) {
+            endpoint.activeMetrics[target.expr].deltas.push(nowMs - endpoint.activeMetrics[target.expr].lastRequestedMs);
+            if (endpoint.activeMetrics[target.expr].deltas.length == this.MEDIAN_OVER_LAST_X_REQUESTS + 1)
+                endpoint.activeMetrics[target.expr].deltas.shift();
+            endpoint.activeMetrics[target.expr].lastRequestedMs = nowMs;
+        }
+        else {
+            endpoint.activeMetrics[target.expr] = { lastRequestedMs: nowMs, deltas: [] };
+            await this.pollEndpointWithContext(endpoint);
+        }
 
-                timeField.values.add(snapshot.fetchTimestampMs);
-                for (const instanceValue of snapshot.values) {
-                    let field = instanceIdToField[instanceValue.instance];
-                    field.values.add(instanceValue.value);
-                }
-            }
-
-            if (currentSnapshot.metadata.sem === "counter") {
-                //console.log("counter");
-            }
-            return dataFrame;
-        }*/
+        return endpoint.metricStore[target.expr];
+    }
 }
