@@ -1,5 +1,5 @@
 import { BackendSrvRequest } from '@grafana/runtime';
-import { Labels, MetricMetadata, MetricInstanceValue, InstanceDomain } from './pcp';
+import { Labels, MetricMetadata, MetricInstanceValue, InstanceDomain, MetricName } from './pcp';
 
 interface ContextResponse {
     context: number;
@@ -14,7 +14,7 @@ interface IndomResponse extends InstanceDomain {
 }
 
 interface MetricInstanceValues {
-    name: string; // metric name
+    name: MetricName;
     instances: MetricInstanceValue[];
 }
 

@@ -1,8 +1,9 @@
-
+type MetricName = string;
+type InstanceName = string;
 export type Labels = Record<string, string>;
 
 export interface MetricMetadata {
-    name: string;
+    name: MetricName;
     indom: string;
     sem: string;
     units: string;
@@ -11,7 +12,7 @@ export interface MetricMetadata {
 
 interface MetricInstance {
     instance: number;
-    name: string;
+    name: InstanceName;
 }
 
 export interface InstanceDomain {
@@ -22,4 +23,9 @@ export interface InstanceDomain {
 export interface MetricInstanceValue {
     instance: number;
     value: number;
+}
+
+export interface InstanceValuesSnapshot {
+    timestamp: number;
+    values: MetricInstanceValue[];
 }

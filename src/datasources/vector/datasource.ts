@@ -1,36 +1,14 @@
 
-import { DataQueryRequest, DataQueryResponse, DataSourceApi, DataSourceInstanceSettings, MutableDataFrame, FieldType, MutableField } from '@grafana/data';
+import { DataQueryRequest, DataQueryResponse, DataSourceApi, DataSourceInstanceSettings } from '@grafana/data';
 import { getBackendSrv, BackendSrvRequest } from '@grafana/runtime';
-import { VectorQuery, VectorOptions, defaultQuery } from './types';
+import { VectorQuery, VectorOptions, defaultQuery, VectorQueryWithUrl } from './types';
 import PmApi from './pmapi';
 import { defaults, every } from 'lodash';
 import { isBlank, getTemplateSrv } from './utils';
 import { NetworkError } from './errors';
-import { Labels, MetricMetadata, InstanceDomain, MetricInstanceValue } from './pcp';
-
-interface Context {
-    context: number;
-    labels: Labels;
-}
-
-interface Snapshot {
-    time: Date;
-    context: Context;
-    metadata: MetricMetadata;
-    instanceDomain: InstanceDomain;
-    fetchTimestampMs: number;
-    values: MetricInstanceValue[];
-}
-
-// labels: context, metric, indom,
+import PollerWorker from './poller.worker'
 
 interface DataSourceState {
-    contexts: Record<string, Context>;
-    snapshots: Record<string, Snapshot[]>;
-}
-
-interface VectorQueryWithUrl extends VectorQuery {
-    url: string;
 }
 
 export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
@@ -45,8 +23,11 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         };
         this.pmApi = new PmApi(this.datasourceRequest.bind(this));
 
-        //const myWorker = new Worker("worker.js");
-        //console.log(myWorker);
+        const myWorker = new PollerWorker();
+        myWorker.onmessage = (e) => {
+            console.log("main: msg recv", e.data);
+        };
+        myWorker.postMessage("test");
     }
 
     async datasourceRequest(options: BackendSrvRequest) {
@@ -85,123 +66,6 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             });
     }
 
-    static async createSnapshot(pmApi: PmApi, context: Context, target: VectorQueryWithUrl, previousSnapshot?: Snapshot): Promise<Snapshot> {
-        // request metric metadatas (semantics, ...) if not existing
-        // TODO: clear cache?
-        let metadata;
-        if (previousSnapshot) {
-            metadata = previousSnapshot.metadata;
-        }
-        else {
-            const metadataResponse = await pmApi.getMetricMetadata(target.url, context.context, target.expr);
-            metadata = metadataResponse.metrics.find(metadata => metadata.name == target.expr);
-            if (!metadata) {
-                throw new Error(`Metric metadata for ${target.expr} not found in response.`);
-            }
-        }
-
-        // fetch metric values
-        const valuesResponse = await pmApi.getMetricValues(target.url, context.context, target.expr);
-        const metricInstanceValues = valuesResponse.values.find(metricInstanceValues => metricInstanceValues.name == target.expr);
-        if (!metricInstanceValues) {
-            throw new Error(`Metric values for ${target.expr} not found in response.`);
-        }
-
-        // check if all instances from current values are in previous instance domain
-        // if not, refresh it
-        let instanceDomain: InstanceDomain;
-        if (previousSnapshot) {
-            instanceDomain = previousSnapshot.instanceDomain;
-
-            let needRefresh = false;
-            for (const metricInstanceValue of metricInstanceValues.instances) {
-                if (!instanceDomain.instances.find(instance => instance.instance == metricInstanceValue.instance)) {
-                    needRefresh = true;
-                    break;
-                }
-            }
-
-            if (needRefresh)
-                instanceDomain = await pmApi.getMetricInstances(target.url, context.context, target.expr);
-        }
-        else {
-            // some redundancy is required here because of TypeScript's strict use-before-assignment checks.. :)
-            instanceDomain = await pmApi.getMetricInstances(target.url, context.context, target.expr);
-        }
-
-        return {
-            time: new Date(),
-            context,
-            metadata: metadata,
-            instanceDomain,
-            fetchTimestampMs: valuesResponse.timestamp * 1000,
-            values: metricInstanceValues.instances
-        };
-    }
-
-    async queryTarget(request: DataQueryRequest<VectorQuery>, target: VectorQueryWithUrl): Promise<MutableDataFrame> {
-        let snapshots = this.state.snapshots[target.expr];
-        if (!snapshots)
-            snapshots = this.state.snapshots[target.expr] = [];
-
-        const endpoint = `${target.url}::${target.container}`;
-        let context = this.state.contexts[endpoint];
-        if (!context)
-            context = this.state.contexts[endpoint] = await this.pmApi.createContext(target.url, target.container);
-
-        const previousSnapshot = snapshots.length > 0 ? snapshots[snapshots.length - 1] : undefined;
-        let currentSnapshot: Snapshot;
-        try {
-            currentSnapshot = await DataSource.createSnapshot(this.pmApi, context, target, previousSnapshot);
-        }
-        catch (error) {
-            // todo: execute only if ctx is expired
-            if (true) {
-                context = this.state.contexts[endpoint] = await this.pmApi.createContext(target.url, target.container);
-                currentSnapshot = await DataSource.createSnapshot(this.pmApi, context, target, previousSnapshot);
-            }
-            else {
-                throw error;
-            }
-        }
-        snapshots.push(currentSnapshot);
-
-        const dataFrame = new MutableDataFrame();
-        dataFrame.name = target.expr;
-        const timeField = dataFrame.addField({ name: 'time', type: FieldType.time });
-
-        const instanceIdToField: Record<number, MutableField> = {};
-        const requestRangeFromMs = request.range?.from.valueOf()!;
-        const requestRangeToMs = request.range?.to.valueOf()!;
-
-        for (const snapshot of snapshots) {
-            if (!(requestRangeFromMs <= snapshot.fetchTimestampMs && (!request.endTime || snapshot.fetchTimestampMs <= requestRangeToMs))) {
-                continue;
-            }
-
-            // create all dataFrame fields in one go, because Grafana automatically matches
-            // the vector length of newly created fields with already existing fields by adding empty data
-            for (const instanceValue of snapshot.values) {
-                if (!(instanceValue.instance in instanceIdToField)) {
-                    const instance = snapshot.instanceDomain.instances.find(instance => instance.instance == instanceValue.instance);
-                    // it's possible that an instance disappeared between the call to /fetch and /indom
-                    const instanceName = instance ? instance.name : `instance ${instanceValue.instance}`;
-                    instanceIdToField[instanceValue.instance] = dataFrame.addField({ name: instanceName, type: FieldType.number, config: { unit: "bytes" } });
-                }
-            }
-
-            timeField.values.add(snapshot.fetchTimestampMs);
-            for (const instanceValue of snapshot.values) {
-                let field = instanceIdToField[instanceValue.instance];
-                field.values.add(instanceValue.value);
-            }
-        }
-
-        if (currentSnapshot.metadata.sem === "counter") {
-            console.log("counter");
-        }
-        return dataFrame;
-    }
 
     async query(request: DataQueryRequest<VectorQuery>): Promise<DataQueryResponse> {
         const targets = this.buildQueryTargets(request);
@@ -211,7 +75,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             throw new Error("Format must be the same for all queries of a panel.");
 
 
-        return { data: await Promise.all(targets.map(target => this.queryTarget(request, target))) };
+        return { data: []};//await Promise.all(targets.map(target => this.queryTarget(request, target))) };
 
         /*
 

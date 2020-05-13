@@ -19,6 +19,10 @@ export interface VectorQuery extends DataQuery {
     container?: string;
 }
 
+export interface VectorQueryWithUrl extends VectorQuery {
+    url: string;
+}
+
 export const defaultQuery: Partial<VectorQuery> = {
     expr: "",
     format: TargetFormat.TimeSeries,
