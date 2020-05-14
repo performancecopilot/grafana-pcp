@@ -1,5 +1,6 @@
 import { BackendSrvRequest } from '@grafana/runtime';
 import { MetricMetadata, MetricInstanceValue, InstanceDomain, MetricName, Context } from './pcp';
+import { has } from 'lodash';
 
 interface MetricsResponse {
     metrics: MetricMetadata[];
@@ -13,6 +14,30 @@ interface MetricInstanceValues {
 interface FetchResponse {
     timestamp: number;
     values: MetricInstanceValues[];
+}
+
+export class MissingMetricsError extends Error {
+    readonly metrics: string[];
+    constructor(metrics: string[], message?: string) {
+        const s = metrics.length !== 1 ? 's' : '';
+        if (!message)
+            message = `Cannot find metric${s} ${metrics.join(', ')}. Please check if the PMDA is enabled.`;
+        super(message);
+        this.metrics = metrics;
+        Object.setPrototypeOf(this, MissingMetricsError.prototype);
+    }
+}
+
+export class PermissionError extends Error {
+    readonly metrics: string[];
+    constructor(metrics: string[], message?: string) {
+        const s = metrics.length !== 1 ? 's' : '';
+        if (!message)
+            message = `Insufficient permissions to store metric${s} ${metrics.join(', ')}.`;
+        super(message);
+        this.metrics = metrics;
+        Object.setPrototypeOf(this, PermissionError.prototype);
+    }
 }
 
 export default class PmApi {
@@ -36,11 +61,21 @@ export default class PmApi {
     }
 
     async getMetricMetadata(url: string, ctxid: number, names: string[]): Promise<MetricsResponse> {
-        const response = await this.datasourceRequest({
-            url: `${url}/pmapi/${ctxid}/metric`,
-            params: { names: names.join(",") }
-        });
-        return response.data;
+        // if multiple metrics are requested and one is missing, pmproxy returns the valid metrics
+        // if a single metric is requested which is missing, pmproxy returns 400
+        try {
+            const response = await this.datasourceRequest({
+                url: `${url}/pmapi/${ctxid}/metric`,
+                params: { names: names.join(",") }
+            });
+            return response.data;
+        }
+        catch (error) {
+            if (has(error, 'data.message') && error.data.message.includes("Unknown metric name"))
+                return { metrics: [] };
+            else
+                throw error;
+        }
     }
 
     async getMetricInstances(url: string, ctxid: number, name: string): Promise<InstanceDomain> {
