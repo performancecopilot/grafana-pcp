@@ -19,7 +19,7 @@ type Props = QueryEditorProps<DataSource, VectorQuery, VectorOptions>;
 interface State {
     expr: string;
     format: SelectableValue<string>;
-    legendFormat: string;
+    legendFormat?: string;
     url?: string;
     container?: string;
 }
@@ -43,8 +43,9 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         this.setState({ expr }, this.onRunQuery);
     };
 
-    onLegendChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
-        this.setState({ legendFormat: event.currentTarget.value }, this.onRunQuery);
+    onLegendFormatChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+        const legendFormat = isBlank(event.currentTarget.value) ? undefined : event.currentTarget.value;
+        this.setState({ legendFormat }, this.onRunQuery);
     };
 
     onFormatChange = (format: SelectableValue<string>) => {
@@ -96,7 +97,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
                             className="gf-form-input"
                             placeholder="legend format"
                             value={this.state.legendFormat}
-                            onChange={this.onLegendChange}
+                            onChange={this.onLegendFormatChange}
                             onBlur={this.onRunQuery}
                         />
                     </div>

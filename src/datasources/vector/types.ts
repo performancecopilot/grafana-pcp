@@ -13,7 +13,7 @@ export enum TargetFormat {
 export interface VectorQuery extends DataQuery {
     expr: string;
     format: TargetFormat;
-    legendFormat: string;
+    legendFormat?: string;
 
     url?: string;
     container?: string;
@@ -26,5 +26,4 @@ export interface VectorQueryWithUrl extends VectorQuery {
 export const defaultQuery: Partial<VectorQuery> = {
     expr: "",
     format: TargetFormat.TimeSeries,
-    legendFormat: "",
 };

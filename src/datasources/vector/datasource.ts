@@ -1,12 +1,14 @@
 
-import { DataQueryRequest, DataQueryResponse, DataSourceApi, DataSourceInstanceSettings, MutableDataFrame, FieldType, MutableField } from '@grafana/data';
+import { DataQueryRequest, DataQueryResponse, DataSourceApi, DataSourceInstanceSettings, MutableDataFrame, FieldType, MutableField, DataFrame } from '@grafana/data';
 import { getBackendSrv, BackendSrvRequest } from '@grafana/runtime';
 import { VectorQuery, VectorOptions, defaultQuery, VectorQueryWithUrl } from './types';
 import PmApi from './pmapi';
-import { defaults, every } from 'lodash';
+import { defaults, every, mapValues } from 'lodash';
 import { isBlank, getTemplateSrv } from './utils';
 import { NetworkError } from './errors';
-import Poller from './poller';
+import Poller, { MetricStore, Endpoint } from './poller';
+import { pcpUnitToGrafanaUnit, InstanceId } from './pcp';
+import { applyTransformations } from './field_transformations';
 
 interface DataSourceState {
 }
@@ -64,17 +66,43 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
     }
 
 
-    async queryTarget(request: DataQueryRequest<VectorQuery>, target: VectorQueryWithUrl): Promise<MutableDataFrame> {
+    getFieldName(request: DataQueryRequest<VectorQuery>, target: VectorQueryWithUrl,
+        endpoint: Endpoint, metricStore: MetricStore, instanceId: InstanceId | null) {
+        if (target.legendFormat) {
+            const metricName = metricStore.metadata.name;
+            const metricSpl = metricName.split('.');
+
+            const pcpLabels = {
+                ...endpoint.context.labels,
+                ...metricStore.metadata.labels,
+                ...metricStore.instanceLabels,
+            }
+            const vars: any = {
+                ...mapValues(pcpLabels, val => ({ value: val })),
+                metric: { value: metricName },
+                metric0: { value: metricSpl[metricSpl.length - 1] },
+                ...request.scopedVars,
+            };
+
+            if (instanceId != null && instanceId in metricStore.instanceNames)
+                vars["instance"] = { value: metricStore.instanceNames[instanceId] };
+
+            return getTemplateSrv().replace(target.legendFormat, vars);
+        }
+        else {
+            return instanceId != null && instanceId in metricStore.instanceNames ? metricStore.instanceNames[instanceId] : metricStore.metadata.name;
+        }
+    }
+
+    async queryTarget(request: DataQueryRequest<VectorQuery>, target: VectorQueryWithUrl): Promise<DataFrame> {
         const requestRangeFromMs = request.range?.from.valueOf()!;
         const requestRangeToMs = request.range?.to.valueOf()!;
 
-        const dataFrame = new MutableDataFrame();
-        dataFrame.name = target.expr;
+        let dataFrame = new MutableDataFrame();
+        const timeField = dataFrame.addField({ name: 'Time', type: FieldType.time });
+        const instanceIdToField = new Map<InstanceId | null, MutableField>();
 
-        const timeField = dataFrame.addField({ name: 'time', type: FieldType.time });
-        const instanceIdToField: Record<number, MutableField> = {};
-
-        const metricStore = await this.poller.query(target);
+        const [endpoint, metricStore] = await this.poller.query(target);
         if (!metricStore) {
             return dataFrame;
         }
@@ -87,34 +115,31 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             // create all dataFrame fields in one go, because Grafana automatically matches
             // the vector length of newly created fields with already existing fields by adding empty data
             for (const instanceValue of snapshot.values) {
-                if (!(instanceValue.instance in instanceIdToField)) {
-                    const instance = metricStore.instanceNames[instanceValue.instance];
-                    // can be a metric without instances or the instance disappeared between the call to /fetch and /indom
-                    const instanceName = instance ? instance : "value";
-                    instanceIdToField[instanceValue.instance] = dataFrame.addField({ name: instanceName, type: FieldType.number, config: { unit: "bytes" } });
+                if (!instanceIdToField.has(instanceValue.instance)) {
+                    instanceIdToField.set(instanceValue.instance, dataFrame.addField({
+                        name: this.getFieldName(request, target, endpoint, metricStore, instanceValue.instance),
+                        type: FieldType.number,
+                        config: { unit: pcpUnitToGrafanaUnit(metricStore.metadata) }
+                    }));
                 }
             }
 
             timeField.values.add(snapshot.timestampMs);
             for (const instanceValue of snapshot.values) {
-                let field = instanceIdToField[instanceValue.instance];
+                let field = instanceIdToField.get(instanceValue.instance)!;
                 field.values.add(instanceValue.value);
             }
         }
 
-        if (metricStore.metadata.sem === "counter") {
-            //console.log("counter");
-        }
-        return dataFrame;
+        return applyTransformations(metricStore.metadata, dataFrame);
     }
 
     async query(request: DataQueryRequest<VectorQuery>): Promise<DataQueryResponse> {
         const targets = this.buildQueryTargets(request);
-        //if (targets.length === 0)
-        //    return { data: [] };
+        if (targets.length === 0)
+            return { data: [] };
         if (!every(targets, ['format', targets[0].format]))
             throw new Error("Format must be the same for all queries of a panel.");
-
 
         return { data: await Promise.all(targets.map(target => this.queryTarget(request, target))) };
 

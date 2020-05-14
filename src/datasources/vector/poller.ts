@@ -1,13 +1,13 @@
-import { Labels, MetricMetadata, InstanceValuesSnapshot, MetricName, Context } from './pcp';
+import { Labels, MetricMetadata, InstanceValuesSnapshot, MetricName, Context, InstanceName } from './pcp';
 import { VectorQueryWithUrl } from './types';
 import PollTimerWorker from './timer.worker'
 import PmApi, { MissingMetricsError } from './pmapi';
-import { difference } from 'lodash';
+import { difference, has } from 'lodash';
 
-interface MetricStore {
+export interface MetricStore {
     metadata: MetricMetadata;
     instanceLabels: Labels;
-    instanceNames: Record<number, string>;
+    instanceNames: Record<number, InstanceName>;
     values: InstanceValuesSnapshot[];
 }
 
@@ -17,11 +17,10 @@ interface ActiveMetric {
     deltas: number[];
 };
 
-interface Endpoint {
+export interface Endpoint {
     url: string;
     container?: string;
-
-    context?: Context;
+    context: Context;
     errors: any[];
     activeMetrics: Record<MetricName, ActiveMetric>;
     metricStore: Record<MetricName, MetricStore>;
@@ -48,7 +47,7 @@ export default class Poller {
     }
 
     async refreshInstanceNames(endpoint: Endpoint, metricStore: MetricStore) {
-        const instancesResponse = await this.pmApi.getMetricInstances(endpoint.url, endpoint.context!.context, metricStore.metadata.name);
+        const instancesResponse = await this.pmApi.getMetricInstances(endpoint.url, endpoint.context.context, metricStore.metadata.name);
         metricStore.instanceLabels = instancesResponse.labels;
         metricStore.instanceNames = instancesResponse.instances.reduce((acc, cur) => {
             acc[cur.instance] = cur.name;
@@ -57,10 +56,6 @@ export default class Poller {
     }
 
     async pollEndpoint(endpoint: Endpoint) {
-        if (!endpoint.context) {
-            endpoint.context = await this.pmApi.createContext(endpoint.url, endpoint.container);
-        }
-
         let metricsToPoll = Object.keys(endpoint.activeMetrics);
         const newMetrics = difference(metricsToPoll, Object.keys(endpoint.metricStore));
         if (newMetrics.length > 0) {
@@ -80,11 +75,12 @@ export default class Poller {
             }
 
             const missingMetrics = difference(newMetrics, metadataResponse.metrics.map(metric => metric.name));
-            for (const missingMetric of missingMetrics) {
-                endpoint.activeMetrics[missingMetric].errors.push(new MissingMetricsError(missingMetrics));
+            if (missingMetrics.length > 0) {
+                for (const missingMetric of missingMetrics) {
+                    endpoint.activeMetrics[missingMetric].errors.push(new MissingMetricsError(missingMetrics));
+                }
+                metricsToPoll = difference(metricsToPoll, missingMetrics);
             }
-            metricsToPoll = difference(metricsToPoll, missingMetrics);
-            console.log(missingMetrics);
         }
 
         const valuesResponse = await this.pmApi.getMetricValues(endpoint.url, endpoint.context.context, metricsToPoll);
@@ -94,7 +90,7 @@ export default class Poller {
             if (metricStore.metadata.indom) {
                 let needRefresh = false;
                 for (const instance of metricInstanceValues.instances) {
-                    if (!metricStore.instanceNames[instance.instance]) {
+                    if (!metricStore.instanceNames[instance.instance!]) {
                         needRefresh = true;
                         break;
                     }
@@ -115,8 +111,8 @@ export default class Poller {
             await this.pollEndpoint(endpoint);
         }
         catch (error) {
-            // TODO: check if context expired
-            if (false) {
+            if (has(error, 'data.message') && error.data.message.includes("unknown context identifier")) {
+                console.debug("context expired, requesting new")
                 endpoint.context = await this.pmApi.createContext(endpoint.url, endpoint.container);
                 await this.pollEndpoint(endpoint);
             }
@@ -158,12 +154,13 @@ export default class Poller {
         }
     }
 
-    async query(target: VectorQueryWithUrl): Promise<MetricStore | undefined> {
+    async query(target: VectorQueryWithUrl): Promise<[Endpoint, MetricStore | undefined]> {
         let endpoint = this.state.endpoints.find(ep => ep.url == target.url && ep.container == target.container);
         if (!endpoint) {
             endpoint = {
                 url: target.url,
                 container: target.container,
+                context: await this.pmApi.createContext(target.url, target.container),
                 errors: [],
                 metricStore: {},
                 activeMetrics: {},
@@ -186,6 +183,6 @@ export default class Poller {
         }
         this.throwBackgroundError(activeMetric);
 
-        return endpoint.metricStore[target.expr];
+        return [endpoint, endpoint.metricStore[target.expr]];
     }
 }
