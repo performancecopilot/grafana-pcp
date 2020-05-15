@@ -101,7 +101,7 @@ export class Poller {
             if (metricStore.metadata.indom) {
                 let needRefresh = false;
                 for (const instance of metricInstanceValues.instances) {
-                    if (!metricStore.instanceDomain!.instances[instance.instance!]) {
+                    if (!metricStore.instanceDomain.instances[instance.instance!]) {
                         needRefresh = true;
                         break;
                     }

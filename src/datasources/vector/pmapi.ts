@@ -61,10 +61,11 @@ export class PmApi {
             url: `${url}/pmapi/context`,
             params: { polltimeout: 30 }
         });
-        const contextData = response.data;
-        if (!has(contextData, "context"))
+
+        if (!has(response.data, "context"))
             throw new NetworkError("Received malformed response");
 
+        const contextData = response.data;
         if (container) {
             await this.datasourceRequest({
                 url: `${url}/pmapi/${contextData.context}/store`,
@@ -82,6 +83,9 @@ export class PmApi {
                 url: `${url}/pmapi/${ctxid}/metric`,
                 params: { names: names.join(",") }
             });
+
+            if (!has(response.data, "metrics"))
+                throw new NetworkError("Received malformed response");
             return response.data;
         }
         catch (error) {
@@ -98,6 +102,9 @@ export class PmApi {
             url: `${url}/pmapi${ctxPath}/indom`,
             params: { name }
         });
+
+        if (!has(response.data, "instances"))
+            throw new NetworkError("Received malformed response");
         return response.data;
     }
 
