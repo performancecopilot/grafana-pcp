@@ -8,7 +8,7 @@ module.exports.getWebpackConfig = (config, options) => ({
 
                 test: /\.worker\.ts$/,
                 loader: 'worker-loader',
-                options: { publicPath: 'public/plugins/performancecopilot-pcp-app2/' }
+                options: { publicPath: 'public/plugins/performancecopilot-pcp-app/' }
             },
             ...config.module.rules,
         ]

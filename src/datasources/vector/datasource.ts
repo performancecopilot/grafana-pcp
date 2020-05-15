@@ -1,51 +1,36 @@
 
 import { DataQueryRequest, DataQueryResponse, DataSourceApi, DataSourceInstanceSettings, MutableDataFrame, FieldType, MutableField, DataFrame } from '@grafana/data';
-import { getBackendSrv, BackendSrvRequest } from '@grafana/runtime';
-import { VectorQuery, VectorOptions, defaultQuery, VectorQueryWithUrl } from './types';
-import PmApi from './pmapi';
+import { VectorQuery, VectorOptions, defaultQuery, VectorQueryWithUrl, DatasourceRequestOptions } from './types';
 import { defaults, every, mapValues } from 'lodash';
 import { isBlank, getTemplateSrv } from './utils';
-import { NetworkError } from './errors';
-import Poller, { MetricStore, Endpoint } from './poller';
+import { Poller, MetricStore, Endpoint } from './poller';
 import { pcpUnitToGrafanaUnit, InstanceId } from './pcp';
 import { applyTransformations } from './field_transformations';
+import { PmApi } from './pmapi';
 
 interface DataSourceState {
+    datasourceRequestOptions: DatasourceRequestOptions;
 }
 
 export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
     state: DataSourceState;
-    pmApi: PmApi;
     poller: Poller;
 
-    constructor(private instanceSettings: DataSourceInstanceSettings<VectorOptions>) {
+    constructor(readonly instanceSettings: DataSourceInstanceSettings<VectorOptions>) {
         super(instanceSettings);
         this.state = {
-            contexts: {},
-            snapshots: {}
+            datasourceRequestOptions: {
+                headers: {}
+            }
         };
-        this.pmApi = new PmApi(this.datasourceRequest.bind(this));
 
-        this.poller = new Poller(this.pmApi);
-    }
-
-    async datasourceRequest(options: BackendSrvRequest) {
-        options = defaults(options, {
-            headers: {}
-        })
-        options.headers["Content-Type"] = "application/json";
-
+        this.state.datasourceRequestOptions.headers["Content-Type"] = "application/json";
         if (this.instanceSettings.basicAuth || this.instanceSettings.withCredentials)
-            options.withCredentials = true;
+            this.state.datasourceRequestOptions.withCredentials = true;
         if (this.instanceSettings.basicAuth)
-            options.headers["Authorization"] = this.instanceSettings.basicAuth;
+            this.state.datasourceRequestOptions.headers["Authorization"] = this.instanceSettings.basicAuth;
 
-        try {
-            return await getBackendSrv().datasourceRequest(options);
-        }
-        catch (error) {
-            throw new NetworkError(error);
-        }
+        this.poller = new Poller(this.state.datasourceRequestOptions);
     }
 
     buildQueryTargets(request: DataQueryRequest<VectorQuery>): VectorQueryWithUrl[] {
@@ -73,9 +58,10 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             const metricSpl = metricName.split('.');
 
             const pcpLabels = {
-                ...endpoint.context.labels,
+                ...(endpoint.context ? endpoint.context.labels : {}),
                 ...metricStore.metadata.labels,
-                ...metricStore.instanceLabels,
+                ...metricStore.instanceDomain.labels,
+                ...(instanceId != null && instanceId in metricStore.instanceDomain.instances ? metricStore.instanceDomain.instances[instanceId].labels : {}),
             }
             const vars: any = {
                 ...mapValues(pcpLabels, val => ({ value: val })),
@@ -84,13 +70,16 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
                 ...request.scopedVars,
             };
 
-            if (instanceId != null && instanceId in metricStore.instanceNames)
-                vars["instance"] = { value: metricStore.instanceNames[instanceId] };
+            if (instanceId != null && instanceId in metricStore.instanceDomain.instances)
+                vars["instance"] = { value: metricStore.instanceDomain.instances[instanceId].name };
 
             return getTemplateSrv().replace(target.legendFormat, vars);
         }
         else {
-            return instanceId != null && instanceId in metricStore.instanceNames ? metricStore.instanceNames[instanceId] : metricStore.metadata.name;
+            if (instanceId != null && instanceId in metricStore.instanceDomain.instances)
+                return metricStore.instanceDomain.instances[instanceId].name;
+            else
+                return metricStore.metadata.name;
         }
     }
 
@@ -142,71 +131,11 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             throw new Error("Format must be the same for all queries of a panel.");
 
         return { data: await Promise.all(targets.map(target => this.queryTarget(request, target))) };
-
-        /*
-
-
-                console.log(request);
-                //const { range } = request;
-                //const from = range!.from.valueOf();
-                //const to = range!.to.valueOf();
-
-                const numbers = interval(2000);
-
-                //const takeFourNumbers = numbers.pipe(take(4));
-                console.log("new q at", new Date());
-
-                const data = new CircularDataFrame({
-                    append: 'tail',
-                    capacity: request.maxDataPoints || 1000,
-                });
-                data.refId = request.targets[0].refId;
-                data.name = 'Signal ' + request.targets[0].refId;
-                data.addField({ name: 'time', type: FieldType.time });
-                data.addField({ name: 'value', type: FieldType.number });
-
-                let i = 0;
-
-                return new Observable<DataQueryResponse>(subscriber => {
-                    numbers.subscribe(x => {
-                        data.fields[0].values.add(new Date().getTime());
-                        data.fields[1].values.add(i++);
-
-                        subscriber.next({ data: [data] });
-                    });
-                });
-
-
-
-
-
-                const example: Observable<DataQueryResponse> = numbers.pipe(
-                  map(val => {
-                    data.fields[0].values.add(new Date().getTime());
-                    data.fields[1].values.add(value);
-
-                    // Return a constant for each query.
-                    const data = request.targets.map(target => {
-                      const query = defaults(target, defaultQuery);
-                      return new MutableDataFrame({
-                        refId: query.refId,
-                        fields: [
-                          { name: 'Time', values: [new Date().getTime()], type: FieldType.time },
-                          { name: 'Value', values: [query.constant], type: FieldType.number },
-                        ],
-                      });
-                    });
-
-                    return { data };
-                  })
-                );
-
-                return example;*/
     }
 
     async testDatasource() {
         try {
-            await this.pmApi.createContext(this.instanceSettings.url!);
+            await new PmApi(this.state.datasourceRequestOptions).createContext(this.instanceSettings.url!);
             return {
                 status: 'success',
                 message: 'Data source is working',

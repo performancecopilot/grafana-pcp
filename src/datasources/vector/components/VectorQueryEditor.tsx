@@ -1,11 +1,12 @@
 import defaults from 'lodash/defaults';
 import React, { PureComponent } from 'react';
-import { FormLabel, Select } from '@grafana/ui';
+import { FormLabel, Select, AsyncSelect } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { VectorOptions, VectorQuery, defaultQuery, TargetFormat } from '../types';
 import VectorQueryField from './VectorQueryField';
-import { isBlank } from '../utils';
+import { isBlank, getTemplateSrv } from '../utils';
+import { PmApi } from '../pmapi';
 
 
 const FORMAT_OPTIONS: SelectableValue<string>[] = [
@@ -21,7 +22,7 @@ interface State {
     format: SelectableValue<string>;
     legendFormat?: string;
     url?: string;
-    container?: string;
+    container?: SelectableValue<string>;
 }
 
 export class VectorQueryEditor extends PureComponent<Props, State> {
@@ -33,10 +34,8 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
             format: FORMAT_OPTIONS.find(option => option.value === query.format) || FORMAT_OPTIONS[0],
             legendFormat: query.legendFormat,
             url: query.url,
-            container: query.container,
+            container: query.container ? { label: query.container, value: query.container } : undefined,
         };
-
-        // TODO: containers
     }
 
     onExprChange = (expr: string) => {
@@ -57,9 +56,8 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         this.setState({ url }, this.onRunQuery);
     };
 
-    onContainerChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
-        const container = isBlank(event.currentTarget.value) ? undefined : event.currentTarget.value;
-        this.setState({ container }, this.onRunQuery);
+    onContainerChange = (container: SelectableValue<string>) => {
+        this.setState({ container: container.value ? container : undefined }, this.onRunQuery);
     };
 
     onRunQuery = () => {
@@ -69,9 +67,23 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
             format: this.state.format.value as TargetFormat,
             legendFormat: this.state.legendFormat,
             url: this.state.url,
-            container: this.state.container,
+            container: this.state.container ? this.state.container.value : undefined,
         });
         this.props.onRunQuery();
+    };
+
+    loadAvailableContainers = async (query: string): Promise<SelectableValue<string>[]> => {
+        const variables = getTemplateSrv().variables.map(variable => "$" + variable.name);
+        const pmApi = new PmApi(this.props.datasource.state.datasourceRequestOptions);
+        const containerInstances = await pmApi.getMetricValues(this.props.datasource.instanceSettings.url!, null, ["containers.name"]);
+        const options = [
+            ...variables,
+            ...containerInstances.values[0].instances.map(instance => instance.value),
+        ];
+        return [
+            { label: "-", value: undefined },
+            ...options.map(value => ({ label: value, value }))
+        ];
     };
 
     render() {
@@ -104,7 +116,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
 
                     <div className="gf-form">
                         <div className="gf-form-label">Format</div>
-                        <Select isSearchable={false} options={FORMAT_OPTIONS} value={this.state.format} onChange={this.onFormatChange} />
+                        <Select className="width-9" isSearchable={false} options={FORMAT_OPTIONS} value={this.state.format} onChange={this.onFormatChange} />
                     </div>
 
                     <div className="gf-form">
@@ -131,13 +143,13 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
                         >
                             Container
                         </FormLabel>
-                        <input
-                            type="text"
-                            className="gf-form-input"
-                            placeholder="legend format"
+                        <AsyncSelect
+                            isSearchable={true}
+                            defaultOptions={true}
+                            className="width-14"
+                            loadOptions={this.loadAvailableContainers}
                             value={this.state.container}
                             onChange={this.onContainerChange}
-                            onBlur={this.onRunQuery}
                         />
                     </div>
                 </div>

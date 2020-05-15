@@ -1,13 +1,12 @@
-import { Labels, MetricMetadata, InstanceValuesSnapshot, MetricName, Context, InstanceName } from './pcp';
-import { VectorQueryWithUrl } from './types';
-import PollTimerWorker from './timer.worker'
-import PmApi, { MissingMetricsError } from './pmapi';
+import { MetricMetadata, MetricName, Context, InstanceDomain, Instance, InstanceValuesSnapshot } from './pcp';
+import { VectorQueryWithUrl, DatasourceRequestOptions } from './types';
+// import PollTimerWorker from './timer.worker'
+import { PmApi, MissingMetricsError } from './pmapi';
 import { difference, has } from 'lodash';
 
 export interface MetricStore {
     metadata: MetricMetadata;
-    instanceLabels: Labels;
-    instanceNames: Record<number, InstanceName>;
+    instanceDomain: Omit<InstanceDomain, "instances"> & { instances: Record<number, Instance> };
     values: InstanceValuesSnapshot[];
 }
 
@@ -20,7 +19,7 @@ interface ActiveMetric {
 export interface Endpoint {
     url: string;
     container?: string;
-    context: Context;
+    context?: Context;
     errors: any[];
     activeMetrics: Record<MetricName, ActiveMetric>;
     metricStore: Record<MetricName, MetricStore>;
@@ -30,32 +29,42 @@ interface WorkerState {
     endpoints: Endpoint[];
 }
 
-export default class Poller {
+export class Poller {
     MEDIAN_OVER_LAST_X_REQUESTS = 3;
 
     state: WorkerState;
-    timer: PollTimerWorker;
+    pmApi: PmApi;
+    //timer: PollTimerWorker;
 
-    constructor(private pmApi: PmApi) {
+    constructor(datasourceRequestOptions: DatasourceRequestOptions) {
         this.state = {
             endpoints: [],
         };
 
-        this.timer = new PollTimerWorker();
-        this.timer.onmessage = this.poll.bind(this);
-        this.timer.postMessage({ interval: 1000 });
+        this.pmApi = new PmApi(datasourceRequestOptions);
+
+        //this.timer = new PollTimerWorker();
+        //this.timer.onmessage = this.poll.bind(this);
+        //this.timer.postMessage({ interval: 1000 });
+        setInterval(this.poll.bind(this), 1000);
+        console.log("int2");
     }
 
     async refreshInstanceNames(endpoint: Endpoint, metricStore: MetricStore) {
-        const instancesResponse = await this.pmApi.getMetricInstances(endpoint.url, endpoint.context.context, metricStore.metadata.name);
-        metricStore.instanceLabels = instancesResponse.labels;
-        metricStore.instanceNames = instancesResponse.instances.reduce((acc, cur) => {
-            acc[cur.instance] = cur.name;
-            return acc;
-        }, metricStore.instanceNames);
+        const instancesResponse = await this.pmApi.getMetricInstances(endpoint.url, endpoint.context!.context, metricStore.metadata.name);
+        metricStore.instanceDomain = {
+            labels: instancesResponse.labels,
+            instances: instancesResponse.instances.reduce((acc, cur) => {
+                acc[cur.instance] = cur;
+                return acc;
+            }, metricStore.instanceDomain.instances),
+        };
     }
 
     async pollEndpoint(endpoint: Endpoint) {
+        if (!endpoint.context)
+            endpoint.context = await this.pmApi.createContext(endpoint.url, endpoint.container);
+
         let metricsToPoll = Object.keys(endpoint.activeMetrics);
         const newMetrics = difference(metricsToPoll, Object.keys(endpoint.metricStore));
         if (newMetrics.length > 0) {
@@ -63,9 +72,11 @@ export default class Poller {
             for (const metadata of metadataResponse.metrics) {
                 let metricStore: MetricStore = {
                     metadata,
-                    instanceLabels: {},
-                    instanceNames: {},
-                    values: []
+                    instanceDomain: {
+                        instances: {},
+                        labels: {},
+                    },
+                    values: [],
                 };
 
                 if (metadata.indom)
@@ -90,7 +101,7 @@ export default class Poller {
             if (metricStore.metadata.indom) {
                 let needRefresh = false;
                 for (const instance of metricInstanceValues.instances) {
-                    if (!metricStore.instanceNames[instance.instance!]) {
+                    if (!metricStore.instanceDomain!.instances[instance.instance!]) {
                         needRefresh = true;
                         break;
                     }
@@ -139,11 +150,11 @@ export default class Poller {
             }
         }));
 
-        const deltas = this.state.endpoints.flatMap(ep => Object.values(ep.activeMetrics)).flatMap(am => am.deltas);
+        /*const deltas = this.state.endpoints.flatMap(ep => Object.values(ep.activeMetrics)).flatMap(am => am.deltas);
         if (deltas.length > 0) {
             const medianRequestTime = this.getMedian(deltas);
             this.timer.postMessage({ interval: medianRequestTime });
-        }
+        }*/
     }
 
     throwBackgroundError(obj: { errors: any[] }) {
@@ -154,13 +165,16 @@ export default class Poller {
         }
     }
 
+    /**
+     * do *not* create a context here, or fetch any metric
+     * otherwise the initial load of a dashboard creates lots of duplicate contexts
+     */
     async query(target: VectorQueryWithUrl): Promise<[Endpoint, MetricStore | undefined]> {
         let endpoint = this.state.endpoints.find(ep => ep.url == target.url && ep.container == target.container);
         if (!endpoint) {
             endpoint = {
                 url: target.url,
                 container: target.container,
-                context: await this.pmApi.createContext(target.url, target.container),
                 errors: [],
                 metricStore: {},
                 activeMetrics: {},
@@ -179,7 +193,7 @@ export default class Poller {
         }
         else {
             activeMetric = endpoint.activeMetrics[target.expr] = { lastRequestedMs: nowMs, errors: [], deltas: [] };
-            await this.pollEndpointWithContext(endpoint);
+            //await this.pollEndpointWithContext(endpoint);
         }
         this.throwBackgroundError(activeMetric);
 

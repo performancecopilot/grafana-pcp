@@ -1,3 +1,5 @@
+import { isString } from "lodash";
+
 export class NetworkError extends Error {
     data: any;
 
@@ -11,6 +13,8 @@ export class NetworkError extends Error {
             // XHR succeed (if the Grafana proxy is used, it always succeeds)
             message = `HTTP Error ${error.status}: ${error.statusText}, please check the datasource and pmproxy settings`;
         }
+        else if (isString(error))
+            message = error;
         super(message);
 
         this.data = error.data; // other layers may inspect the data and throw a custom error message (e.g. insufficient permissions)

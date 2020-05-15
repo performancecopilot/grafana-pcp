@@ -1,6 +1,8 @@
-import { BackendSrvRequest } from '@grafana/runtime';
-import { MetricMetadata, MetricInstanceValue, InstanceDomain, MetricName, Context } from './pcp';
-import { has } from 'lodash';
+import { BackendSrvRequest, getBackendSrv } from '@grafana/runtime';
+import { MetricMetadata, InstanceDomain, MetricName, Context, InstanceValue } from './pcp';
+import { has, defaults } from 'lodash';
+import { DatasourceRequestOptions } from './types';
+import { NetworkError } from './errors';
 
 interface MetricsResponse {
     metrics: MetricMetadata[];
@@ -8,7 +10,7 @@ interface MetricsResponse {
 
 interface MetricInstanceValues {
     name: MetricName;
-    instances: MetricInstanceValue[];
+    instances: InstanceValue[];
 }
 
 interface FetchResponse {
@@ -40,8 +42,18 @@ export class PermissionError extends Error {
     }
 }
 
-export default class PmApi {
-    constructor(private datasourceRequest: (options: BackendSrvRequest) => Promise<any>) {
+export class PmApi {
+    constructor(private datasourceRequestOptions: DatasourceRequestOptions) {
+    }
+
+    async datasourceRequest(options: BackendSrvRequest) {
+        options = defaults(options, this.datasourceRequestOptions);
+        try {
+            return await getBackendSrv().datasourceRequest(options);
+        }
+        catch (error) {
+            throw new NetworkError(error);
+        }
     }
 
     async createContext(url: string, container?: string): Promise<Context> {
@@ -50,6 +62,8 @@ export default class PmApi {
             params: { polltimeout: 30 }
         });
         const contextData = response.data;
+        if (!has(contextData, "context"))
+            throw new NetworkError("Received malformed response");
 
         if (container) {
             await this.datasourceRequest({
@@ -78,19 +92,24 @@ export default class PmApi {
         }
     }
 
-    async getMetricInstances(url: string, ctxid: number, name: string): Promise<InstanceDomain> {
+    async getMetricInstances(url: string, ctxid: number | null, name: string): Promise<InstanceDomain> {
+        const ctxPath = ctxid == null ? "" : `/${ctxid}`;
         const response = await this.datasourceRequest({
-            url: `${url}/pmapi/${ctxid}/indom`,
+            url: `${url}/pmapi${ctxPath}/indom`,
             params: { name }
         });
         return response.data;
     }
 
-    async getMetricValues(url: string, ctxid: number, names: string[]): Promise<FetchResponse> {
+    async getMetricValues(url: string, ctxid: number | null, names: string[]): Promise<FetchResponse> {
+        const ctxPath = ctxid == null ? "" : `/${ctxid}`;
         const response = await this.datasourceRequest({
-            url: `${url}/pmapi/${ctxid}/fetch`,
+            url: `${url}/pmapi${ctxPath}/fetch`,
             params: { names: names.join(",") }
         });
+
+        if (!has(response.data, "timestamp"))
+            throw new NetworkError("Received malformed response");
         return response.data;
     }
 }

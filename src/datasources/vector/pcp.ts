@@ -16,25 +16,27 @@ export interface MetricMetadata {
     labels: Labels;
 }
 
-interface MetricInstance {
-    instance: InstanceId;
+export interface Instance {
     name: InstanceName;
+    instance: InstanceId;
+    labels: Labels;
 }
 
 export interface InstanceDomain {
+    instances: Instance[];
     labels: Labels;
-    instances: MetricInstance[];
 }
 
-export interface MetricInstanceValue {
+export interface InstanceValue {
     instance: InstanceId | null;
     value: number;
 }
 
 export interface InstanceValuesSnapshot {
     timestampMs: number;
-    values: MetricInstanceValue[];
+    values: InstanceValue[];
 }
+
 
 export function pcpUnitToGrafanaUnit(metadata: MetricMetadata): string | undefined {
     // pcp/src/libpcp/src/units.c
