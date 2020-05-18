@@ -9,8 +9,8 @@ export interface VectorOptions extends DataSourceJsonData {
 
 export enum TargetFormat {
     TimeSeries = "time_series",
-    MetricsTable = "metrics_table",
     Heatmap = "heatmap",
+    MetricsTable = "metrics_table",
 }
 
 export interface VectorQuery extends DataQuery {

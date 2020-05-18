@@ -71,6 +71,11 @@
         },
         {
             "type": "dashboard",
+            "name": "PCP Vector BCC Overview",
+            "path": "dashboards/pcp-vector-bcc-overview.json"
+        },
+        {
+            "type": "dashboard",
             "name": "PCP bpftrace System Analysis",
             "path": "dashboards/pcp-bpftrace-system-analysis.json"
         },

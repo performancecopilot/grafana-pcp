@@ -5,12 +5,11 @@ import { VectorOptions } from '../types';
 
 export type Props = DataSourcePluginOptionsEditorProps<VectorOptions>;
 
-/* copied from PromSettings.tsx */
 export const timeSettingsValidationEvents = {
     [EventsWithValidation.onBlur]: [
         regexValidation(
-            /^$|^\d+(ms|[Mwdhmsy])$/,
-            'Value is not valid, you can use number with time unit specifier: y, M, w, d, h, m, s'
+            /^$|^\d+[hms]$/,
+            'Value is not valid, you can use number with time unit specifier: h, m, s'
         ),
     ],
 };
