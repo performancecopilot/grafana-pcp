@@ -1,4 +1,5 @@
 export type MetricName = string;
+export type Expr = string;
 export type InstanceName = string;
 export type InstanceId = number;
 export type Labels = Record<string, string>;

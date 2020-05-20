@@ -59,7 +59,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
 
         const pollerQueryResult = targets
             .map(target => this.poller.query(target))
-            .filter(result => result.metricStore) as Required<PollerQueryResult>[];
+            .filter(result => result.metric) as Required<PollerQueryResult>[];
         return { data: processTargets(request, pollerQueryResult) };
     }
 

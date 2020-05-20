@@ -1,42 +1,37 @@
 import { DataQueryRequest, MutableDataFrame, FieldType, MutableField, DataQueryResponseData, MISSING_VALUE } from "@grafana/data";
 import { VectorQuery, VectorQueryWithUrl, TargetFormat } from "./types";
-import { MetricStore, Endpoint, PollerQueryResult } from "./poller";
+import { Metric, Endpoint, PollerQueryResult } from "./poller";
 import { InstanceId, pcpUnitToGrafanaUnit } from "./pcp";
 import { mapValues, uniq } from "lodash";
 import { getTemplateSrv } from "./utils";
 import { applyTransformations } from "./field_transformations";
 
 function getFieldName(request: DataQueryRequest<VectorQuery>, target: VectorQueryWithUrl,
-    endpoint: Endpoint, metricStore: MetricStore, instanceId: InstanceId | null,
-    defaultFormatFn: (metricStore: MetricStore, instanceId: InstanceId | null) => string) {
+    endpoint: Endpoint, metric: Metric, instanceId: InstanceId | null,
+    defaultFormatFn: (target: VectorQueryWithUrl, metricStore: Metric, instanceId: InstanceId | null) => string) {
     if (target.legendFormat) {
-        const metricName = metricStore.metadata.name;
-        const metricSpl = metricName.split('.');
-
-        const pcpLabels = {
+        const vars: Record<string, string> = {
             ...(endpoint.context ? endpoint.context.labels : {}),
-            ...metricStore.metadata.labels,
-            ...metricStore.instanceDomain.labels,
-            ...(instanceId != null && instanceId in metricStore.instanceDomain.instances ? metricStore.instanceDomain.instances[instanceId].labels : {}),
+            ...metric.metadata.labels,
+            ...metric.instanceDomain.labels,
+            ...instanceId != null && instanceId in metric.instanceDomain.instances ? metric.instanceDomain.instances[instanceId].labels : {},
+            metric: target.expr,
+            ...target.expr == metric.metadata.name ? { metric0: metric.metadata.name.split('.')[0] } : {},
         }
-        const vars: any = {
-            ...mapValues(pcpLabels, val => ({ value: val })),
-            metric: { value: metricName },
-            metric0: { value: metricSpl[metricSpl.length - 1] },
+        if (instanceId != null && instanceId in metric.instanceDomain.instances)
+            vars["instance"] = metric.instanceDomain.instances[instanceId].name;
+
+        return getTemplateSrv().replace(target.legendFormat, {
+            ...mapValues(vars, val => ({ value: val })),
             ...request.scopedVars,
-        };
-
-        if (instanceId != null && instanceId in metricStore.instanceDomain.instances)
-            vars["instance"] = { value: metricStore.instanceDomain.instances[instanceId].name };
-
-        return getTemplateSrv().replace(target.legendFormat, vars);
+        });
     }
     else {
-        return defaultFormatFn(metricStore, instanceId);
+        return defaultFormatFn(target, metric, instanceId);
     }
 }
 
-function toDataFrame(request: DataQueryRequest<VectorQuery>, metricStore: MetricStore) {
+function toDataFrame(request: DataQueryRequest<VectorQuery>, metricStore: Metric) {
     const requestRangeFromMs = request.range?.from.valueOf()!;
     const requestRangeToMs = request.range?.to.valueOf()!;
 
@@ -69,15 +64,15 @@ function toDataFrame(request: DataQueryRequest<VectorQuery>, metricStore: Metric
     return dataFrame;
 }
 
-function defaultVectorLegend(metricStore: MetricStore, instanceId: InstanceId | null) {
+function defaultVectorLegend(target: VectorQueryWithUrl, metricStore: Metric, instanceId: InstanceId | null) {
     if (instanceId != null && instanceId in metricStore.instanceDomain.instances)
         return metricStore.instanceDomain.instances[instanceId].name;
     else
-        return metricStore.metadata.name;
+        return target.expr;
 }
 
 function toTimeSeries(request: DataQueryRequest<VectorQuery>, target: VectorQueryWithUrl,
-    endpoint: Endpoint, metricStore: MetricStore, dataFrame: MutableDataFrame) {
+    endpoint: Endpoint, metricStore: Metric, dataFrame: MutableDataFrame) {
     for (const field of dataFrame.fields) {
         if (field.type == FieldType.time)
             continue;
@@ -107,9 +102,14 @@ function toHeatMap(dataFrame: MutableDataFrame) {
     return dataFrame;
 }
 
-function defaultMetricsTableHeader(metricStore: MetricStore, instanceId: InstanceId | null) {
-    const metricSpl = metricStore.metadata.name.split('.');
-    return metricSpl[metricSpl.length - 1];
+function defaultMetricsTableHeader(target: VectorQueryWithUrl, metricStore: Metric, instanceId: InstanceId | null) {
+    if (target.expr == metricStore.metadata.name) {
+        const metricSpl = metricStore.metadata.name.split('.');
+        return metricSpl[metricSpl.length - 1];
+    }
+    else {
+        return target.expr;
+    }
 }
 
 function toMetricsTable(request: DataQueryRequest<VectorQuery>, results: Required<PollerQueryResult>[]) {
@@ -117,11 +117,11 @@ function toMetricsTable(request: DataQueryRequest<VectorQuery>, results: Require
     const tableDataFrame = new MutableDataFrame();
     let instances: (number | null)[] = [];
     for (const result of results) {
-        const fieldName = getFieldName(request, result.target, result.endpoint, result.metricStore, null, defaultMetricsTableHeader);
+        const fieldName = getFieldName(request, result.target, result.endpoint, result.metric, null, defaultMetricsTableHeader);
         tableDataFrame.addField({ name: fieldName }).values.set(0, 5);
 
-        if (result.metricStore.values.length > 0)
-            instances.push(...result.metricStore.values[result.metricStore.values.length - 1].values.map(instanceValue => instanceValue.instance));
+        if (result.metric.values.length > 0)
+            instances.push(...result.metric.values[result.metric.values.length - 1].values.map(instanceValue => instanceValue.instance));
     }
     instances = uniq(instances);
 
@@ -130,10 +130,10 @@ function toMetricsTable(request: DataQueryRequest<VectorQuery>, results: Require
         // first result (target) == first tableDataFrame.field, etc.
         let fieldIdx = 0;
         for (const result of results) {
-            if (result.metricStore.values.length == 0)
+            if (result.metric.values.length == 0)
                 continue;
 
-            const lastSnapshot = result.metricStore.values[result.metricStore.values.length - 1].values;
+            const lastSnapshot = result.metric.values[result.metric.values.length - 1].values;
             const instanceValue = lastSnapshot.find(instanceValue => instanceValue.instance == instance);
             if (instanceValue)
                 tableDataFrame.fields[fieldIdx].values.add(instanceValue.value);
@@ -152,13 +152,13 @@ export function processTargets(request: DataQueryRequest<VectorQuery>, results: 
     const format = results[0].target.format;
     if (format == TargetFormat.TimeSeries) {
         return results.map(result => {
-            const dataFrame = applyTransformations(result.metricStore.metadata, toDataFrame(request, result.metricStore));
-            return toTimeSeries(request, result.target, result.endpoint, result.metricStore, dataFrame);
+            const dataFrame = applyTransformations(result.metric.metadata, toDataFrame(request, result.metric));
+            return toTimeSeries(request, result.target, result.endpoint, result.metric, dataFrame);
         });
     }
     else if (format == TargetFormat.Heatmap) {
         return results.map(
-            result => toHeatMap(applyTransformations(result.metricStore.metadata, toDataFrame(request, result.metricStore)))
+            result => toHeatMap(applyTransformations(result.metric.metadata, toDataFrame(request, result.metric)))
         );
     }
     else if (format == TargetFormat.MetricsTable) {

@@ -1,38 +1,53 @@
-import { MetricMetadata, MetricName, Context, InstanceDomain, Instance, InstanceValuesSnapshot } from './pcp';
-import { VectorQueryWithUrl, DatasourceRequestOptions } from './types';
+import { MetricMetadata, Context, InstanceDomain, Instance, InstanceValuesSnapshot, Expr } from './pcp';
+import { VectorQueryWithUrl, DatasourceRequestOptions, RequiredField } from './types';
 // import PollTimerWorker from './timer.worker'
 import { PmApi, MissingMetricsError } from './pmapi';
 import { difference, has } from 'lodash';
 
-export interface MetricStore {
+/**
+ * PCP Metric, including metadata, instance names and values
+ * can be a derived metric
+ */
+export interface Metric {
+    activeTarget: ActiveTarget;
     metadata: MetricMetadata;
     instanceDomain: Omit<InstanceDomain, "instances"> & { instances: Record<number, Instance> };
     values: InstanceValuesSnapshot[];
 }
 
-interface ActiveMetric {
+/**
+ * requested target expression from a Grafana panel
+ */
+interface ActiveTarget {
+    expr: string;
+    metricName?: string;
+    metric?: Metric;
     lastRequestedMs: number;
-    errors: any[];
     deltas: number[];
+    errors: any[];
 };
 
+/**
+ * single endpoint, identified by url and countainer
+ * each url/container has a different context
+ * each url can have different metrics (and values)
+ */
 export interface Endpoint {
     url: string;
     container?: string;
     context?: Context;
+    activeTargets: ActiveTarget[];
     errors: any[];
-    activeMetrics: Record<MetricName, ActiveMetric>;
-    metricStores: Record<MetricName, MetricStore>;
+}
+
+interface WorkerState {
+    endpoints: Endpoint[];
 }
 
 export interface PollerQueryResult {
     target: VectorQueryWithUrl;
     endpoint: Endpoint;
-    metricStore?: MetricStore;
-}
-
-interface WorkerState {
-    endpoints: Endpoint[];
+    metric?: Metric;
 }
 
 export class Poller {
@@ -57,27 +72,41 @@ export class Poller {
         console.log("int2");
     }
 
-    async refreshInstanceNames(endpoint: Endpoint, metricStore: MetricStore) {
-        const instancesResponse = await this.pmApi.getMetricInstances(endpoint.url, endpoint.context!.context, metricStore.metadata.name);
-        metricStore.instanceDomain = {
+    async refreshInstanceNames(endpoint: RequiredField<Endpoint, "context">, metric: Metric) {
+        const instancesResponse = await this.pmApi.getMetricInstances(endpoint.url, endpoint.context.context, metric.metadata.name);
+        metric.instanceDomain = {
             labels: instancesResponse.labels,
             instances: instancesResponse.instances.reduce((acc, cur) => {
                 acc[cur.instance] = cur;
                 return acc;
-            }, metricStore.instanceDomain.instances),
+            }, metric.instanceDomain.instances),
         };
     }
 
-    async pollEndpoint(endpoint: Endpoint) {
-        if (!endpoint.context)
-            endpoint.context = await this.pmApi.createContext(endpoint.url, endpoint.container);
+    isDerivedMetric(expr: Expr) {
+        // TODO
+        return false;
+    }
 
-        let metricsToPoll = Object.keys(endpoint.activeMetrics);
-        const newMetrics = difference(metricsToPoll, Object.keys(endpoint.metricStores));
-        if (newMetrics.length > 0) {
-            const metadataResponse = await this.pmApi.getMetricMetadata(endpoint.url, endpoint.context.context, newMetrics);
+    async getNewMetricsMetadata(endpoint: RequiredField<Endpoint, "context">) {
+        const newActiveTargets = endpoint.activeTargets.filter(activeTarget => !activeTarget.metricName);
+        for (const activeTarget of newActiveTargets) {
+            if (this.isDerivedMetric(activeTarget.expr)) {
+                // TOOD: register derived metric
+            }
+            else {
+                activeTarget.metricName = activeTarget.expr;
+            }
+        }
+
+        const newMetricNames = newActiveTargets.map(activeTarget => activeTarget.metricName!);
+        if (newMetricNames.length > 0) {
+            const metadataResponse = await this.pmApi.getMetricMetadata(endpoint.url, endpoint.context.context, newMetricNames);
             for (const metadata of metadataResponse.metrics) {
-                let metricStore: MetricStore = {
+                const activeTarget = newActiveTargets.find(activeTarget => activeTarget.metricName == metadata.name)!;
+
+                let metric: Metric = {
+                    activeTarget,
                     metadata,
                     instanceDomain: {
                         instances: {},
@@ -87,37 +116,47 @@ export class Poller {
                 };
 
                 if (metadata.indom)
-                    await this.refreshInstanceNames(endpoint, metricStore);
+                    await this.refreshInstanceNames(endpoint, metric);
 
-                endpoint.metricStores[metadata.name] = metricStore;
+                activeTarget.metric = metric;
             }
 
-            const missingMetrics = difference(newMetrics, metadataResponse.metrics.map(metric => metric.name));
+            const missingMetrics = difference(newMetricNames, metadataResponse.metrics.map(metric => metric.name));
             if (missingMetrics.length > 0) {
                 for (const missingMetric of missingMetrics) {
-                    endpoint.activeMetrics[missingMetric].errors.push(new MissingMetricsError(missingMetrics));
+                    endpoint.activeTargets
+                        .find(activeTarget => activeTarget.metricName == missingMetric)!
+                        .errors.push(new MissingMetricsError(missingMetrics));
                 }
-                metricsToPoll = difference(metricsToPoll, missingMetrics);
             }
         }
+    }
+
+    async pollEndpoint(endpoint: Endpoint) {
+        if (!endpoint.context)
+            endpoint.context = await this.pmApi.createContext(endpoint.url, endpoint.container);
+        const endpointTyped = endpoint as RequiredField<Endpoint, "context">;
+
+        this.getNewMetricsMetadata(endpointTyped);
+        let metricsToPoll = endpoint.activeTargets.map(activeTarget => activeTarget.metricName!);
 
         const valuesResponse = await this.pmApi.getMetricValues(endpoint.url, endpoint.context.context, metricsToPoll);
         for (const metricInstanceValues of valuesResponse.values) {
-            const metricStore = endpoint.metricStores[metricInstanceValues.name];
+            const metric = endpoint.activeTargets.find(activeTarget => activeTarget.metricName == metricInstanceValues.name)!.metric!;
 
-            if (metricStore.metadata.indom) {
+            if (metric.metadata.indom) {
                 let needRefresh = false;
                 for (const instance of metricInstanceValues.instances) {
-                    if (!metricStore.instanceDomain.instances[instance.instance!]) {
+                    if (!metric.instanceDomain.instances[instance.instance!]) {
                         needRefresh = true;
                         break;
                     }
                 }
                 if (needRefresh)
-                    await this.refreshInstanceNames(endpoint, metricStore);
+                    await this.refreshInstanceNames(endpointTyped, metric);
             }
 
-            metricStore.values.push({
+            metric.values.push({
                 timestampMs: valuesResponse.timestamp * 1000,
                 values: metricInstanceValues.instances
             });
@@ -168,11 +207,13 @@ export class Poller {
 
     cleanup() {
         const keepExpiry = new Date().getTime() - this.retentionTimeMs;
-        for(const endpoint of this.state.endpoints) {
-            for(const metricStore of Object.values(endpoint.metricStores)) {
-                metricStore.values = metricStore.values.filter(
-                    snapshot => snapshot.timestampMs > keepExpiry
-                );
+        for (const endpoint of this.state.endpoints) {
+            for (const activeTarget of endpoint.activeTargets) {
+                if (activeTarget.metric) {
+                    activeTarget.metric.values = activeTarget.metric.values.filter(
+                        snapshot => snapshot.timestampMs > keepExpiry
+                    );
+                }
             }
         }
     }
@@ -196,30 +237,30 @@ export class Poller {
                 url: target.url,
                 container: target.container,
                 errors: [],
-                metricStores: {},
-                activeMetrics: {},
+                activeTargets: [],
             };
             this.state.endpoints.push(endpoint);
         }
         this.throwBackgroundError(endpoint);
 
         const nowMs = new Date().getTime();
-        let activeMetric = endpoint.activeMetrics[target.expr];
-        if (activeMetric) {
-            activeMetric.deltas.push(nowMs - activeMetric.lastRequestedMs);
-            if (activeMetric.deltas.length == this.MEDIAN_OVER_LAST_X_REQUESTS + 1)
-                activeMetric.deltas.shift();
-            activeMetric.lastRequestedMs = nowMs;
+        let activeTarget = endpoint.activeTargets.find(activeTarget => activeTarget.expr == target.expr);
+        if (activeTarget) {
+            activeTarget.deltas.push(nowMs - activeTarget.lastRequestedMs);
+            if (activeTarget.deltas.length == this.MEDIAN_OVER_LAST_X_REQUESTS + 1)
+                activeTarget.deltas.shift();
+            activeTarget.lastRequestedMs = nowMs;
         }
         else {
-            activeMetric = endpoint.activeMetrics[target.expr] = { lastRequestedMs: nowMs, errors: [], deltas: [] };
+            activeTarget = { expr: target.expr, lastRequestedMs: nowMs, errors: [], deltas: [] };
+            endpoint.activeTargets.push(activeTarget);
         }
-        this.throwBackgroundError(activeMetric);
+        this.throwBackgroundError(activeTarget);
 
         return {
             target,
             endpoint,
-            metricStore: endpoint.metricStores[target.expr]
+            metric: activeTarget.metric,
         };
     }
 }
