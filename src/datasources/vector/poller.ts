@@ -5,13 +5,13 @@ import { PmApi, MissingMetricsError } from './pmapi';
 import { difference, has } from 'lodash';
 
 /**
- * PCP Metric, including metadata, instance names and values
+ * PCP Metric including metadata, instance names and values
  * can be a derived metric
  */
 export interface Metric {
     activeTarget: ActiveTarget;
     metadata: MetricMetadata;
-    instanceDomain: Omit<InstanceDomain, "instances"> & { instances: Record<number, Instance> };
+    instanceDomain: Omit<InstanceDomain, "instances"> & { instances: Map<number, Instance> };
     values: InstanceValuesSnapshot[];
 }
 
@@ -20,7 +20,9 @@ export interface Metric {
  */
 interface ActiveTarget {
     expr: string;
+    /** metric name (can be a derived metric) */
     metricName?: string;
+    /** metric data, will be created at next poll */
     metric?: Metric;
     lastRequestedMs: number;
     deltas: number[];
@@ -35,8 +37,11 @@ interface ActiveTarget {
 export interface Endpoint {
     url: string;
     container?: string;
+    /** context, will be created at next poll */
     context?: Context;
     activeTargets: ActiveTarget[];
+    /** backfilling with redis: true, false or undefined (unknown)  */
+    hasRedis?: boolean;
     errors: any[];
 }
 
@@ -69,18 +74,14 @@ export class Poller {
         //this.timer.onmessage = this.poll.bind(this);
         //this.timer.postMessage({ interval: 1000 });
         setInterval(this.poll.bind(this), 1000);
-        console.log("int2");
     }
 
     async refreshInstanceNames(endpoint: RequiredField<Endpoint, "context">, metric: Metric) {
         const instancesResponse = await this.pmApi.getMetricInstances(endpoint.url, endpoint.context.context, metric.metadata.name);
-        metric.instanceDomain = {
-            labels: instancesResponse.labels,
-            instances: instancesResponse.instances.reduce((acc, cur) => {
-                acc[cur.instance] = cur;
-                return acc;
-            }, metric.instanceDomain.instances),
-        };
+        metric.instanceDomain.labels = instancesResponse.labels;
+        for(const instance of instancesResponse.instances) {
+            metric.instanceDomain.instances.set(instance.instance, instance);
+        }
     }
 
     isDerivedMetric(expr: Expr) {
@@ -88,7 +89,11 @@ export class Poller {
         return false;
     }
 
-    async getNewMetricsMetadata(endpoint: RequiredField<Endpoint, "context">) {
+    async backfillWithRedis(metrics: Metric[]) {
+        // TODO: store metric values from redis (if available) in Metric#values
+    }
+
+    async getNewMetricsMetadata(endpoint: RequiredField<Endpoint, "context">): Promise<Metric[]> {
         const newActiveTargets = endpoint.activeTargets.filter(activeTarget => !activeTarget.metricName);
         for (const activeTarget of newActiveTargets) {
             if (this.isDerivedMetric(activeTarget.expr)) {
@@ -99,6 +104,7 @@ export class Poller {
             }
         }
 
+        const newMetrics: Metric[] = [];
         const newMetricNames = newActiveTargets.map(activeTarget => activeTarget.metricName!);
         if (newMetricNames.length > 0) {
             const metadataResponse = await this.pmApi.getMetricMetadata(endpoint.url, endpoint.context.context, newMetricNames);
@@ -109,7 +115,7 @@ export class Poller {
                     activeTarget,
                     metadata,
                     instanceDomain: {
-                        instances: {},
+                        instances: new Map(),
                         labels: {},
                     },
                     values: [],
@@ -119,6 +125,7 @@ export class Poller {
                     await this.refreshInstanceNames(endpoint, metric);
 
                 activeTarget.metric = metric;
+                newMetrics.push(metric);
             }
 
             const missingMetrics = difference(newMetricNames, metadataResponse.metrics.map(metric => metric.name));
@@ -130,6 +137,10 @@ export class Poller {
                 }
             }
         }
+
+        if (endpoint.hasRedis !== false)
+            await this.backfillWithRedis(newMetrics);
+        return newMetrics;
     }
 
     async pollEndpoint(endpoint: Endpoint) {
@@ -137,7 +148,7 @@ export class Poller {
             endpoint.context = await this.pmApi.createContext(endpoint.url, endpoint.container);
         const endpointTyped = endpoint as RequiredField<Endpoint, "context">;
 
-        this.getNewMetricsMetadata(endpointTyped);
+        await this.getNewMetricsMetadata(endpointTyped);
         let metricsToPoll = endpoint.activeTargets.map(activeTarget => activeTarget.metricName!);
 
         const valuesResponse = await this.pmApi.getMetricValues(endpoint.url, endpoint.context.context, metricsToPoll);
@@ -147,7 +158,7 @@ export class Poller {
             if (metric.metadata.indom) {
                 let needRefresh = false;
                 for (const instance of metricInstanceValues.instances) {
-                    if (!metric.instanceDomain.instances[instance.instance!]) {
+                    if (!metric.instanceDomain.instances.has(instance.instance!)) {
                         needRefresh = true;
                         break;
                     }
@@ -222,6 +233,7 @@ export class Poller {
         if (obj.errors.length > 0) {
             const error = obj.errors.pop();
             obj.errors = [];
+            console.log(error);
             throw error;
         }
     }

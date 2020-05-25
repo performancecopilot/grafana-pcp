@@ -1,6 +1,10 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 import { BackendSrvRequest } from '@grafana/runtime';
 
+export type Dict<K extends string, T> = {
+    [P in K]?: T
+}
+
 export type DatasourceRequestOptions = Omit<BackendSrvRequest, "url">;
 
 export interface VectorOptions extends DataSourceJsonData {

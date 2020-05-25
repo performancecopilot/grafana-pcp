@@ -1,5 +1,6 @@
 import { MutableDataFrame, MISSING_VALUE, FieldType } from '@grafana/data';
 import { MetricMetadata } from './pcp';
+import { Dict, TargetFormat } from './types';
 
 function cloneFieldDefinitions(input: MutableDataFrame) {
     const output = new MutableDataFrame<number>();
@@ -47,19 +48,19 @@ function divideBy(input: MutableDataFrame, divisor: number) {
     return output;
 }
 
-const PCP_TIME_UNITS: Record<string, number> = {
+const PCP_TIME_UNITS: Dict<string, number> = {
     "nanosec": 1000 * 1000 * 1000,
     "microsec": 1000 * 1000,
     "millisec": 1000,
 };
 
-export function applyTransformations(metadata: MetricMetadata, dataFrame: MutableDataFrame) {
+export function applyTransformations(targetFormat: TargetFormat, metadata: MetricMetadata, dataFrame: MutableDataFrame) {
     if (metadata.sem === "counter") {
         dataFrame = rateConversion(dataFrame);
 
-        if (metadata.units in PCP_TIME_UNITS) {
+        if (targetFormat != TargetFormat.Heatmap && metadata.units in PCP_TIME_UNITS) {
             // for time based counters, convert to time utilization
-            dataFrame = divideBy(dataFrame, PCP_TIME_UNITS[metadata.units]);
+            dataFrame = divideBy(dataFrame, PCP_TIME_UNITS[metadata.units]!);
             for (const field of dataFrame.fields) {
                 field.config.unit = "percentunit";
             }
