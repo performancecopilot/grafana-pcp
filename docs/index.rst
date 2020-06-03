@@ -58,6 +58,12 @@ Getting started
    datasources/bpftrace
 
 .. toctree::
+   :caption: Guides
+   :hidden:
+
+   guides/multiple-vector-hosts.rst
+
+.. toctree::
    :hidden:
    :caption: Troubleshooting
 
