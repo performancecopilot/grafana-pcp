@@ -21,7 +21,7 @@ import json
 # -- Project information -----------------------------------------------------
 
 project = 'grafana-pcp'
-copyright = '2019 Performance Co-Pilot'
+copyright = '2019-2020 Performance Co-Pilot'
 author = 'Performance Co-Pilot'
 
 with open('../src/plugin.json') as f:
