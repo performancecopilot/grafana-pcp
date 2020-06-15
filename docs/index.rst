@@ -4,7 +4,7 @@ Performance Co-Pilot Grafana Plugin
 .. include:: refs.rst
 
 `Performance Co-Pilot (PCP) <https://pcp.io/>`_ provides a framework and services to support system-level performance monitoring and management.
-It presents a unifying abstraction for all of the performance data in a system, and many tools for interrogating, retrieving and processing that data.
+It presents a unifying abstraction for all of the performance data in a system, and many tools for interrogating, retrieving, and processing that data.
 
 Features
 --------
@@ -14,7 +14,7 @@ Features
 * enhanced Berkeley Packet Filter (eBPF) tracing using `bpftrace`_ scripts
 * automatic rate conversation for counter metrics
 * heatmap, table and flame graph [3] support
-* auto completion of metric names [1,2], qualifier keys and values [1], and bpftrace probes, builtin variables and functions [3]
+* auto-completion of metric names [1,2], qualifier keys and values [1], and bpftrace probes, builtin variables and functions [3]
 * display of semantics, units and help texts of metrics [2] and bpftrace builtins [3]
 * legend templating support with ``$metric``, ``$metric0``, ``$instance``, ``$some_label``, ``$some_dashboard_variable``
 * container support [1,2]

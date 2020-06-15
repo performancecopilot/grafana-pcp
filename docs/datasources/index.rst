@@ -12,7 +12,7 @@ It is intended to query **historical** data across **multiple hosts** and suppor
 PCP Vector
 ----------
 The PCP Vector data source shows **live, on-host metrics** from the real-time `pmwebapi`_ interfaces.
-It is intended for individual host, on-demand performance monitoring and includes container support.
+It is intended for an individual host, on-demand performance monitoring, and includes container support.
 
 PCP bpftrace
 ------------

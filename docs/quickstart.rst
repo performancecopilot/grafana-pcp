@@ -14,8 +14,8 @@ Installation (Fedora)
 
 For other distributions, please refer to the :doc:`Installation Guide <installation>`.
 
-After Grafana and grafana-pcp is installed, you can enable the plugin:
-Open the Grafana configuration, go to Plugins, select *Performance Co-Pilot* and click the *Enable* button.
+After Grafana and grafana-pcp are installed, you can enable the plugin:
+Open the Grafana configuration, go to Plugins, select *Performance Co-Pilot*, and click the *Enable* button.
 
 Data Sources
 ------------
@@ -27,7 +27,7 @@ Open the Grafana configuration, go to Data Sources and add the
 :doc:`datasources/bpftrace` datasources.
 
 The only required configuration field for each data source is the URL to `pmproxy`_.
-In most cases the default setting of ``http://localhost:44322`` can be used.
+In most cases, the default setting of ``http://localhost:44322`` can be used.
 All other fields can be left to their default values.
 
 .. note::

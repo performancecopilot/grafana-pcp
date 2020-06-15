@@ -4,7 +4,7 @@ Installation
 Distribution Package
 --------------------
 
-This is the recommended method of installing grafana-pcp.
+Distribution Package is the recommended method of installing grafana-pcp.
 
 Fedora
 ^^^^^^
@@ -32,7 +32,7 @@ Container
 ---------
 
 You can also run Grafana with grafana-pcp in a container, using podman or docker.
-Keep in mind that with the default configuration every container has its own isolated network, and you won't be able to reach pmproxy through localhost.
+Keep in mind that with the default configuration, every container has its own isolated network, and you won't be able to reach pmproxy through localhost.
 Replace X.Y.Z with the version of grafana-pcp you wish to install.
 
 .. code-block:: console
@@ -47,7 +47,7 @@ Replace X.Y.Z with the version of grafana-pcp you wish to install.
 From Source
 -----------
 
-The `yarn package manager <https://yarnpkg.com>`_ is required for building grafana-pcp.
+The `yarn package manager <https://yarnpkg.com>`_ is required to build grafana-pcp.
 
 .. code-block:: console
 
