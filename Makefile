@@ -10,6 +10,7 @@ default: build
 
 node_modules: package.json
 	$(YARN) install
+	sed -i 's/ || warningCount > 0//' node_modules/@grafana/toolkit/src/cli/tasks/plugin.build.js
 
 $(DASHBOARD_DIR)/%.json: $(DASHBOARD_DIR)/%.jsonnet
 	jsonnet -J $(JSONNET_PATH) -o $@ $<

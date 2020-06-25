@@ -1,6 +1,6 @@
 {
     "name": "PCP Vector (legacy)",
-    "id": "pcp-vector-datasource",
+    "id": "pcp-vector-datasource-legacy",
     "type": "datasource",
     "category": "tsdb",
     "metrics": true,
