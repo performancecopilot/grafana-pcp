@@ -1,7 +1,7 @@
 Authentication
 ==============
 
-Performance Co-Pilot supports the following authentication mechanisms through the SASL authentication framework: ``plain``, ``login``, ``digest-md5`` and ``gssapi``.
+Performance Co-Pilot supports the following authentication mechanisms through the SASL authentication framework: ``plain``, ``login``, ``digest-md5``, and ``gssapi``.
 This guide shows how to setup authentication using the ``digest-md5`` authentication mechanism and a local user database.
 
 
@@ -64,7 +64,7 @@ To test if the authentication is set up correctly, execute the following command
 Configuring the Grafana Datasource
 ----------------------------------
 
-Go to the Grafana datasource settings, enable **Basic auth** and enter the username and password.
+Go to the Grafana datasource settings, enable **Basic auth**, and enter the username and password.
 Click the *Save & Test* button to check if the authentication is working.
 
 .. note::
