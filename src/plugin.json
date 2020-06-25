@@ -71,7 +71,7 @@
         },
         {
             "type": "dashboard",
-            "name": "PCP Vector BCC Overview",
+            "name": "PCP Vector eBPF/BCC Overview",
             "path": "dashboards/pcp-vector-bcc-overview.json"
         },
         {

@@ -63,15 +63,16 @@ grafana.dashboard.new(
     'tcptop',
     datasource='$datasource',
   )
-  .addTarget({ expr: 'bcc.proc.io.net.tcptop.pid', format: 'metrics_table' })
-  .addTarget({ expr: 'bcc.proc.io.net.tcptop.comm', format: 'metrics_table' })
-  .addTarget({ expr: 'bcc.proc.io.net.tcptop.laddr', format: 'metrics_table' })
-  .addTarget({ expr: 'bcc.proc.io.net.tcptop.lport', format: 'metrics_table' })
-  .addTarget({ expr: 'bcc.proc.io.net.tcptop.daddr', format: 'metrics_table' })
-  .addTarget({ expr: 'bcc.proc.io.net.tcptop.dport', format: 'metrics_table' })
-  .addTarget({ expr: 'bcc.proc.io.net.tcptop.rx', format: 'metrics_table' })
-  .addTarget({ expr: 'bcc.proc.io.net.tcptop.tx', format: 'metrics_table' })
-  , gridPos={
+  .addTargets([
+      { expr: 'bcc.proc.io.net.tcptop.pid', format: 'metrics_table' },
+      { expr: 'bcc.proc.io.net.tcptop.comm', format: 'metrics_table' },
+      { expr: 'bcc.proc.io.net.tcptop.laddr', format: 'metrics_table' },
+      { expr: 'bcc.proc.io.net.tcptop.lport', format: 'metrics_table' },
+      { expr: 'bcc.proc.io.net.tcptop.daddr', format: 'metrics_table' },
+      { expr: 'bcc.proc.io.net.tcptop.dport', format: 'metrics_table' },
+      { expr: 'bcc.proc.io.net.tcptop.rx', format: 'metrics_table' },
+      { expr: 'bcc.proc.io.net.tcptop.tx', format: 'metrics_table' },
+  ]), gridPos={
     x: 0,
     y: 16,
     w: 24,

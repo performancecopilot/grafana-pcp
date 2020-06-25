@@ -1,16 +1,29 @@
 #
 # build grafana-pcp
 #
-YARN=yarn
+YARN = yarn
+JSONNET_PATH = ../grafonnet-lib
+DASHBOARD_DIR := src/dashboards
+DASHBOARDS := $(addprefix $(DASHBOARD_DIR)/,pcp-vector-bcc-overview.json)
 
-default: dist
+default: build
 
 node_modules: package.json
 	$(YARN) install
 
-dist: node_modules
+$(DASHBOARD_DIR)/%.json: $(DASHBOARD_DIR)/%.jsonnet
+	jsonnet -J $(JSONNET_PATH) -o $@ $<
+
+dist: node_modules $(DASHBOARDS)
 	$(YARN) run build
 
-.PHONY: clean
+build: dist
+
+watch: $(DASHBOARDS)
+	$(YARN) run watch
+
+test:
+	$(YARN) run test
+
 clean:
 	rm -rf node_modules dist
