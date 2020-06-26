@@ -202,7 +202,7 @@ export class Poller {
     async poll() {
         this.cleanup();
 
-        console.log('poll', this.state);
+        //console.log('poll', this.state);
         await Promise.all(
             this.state.endpoints.map(async endpoint => {
                 try {
