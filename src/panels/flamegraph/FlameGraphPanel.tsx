@@ -1,14 +1,13 @@
-import _ from "lodash";
+import _ from 'lodash';
 import React, { PureComponent } from 'react';
-import memoizeOne from "memoize-one";
-import { dateTime, PanelProps } from "@grafana/data";
-import { Tooltip } from "@grafana/ui";
-import { FlameGraphChart } from "./FlameGraphChart";
+import memoizeOne from 'memoize-one';
+import { dateTime, PanelProps } from '@grafana/data';
+import { Tooltip } from '@grafana/ui';
+import { FlameGraphChart } from './FlameGraphChart';
 import { generateFlameGraphModel } from './model';
 import { Options } from './types';
 
 export class FlameGraphPanel extends PureComponent<PanelProps<Options>> {
-
     computeModel = memoizeOne(generateFlameGraphModel);
 
     render() {
@@ -26,10 +25,9 @@ export class FlameGraphPanel extends PureComponent<PanelProps<Options>> {
             );
         }
 
-        const fromDate = dateTime(model.minDate).format("HH:mm:ss");
-        const toDate = dateTime(model.maxDate).format("HH:mm:ss");
+        const fromDate = dateTime(model.minDate).format('HH:mm:ss');
+        const toDate = dateTime(model.maxDate).format('HH:mm:ss');
         const title = `${fromDate} - ${toDate}`;
-        return (<FlameGraphChart width={this.props.width} height={this.props.height} stacks={model.root} title={title} />);
+        return <FlameGraphChart width={this.props.width} height={this.props.height} stacks={model.root} title={title} />;
     }
-
 }

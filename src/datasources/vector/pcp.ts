@@ -1,5 +1,5 @@
-import { Dict } from "./types";
-import { FieldType } from "@grafana/data";
+import { Dict } from './types';
+import { FieldType } from '@grafana/data';
 
 export type MetricName = string;
 export type Expr = string;
@@ -42,46 +42,64 @@ export interface InstanceValuesSnapshot {
     values: InstanceValue[];
 }
 
-const pcpNumberTypes = ["32", "u32", "64", "u64", "float", "double"];
+const pcpNumberTypes = ['32', 'u32', '64', 'u64', 'float', 'double'];
 export function pcpTypeToGrafanaType(metadata: MetricMetadata): FieldType {
-    if (pcpNumberTypes.includes(metadata.type))
+    if (pcpNumberTypes.includes(metadata.type)) {
         return FieldType.number;
-    else if (metadata.type == "string")
+    } else if (metadata.type === 'string') {
         return FieldType.string;
-    else
+    } else {
         return FieldType.other;
+    }
 }
 
 export function pcpUnitToGrafanaUnit(metadata: MetricMetadata): string | undefined {
     // pcp/src/libpcp/src/units.c
     // grafana-data/src/valueFormats/categories.ts
     switch (metadata.units) {
-        case "nanosec": return "ns";
-        case "microsec": return "µs";
-        case "millisec": return "ms";
-        case "sec": return "s";
-        case "min": return "m";
-        case "hour": return "h";
+        case 'nanosec':
+            return 'ns';
+        case 'microsec':
+            return 'µs';
+        case 'millisec':
+            return 'ms';
+        case 'sec':
+            return 's';
+        case 'min':
+            return 'm';
+        case 'hour':
+            return 'h';
     }
 
-    if (metadata.sem == "counter") {
+    if (metadata.sem === 'counter') {
         switch (metadata.units) {
-            case "byte": return "Bps";
-            case "Kbyte": return "KBs";
-            case "Mbyte": return "MBs";
-            case "Gbyte": return "GBs";
-            case "Tbyte": return "TBs";
-            case "Pbyte": return "PBs";
+            case 'byte':
+                return 'Bps';
+            case 'Kbyte':
+                return 'KBs';
+            case 'Mbyte':
+                return 'MBs';
+            case 'Gbyte':
+                return 'GBs';
+            case 'Tbyte':
+                return 'TBs';
+            case 'Pbyte':
+                return 'PBs';
         }
-    }
-    else {
+    } else {
         switch (metadata.units) {
-            case "byte": return "bytes";
-            case "Kbyte": return "kbytes";
-            case "Mbyte": return "mbytes";
-            case "Gbyte": return "gbytes";
-            case "Tbyte": return "tbytes";
-            case "Pbyte": return "pbytes";
+            case 'byte':
+                return 'bytes';
+            case 'Kbyte':
+                return 'kbytes';
+            case 'Mbyte':
+                return 'mbytes';
+            case 'Gbyte':
+                return 'gbytes';
+            case 'Tbyte':
+                return 'tbytes';
+            case 'Pbyte':
+                return 'pbytes';
         }
     }
     return undefined;

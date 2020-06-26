@@ -1,4 +1,3 @@
-
 import { DataQueryRequest, DataQueryResponse, DataSourceApi, DataSourceInstanceSettings } from '@grafana/data';
 import { VectorQuery, VectorOptions, defaultQuery, VectorQueryWithUrl, DatasourceRequestOptions } from './types';
 import { defaults, every } from 'lodash';
@@ -19,17 +18,19 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         super(instanceSettings);
         this.state = {
             datasourceRequestOptions: {
-                headers: {}
-            }
+                headers: {},
+            },
         };
 
-        this.state.datasourceRequestOptions.headers["Content-Type"] = "application/json";
-        if (this.instanceSettings.basicAuth || this.instanceSettings.withCredentials)
+        this.state.datasourceRequestOptions.headers['Content-Type'] = 'application/json';
+        if (this.instanceSettings.basicAuth || this.instanceSettings.withCredentials) {
             this.state.datasourceRequestOptions.withCredentials = true;
-        if (this.instanceSettings.basicAuth)
-            this.state.datasourceRequestOptions.headers["Authorization"] = this.instanceSettings.basicAuth;
+        }
+        if (this.instanceSettings.basicAuth) {
+            this.state.datasourceRequestOptions.headers['Authorization'] = this.instanceSettings.basicAuth;
+        }
 
-        const retentionTimeMs = interval_to_ms(this.instanceSettings.jsonData.retentionTime || "10m");
+        const retentionTimeMs = interval_to_ms(this.instanceSettings.jsonData.retentionTime || '10m');
         this.poller = new Poller(this.state.datasourceRequestOptions, retentionTimeMs);
     }
 
@@ -39,8 +40,9 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             .filter(target => !target.hide && !isBlank(target.expr))
             .map(target => {
                 const url = target.url || this.instanceSettings.url;
-                if (isBlank(url))
-                    throw new Error("Please specify a connection URL in the datasource settings or in the query editor.");
+                if (isBlank(url)) {
+                    throw new Error('Please specify a connection URL in the datasource settings or in the query editor.');
+                }
                 return {
                     ...target,
                     expr: getTemplateSrv().replace(target.expr.trim(), request.scopedVars),
@@ -52,14 +54,16 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
 
     async query(request: DataQueryRequest<VectorQuery>): Promise<DataQueryResponse> {
         const targets = this.buildQueryTargets(request);
-        if (targets.length === 0)
+        if (targets.length === 0) {
             return { data: [] };
-        if (!every(targets, ['format', targets[0].format]))
-            throw new Error("Format must be the same for all queries of a panel.");
+        }
+        if (!every(targets, ['format', targets[0].format])) {
+            throw new Error('Format must be the same for all queries of a panel.');
+        }
 
-        const pollerQueryResult = targets
-            .map(target => this.poller.query(target))
-            .filter(result => result.metric) as Required<PollerQueryResult>[];
+        const pollerQueryResult = targets.map(target => this.poller.query(target)).filter(result => result.metric) as Array<
+            Required<PollerQueryResult>
+        >;
         const data = processTargets(request, pollerQueryResult);
         return { data };
     }
@@ -71,11 +75,10 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
                 status: 'success',
                 message: 'Data source is working',
             };
-        }
-        catch (error) {
+        } catch (error) {
             return {
                 status: 'error',
-                message: `${error.message}. To use this data source, please configure the URL in the query editor.`
+                message: `${error.message}. To use this data source, please configure the URL in the query editor.`,
             };
         }
     }

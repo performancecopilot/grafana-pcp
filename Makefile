@@ -20,6 +20,9 @@ dist: node_modules $(DASHBOARDS)
 
 build: dist
 
+dev: node_modules $(DASHBOARDS)
+	$(YARN) run dev
+
 watch: $(DASHBOARDS)
 	$(YARN) run watch
 

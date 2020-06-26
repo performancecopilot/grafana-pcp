@@ -4,7 +4,7 @@ import { QueryField } from '@grafana/ui';
 interface VectorQueryFieldProps {
     expr: string;
     onChange: (expr: string) => void;
-};
+}
 
 export default class VectorQueryField extends React.PureComponent<VectorQueryFieldProps> {
     render() {

@@ -2,19 +2,19 @@ import { DataQuery, DataSourceJsonData } from '@grafana/data';
 import { BackendSrvRequest } from '@grafana/runtime';
 
 export type Dict<K extends string, T> = {
-    [P in K]?: T
-}
+    [P in K]?: T;
+};
 
-export type DatasourceRequestOptions = Omit<BackendSrvRequest, "url">;
+export type DatasourceRequestOptions = Omit<BackendSrvRequest, 'url'>;
 
 export interface VectorOptions extends DataSourceJsonData {
     retentionTime?: string;
 }
 
 export enum TargetFormat {
-    TimeSeries = "time_series",
-    Heatmap = "heatmap",
-    MetricsTable = "metrics_table",
+    TimeSeries = 'time_series',
+    Heatmap = 'heatmap',
+    MetricsTable = 'metrics_table',
 }
 
 export interface VectorQuery extends DataQuery {
@@ -31,7 +31,7 @@ export interface VectorQueryWithUrl extends VectorQuery {
 }
 
 export const defaultQuery: Partial<VectorQuery> = {
-    expr: "",
+    expr: '',
     format: TargetFormat.TimeSeries,
 };
 

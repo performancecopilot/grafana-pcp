@@ -11,7 +11,7 @@ import { difference, has } from 'lodash';
 export interface Metric {
     activeTarget: ActiveTarget;
     metadata: MetricMetadata;
-    instanceDomain: Omit<InstanceDomain, "instances"> & { instances: Map<number, Instance> };
+    instanceDomain: Omit<InstanceDomain, 'instances'> & { instances: Map<number, Instance> };
     values: InstanceValuesSnapshot[];
 }
 
@@ -27,7 +27,7 @@ interface ActiveTarget {
     lastRequestedMs: number;
     deltas: number[];
     errors: any[];
-};
+}
 
 /**
  * single endpoint, identified by url and countainer
@@ -62,8 +62,7 @@ export class Poller {
     pmApi: PmApi;
     //timer: PollTimerWorker;
 
-    constructor(datasourceRequestOptions: DatasourceRequestOptions,
-        private retentionTimeMs: number) {
+    constructor(datasourceRequestOptions: DatasourceRequestOptions, private retentionTimeMs: number) {
         this.state = {
             endpoints: [],
         };
@@ -76,10 +75,10 @@ export class Poller {
         setInterval(this.poll.bind(this), 1000);
     }
 
-    async refreshInstanceNames(endpoint: RequiredField<Endpoint, "context">, metric: Metric) {
+    async refreshInstanceNames(endpoint: RequiredField<Endpoint, 'context'>, metric: Metric) {
         const instancesResponse = await this.pmApi.getMetricInstances(endpoint.url, endpoint.context.context, metric.metadata.name);
         metric.instanceDomain.labels = instancesResponse.labels;
-        for(const instance of instancesResponse.instances) {
+        for (const instance of instancesResponse.instances) {
             metric.instanceDomain.instances.set(instance.instance, instance);
         }
     }
@@ -93,13 +92,12 @@ export class Poller {
         // TODO: store metric values from redis (if available) in Metric#values
     }
 
-    async getNewMetricsMetadata(endpoint: RequiredField<Endpoint, "context">): Promise<Metric[]> {
+    async getNewMetricsMetadata(endpoint: RequiredField<Endpoint, 'context'>): Promise<Metric[]> {
         const newActiveTargets = endpoint.activeTargets.filter(activeTarget => !activeTarget.metricName);
         for (const activeTarget of newActiveTargets) {
             if (this.isDerivedMetric(activeTarget.expr)) {
                 // TOOD: register derived metric
-            }
-            else {
+            } else {
                 activeTarget.metricName = activeTarget.expr;
             }
         }
@@ -109,7 +107,7 @@ export class Poller {
         if (newMetricNames.length > 0) {
             const metadataResponse = await this.pmApi.getMetricMetadata(endpoint.url, endpoint.context.context, newMetricNames);
             for (const metadata of metadataResponse.metrics) {
-                const activeTarget = newActiveTargets.find(activeTarget => activeTarget.metricName == metadata.name)!;
+                const activeTarget = newActiveTargets.find(activeTarget => activeTarget.metricName === metadata.name)!;
 
                 let metric: Metric = {
                     activeTarget,
@@ -121,39 +119,45 @@ export class Poller {
                     values: [],
                 };
 
-                if (metadata.indom)
+                if (metadata.indom) {
                     await this.refreshInstanceNames(endpoint, metric);
+                }
 
                 activeTarget.metric = metric;
                 newMetrics.push(metric);
             }
 
-            const missingMetrics = difference(newMetricNames, metadataResponse.metrics.map(metric => metric.name));
+            const missingMetrics = difference(
+                newMetricNames,
+                metadataResponse.metrics.map(metric => metric.name)
+            );
             if (missingMetrics.length > 0) {
                 for (const missingMetric of missingMetrics) {
                     endpoint.activeTargets
-                        .find(activeTarget => activeTarget.metricName == missingMetric)!
+                        .find(activeTarget => activeTarget.metricName === missingMetric)!
                         .errors.push(new MissingMetricsError(missingMetrics));
                 }
             }
         }
 
-        if (endpoint.hasRedis !== false)
+        if (endpoint.hasRedis !== false) {
             await this.backfillWithRedis(newMetrics);
+        }
         return newMetrics;
     }
 
     async pollEndpoint(endpoint: Endpoint) {
-        if (!endpoint.context)
+        if (!endpoint.context) {
             endpoint.context = await this.pmApi.createContext(endpoint.url, endpoint.container);
-        const endpointTyped = endpoint as RequiredField<Endpoint, "context">;
+        }
+        const endpointTyped = endpoint as RequiredField<Endpoint, 'context'>;
 
         await this.getNewMetricsMetadata(endpointTyped);
         let metricsToPoll = endpoint.activeTargets.map(activeTarget => activeTarget.metricName!);
 
         const valuesResponse = await this.pmApi.getMetricValues(endpoint.url, endpoint.context.context, metricsToPoll);
         for (const metricInstanceValues of valuesResponse.values) {
-            const metric = endpoint.activeTargets.find(activeTarget => activeTarget.metricName == metricInstanceValues.name)!.metric!;
+            const metric = endpoint.activeTargets.find(activeTarget => activeTarget.metricName === metricInstanceValues.name)!.metric!;
 
             if (metric.metadata.indom) {
                 let needRefresh = false;
@@ -163,13 +167,14 @@ export class Poller {
                         break;
                     }
                 }
-                if (needRefresh)
+                if (needRefresh) {
                     await this.refreshInstanceNames(endpointTyped, metric);
+                }
             }
 
             metric.values.push({
                 timestampMs: valuesResponse.timestamp * 1000,
-                values: metricInstanceValues.instances
+                values: metricInstanceValues.instances,
             });
         }
     }
@@ -177,14 +182,12 @@ export class Poller {
     async pollEndpointWithContext(endpoint: Endpoint) {
         try {
             await this.pollEndpoint(endpoint);
-        }
-        catch (error) {
-            if (has(error, 'data.message') && error.data.message.includes("unknown context identifier")) {
-                console.debug("context expired, requesting new")
+        } catch (error) {
+            if (has(error, 'data.message') && error.data.message.includes('unknown context identifier')) {
+                console.log('context expired, requesting new');
                 endpoint.context = await this.pmApi.createContext(endpoint.url, endpoint.container);
                 await this.pollEndpoint(endpoint);
-            }
-            else {
+            } else {
                 throw error;
             }
         }
@@ -193,21 +196,22 @@ export class Poller {
     getMedian(arr: number[]) {
         const sorted = arr.sort();
         const middle = Math.ceil(sorted.length / 2);
-        return sorted.length % 2 == 0 ? (sorted[middle] + sorted[middle - 1]) / 2 : sorted[middle - 1];
+        return sorted.length % 2 === 0 ? (sorted[middle] + sorted[middle - 1]) / 2 : sorted[middle - 1];
     }
 
     async poll() {
         this.cleanup();
 
-        console.debug("poll", this.state);
-        await Promise.all(this.state.endpoints.map(async (endpoint) => {
-            try {
-                await this.pollEndpointWithContext(endpoint);
-            }
-            catch (error) {
-                endpoint.errors.push(error);
-            }
-        }));
+        console.log('poll', this.state);
+        await Promise.all(
+            this.state.endpoints.map(async endpoint => {
+                try {
+                    await this.pollEndpointWithContext(endpoint);
+                } catch (error) {
+                    endpoint.errors.push(error);
+                }
+            })
+        );
 
         /*const deltas = this.state.endpoints.flatMap(ep => Object.values(ep.activeMetrics)).flatMap(am => am.deltas);
         if (deltas.length > 0) {
@@ -221,9 +225,7 @@ export class Poller {
         for (const endpoint of this.state.endpoints) {
             for (const activeTarget of endpoint.activeTargets) {
                 if (activeTarget.metric) {
-                    activeTarget.metric.values = activeTarget.metric.values.filter(
-                        snapshot => snapshot.timestampMs > keepExpiry
-                    );
+                    activeTarget.metric.values = activeTarget.metric.values.filter(snapshot => snapshot.timestampMs > keepExpiry);
                 }
             }
         }
@@ -243,7 +245,7 @@ export class Poller {
      * otherwise the initial load of a dashboard creates lots of duplicate contexts
      */
     query(target: VectorQueryWithUrl): PollerQueryResult {
-        let endpoint = this.state.endpoints.find(ep => ep.url == target.url && ep.container == target.container);
+        let endpoint = this.state.endpoints.find(ep => ep.url === target.url && ep.container === target.container);
         if (!endpoint) {
             endpoint = {
                 url: target.url,
@@ -256,14 +258,14 @@ export class Poller {
         this.throwBackgroundError(endpoint);
 
         const nowMs = new Date().getTime();
-        let activeTarget = endpoint.activeTargets.find(activeTarget => activeTarget.expr == target.expr);
+        let activeTarget = endpoint.activeTargets.find(activeTarget => activeTarget.expr === target.expr);
         if (activeTarget) {
             activeTarget.deltas.push(nowMs - activeTarget.lastRequestedMs);
-            if (activeTarget.deltas.length == this.MEDIAN_OVER_LAST_X_REQUESTS + 1)
+            if (activeTarget.deltas.length === this.MEDIAN_OVER_LAST_X_REQUESTS + 1) {
                 activeTarget.deltas.shift();
+            }
             activeTarget.lastRequestedMs = nowMs;
-        }
-        else {
+        } else {
             activeTarget = { expr: target.expr, lastRequestedMs: nowMs, errors: [], deltas: [] };
             endpoint.activeTargets.push(activeTarget);
         }

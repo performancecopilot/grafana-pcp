@@ -6,12 +6,7 @@ import { VectorOptions } from '../types';
 export type Props = DataSourcePluginOptionsEditorProps<VectorOptions>;
 
 export const timeSettingsValidationEvents = {
-    [EventsWithValidation.onBlur]: [
-        regexValidation(
-            /^$|^\d+[hms]$/,
-            'Value is not valid, you can use number with time unit specifier: h, m, s'
-        ),
-    ],
+    [EventsWithValidation.onBlur]: [regexValidation(/^$|^\d+[hms]$/, 'Value is not valid, you can use number with time unit specifier: h, m, s')],
 };
 
 export const VectorConfigEditor = (props: Props) => {
@@ -22,14 +17,19 @@ export const VectorConfigEditor = (props: Props) => {
             ...options,
             jsonData: {
                 ...options.jsonData,
-                [optionName]: eventItem.currentTarget.value
-            }
+                [optionName]: eventItem.currentTarget.value,
+            },
         });
     };
 
     return (
         <>
-            <DataSourceHttpSettings defaultUrl="http://localhost:44323" dataSourceConfig={options} showAccessOptions={true} onChange={onOptionsChange} />
+            <DataSourceHttpSettings
+                defaultUrl="http://localhost:44323"
+                dataSourceConfig={options}
+                showAccessOptions={true}
+                onChange={onOptionsChange}
+            />
 
             <h3 className="page-heading">Vector Settings</h3>
             <div className="gf-form-group">
@@ -44,7 +44,7 @@ export const VectorConfigEditor = (props: Props) => {
                                     className="width-6"
                                     value={options.jsonData.retentionTime}
                                     spellCheck={false}
-                                    onChange={onOptionsChangeHandler("retentionTime")}
+                                    onChange={onOptionsChangeHandler('retentionTime')}
                                     validationEvents={timeSettingsValidationEvents}
                                 />
                             }

@@ -8,8 +8,7 @@ import VectorQueryField from './VectorQueryField';
 import { isBlank, getTemplateSrv } from '../utils';
 import { PmApi } from '../pmapi';
 
-
-const FORMAT_OPTIONS: SelectableValue<string>[] = [
+const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },
     { label: 'Table', value: TargetFormat.MetricsTable },
     { label: 'Heatmap', value: TargetFormat.Heatmap },
@@ -72,27 +71,18 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         this.props.onRunQuery();
     };
 
-    loadAvailableContainers = async (query: string): Promise<SelectableValue<string>[]> => {
-        const variables = getTemplateSrv().variables.map(variable => "$" + variable.name);
+    loadAvailableContainers = async (query: string): Promise<Array<SelectableValue<string>>> => {
+        const variables = getTemplateSrv().variables.map(variable => '$' + variable.name);
         const pmApi = new PmApi(this.props.datasource.state.datasourceRequestOptions);
-        const containerInstances = await pmApi.getMetricValues(this.props.datasource.instanceSettings.url!, null, ["containers.name"]);
-        const options = [
-            ...variables,
-            ...containerInstances.values[0].instances.map(instance => instance.value),
-        ];
-        return [
-            { label: "-", value: undefined },
-            ...options.map(value => ({ label: value, value }))
-        ];
+        const containerInstances = await pmApi.getMetricValues(this.props.datasource.instanceSettings.url!, null, ['containers.name']);
+        const options = [...variables, ...containerInstances.values[0].instances.map(instance => instance.value)];
+        return [{ label: '-', value: undefined }, ...options.map(value => ({ label: value, value }))];
     };
 
     render() {
         return (
             <div>
-                <VectorQueryField
-                    expr={this.state.expr}
-                    onChange={this.onExprChange}
-                />
+                <VectorQueryField expr={this.state.expr} onChange={this.onExprChange} />
 
                 <div className="gf-form-inline">
                     <div className="gf-form">
@@ -116,14 +106,17 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
 
                     <div className="gf-form">
                         <div className="gf-form-label">Format</div>
-                        <Select className="width-9" isSearchable={false} options={FORMAT_OPTIONS} value={this.state.format} onChange={this.onFormatChange} />
+                        <Select
+                            className="width-9"
+                            isSearchable={false}
+                            options={FORMAT_OPTIONS}
+                            value={this.state.format}
+                            onChange={this.onFormatChange}
+                        />
                     </div>
 
                     <div className="gf-form">
-                        <FormLabel
-                            width={5}
-                            tooltip="Override the URL to pmproxy for this panel. Useful in combination with templating."
-                        >
+                        <FormLabel width={5} tooltip="Override the URL to pmproxy for this panel. Useful in combination with templating.">
                             URL
                         </FormLabel>
                         <input
@@ -137,10 +130,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
                     </div>
 
                     <div className="gf-form">
-                        <FormLabel
-                            width={7}
-                            tooltip="Specify the container (only possible with container-aware PMDAs)."
-                        >
+                        <FormLabel width={7} tooltip="Specify the container (only possible with container-aware PMDAs).">
                             Container
                         </FormLabel>
                         <AsyncSelect
