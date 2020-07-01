@@ -1,5 +1,5 @@
 import './css/config.css';
 
 export class PCPAppConfigCtrl {
-    static templateUrl = 'components/config/config.html';
+    static templateUrl = 'appconfig/config.html';
 }

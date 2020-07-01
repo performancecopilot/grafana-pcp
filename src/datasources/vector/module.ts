@@ -1,17 +1,9 @@
-import { PCPVectorDatasource } from './datasource';
-import { PCPVectorDatasourceQueryCtrl } from './query_ctrl';
+import { DataSourcePlugin } from '@grafana/data';
+import { DataSource } from './datasource';
+import { VectorConfigEditor } from './configuration/VectorConfigEditor';
+import { VectorQueryEditor } from './components/VectorQueryEditor';
+import { VectorQuery, VectorOptions } from './types';
 
-class PCPVectorConfigCtrl {
-    static templateUrl = 'datasources/vector/partials/config.html';
-}
-
-class PCPVectorAnnotationsQueryCtrl {
-    static templateUrl = 'datasources/vector/partials/annotations.editor.html';
-}
-
-export {
-    PCPVectorDatasource as Datasource,
-    PCPVectorDatasourceQueryCtrl as QueryCtrl,
-    PCPVectorConfigCtrl as ConfigCtrl,
-    PCPVectorAnnotationsQueryCtrl as AnnotationsQueryCtrl
-};
+export const plugin = new DataSourcePlugin<DataSource, VectorQuery, VectorOptions>(DataSource)
+    .setConfigEditor(VectorConfigEditor)
+    .setQueryEditor(VectorQueryEditor);

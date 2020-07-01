@@ -1,0 +1,230 @@
+{
+   "__inputs": [ ],
+   "__requires": [ ],
+   "annotations": {
+      "list": [ ]
+   },
+   "editable": false,
+   "gnetId": null,
+   "graphTooltip": 0,
+   "hideControls": false,
+   "id": null,
+   "links": [ ],
+   "panels": [
+      {
+         "cards": {
+            "cardPadding": 0,
+            "cardRound": null
+         },
+         "color": {
+            "cardColor": "#b4ff00",
+            "colorScale": "sqrt",
+            "colorScheme": "interpolateOranges",
+            "exponent": 0.5,
+            "mode": "spectrum"
+         },
+         "dataFormat": "tsbuckets",
+         "datasource": "$datasource",
+         "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 0
+         },
+         "heatmap": { },
+         "hideZeroBuckets": true,
+         "highlightCards": true,
+         "id": 2,
+         "legend": {
+            "show": false
+         },
+         "targets": [
+            {
+               "expr": "bcc.runq.latency",
+               "format": "heatmap",
+               "refId": "A"
+            }
+         ],
+         "title": "run queue latency (us)",
+         "tooltip": {
+            "show": true,
+            "showHistogram": false
+         },
+         "type": "heatmap",
+         "xAxis": {
+            "show": true
+         },
+         "xBucketNumber": null,
+         "xBucketSize": null,
+         "yAxis": {
+            "decimals": null,
+            "format": "µs",
+            "show": true,
+            "splitFactor": null
+         },
+         "yBucketBound": "upper"
+      },
+      {
+         "cards": {
+            "cardPadding": 0,
+            "cardRound": null
+         },
+         "color": {
+            "cardColor": "#b4ff00",
+            "colorScale": "sqrt",
+            "colorScheme": "interpolateOranges",
+            "exponent": 0.5,
+            "mode": "spectrum"
+         },
+         "dataFormat": "tsbuckets",
+         "datasource": "$datasource",
+         "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 8
+         },
+         "heatmap": { },
+         "hideZeroBuckets": true,
+         "highlightCards": true,
+         "id": 3,
+         "legend": {
+            "show": false
+         },
+         "targets": [
+            {
+               "expr": "bcc.disk.all.latency",
+               "format": "heatmap",
+               "refId": "A"
+            }
+         ],
+         "title": "disk latency (us)",
+         "tooltip": {
+            "show": true,
+            "showHistogram": false
+         },
+         "type": "heatmap",
+         "xAxis": {
+            "show": true
+         },
+         "xBucketNumber": null,
+         "xBucketSize": null,
+         "yAxis": {
+            "decimals": null,
+            "format": "µs",
+            "show": true,
+            "splitFactor": null
+         },
+         "yBucketBound": "upper"
+      },
+      {
+         "columns": [ ],
+         "datasource": "$datasource",
+         "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 16
+         },
+         "id": 4,
+         "styles": [ ],
+         "targets": [
+            {
+               "expr": "bcc.proc.io.net.tcptop.pid",
+               "format": "metrics_table",
+               "refId": "A"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcptop.comm",
+               "format": "metrics_table",
+               "refId": "B"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcptop.laddr",
+               "format": "metrics_table",
+               "refId": "C"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcptop.lport",
+               "format": "metrics_table",
+               "refId": "D"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcptop.daddr",
+               "format": "metrics_table",
+               "refId": "E"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcptop.dport",
+               "format": "metrics_table",
+               "refId": "F"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcptop.rx",
+               "format": "metrics_table",
+               "refId": "G"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcptop.tx",
+               "format": "metrics_table",
+               "refId": "H"
+            }
+         ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "tcptop",
+         "type": "table"
+      }
+   ],
+   "refresh": "1s",
+   "rows": [ ],
+   "schemaVersion": 14,
+   "style": "dark",
+   "tags": [
+      "pcp-vector"
+   ],
+   "templating": {
+      "list": [
+         {
+            "current": {
+               "text": "PCP Vector",
+               "value": "PCP Vector"
+            },
+            "hide": 1,
+            "label": null,
+            "name": "datasource",
+            "options": [ ],
+            "query": "pcp-vector-datasource",
+            "refresh": 1,
+            "regex": "",
+            "type": "datasource"
+         }
+      ]
+   },
+   "time": {
+      "from": "now-2m",
+      "to": "now+2s"
+   },
+   "timepicker": {
+      "refresh_intervals": [
+         "1s",
+         "2s",
+         "5s",
+         "10s"
+      ],
+      "time_options": [
+         "5m",
+         "15m",
+         "1h",
+         "6h",
+         "12h",
+         "24h",
+         "2d",
+         "7d",
+         "30d"
+      ]
+   },
+   "timezone": "browser",
+   "title": "PCP Vector eBPF/BCC Overview",
+   "version": 0
+}

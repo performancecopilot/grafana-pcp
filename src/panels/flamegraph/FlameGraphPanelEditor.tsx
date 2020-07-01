@@ -1,10 +1,9 @@
-import React, { PureComponent } from "react";
-import { PanelEditorProps } from "@grafana/data";
-import { Switch, Input } from "@grafana/ui";
-import { Options } from "./types";
+import React, { PureComponent } from 'react';
+import { PanelEditorProps } from '@grafana/data';
+import { Switch, Input } from '@grafana/ui';
+import { Options } from './types';
 
 export class FlameGraphPanelEditor extends PureComponent<PanelEditorProps<Options>> {
-
     onMinSamplesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.props.onOptionsChange({ ...this.props.options, minSamples: parseInt(event.target.value, 10) });
     };
@@ -31,10 +30,18 @@ export class FlameGraphPanelEditor extends PureComponent<PanelEditorProps<Option
                             onChange={this.onMinSamplesChange}
                         />
                     </div>
-                    <Switch label="Hide unresolved" labelClass="width-8" checked={this.props.options.hideUnresolvedStackFrames}
-                        onChange={this.onHideUnresolvedStackFramesToggle} />
-                    <Switch label="Hide idle stacks" labelClass="width-8" checked={this.props.options.hideIdleStacks}
-                        onChange={this.onHideIdleStacksToggle} />
+                    <Switch
+                        label="Hide unresolved"
+                        labelClass="width-8"
+                        checked={this.props.options.hideUnresolvedStackFrames}
+                        onChange={this.onHideUnresolvedStackFramesToggle}
+                    />
+                    <Switch
+                        label="Hide idle stacks"
+                        labelClass="width-8"
+                        checked={this.props.options.hideIdleStacks}
+                        onChange={this.onHideIdleStacksToggle}
+                    />
                 </div>
             </>
         );

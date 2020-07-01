@@ -1,47 +1,85 @@
-import _ from "lodash";
-import { PmapiDatasourceBase } from "../lib/datasource_base";
-import { Endpoint } from "../lib/endpoint_registry";
-import { Query, PmapiQueryTarget } from "../lib/models/datasource";
-import { TargetResult } from "../lib/models/metrics";
+import { DataQueryRequest, DataQueryResponse, DataSourceApi, DataSourceInstanceSettings } from '@grafana/data';
+import { VectorQuery, VectorOptions, defaultQuery, VectorQueryWithUrl, DatasourceRequestOptions } from './types';
+import { defaults, every } from 'lodash';
+import { isBlank, getTemplateSrv, interval_to_ms } from './utils';
+import { Poller, PollerQueryResult } from './poller';
+import { PmApi } from './pmapi';
+import { processTargets } from './data_processor';
 
-export class PCPVectorDatasource extends PmapiDatasourceBase<Endpoint> {
+interface DataSourceState {
+    datasourceRequestOptions: DatasourceRequestOptions;
+}
 
-    /* @ngInject */
-    constructor(instanceSettings: any, backendSrv: any, templateSrv: any) {
-        super(instanceSettings, backendSrv, templateSrv);
+export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
+    state: DataSourceState;
+    poller: Poller;
+
+    constructor(readonly instanceSettings: DataSourceInstanceSettings<VectorOptions>) {
+        super(instanceSettings);
+        this.state = {
+            datasourceRequestOptions: {
+                headers: {},
+            },
+        };
+
+        this.state.datasourceRequestOptions.headers['Content-Type'] = 'application/json';
+        if (this.instanceSettings.basicAuth || this.instanceSettings.withCredentials) {
+            this.state.datasourceRequestOptions.withCredentials = true;
+        }
+        if (this.instanceSettings.basicAuth) {
+            this.state.datasourceRequestOptions.headers['Authorization'] = this.instanceSettings.basicAuth;
+        }
+
+        const retentionTimeMs = interval_to_ms(this.instanceSettings.jsonData.retentionTime || '10m');
+        this.poller = new Poller(this.state.datasourceRequestOptions, retentionTimeMs);
     }
 
-    onTargetUpdate(prevValue: PmapiQueryTarget<Endpoint>, newValue: PmapiQueryTarget<Endpoint>) {
-        // this method gets called if the target changes in any way (expression, format, endpoint)
-        // remove it from polling only if endpoint or expression changes, but *not* if the format changes
-        if (prevValue.endpoint !== newValue.endpoint || prevValue.expr !== newValue.expr)
-            this.onTargetInactive(prevValue);
+    buildQueryTargets(request: DataQueryRequest<VectorQuery>): VectorQueryWithUrl[] {
+        return request.targets
+            .map(target => defaults(target, defaultQuery))
+            .filter(target => !target.hide && !isBlank(target.expr))
+            .map(target => {
+                const url = target.url || this.instanceSettings.url;
+                if (isBlank(url)) {
+                    throw new Error('Please specify a connection URL in the datasource settings or in the query editor.');
+                }
+                return {
+                    ...target,
+                    expr: getTemplateSrv().replace(target.expr.trim(), request.scopedVars),
+                    url: getTemplateSrv().replace(url, request.scopedVars),
+                    container: target.container ? getTemplateSrv().replace(target.container, request.scopedVars) : undefined,
+                };
+            });
     }
 
-    onTargetInactive(target: PmapiQueryTarget<Endpoint>) {
-        // example:
-        // panel A requests kernel.cpu.util.user and kernel.cpu.util.sys
-        // panel B requests kernel.cpu.util.user
-        // if panel B gets inactive, don't remove kernel.cpu.util.user from polling, because it's required by panel A
-        if (!this.dashboardObserver.existMatchingTarget(target, { endpoint: target.endpoint, expr: target.expr }))
-            target.endpoint.pollSrv.removeMetricsFromPolling([target.expr]);
+    async query(request: DataQueryRequest<VectorQuery>): Promise<DataQueryResponse> {
+        const targets = this.buildQueryTargets(request);
+        if (targets.length === 0) {
+            return { data: [] };
+        }
+        if (!every(targets, ['format', targets[0].format])) {
+            throw new Error('Format must be the same for all queries of a panel.');
+        }
+
+        const pollerQueryResult = targets.map(target => this.poller.query(target)).filter(result => result.metric) as Array<
+            Required<PollerQueryResult>
+        >;
+        const data = processTargets(request, pollerQueryResult);
+        return { data };
     }
 
-    async handleTarget(query: Query, target: PmapiQueryTarget<Endpoint>): Promise<TargetResult> {
-        // request a bigger time frame to fill the chart (otherwise left and right border of chart is empty)
-        // because of the rate conversation of counters first datapoint is "lost" -> expand timeframe at the beginning
-        const from = query.range.from.valueOf() - 2 * this.pollIntervalMs;
-        const to = query.range.to.valueOf() + this.pollIntervalMs;
-        const results = target.endpoint.datastore.queryMetrics(target, [target.expr], from, to);
-        await this.applyTransformations(target.endpoint.pmapiSrv, results);
-        return results;
+    async testDatasource() {
+        try {
+            await new PmApi(this.state.datasourceRequestOptions).createContext(this.instanceSettings.url!);
+            return {
+                status: 'success',
+                message: 'Data source is working',
+            };
+        } catch (error) {
+            return {
+                status: 'error',
+                message: `${error.message}. To use this data source, please configure the URL in the query editor.`,
+            };
+        }
     }
-
-    async queryTargetsByEndpoint(query: Query, targets: PmapiQueryTarget<Endpoint>[]) {
-        // endpoint is the same for all targets, ensured by _.groupBy() in query()
-        const endpoint = targets[0].endpoint;
-        await endpoint.pollSrv.ensurePolling(targets.map(target => target.expr));
-        return super.queryTargetsByEndpoint(query, targets);
-    }
-
 }
