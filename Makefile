@@ -26,7 +26,7 @@ dev: node_modules $(DASHBOARDS)
 watch: $(DASHBOARDS)
 	$(YARN) run watch
 
-test:
+test: node_modules
 	$(YARN) run test
 
 clean:
