@@ -45,7 +45,11 @@ describe('Model', () => {
             ],
         };
 
-        const result = generateFlameGraphModel(panelData, { minSamples: 0, hideUnresolvedStackFrames: false, hideIdleStacks: false });
+        const result = generateFlameGraphModel(panelData, {
+            minSamples: 0,
+            hideUnresolvedStackFrames: false,
+            hideIdleStacks: false,
+        });
         const expected = {
             root: {
                 name: 'root',
@@ -121,7 +125,11 @@ describe('Model', () => {
             ],
         };
 
-        const result = generateFlameGraphModel(panelData, { minSamples: 0, hideUnresolvedStackFrames: false, hideIdleStacks: false });
+        const result = generateFlameGraphModel(panelData, {
+            minSamples: 0,
+            hideUnresolvedStackFrames: false,
+            hideIdleStacks: false,
+        });
         const expected = {
             root: {
                 name: 'root',

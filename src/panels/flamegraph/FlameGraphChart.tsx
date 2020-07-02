@@ -101,7 +101,10 @@ export class FlameGraphChart extends PureComponent<Props, State> {
                                 <span>
                                     {' '}
                                     (paused
-                                    <Tooltip content="Reset zoom and search text to sync with selected time range" placement="top">
+                                    <Tooltip
+                                        content="Reset zoom and search text to sync with selected time range"
+                                        placement="top"
+                                    >
                                         <i className="grafana-tip fa fa-question-circle" />
                                     </Tooltip>
                                     )
@@ -114,7 +117,12 @@ export class FlameGraphChart extends PureComponent<Props, State> {
                             Reset zoom
                         </button>
                         <label className="gf-form--has-input-icon">
-                            <input type="text" className="gf-form-input width-15" placeholder="Search" onChange={this.handleSearchChange} />
+                            <input
+                                type="text"
+                                className="gf-form-input width-15"
+                                placeholder="Search"
+                                onChange={this.handleSearchChange}
+                            />
                             <i className="gf-form-input-icon fa fa-search" />
                         </label>
                     </div>

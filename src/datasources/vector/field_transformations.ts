@@ -53,7 +53,11 @@ const PCP_TIME_UNITS: Dict<string, number> = {
     millisec: 1000,
 };
 
-export function applyTransformations(targetFormat: TargetFormat, metadata: MetricMetadata, dataFrame: MutableDataFrame) {
+export function applyTransformations(
+    targetFormat: TargetFormat,
+    metadata: MetricMetadata,
+    dataFrame: MutableDataFrame
+) {
     if (metadata.sem === 'counter') {
         dataFrame = rateConversion(dataFrame);
 

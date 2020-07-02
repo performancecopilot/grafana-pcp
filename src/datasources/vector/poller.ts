@@ -76,7 +76,11 @@ export class Poller {
     }
 
     async refreshInstanceNames(endpoint: RequiredField<Endpoint, 'context'>, metric: Metric) {
-        const instancesResponse = await this.pmApi.getMetricInstances(endpoint.url, endpoint.context.context, metric.metadata.name);
+        const instancesResponse = await this.pmApi.getMetricInstances(
+            endpoint.url,
+            endpoint.context.context,
+            metric.metadata.name
+        );
         metric.instanceDomain.labels = instancesResponse.labels;
         for (const instance of instancesResponse.instances) {
             metric.instanceDomain.instances.set(instance.instance, instance);
@@ -105,7 +109,11 @@ export class Poller {
         const newMetrics: Metric[] = [];
         const newMetricNames = newActiveTargets.map(activeTarget => activeTarget.metricName!);
         if (newMetricNames.length > 0) {
-            const metadataResponse = await this.pmApi.getMetricMetadata(endpoint.url, endpoint.context.context, newMetricNames);
+            const metadataResponse = await this.pmApi.getMetricMetadata(
+                endpoint.url,
+                endpoint.context.context,
+                newMetricNames
+            );
             for (const metadata of metadataResponse.metrics) {
                 const activeTarget = newActiveTargets.find(activeTarget => activeTarget.metricName === metadata.name)!;
 
@@ -157,7 +165,9 @@ export class Poller {
 
         const valuesResponse = await this.pmApi.getMetricValues(endpoint.url, endpoint.context.context, metricsToPoll);
         for (const metricInstanceValues of valuesResponse.values) {
-            const metric = endpoint.activeTargets.find(activeTarget => activeTarget.metricName === metricInstanceValues.name)!.metric!;
+            const metric = endpoint.activeTargets.find(
+                activeTarget => activeTarget.metricName === metricInstanceValues.name
+            )!.metric!;
 
             if (metric.metadata.indom) {
                 let needRefresh = false;
@@ -225,7 +235,9 @@ export class Poller {
         for (const endpoint of this.state.endpoints) {
             for (const activeTarget of endpoint.activeTargets) {
                 if (activeTarget.metric) {
-                    activeTarget.metric.values = activeTarget.metric.values.filter(snapshot => snapshot.timestampMs > keepExpiry);
+                    activeTarget.metric.values = activeTarget.metric.values.filter(
+                        snapshot => snapshot.timestampMs > keepExpiry
+                    );
                 }
             }
         }

@@ -1,12 +1,15 @@
 import React, { SyntheticEvent } from 'react';
-import { DataSourceHttpSettings, FormField, Input, EventsWithValidation, regexValidation } from '@grafana/ui';
+import { DataSourceHttpSettings, EventsWithValidation, regexValidation, LegacyForms } from '@grafana/ui';
+const { Input, FormField } = LegacyForms;
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { VectorOptions } from '../types';
 
 export type Props = DataSourcePluginOptionsEditorProps<VectorOptions>;
 
 export const timeSettingsValidationEvents = {
-    [EventsWithValidation.onBlur]: [regexValidation(/^$|^\d+[hms]$/, 'Value is not valid, you can use number with time unit specifier: h, m, s')],
+    [EventsWithValidation.onBlur]: [
+        regexValidation(/^$|^\d+[hms]$/, 'Value is not valid, you can use number with time unit specifier: h, m, s'),
+    ],
 };
 
 export const VectorConfigEditor = (props: Props) => {

@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { PanelEditorProps } from '@grafana/data';
-import { Switch, Input } from '@grafana/ui';
+import { LegacyForms } from '@grafana/ui';
+const { Input, Switch } = LegacyForms;
 import { Options } from './types';
 
 export class FlameGraphPanelEditor extends PureComponent<PanelEditorProps<Options>> {
@@ -9,7 +10,10 @@ export class FlameGraphPanelEditor extends PureComponent<PanelEditorProps<Option
     };
 
     onHideUnresolvedStackFramesToggle = () => {
-        this.props.onOptionsChange({ ...this.props.options, hideUnresolvedStackFrames: !this.props.options.hideUnresolvedStackFrames });
+        this.props.onOptionsChange({
+            ...this.props.options,
+            hideUnresolvedStackFrames: !this.props.options.hideUnresolvedStackFrames,
+        });
     };
 
     onHideIdleStacksToggle = () => {

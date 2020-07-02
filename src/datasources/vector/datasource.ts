@@ -41,13 +41,17 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             .map(target => {
                 const url = target.url || this.instanceSettings.url;
                 if (isBlank(url)) {
-                    throw new Error('Please specify a connection URL in the datasource settings or in the query editor.');
+                    throw new Error(
+                        'Please specify a connection URL in the datasource settings or in the query editor.'
+                    );
                 }
                 return {
                     ...target,
                     expr: getTemplateSrv().replace(target.expr.trim(), request.scopedVars),
                     url: getTemplateSrv().replace(url, request.scopedVars),
-                    container: target.container ? getTemplateSrv().replace(target.container, request.scopedVars) : undefined,
+                    container: target.container
+                        ? getTemplateSrv().replace(target.container, request.scopedVars)
+                        : undefined,
                 };
             });
     }
@@ -61,9 +65,9 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             throw new Error('Format must be the same for all queries of a panel.');
         }
 
-        const pollerQueryResult = targets.map(target => this.poller.query(target)).filter(result => result.metric) as Array<
-            Required<PollerQueryResult>
-        >;
+        const pollerQueryResult = targets
+            .map(target => this.poller.query(target))
+            .filter(result => result.metric) as Array<Required<PollerQueryResult>>;
         const data = processTargets(request, pollerQueryResult);
         return { data };
     }

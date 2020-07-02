@@ -28,6 +28,8 @@ export class FlameGraphPanel extends PureComponent<PanelProps<Options>> {
         const fromDate = dateTime(model.minDate).format('HH:mm:ss');
         const toDate = dateTime(model.maxDate).format('HH:mm:ss');
         const title = `${fromDate} - ${toDate}`;
-        return <FlameGraphChart width={this.props.width} height={this.props.height} stacks={model.root} title={title} />;
+        return (
+            <FlameGraphChart width={this.props.width} height={this.props.height} stacks={model.root} title={title} />
+        );
     }
 }

@@ -1,5 +1,5 @@
 const webWorker: Worker = self as any;
-let timer: number;
+let timer: NodeJS.Timeout;
 
 // dummy web worker to wake up main thread
 // otherwise JavaScript execution of the main thread is stopped if the tab is inactive

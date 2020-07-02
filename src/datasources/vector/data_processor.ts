@@ -19,7 +19,9 @@ function getLabels(context: Context, metric: Metric, instanceId: InstanceId | nu
         ...context.labels,
         ...metric.metadata.labels,
         ...metric.instanceDomain.labels,
-        ...(instanceId != null && metric.instanceDomain.instances.has(instanceId!) ? metric.instanceDomain.instances.get(instanceId)!.labels : {}),
+        ...(instanceId != null && metric.instanceDomain.instances.has(instanceId!)
+            ? metric.instanceDomain.instances.get(instanceId)!.labels
+            : {}),
     };
 }
 
@@ -66,7 +68,12 @@ function toDataFrame(request: DataQueryRequest<VectorQuery>, result: Required<Po
     const timeField = dataFrame.addField({ name: 'Time', type: FieldType.time });
     const instanceIdToField = new Map<InstanceId | null, MutableField>();
     for (const snapshot of result.metric.values) {
-        if (!(requestRangeFromMs <= snapshot.timestampMs && (!request.endTime || snapshot.timestampMs <= requestRangeToMs))) {
+        if (
+            !(
+                requestRangeFromMs <= snapshot.timestampMs &&
+                (!request.endTime || snapshot.timestampMs <= requestRangeToMs)
+            )
+        ) {
             continue;
         }
 
@@ -157,13 +164,24 @@ function toMetricsTable(request: DataQueryRequest<VectorQuery>, results: Array<R
     for (const result of results) {
         tableDataFrame
             .addField({
-                name: getLegendName(request, result.target, result.endpoint, result.metric, null, defaultMetricsTableHeader),
+                name: getLegendName(
+                    request,
+                    result.target,
+                    result.endpoint,
+                    result.metric,
+                    null,
+                    defaultMetricsTableHeader
+                ),
                 ...getFieldMetadata(result, null),
             })
             .values.set(0, 5);
 
         if (result.metric.values.length > 0) {
-            instances.push(...result.metric.values[result.metric.values.length - 1].values.map(instanceValue => instanceValue.instance));
+            instances.push(
+                ...result.metric.values[result.metric.values.length - 1].values.map(
+                    instanceValue => instanceValue.instance
+                )
+            );
         }
     }
     instances = uniq(instances);
@@ -190,7 +208,10 @@ function toMetricsTable(request: DataQueryRequest<VectorQuery>, results: Array<R
     return tableDataFrame;
 }
 
-export function processTargets(request: DataQueryRequest<VectorQuery>, results: Array<Required<PollerQueryResult>>): DataQueryResponseData[] {
+export function processTargets(
+    request: DataQueryRequest<VectorQuery>,
+    results: Array<Required<PollerQueryResult>>
+): DataQueryResponseData[] {
     if (results.length === 0) {
         return [];
     }
@@ -202,7 +223,9 @@ export function processTargets(request: DataQueryRequest<VectorQuery>, results: 
             return toTimeSeries(request, result.target, result.endpoint, result.metric, dataFrame);
         });
     } else if (format === TargetFormat.Heatmap) {
-        return results.map(result => toHeatMap(applyTransformations(format, result.metric.metadata, toDataFrame(request, result))));
+        return results.map(result =>
+            toHeatMap(applyTransformations(format, result.metric.metadata, toDataFrame(request, result)))
+        );
     } else if (format === TargetFormat.MetricsTable) {
         return [toMetricsTable(request, results)];
     } else {

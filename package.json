@@ -22,6 +22,8 @@
     "@grafana/ui": "^7.0.5",
     "@types/grafana": "github:CorpGlory/types-grafana",
     "@types/lodash": "^4.14.157",
+    "benchmark": "^2.1.4",
+    "jest-date-mock": "^1.0.8",
     "worker-loader": "^2.0.0"
   },
   "engines": {
@@ -29,7 +31,6 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "d3-flame-graph": "^3.1.1",
-    "jest-date-mock": "^1.0.8"
+    "d3-flame-graph": "^3.1.1"
   }
 }

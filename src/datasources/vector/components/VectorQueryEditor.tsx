@@ -1,6 +1,6 @@
 import defaults from 'lodash/defaults';
 import React, { PureComponent } from 'react';
-import { FormLabel, Select, AsyncSelect } from '@grafana/ui';
+import { InlineFormLabel, Select, AsyncSelect } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { VectorOptions, VectorQuery, defaultQuery, TargetFormat } from '../types';
@@ -74,7 +74,9 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
     loadAvailableContainers = async (query: string): Promise<Array<SelectableValue<string>>> => {
         const variables = getTemplateSrv().variables.map(variable => '$' + variable.name);
         const pmApi = new PmApi(this.props.datasource.state.datasourceRequestOptions);
-        const containerInstances = await pmApi.getMetricValues(this.props.datasource.instanceSettings.url!, null, ['containers.name']);
+        const containerInstances = await pmApi.getMetricValues(this.props.datasource.instanceSettings.url!, null, [
+            'containers.name',
+        ]);
         const options = [...variables, ...containerInstances.values[0].instances.map(instance => instance.value)];
         return [{ label: '-', value: undefined }, ...options.map(value => ({ label: value, value }))];
     };
@@ -86,14 +88,14 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
 
                 <div className="gf-form-inline">
                     <div className="gf-form">
-                        <FormLabel
+                        <InlineFormLabel
                             width={7}
                             tooltip="Controls the name of the time series, using name or pattern. For example
                             ${instance} will be replaced with the instance name.
                             Available variables: metric, metric0 and instance."
                         >
                             Legend
-                        </FormLabel>
+                        </InlineFormLabel>
                         <input
                             type="text"
                             className="gf-form-input"
@@ -116,9 +118,12 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
                     </div>
 
                     <div className="gf-form">
-                        <FormLabel width={5} tooltip="Override the URL to pmproxy for this panel. Useful in combination with templating.">
+                        <InlineFormLabel
+                            width={5}
+                            tooltip="Override the URL to pmproxy for this panel. Useful in combination with templating."
+                        >
                             URL
-                        </FormLabel>
+                        </InlineFormLabel>
                         <input
                             type="text"
                             className="gf-form-input"
@@ -130,9 +135,12 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
                     </div>
 
                     <div className="gf-form">
-                        <FormLabel width={7} tooltip="Specify the container (only possible with container-aware PMDAs).">
+                        <InlineFormLabel
+                            width={7}
+                            tooltip="Specify the container (only possible with container-aware PMDAs)."
+                        >
                             Container
-                        </FormLabel>
+                        </InlineFormLabel>
                         <AsyncSelect
                             isSearchable={true}
                             defaultOptions={true}
