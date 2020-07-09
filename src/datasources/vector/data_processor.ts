@@ -101,8 +101,8 @@ function toDataFrame(request: DataQueryRequest<VectorQuery>, result: Required<Po
 }
 
 function defaultVectorLegend(target: VectorQueryWithUrl, metric: Metric, instanceId: InstanceId | null) {
-    if (instanceId != null && instanceId in metric.instanceDomain.instances) {
-        return metric.instanceDomain.instances[instanceId].name;
+    if (instanceId != null && metric.instanceDomain.instances.has(instanceId)) {
+        return metric.instanceDomain.instances.get(instanceId)!.name;
     } else {
         return target.expr;
     }
