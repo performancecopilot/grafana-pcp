@@ -16,10 +16,10 @@
     "url": "git+https://github.com/performancecopilot/grafana-pcp.git"
   },
   "devDependencies": {
-    "@grafana/data": "^7.0.5",
-    "@grafana/runtime": "^7.0.5",
-    "@grafana/toolkit": "^7.0.5",
-    "@grafana/ui": "^7.0.5",
+    "@grafana/data": "^7.0.6",
+    "@grafana/runtime": "^7.0.6",
+    "@grafana/toolkit": "^7.0.6",
+    "@grafana/ui": "^7.0.6",
     "@types/grafana": "github:CorpGlory/types-grafana",
     "@types/lodash": "^4.14.157",
     "benchmark": "^2.1.4",
