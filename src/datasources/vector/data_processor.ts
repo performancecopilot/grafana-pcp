@@ -11,7 +11,7 @@ import {
 import { VectorQuery, TargetFormat, Dict } from './types';
 import { Metric, QueryResult } from './poller';
 import { InstanceId, pcpUnitToGrafanaUnit, Context, Labels, pcpTypeToGrafanaType, InstanceName } from './pcp';
-import { mapValues, uniq } from 'lodash';
+import { mapValues, every } from 'lodash';
 import { getTemplateSrv } from './utils';
 import { applyTransformations } from './field_transformations';
 
@@ -208,32 +208,46 @@ function toMetricsTable(
     dataFrameAndResults: Array<{ result: QueryResult; dataFrame: MutableDataFrame }>
 ) {
     const tableDataFrame = new MutableDataFrame();
-    let instances: Array<number | null> = [];
+    tableDataFrame.addField({
+        name: 'instance'
+    });
+
+    let instanceNames: Map<number | null, string> = new Map();
     for (const { result } of dataFrameAndResults) {
         tableDataFrame.addField({
-            name: getLegendName(request, result, null, defaultMetricsTableHeader),
+            name: result.target.isDerivedMetric ? result.query.expr : result.target.metric.metadata.name,
             ...getFieldMetadata(result, null, null),
+            config: {
+                displayName: getLegendName(request, result, null, defaultMetricsTableHeader),
+            }
         });
 
         // metric.instanceDomain contains all instances ever recorded
         // use the last snapshot of metric.values to get only the current instances
         if (result.target.metric.values.length > 0) {
-            instances.push(
-                ...result.target.metric.values[result.target.metric.values.length - 1].values.map(
-                    instanceValue => instanceValue.instance
-                )
+            const instanceIds = result.target.metric.values[result.target.metric.values.length - 1].values.map(
+                instanceValue => instanceValue.instance
             );
+            for (const instanceId of instanceIds) {
+                if (!instanceNames.has(instanceId)) {
+                    let instanceName: string | undefined;
+                    if (instanceId !== null)
+                        instanceName = result.target.metric.instanceDomain.instances.get(instanceId)?.name;
+                    instanceNames.set(instanceId, instanceName ?? "");
+                }
+            }
         }
     }
-    instances = uniq(instances);
 
     /**
      * table is filled row-by-row
      * outer loop loops over table rows (instances)
      * inner loop loops over table columns (metrics), and writes the last value of the specific instance of a metric
      */
-    for (const instanceId of instances) {
+    for (const [instanceId, instanceName] of instanceNames.entries()) {
         let fieldIdx = 0;
+        tableDataFrame.fields[fieldIdx].values.add(instanceName);
+        fieldIdx++;
 
         for (const { dataFrame } of dataFrameAndResults) {
             const field = dataFrame.fields.find(
@@ -260,6 +274,10 @@ export function processTargets(
     }
 
     const format = results[0].query.format;
+    if (!every(results, ['query.format', format])) {
+        throw new Error('Format must be the same for all queries of a panel.');
+    }
+
     if (format === TargetFormat.TimeSeries) {
         return results.map(result => {
             const dataFrame = applyTransformations(format, result.target.metric.metadata, toDataFrame(request, result));

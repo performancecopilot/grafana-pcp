@@ -6,7 +6,7 @@ import {
     VectorQueryWithEndpointInfo,
     DefaultBackendSrvRequestOptions,
 } from './types';
-import { defaults, every } from 'lodash';
+import { defaults } from 'lodash';
 import { isBlank, getTemplateSrv, interval_to_ms } from './utils';
 import { Poller, QueryResult } from './poller';
 import { PmApi } from './pmapi';
@@ -75,13 +75,6 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
 
     async query(request: DataQueryRequest<VectorQuery>): Promise<DataQueryResponse> {
         const queries = this.buildQueries(request);
-        if (queries.length === 0) {
-            return { data: [] };
-        }
-        if (!every(queries, ['format', queries[0].format])) {
-            throw new Error('Format must be the same for all queries of a panel.');
-        }
-
         const result = queries.map(query => this.poller.query(query)).filter(result => !!result) as QueryResult[];
         const data = processTargets(request, result);
         return { data };
