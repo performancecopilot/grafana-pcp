@@ -127,7 +127,7 @@
             "y": 16
          },
          "id": 4,
-         "styles": [ ],
+         "styles": null,
          "targets": [
             {
                "expr": "bcc.proc.io.net.tcptop.pid",
@@ -172,7 +172,94 @@
          ],
          "timeFrom": null,
          "timeShift": null,
-         "title": "tcptop",
+         "title": "active TCP sessions",
+         "transformations": [
+            {
+               "id": "organize",
+               "options": {
+                  "excludeByName": {
+                     "instance": true
+                  },
+                  "indexByName": { },
+                  "renameByName": { }
+               }
+            }
+         ],
+         "type": "table"
+      },
+      {
+         "columns": [ ],
+         "datasource": "$datasource",
+         "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 24
+         },
+         "id": 5,
+         "styles": null,
+         "targets": [
+            {
+               "expr": "bcc.proc.io.net.tcp.pid",
+               "format": "metrics_table",
+               "refId": "A"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcp.comm",
+               "format": "metrics_table",
+               "refId": "B"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcp.laddr",
+               "format": "metrics_table",
+               "refId": "C"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcp.lport",
+               "format": "metrics_table",
+               "refId": "D"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcp.daddr",
+               "format": "metrics_table",
+               "refId": "E"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcp.dport",
+               "format": "metrics_table",
+               "refId": "F"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcp.rx",
+               "format": "metrics_table",
+               "refId": "G"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcp.tx",
+               "format": "metrics_table",
+               "refId": "H"
+            },
+            {
+               "expr": "bcc.proc.io.net.tcp.duration",
+               "format": "metrics_table",
+               "refId": "I"
+            }
+         ],
+         "timeFrom": null,
+         "timeShift": null,
+         "title": "tcp lifespans",
+         "transformations": [
+            {
+               "id": "organize",
+               "options": {
+                  "excludeByName": {
+                     "instance": true
+                  },
+                  "indexByName": { },
+                  "renameByName": { }
+               }
+            }
+         ],
          "type": "table"
       }
    ],
