@@ -10,261 +10,259 @@
    "hideControls": false,
    "id": null,
    "links": [ ],
-   "panels": [
+   "refresh": "1s",
+   "rows": [
       {
-         "cards": {
-            "cardPadding": 0,
-            "cardRound": null
-         },
-         "color": {
-            "cardColor": "#b4ff00",
-            "colorScale": "sqrt",
-            "colorScheme": "interpolateOranges",
-            "exponent": 0.5,
-            "mode": "spectrum"
-         },
-         "dataFormat": "tsbuckets",
-         "datasource": "$datasource",
-         "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 0
-         },
-         "heatmap": { },
-         "hideZeroBuckets": true,
-         "highlightCards": true,
-         "id": 2,
-         "legend": {
-            "show": false
-         },
-         "targets": [
+         "collapse": false,
+         "collapsed": false,
+         "panels": [
             {
-               "expr": "bcc.runq.latency",
-               "format": "heatmap",
-               "refId": "A"
-            }
-         ],
-         "title": "run queue latency (us)",
-         "tooltip": {
-            "show": true,
-            "showHistogram": false
-         },
-         "type": "heatmap",
-         "xAxis": {
-            "show": true
-         },
-         "xBucketNumber": null,
-         "xBucketSize": null,
-         "yAxis": {
-            "decimals": null,
-            "format": "µs",
-            "show": true,
-            "splitFactor": null
-         },
-         "yBucketBound": "upper"
-      },
-      {
-         "cards": {
-            "cardPadding": 0,
-            "cardRound": null
-         },
-         "color": {
-            "cardColor": "#b4ff00",
-            "colorScale": "sqrt",
-            "colorScheme": "interpolateOranges",
-            "exponent": 0.5,
-            "mode": "spectrum"
-         },
-         "dataFormat": "tsbuckets",
-         "datasource": "$datasource",
-         "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 8
-         },
-         "heatmap": { },
-         "hideZeroBuckets": true,
-         "highlightCards": true,
-         "id": 3,
-         "legend": {
-            "show": false
-         },
-         "targets": [
-            {
-               "expr": "bcc.disk.all.latency",
-               "format": "heatmap",
-               "refId": "A"
-            }
-         ],
-         "title": "disk latency (us)",
-         "tooltip": {
-            "show": true,
-            "showHistogram": false
-         },
-         "type": "heatmap",
-         "xAxis": {
-            "show": true
-         },
-         "xBucketNumber": null,
-         "xBucketSize": null,
-         "yAxis": {
-            "decimals": null,
-            "format": "µs",
-            "show": true,
-            "splitFactor": null
-         },
-         "yBucketBound": "upper"
-      },
-      {
-         "columns": [ ],
-         "datasource": "$datasource",
-         "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 16
-         },
-         "id": 4,
-         "styles": null,
-         "targets": [
-            {
-               "expr": "bcc.proc.io.net.tcptop.pid",
-               "format": "metrics_table",
-               "refId": "A"
+               "cards": {
+                  "cardPadding": 0,
+                  "cardRound": null
+               },
+               "color": {
+                  "cardColor": "#b4ff00",
+                  "colorScale": "sqrt",
+                  "colorScheme": "interpolateOranges",
+                  "exponent": 0.5,
+                  "mode": "spectrum"
+               },
+               "dataFormat": "tsbuckets",
+               "datasource": "$datasource",
+               "gridPos": { },
+               "heatmap": { },
+               "height": 360,
+               "hideZeroBuckets": true,
+               "highlightCards": true,
+               "id": 2,
+               "legend": {
+                  "show": false
+               },
+               "span": 12,
+               "targets": [
+                  {
+                     "expr": "bcc.runq.latency",
+                     "format": "heatmap",
+                     "refId": "A"
+                  }
+               ],
+               "title": "run queue latency (us)",
+               "tooltip": {
+                  "show": true,
+                  "showHistogram": false
+               },
+               "type": "heatmap",
+               "xAxis": {
+                  "show": true
+               },
+               "xBucketNumber": null,
+               "xBucketSize": null,
+               "yAxis": {
+                  "decimals": null,
+                  "format": "µs",
+                  "show": true,
+                  "splitFactor": null
+               },
+               "yBucketBound": "upper"
             },
             {
-               "expr": "bcc.proc.io.net.tcptop.comm",
-               "format": "metrics_table",
-               "refId": "B"
+               "cards": {
+                  "cardPadding": 0,
+                  "cardRound": null
+               },
+               "color": {
+                  "cardColor": "#b4ff00",
+                  "colorScale": "sqrt",
+                  "colorScheme": "interpolateOranges",
+                  "exponent": 0.5,
+                  "mode": "spectrum"
+               },
+               "dataFormat": "tsbuckets",
+               "datasource": "$datasource",
+               "gridPos": { },
+               "heatmap": { },
+               "height": 360,
+               "hideZeroBuckets": true,
+               "highlightCards": true,
+               "id": 3,
+               "legend": {
+                  "show": false
+               },
+               "span": 12,
+               "targets": [
+                  {
+                     "expr": "bcc.disk.all.latency",
+                     "format": "heatmap",
+                     "refId": "A"
+                  }
+               ],
+               "title": "disk latency (us)",
+               "tooltip": {
+                  "show": true,
+                  "showHistogram": false
+               },
+               "type": "heatmap",
+               "xAxis": {
+                  "show": true
+               },
+               "xBucketNumber": null,
+               "xBucketSize": null,
+               "yAxis": {
+                  "decimals": null,
+                  "format": "µs",
+                  "show": true,
+                  "splitFactor": null
+               },
+               "yBucketBound": "upper"
             },
             {
-               "expr": "bcc.proc.io.net.tcptop.laddr",
-               "format": "metrics_table",
-               "refId": "C"
-            },
-            {
-               "expr": "bcc.proc.io.net.tcptop.lport",
-               "format": "metrics_table",
-               "refId": "D"
-            },
-            {
-               "expr": "bcc.proc.io.net.tcptop.daddr",
-               "format": "metrics_table",
-               "refId": "E"
-            },
-            {
-               "expr": "bcc.proc.io.net.tcptop.dport",
-               "format": "metrics_table",
-               "refId": "F"
-            },
-            {
-               "expr": "bcc.proc.io.net.tcptop.rx",
-               "format": "metrics_table",
-               "refId": "G"
-            },
-            {
-               "expr": "bcc.proc.io.net.tcptop.tx",
-               "format": "metrics_table",
-               "refId": "H"
-            }
-         ],
-         "timeFrom": null,
-         "timeShift": null,
-         "title": "active TCP sessions",
-         "transformations": [
-            {
-               "id": "organize",
-               "options": {
-                  "excludeByName": {
-                     "instance": true
+               "columns": [ ],
+               "datasource": "$datasource",
+               "gridPos": { },
+               "id": 4,
+               "span": 12,
+               "styles": null,
+               "targets": [
+                  {
+                     "expr": "bcc.proc.io.net.tcptop.pid",
+                     "format": "metrics_table",
+                     "refId": "A"
                   },
-                  "indexByName": { },
-                  "renameByName": { }
-               }
-            }
-         ],
-         "type": "table"
-      },
-      {
-         "columns": [ ],
-         "datasource": "$datasource",
-         "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 24
-         },
-         "id": 5,
-         "styles": null,
-         "targets": [
-            {
-               "expr": "bcc.proc.io.net.tcp.pid",
-               "format": "metrics_table",
-               "refId": "A"
-            },
-            {
-               "expr": "bcc.proc.io.net.tcp.comm",
-               "format": "metrics_table",
-               "refId": "B"
-            },
-            {
-               "expr": "bcc.proc.io.net.tcp.laddr",
-               "format": "metrics_table",
-               "refId": "C"
-            },
-            {
-               "expr": "bcc.proc.io.net.tcp.lport",
-               "format": "metrics_table",
-               "refId": "D"
-            },
-            {
-               "expr": "bcc.proc.io.net.tcp.daddr",
-               "format": "metrics_table",
-               "refId": "E"
-            },
-            {
-               "expr": "bcc.proc.io.net.tcp.dport",
-               "format": "metrics_table",
-               "refId": "F"
-            },
-            {
-               "expr": "bcc.proc.io.net.tcp.rx",
-               "format": "metrics_table",
-               "refId": "G"
-            },
-            {
-               "expr": "bcc.proc.io.net.tcp.tx",
-               "format": "metrics_table",
-               "refId": "H"
-            },
-            {
-               "expr": "bcc.proc.io.net.tcp.duration",
-               "format": "metrics_table",
-               "refId": "I"
-            }
-         ],
-         "timeFrom": null,
-         "timeShift": null,
-         "title": "tcp lifespans",
-         "transformations": [
-            {
-               "id": "organize",
-               "options": {
-                  "excludeByName": {
-                     "instance": true
+                  {
+                     "expr": "bcc.proc.io.net.tcptop.comm",
+                     "format": "metrics_table",
+                     "refId": "B"
                   },
-                  "indexByName": { },
-                  "renameByName": { }
-               }
+                  {
+                     "expr": "bcc.proc.io.net.tcptop.laddr",
+                     "format": "metrics_table",
+                     "refId": "C"
+                  },
+                  {
+                     "expr": "bcc.proc.io.net.tcptop.lport",
+                     "format": "metrics_table",
+                     "refId": "D"
+                  },
+                  {
+                     "expr": "bcc.proc.io.net.tcptop.daddr",
+                     "format": "metrics_table",
+                     "refId": "E"
+                  },
+                  {
+                     "expr": "bcc.proc.io.net.tcptop.dport",
+                     "format": "metrics_table",
+                     "refId": "F"
+                  },
+                  {
+                     "expr": "bcc.proc.io.net.tcptop.rx",
+                     "format": "metrics_table",
+                     "refId": "G"
+                  },
+                  {
+                     "expr": "bcc.proc.io.net.tcptop.tx",
+                     "format": "metrics_table",
+                     "refId": "H"
+                  }
+               ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "active TCP sessions",
+               "transformations": [
+                  {
+                     "id": "organize",
+                     "options": {
+                        "excludeByName": {
+                           "instance": true
+                        },
+                        "indexByName": { },
+                        "renameByName": { }
+                     }
+                  }
+               ],
+               "type": "table"
+            },
+            {
+               "columns": [ ],
+               "datasource": "$datasource",
+               "gridPos": { },
+               "id": 5,
+               "span": 12,
+               "styles": null,
+               "targets": [
+                  {
+                     "expr": "bcc.proc.io.net.tcp.pid",
+                     "format": "metrics_table",
+                     "refId": "A"
+                  },
+                  {
+                     "expr": "bcc.proc.io.net.tcp.comm",
+                     "format": "metrics_table",
+                     "refId": "B"
+                  },
+                  {
+                     "expr": "bcc.proc.io.net.tcp.laddr",
+                     "format": "metrics_table",
+                     "refId": "C"
+                  },
+                  {
+                     "expr": "bcc.proc.io.net.tcp.lport",
+                     "format": "metrics_table",
+                     "refId": "D"
+                  },
+                  {
+                     "expr": "bcc.proc.io.net.tcp.daddr",
+                     "format": "metrics_table",
+                     "refId": "E"
+                  },
+                  {
+                     "expr": "bcc.proc.io.net.tcp.dport",
+                     "format": "metrics_table",
+                     "refId": "F"
+                  },
+                  {
+                     "expr": "bcc.proc.io.net.tcp.rx",
+                     "format": "metrics_table",
+                     "refId": "G"
+                  },
+                  {
+                     "expr": "bcc.proc.io.net.tcp.tx",
+                     "format": "metrics_table",
+                     "refId": "H"
+                  },
+                  {
+                     "expr": "bcc.proc.io.net.tcp.duration",
+                     "format": "metrics_table",
+                     "refId": "I"
+                  }
+               ],
+               "timeFrom": null,
+               "timeShift": null,
+               "title": "tcp lifespans",
+               "transformations": [
+                  {
+                     "id": "organize",
+                     "options": {
+                        "excludeByName": {
+                           "instance": true
+                        },
+                        "indexByName": { },
+                        "renameByName": { }
+                     }
+                  }
+               ],
+               "type": "table"
             }
          ],
-         "type": "table"
+         "repeat": null,
+         "repeatIteration": null,
+         "repeatRowId": null,
+         "showTitle": false,
+         "title": "Dashboard Row",
+         "titleSize": "h6",
+         "type": "row"
       }
    ],
-   "refresh": "1s",
-   "rows": [ ],
    "schemaVersion": 14,
    "style": "dark",
    "tags": [
@@ -277,7 +275,7 @@
                "text": "PCP Vector",
                "value": "PCP Vector"
             },
-            "hide": 1,
+            "hide": 2,
             "label": null,
             "name": "datasource",
             "options": [ ],

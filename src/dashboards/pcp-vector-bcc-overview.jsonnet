@@ -15,115 +15,101 @@ grafana.dashboard.new(
     'datasource',
     'pcp-vector-datasource',
     'PCP Vector',
-    hide='label',
+    hide='value',
   )
 )
-.addPanel(
-  grafana.heatmapPanel.new(
-    'run queue latency (us)',
-    datasource='$datasource',
-    dataFormat='tsbuckets',
-    cards_cardPadding=0,
-    hideZeroBuckets=true,
-    yBucketBound='upper',
-    yAxis_format='µs',
+.addRow(
+  grafana.row.new(
   )
-  .addTarget({
-      expr: 'bcc.runq.latency',
-      format: 'heatmap',
-  }), gridPos={
-    x: 0,
-    y: 0,
-    w: 24,
-    h: 8,
-  }
-)
-.addPanel(
-  grafana.heatmapPanel.new(
-    'disk latency (us)',
-    datasource='$datasource',
-    dataFormat='tsbuckets',
-    cards_cardPadding=0,
-    hideZeroBuckets=true,
-    yBucketBound='upper',
-    yAxis_format='µs',
+  .addPanel(
+    grafana.heatmapPanel.new(
+      'run queue latency (us)',
+      datasource='$datasource',
+      span=12,
+      yAxis_format='µs',
+      dataFormat='tsbuckets',
+      yBucketBound='upper',
+      hideZeroBuckets=true,
+      cards_cardPadding=0,
+    )
+    .addTargets([
+      { expr: 'bcc.runq.latency', format: 'heatmap' },
+    ]) + {height: 360}
   )
-  .addTarget({
-      expr: 'bcc.disk.all.latency',
-      format: 'heatmap',
-  }), gridPos={
-    x: 0,
-    y: 8,
-    w: 24,
-    h: 8,
-  }
-)
-.addPanel(
-  grafana.tablePanel.new(
-    'active TCP sessions',
-    datasource='$datasource',
-    styles=null,
+  .addPanel(
+    grafana.heatmapPanel.new(
+      'disk latency (us)',
+      datasource='$datasource',
+      span=12,
+      yAxis_format='µs',
+      dataFormat='tsbuckets',
+      yBucketBound='upper',
+      hideZeroBuckets=true,
+      cards_cardPadding=0,
+    )
+    .addTargets([
+      { expr: 'bcc.disk.all.latency', format: 'heatmap' },
+    ]) + {height: 360}
   )
-  .addTargets([
-      { expr: 'bcc.proc.io.net.tcptop.pid', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcptop.comm', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcptop.laddr', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcptop.lport', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcptop.daddr', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcptop.dport', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcptop.rx', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcptop.tx', format: 'metrics_table' },
-  ]) +
-  {
-    "transformations": [{
-      "id": "organize",
-      "options": {
-        "excludeByName": {
-          "instance": true
-        },
-        "indexByName": {},
-        "renameByName": {}
-      }
-    }],
-  }, gridPos={
-    x: 0,
-    y: 16,
-    w: 24,
-    h: 8,
-  }
-)
-.addPanel(
-  grafana.tablePanel.new(
-    'tcp lifespans',
-    datasource='$datasource',
-    styles=null,
+  .addPanel(
+    grafana.tablePanel.new(
+      'active TCP sessions',
+      datasource='$datasource',
+      span=12,
+      styles=null,
+    )
+    .addTargets([
+        { expr: 'bcc.proc.io.net.tcptop.pid', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcptop.comm', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcptop.laddr', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcptop.lport', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcptop.daddr', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcptop.dport', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcptop.rx', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcptop.tx', format: 'metrics_table' },
+    ]) +
+    {
+      "transformations": [{
+        "id": "organize",
+        "options": {
+          "excludeByName": {
+            "instance": true
+          },
+          "indexByName": {},
+          "renameByName": {}
+        }
+      }],
+    }
   )
-  .addTargets([
-      { expr: 'bcc.proc.io.net.tcp.pid', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.comm', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.laddr', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.lport', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.daddr', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.dport', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.rx', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.tx', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.duration', format: 'metrics_table' },
-  ]) +
-  {
-    "transformations": [{
-      "id": "organize",
-      "options": {
-        "excludeByName": {
-          "instance": true
-        },
-        "indexByName": {},
-        "renameByName": {}
-      }
-    }],
-  }, gridPos={
-    x: 0,
-    y: 24,
-    w: 24,
-    h: 8,
-  }
+  .addPanel(
+    grafana.tablePanel.new(
+      'tcp lifespans',
+      datasource='$datasource',
+      span=12,
+      styles=null,
+    )
+    .addTargets([
+        { expr: 'bcc.proc.io.net.tcp.pid', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcp.comm', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcp.laddr', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcp.lport', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcp.daddr', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcp.dport', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcp.rx', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcp.tx', format: 'metrics_table' },
+        { expr: 'bcc.proc.io.net.tcp.duration', format: 'metrics_table' },
+    ]) +
+    {
+      "transformations": [{
+        "id": "organize",
+        "options": {
+          "excludeByName": {
+            "instance": true
+          },
+          "indexByName": {},
+          "renameByName": {}
+        }
+      }],
+    }
+  )
 )
