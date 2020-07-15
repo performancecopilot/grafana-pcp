@@ -209,7 +209,7 @@ function toMetricsTable(
 ) {
     const tableDataFrame = new MutableDataFrame();
     tableDataFrame.addField({
-        name: 'instance'
+        name: 'instance',
     });
 
     let instanceNames: Map<number | null, string> = new Map();
@@ -219,7 +219,7 @@ function toMetricsTable(
             ...getFieldMetadata(result, null, null),
             config: {
                 displayName: getLegendName(request, result, null, defaultMetricsTableHeader),
-            }
+            },
         });
 
         // metric.instanceDomain contains all instances ever recorded
@@ -231,9 +231,10 @@ function toMetricsTable(
             for (const instanceId of instanceIds) {
                 if (!instanceNames.has(instanceId)) {
                     let instanceName: string | undefined;
-                    if (instanceId !== null)
+                    if (instanceId !== null) {
                         instanceName = result.target.metric.instanceDomain.instances.get(instanceId)?.name;
-                    instanceNames.set(instanceId, instanceName ?? "");
+                    }
+                    instanceNames.set(instanceId, instanceName ?? '');
                 }
             }
         }
