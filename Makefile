@@ -4,7 +4,7 @@
 YARN = yarn
 JSONNET_PATH = ../grafonnet-lib
 DASHBOARD_DIR := src/dashboards
-DASHBOARDS := $(addprefix $(DASHBOARD_DIR)/,pcp-vector-bcc-overview.json)
+DASHBOARDS := $(addprefix $(DASHBOARD_DIR)/,pcp-vector-host-overview.json pcp-vector-bcc-overview.json)
 
 default: build
 
