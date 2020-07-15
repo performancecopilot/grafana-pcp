@@ -1,12 +1,11 @@
 import defaults from 'lodash/defaults';
 import React, { PureComponent } from 'react';
-import { InlineFormLabel, Select, AsyncSelect } from '@grafana/ui';
+import { InlineFormLabel, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { VectorOptions, VectorQuery, defaultQuery, TargetFormat } from '../types';
 import VectorQueryField from './VectorQueryField';
-import { isBlank, getTemplateSrv } from '../utils';
-import { PmApi } from '../pmapi';
+import { isBlank } from '../utils';
 
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },
@@ -21,7 +20,7 @@ interface State {
     format: SelectableValue<string>;
     legendFormat?: string;
     url?: string;
-    container?: SelectableValue<string>;
+    hostspec?: string;
 }
 
 export class VectorQueryEditor extends PureComponent<Props, State> {
@@ -33,7 +32,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
             format: FORMAT_OPTIONS.find(option => option.value === query.format) || FORMAT_OPTIONS[0],
             legendFormat: query.legendFormat,
             url: query.url,
-            container: query.container ? { label: query.container, value: query.container } : undefined,
+            hostspec: query.hostspec,
         };
     }
 
@@ -55,8 +54,9 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         this.setState({ url }, this.onRunQuery);
     };
 
-    onContainerChange = (container: SelectableValue<string>) => {
-        this.setState({ container: container.value ? container : undefined }, this.onRunQuery);
+    onHostspecChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+        const hostspec = isBlank(event.currentTarget.value) ? undefined : event.currentTarget.value;
+        this.setState({ hostspec }, this.onRunQuery);
     };
 
     onRunQuery = () => {
@@ -66,19 +66,9 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
             format: this.state.format.value as TargetFormat,
             legendFormat: this.state.legendFormat,
             url: this.state.url,
-            container: this.state.container ? this.state.container.value : undefined,
+            hostspec: this.state.hostspec,
         });
         this.props.onRunQuery();
-    };
-
-    loadAvailableContainers = async (query: string): Promise<Array<SelectableValue<string>>> => {
-        const variables = getTemplateSrv().variables.map(variable => '$' + variable.name);
-        const pmApi = new PmApi(this.props.datasource.state.datasourceRequestOptions);
-        const containerInstances = await pmApi.getMetricValues(this.props.datasource.instanceSettings.url!, null, [
-            'containers.name',
-        ]);
-        const options = [...variables, ...containerInstances.values[0].instances.map(instance => instance.value)];
-        return [{ label: '-', value: undefined }, ...options.map(value => ({ label: value, value }))];
     };
 
     render() {
@@ -136,18 +126,18 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
 
                     <div className="gf-form">
                         <InlineFormLabel
-                            width={7}
-                            tooltip="Specify the container (only possible with container-aware PMDAs)."
+                            width={9}
+                            tooltip="Override the host specification for this panel. Useful for monitoring remote hosts."
                         >
-                            Container
+                            Host specification
                         </InlineFormLabel>
-                        <AsyncSelect
-                            isSearchable={true}
-                            defaultOptions={true}
-                            className="width-14"
-                            loadOptions={this.loadAvailableContainers}
-                            value={this.state.container}
-                            onChange={this.onContainerChange}
+                        <input
+                            type="text"
+                            className="gf-form-input"
+                            placeholder="override host specification"
+                            value={this.state.hostspec}
+                            onChange={this.onHostspecChange}
+                            onBlur={this.onRunQuery}
                         />
                     </div>
                 </div>

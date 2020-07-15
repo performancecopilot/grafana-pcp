@@ -87,7 +87,7 @@
 
     ],
     "dependencies": {
-        "grafanaVersion": "6.7.x",
+        "grafanaVersion": "7.0.x",
         "plugins": []
     }
 }

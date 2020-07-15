@@ -5,9 +5,10 @@ export type Dict<K extends string, T> = {
     [P in K]?: T;
 };
 
-export type DatasourceRequestOptions = Omit<BackendSrvRequest, 'url'>;
+export type DefaultBackendSrvRequestOptions = Omit<BackendSrvRequest, 'url'>;
 
 export interface VectorOptions extends DataSourceJsonData {
+    hostspec?: string;
     retentionTime?: string;
 }
 
@@ -23,11 +24,12 @@ export interface VectorQuery extends DataQuery {
     legendFormat?: string;
 
     url?: string;
-    container?: string;
+    hostspec?: string;
 }
 
-export interface VectorQueryWithUrl extends VectorQuery {
+export interface VectorQueryWithEndpointInfo extends VectorQuery {
     url: string;
+    hostspec: string;
 }
 
 export const defaultQuery: Partial<VectorQuery> = {
@@ -36,3 +38,4 @@ export const defaultQuery: Partial<VectorQuery> = {
 };
 
 export type RequiredField<T, K extends keyof T> = T & Required<Pick<T, K>>;
+export type OptionalField<T, K extends keyof T> = T & Partial<Pick<T, K>>;

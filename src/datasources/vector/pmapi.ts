@@ -1,8 +1,8 @@
 import { BackendSrvRequest, getBackendSrv } from '@grafana/runtime';
 import { MetricMetadata, InstanceDomain, MetricName, Context, InstanceValue } from './pcp';
 import { has, defaults } from 'lodash';
-import { DatasourceRequestOptions } from './types';
 import { NetworkError } from './errors';
+import { DefaultBackendSrvRequestOptions } from './types';
 
 interface MetricsResponse {
     metrics: MetricMetadata[];
@@ -18,7 +18,7 @@ interface FetchResponse {
     values: MetricInstanceValues[];
 }
 
-export class MissingMetricsError extends Error {
+export class MetricsNotFoundError extends Error {
     readonly metrics: string[];
     constructor(metrics: string[], message?: string) {
         const s = metrics.length !== 1 ? 's' : '';
@@ -27,7 +27,7 @@ export class MissingMetricsError extends Error {
         }
         super(message);
         this.metrics = metrics;
-        Object.setPrototypeOf(this, MissingMetricsError.prototype);
+        Object.setPrototypeOf(this, MetricsNotFoundError.prototype);
     }
 }
 
@@ -45,10 +45,10 @@ export class PermissionError extends Error {
 }
 
 export class PmApi {
-    constructor(private datasourceRequestOptions: DatasourceRequestOptions) {}
+    constructor(private defaultBackendSrvRequestOptions: DefaultBackendSrvRequestOptions) {}
 
     async datasourceRequest(options: BackendSrvRequest) {
-        options = defaults(options, this.datasourceRequestOptions);
+        options = defaults(options, this.defaultBackendSrvRequestOptions);
         try {
             return await getBackendSrv().datasourceRequest(options);
         } catch (error) {
@@ -56,24 +56,16 @@ export class PmApi {
         }
     }
 
-    async createContext(url: string, container?: string): Promise<Context> {
+    async createContext(url: string, hostspec: string): Promise<Context> {
         const response = await this.datasourceRequest({
             url: `${url}/pmapi/context`,
-            params: { polltimeout: 30 },
+            params: { hostspec, polltimeout: 30 },
         });
 
         if (!has(response.data, 'context')) {
             throw new NetworkError('Received malformed response');
         }
-
-        const contextData = response.data;
-        if (container) {
-            await this.datasourceRequest({
-                url: `${url}/pmapi/${contextData.context}/store`,
-                params: { name: 'pmcd.client.container', value: container },
-            });
-        }
-        return contextData;
+        return response.data;
     }
 
     async getMetricMetadata(url: string, ctxid: number, names: string[]): Promise<MetricsResponse> {

@@ -39,6 +39,24 @@ export const VectorConfigEditor = (props: Props) => {
                 <div className="gf-form-inline">
                     <div className="gf-form">
                         <FormField
+                            label="Host specification"
+                            labelWidth={14}
+                            placeholder="127.0.0.1"
+                            inputEl={
+                                <Input
+                                    className="width-6"
+                                    value={options.jsonData.hostspec}
+                                    spellCheck={false}
+                                    onChange={onOptionsChangeHandler('hostspec')}
+                                />
+                            }
+                            tooltip="PCP host specification. Defaults to 127.0.0.1."
+                        />
+                    </div>
+                </div>
+                <div className="gf-form-inline">
+                    <div className="gf-form">
+                        <FormField
                             label="Metric values retention time"
                             labelWidth={14}
                             placeholder="10m"
