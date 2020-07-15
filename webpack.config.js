@@ -1,3 +1,12 @@
+function updateForkTsCheckerPluginSettings(plugins) {
+    for (const plugin of plugins) {
+        if (plugin.constructor.name === 'ForkTsCheckerWebpackPlugin') {
+            plugin.async = false;
+        }
+    }
+    return plugins;
+}
+
 module.exports.getWebpackConfig = (config, options) => ({
     ...config,
     entry: {
@@ -16,5 +25,6 @@ module.exports.getWebpackConfig = (config, options) => ({
             },
             ...config.module.rules,
         ]
-    }
+    },
+    plugins: updateForkTsCheckerPluginSettings(config.plugins)
 });
