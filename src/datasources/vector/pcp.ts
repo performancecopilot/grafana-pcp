@@ -7,6 +7,12 @@ export type InstanceName = string;
 export type InstanceId = number;
 export type Labels = Dict<string, string>;
 
+export enum Semantics {
+    Instant = 'instant',
+    Discrete = 'discrete',
+    Counter = 'counter',
+}
+
 export interface Context {
     context: number;
     labels: Labels;
@@ -16,7 +22,7 @@ export interface MetricMetadata {
     name: MetricName;
     indom?: string;
     type: string;
-    sem: string;
+    sem: Semantics;
     units: string;
     labels: Labels;
 }
@@ -71,7 +77,7 @@ export function pcpUnitToGrafanaUnit(metadata: MetricMetadata): string | undefin
             return 'h';
     }
 
-    if (metadata.sem === 'counter') {
+    if (metadata.sem === Semantics.Counter) {
         switch (metadata.units) {
             case 'byte':
                 return 'Bps';

@@ -4,15 +4,6 @@ export function isBlank(str?: string) {
     return !(str && isString(str) && str.trim().length > 0);
 }
 
-// @grafana/runtime v7.0.0 will contain templateSrv
-declare var angular: any;
-export function getTemplateSrv() {
-    return angular
-        .element(document)
-        .injector()
-        .get('templateSrv');
-}
-
 export function interval_to_ms(str: string) {
     if (str.length === 0) {
         return 0;

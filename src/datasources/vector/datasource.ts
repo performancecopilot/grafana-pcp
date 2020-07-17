@@ -7,10 +7,11 @@ import {
     DefaultBackendSrvRequestOptions,
 } from './types';
 import { defaults } from 'lodash';
-import { isBlank, getTemplateSrv, interval_to_ms } from './utils';
+import { isBlank, interval_to_ms } from './utils';
 import { Poller, QueryResult } from './poller';
 import { PmApi } from './pmapi';
 import { processTargets } from './data_processor';
+import { getTemplateSrv } from '@grafana/runtime';
 
 interface DataSourceState {
     defaultBackendSrvRequestOptions: DefaultBackendSrvRequestOptions;
@@ -67,8 +68,8 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
                 return {
                     ...target,
                     expr: getTemplateSrv().replace(target.expr.trim(), request.scopedVars),
-                    url: getTemplateSrv().replace(url, request.scopedVars),
-                    hostspec: getTemplateSrv().replace(hostspec, request.scopedVars),
+                    url: getTemplateSrv().replace(url!, request.scopedVars),
+                    hostspec: getTemplateSrv().replace(hostspec!, request.scopedVars),
                 };
             });
     }
@@ -76,7 +77,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
     async query(request: DataQueryRequest<VectorQuery>): Promise<DataQueryResponse> {
         const queries = this.buildQueries(request);
         const result = queries.map(query => this.poller.query(query)).filter(result => !!result) as QueryResult[];
-        const data = processTargets(request, result);
+        const data = processTargets(request, result, 10);
         return { data };
     }
 

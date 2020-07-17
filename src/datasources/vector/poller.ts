@@ -27,7 +27,7 @@ export interface Metric {
 enum TargetState {
     /** newly entered target, no metric metadata available */
     PENDING,
-    /** metrics available */
+    /** metric metadata available */
     INITIALIZED,
 }
 
@@ -164,10 +164,6 @@ export class Poller {
                 },
                 values: [],
             };
-
-            if (metadata.indom) {
-                await this.refreshInstanceNames(endpoint, metric);
-            }
 
             target.metric = metric;
             target.state = TargetState.INITIALIZED;

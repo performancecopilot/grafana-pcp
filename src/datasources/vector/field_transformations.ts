@@ -1,5 +1,5 @@
 import { MutableDataFrame, MISSING_VALUE, FieldType } from '@grafana/data';
-import { MetricMetadata } from './pcp';
+import { MetricMetadata, Semantics } from './pcp';
 import { Dict, TargetFormat } from './types';
 
 function cloneFieldDefinitions(input: MutableDataFrame) {
@@ -58,7 +58,7 @@ export function applyTransformations(
     metadata: MetricMetadata,
     dataFrame: MutableDataFrame
 ) {
-    if (metadata.sem === 'counter') {
+    if (metadata.sem === Semantics.Counter) {
         dataFrame = rateConversion(dataFrame);
 
         if (targetFormat !== TargetFormat.Heatmap && metadata.units in PCP_TIME_UNITS) {
