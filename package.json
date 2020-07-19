@@ -20,10 +20,23 @@
     "@grafana/runtime": "^7.0.6",
     "@grafana/toolkit": "^7.0.6",
     "@grafana/ui": "^7.0.6",
+    "@types/enzyme": "^3.10.5",
+    "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/grafana": "github:CorpGlory/types-grafana",
+    "@types/jest": "^26.0.5",
     "@types/lodash": "^4.14.157",
+    "@types/react-autosuggest": "^9.3.14",
+    "@types/react-redux": "^7.1.9",
+    "@types/redux": "^3.6.0",
+    "@types/redux-persist": "^4.3.1",
+    "@types/redux-persist-transform-filter": "^0.0.4",
+    "@types/redux-thunk": "^2.1.0",
+    "babel-plugin-remove-object-properties": "^1.0.2",
     "benchmark": "^2.1.4",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
     "jest-date-mock": "^1.0.8",
+    "prettier": "^2.0.5",
     "worker-loader": "^2.0.0"
   },
   "engines": {
@@ -31,6 +44,13 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "d3-flame-graph": "^3.1.1"
+    "d3-flame-graph": "^3.1.1",
+    "emotion": "^10.0.27",
+    "lodash": "^4.17.19",
+    "react-autosuggest": "^10.0.2",
+    "react-redux": "^7.2.0",
+    "redux": "^4.0.5",
+    "redux-persist": "^6.0.0",
+    "redux-thunk": "^2.3.0"
   }
 }
