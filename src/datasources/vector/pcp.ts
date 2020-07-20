@@ -40,7 +40,7 @@ export interface InstanceDomain {
 
 export interface InstanceValue {
     instance: InstanceId | null;
-    value: number;
+    value: number | string;
 }
 
 export interface InstanceValuesSnapshot {

@@ -5,7 +5,7 @@ export type Dict<K extends string, T> = {
     [P in K]?: T;
 };
 
-export type DefaultBackendSrvRequestOptions = Omit<BackendSrvRequest, 'url'>;
+export type DefaultRequestOptions = Omit<BackendSrvRequest, 'url'>;
 
 export interface VectorOptions extends DataSourceJsonData {
     hostspec?: string;

@@ -2,7 +2,7 @@ import { BackendSrvRequest, getBackendSrv } from '@grafana/runtime';
 import { MetricMetadata, InstanceDomain, MetricName, Context, InstanceValue } from './pcp';
 import { has, defaults } from 'lodash';
 import { NetworkError } from './errors';
-import { DefaultBackendSrvRequestOptions } from './types';
+import { DefaultRequestOptions } from './types';
 
 interface MetricsResponse {
     metrics: MetricMetadata[];
@@ -45,10 +45,10 @@ export class PermissionError extends Error {
 }
 
 export class PmApi {
-    constructor(private defaultBackendSrvRequestOptions: DefaultBackendSrvRequestOptions) {}
+    constructor(private defaultRequestOptions: DefaultRequestOptions) {}
 
     async datasourceRequest(options: BackendSrvRequest) {
-        options = defaults(options, this.defaultBackendSrvRequestOptions);
+        options = defaults(options, this.defaultRequestOptions);
         try {
             return await getBackendSrv().datasourceRequest(options);
         } catch (error) {
