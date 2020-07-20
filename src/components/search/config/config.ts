@@ -3,7 +3,7 @@ const Config = Object.freeze({
     MAX_SEARCH_SHORTCUTS: 12,
     REQUEST_TIMEOUT: 2500,
     RESULTS_PER_PAGE: 8,
-    ALLOW_SEARCH_SUGGESTIONS: true,
+    ALLOW_SEARCH_SUGGESTIONS: false,
 });
 
 export default Config;
