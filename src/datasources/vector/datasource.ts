@@ -7,11 +7,12 @@ import {
     DefaultBackendSrvRequestOptions,
 } from './types';
 import { defaults } from 'lodash';
-import { isBlank, interval_to_ms } from './utils';
+import { isBlank, interval_to_ms, getDashboardRefreshInterval } from './utils';
 import { Poller, QueryResult } from './poller';
 import { PmApi } from './pmapi';
 import { processTargets } from './data_processor';
 import { getTemplateSrv } from '@grafana/runtime';
+import * as config from './config';
 
 interface DataSourceState {
     defaultBackendSrvRequestOptions: DefaultBackendSrvRequestOptions;
@@ -38,13 +39,14 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         }
 
         this.instanceSettings.jsonData = {
-            hostspec: this.instanceSettings.jsonData.hostspec || '127.0.0.1',
-            retentionTime: this.instanceSettings.jsonData.retentionTime || '10m',
+            hostspec: this.instanceSettings.jsonData.hostspec || config.defaults.hostspec,
+            retentionTime: this.instanceSettings.jsonData.retentionTime || config.defaults.retentionTime,
         };
         const retentionTimeMs = interval_to_ms(this.instanceSettings.jsonData.retentionTime!);
+        const refreshIntervalMs = getDashboardRefreshInterval() || 1000;
 
         const pmApi = new PmApi(this.state.defaultBackendSrvRequestOptions);
-        this.poller = new Poller(pmApi, retentionTimeMs);
+        this.poller = new Poller(pmApi, refreshIntervalMs, retentionTimeMs);
     }
 
     buildQueries(request: DataQueryRequest<VectorQuery>): VectorQueryWithEndpointInfo[] {
@@ -75,6 +77,11 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
     }
 
     async query(request: DataQueryRequest<VectorQuery>): Promise<DataQueryResponse> {
+        const refreshInterval = getDashboardRefreshInterval();
+        if (refreshInterval) {
+            this.poller.setRefreshInterval(refreshInterval);
+        }
+
         const queries = this.buildQueries(request);
         const result = queries.map(query => this.poller.query(query)).filter(result => !!result) as QueryResult[];
         const data = processTargets(request, result, 10);

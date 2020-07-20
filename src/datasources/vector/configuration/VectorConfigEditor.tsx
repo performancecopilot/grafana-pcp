@@ -3,6 +3,7 @@ import { DataSourceHttpSettings, EventsWithValidation, regexValidation, LegacyFo
 const { Input, FormField } = LegacyForms;
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { VectorOptions } from '../types';
+import * as config from '../config';
 
 export type Props = DataSourcePluginOptionsEditorProps<VectorOptions>;
 
@@ -40,17 +41,17 @@ export const VectorConfigEditor = (props: Props) => {
                     <div className="gf-form">
                         <FormField
                             label="Host specification"
-                            labelWidth={14}
-                            placeholder="127.0.0.1"
+                            labelWidth={12}
                             inputEl={
                                 <Input
-                                    className="width-6"
+                                    className="width-18"
                                     value={options.jsonData.hostspec}
                                     spellCheck={false}
+                                    placeholder={config.defaults.hostspec}
                                     onChange={onOptionsChangeHandler('hostspec')}
                                 />
                             }
-                            tooltip="PCP host specification. Defaults to 127.0.0.1."
+                            tooltip="Performance Co-Pilot host specification."
                         />
                     </div>
                 </div>
@@ -58,18 +59,18 @@ export const VectorConfigEditor = (props: Props) => {
                     <div className="gf-form">
                         <FormField
                             label="Metric values retention time"
-                            labelWidth={14}
-                            placeholder="10m"
+                            labelWidth={12}
                             inputEl={
                                 <Input
                                     className="width-6"
                                     value={options.jsonData.retentionTime}
                                     spellCheck={false}
+                                    placeholder={config.defaults.retentionTime}
                                     onChange={onOptionsChangeHandler('retentionTime')}
                                     validationEvents={timeSettingsValidationEvents}
                                 />
                             }
-                            tooltip="Retention time of the in-browser metric storage. Defaults to 10m."
+                            tooltip="Retention time of the in-browser metric storage."
                         />
                     </div>
                 </div>

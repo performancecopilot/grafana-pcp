@@ -81,8 +81,8 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
                         <InlineFormLabel
                             width={7}
                             tooltip="Controls the name of the time series, using name or pattern. For example
-                            ${instance} will be replaced with the instance name.
-                            Available variables: metric, metric0 and instance."
+                            $instance will be replaced with the instance name.
+                            Available variables: $metric, $metric0, $instance and $labelName."
                         >
                             Legend
                         </InlineFormLabel>

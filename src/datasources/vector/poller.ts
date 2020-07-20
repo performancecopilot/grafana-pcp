@@ -91,23 +91,36 @@ export interface QueryResult {
 
 interface PollerState {
     endpoints: Endpoint[];
+    refreshIntervalMs: number;
+    retentionTimeMs: number;
 }
 
 export class Poller {
-    MEDIAN_OVER_LAST_X_REQUESTS = 3;
-
     state: PollerState;
+    timer: NodeJS.Timeout;
     //timer: PollTimerWorker;
 
-    constructor(private pmApi: PmApi, private retentionTimeMs: number) {
+    constructor(private pmApi: PmApi, refreshIntervalMs: number, retentionTimeMs: number) {
         this.state = {
             endpoints: [],
+            refreshIntervalMs,
+            retentionTimeMs,
         };
 
         //this.timer = new PollTimerWorker();
         //this.timer.onmessage = this.poll.bind(this);
         //this.timer.postMessage({ interval: 1000 });
-        setInterval(this.poll.bind(this), 1000);
+        this.timer = setInterval(this.poll.bind(this), this.state.refreshIntervalMs);
+    }
+
+    setRefreshInterval(intervalMs: number) {
+        if (intervalMs === this.state.refreshIntervalMs) {
+            return;
+        }
+
+        clearInterval(this.timer);
+        this.state.refreshIntervalMs = intervalMs;
+        this.timer = setInterval(this.poll.bind(this), this.state.refreshIntervalMs);
     }
 
     async refreshInstanceNames(endpoint: Endpoint, metric: Metric) {
@@ -188,7 +201,11 @@ export class Poller {
 
     async pollEndpoint(endpoint: Endpoint) {
         if (endpoint.state === EndpointState.PENDING) {
-            endpoint.context = await this.pmApi.createContext(endpoint.url, endpoint.hostspec);
+            endpoint.context = await this.pmApi.createContext(
+                endpoint.url,
+                endpoint.hostspec,
+                Math.round(this.state.refreshIntervalMs / 1000) + 10
+            );
             endpoint.hasRedis = false; // TODO: check if redis is available
             endpoint.state = EndpointState.INITIALIZED;
         }
@@ -220,13 +237,17 @@ export class Poller {
         }
     }
 
-    async pollEndpointRecreateContext(endpoint: Endpoint) {
+    async pollEndpointAndHandleContextTimeout(endpoint: Endpoint) {
         try {
             await this.pollEndpoint(endpoint);
         } catch (error) {
             if (has(error, 'data.message') && error.data.message.includes('unknown context identifier')) {
                 console.log('context expired, requesting new');
-                endpoint.context = await this.pmApi.createContext(endpoint.url, endpoint.hostspec);
+                endpoint.context = await this.pmApi.createContext(
+                    endpoint.url,
+                    endpoint.hostspec,
+                    Math.round(this.state.refreshIntervalMs / 1000) + 10
+                );
                 await this.pollEndpoint(endpoint);
             } else {
                 throw error;
@@ -240,7 +261,7 @@ export class Poller {
         //console.log('poll', this.state);
         await Promise.all(
             this.state.endpoints.map(endpoint =>
-                this.pollEndpointRecreateContext(endpoint).catch(error => endpoint.errors.push(error))
+                this.pollEndpointAndHandleContextTimeout(endpoint).catch(error => endpoint.errors.push(error))
             )
         );
 
@@ -252,7 +273,7 @@ export class Poller {
     }
 
     cleanup() {
-        const keepExpiry = new Date().getTime() - this.retentionTimeMs;
+        const keepExpiry = new Date().getTime() - this.state.retentionTimeMs;
         for (const endpoint of this.state.endpoints) {
             for (const target of endpoint.targets) {
                 if (target.metric) {

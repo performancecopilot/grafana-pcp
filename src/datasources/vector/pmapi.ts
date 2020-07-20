@@ -56,10 +56,16 @@ export class PmApi {
         }
     }
 
-    async createContext(url: string, hostspec: string): Promise<Context> {
+    /**
+     * creates a new context
+     * @param url
+     * @param hostspec
+     * @param polltimeout context timeout in seconds
+     */
+    async createContext(url: string, hostspec: string, polltimeout = 30): Promise<Context> {
         const response = await this.datasourceRequest({
             url: `${url}/pmapi/context`,
-            params: { hostspec, polltimeout: 30 },
+            params: { hostspec, polltimeout },
         });
 
         if (!has(response.data, 'context')) {

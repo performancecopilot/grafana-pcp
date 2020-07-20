@@ -20,3 +20,8 @@ export function interval_to_ms(str: string) {
         return parseInt(str, 10) * 1000;
     }
 }
+
+export function getDashboardRefreshInterval() {
+    const interval = new URLSearchParams(window.location.search).get('refresh');
+    return interval ? interval_to_ms(interval) : undefined;
+}
