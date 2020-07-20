@@ -52,7 +52,7 @@ export class Series extends React.Component<SeriesProps, SeriesState> {
                 if (series.labels) {
                     return <Labels labels={series.labels} data-test="labels" />;
                 }
-                return <p>Doesn't have labels.</p>;
+                return <p>No labels available.</p>;
             }
             case SeriesTabOpt.Meta:
                 return <Meta meta={series.meta} data-test="meta" />;

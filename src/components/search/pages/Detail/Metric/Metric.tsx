@@ -76,7 +76,6 @@ export class MetricDetailPage extends React.Component<MetricDetailPageProps, {}>
     }
 
     onPreview() {
-        console.log('hello');
         const { metric } = this.props;
         const { data } = metric;
         // either no data or no series

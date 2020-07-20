@@ -13,7 +13,6 @@ import { timeout } from '../utils/utils';
 import Config from '../config/config';
 
 class PmSearchApiService {
-    private static requestId = 0;
     baseUrl: string;
     backendSrv: BackendSrv;
     headers = {
@@ -32,10 +31,6 @@ class PmSearchApiService {
         this.backendSrv = backendSrv;
     }
 
-    getRequestId() {
-        return (PmSearchApiService.requestId++).toString();
-    }
-
     static isNoRecordResponse(response: SearchMaybeResponse) {
         if (
             typeof response === 'object' &&
@@ -48,7 +43,7 @@ class PmSearchApiService {
     }
 
     async autocomplete(params: AutocompleteQueryParams): Promise<AutocompleteResponse> {
-        const { headers, getRequestId, baseUrl, backendSrv } = this;
+        const { headers, baseUrl, backendSrv } = this;
         const getParams = new URLSearchParams();
         getParams.append('query', params.query);
         if (params.limit !== undefined) {
@@ -58,7 +53,6 @@ class PmSearchApiService {
             url: `${baseUrl}/search/suggest?${getParams.toString()}`,
             methods: 'GET',
             showSuccessAlert: false,
-            requestId: getRequestId(),
             headers,
         };
         try {
@@ -70,7 +64,7 @@ class PmSearchApiService {
     }
 
     async text(params: TextQueryParams): Promise<TextResponse | null> {
-        const { headers, getRequestId, baseUrl, backendSrv } = this;
+        const { headers, baseUrl, backendSrv } = this;
         const getParams = new URLSearchParams();
         getParams.append('query', params.query);
         if (params.highlight !== undefined) {
@@ -95,7 +89,6 @@ class PmSearchApiService {
             url: `${baseUrl}/search/text?${getParams.toString()}`,
             methods: 'GET',
             showSuccessAlert: false,
-            requestId: getRequestId(),
             headers,
         };
         try {
@@ -107,14 +100,14 @@ class PmSearchApiService {
                     elapsed: 0,
                     total: 0,
                     results: [],
-                    limit: params.limit ? params.limit : 0,
-                    offset: params.offset ? params.offset : 0,
+                    limit: params.limit ?? 0,
+                    offset: params.offset ?? 0,
                 };
             }
             return {
                 ...(response as Exclude<TextResponse, SearchNoRecordResponse>),
-                limit: params.limit ? params.limit : 0,
-                offset: params.offset ? params.offset : 0,
+                limit: params.limit ?? 0,
+                offset: params.offset ?? 0,
             };
         } catch {
             // monkey patch since API just returns { success: "true" }

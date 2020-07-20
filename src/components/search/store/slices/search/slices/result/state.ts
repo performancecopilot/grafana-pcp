@@ -6,6 +6,6 @@ export interface ResultData {
 
 export type ResultDataState = ResultData & TrackableStatus;
 
-export type ResultState = ResultDataState | null;
+export type ResultState = ResultDataState;
 
 export const initialState: ResultState = { status: FetchStatus.INIT, data: null };

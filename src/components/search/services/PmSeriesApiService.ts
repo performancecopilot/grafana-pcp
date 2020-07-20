@@ -20,7 +20,6 @@ import { timeout } from '../utils/utils';
 import Config from '../config/config';
 
 class PmSeriesApiService {
-    private static requestId = 0;
     baseUrl: string;
     backendSrv: BackendSrv;
     headers = {
@@ -39,10 +38,6 @@ class PmSeriesApiService {
         this.backendSrv = backendSrv;
     }
 
-    getRequestId() {
-        return (PmSeriesApiService.requestId++).toString();
-    }
-
     static isNoRecordResponse(response: SeriesMaybeResponse) {
         if (
             typeof response === 'object' &&
@@ -55,7 +50,7 @@ class PmSeriesApiService {
     }
 
     async descs(params: SeriesDescQueryParams): Promise<SeriesDescResponse> {
-        const { baseUrl, getRequestId, headers, backendSrv } = this;
+        const { baseUrl, headers, backendSrv } = this;
         const getParams = new URLSearchParams();
         getParams.append('series', params.series.join(','));
         if (getParams.get('series')?.length === 0) {
@@ -68,7 +63,6 @@ class PmSeriesApiService {
             url: `${baseUrl}/series/descs?${getParams.toString()}`,
             methods: 'GET',
             showSuccessAlert: false,
-            requestId: getRequestId(),
             headers,
         };
         try {
@@ -86,7 +80,7 @@ class PmSeriesApiService {
     }
 
     async query(params: SeriesQueryQueryParams): Promise<SeriesQueryResponse> {
-        const { baseUrl, getRequestId, headers, backendSrv } = this;
+        const { baseUrl, headers, backendSrv } = this;
         const getParams = new URLSearchParams();
         getParams.append('expr', params.expr);
         if (params.client !== undefined) {
@@ -96,7 +90,6 @@ class PmSeriesApiService {
             url: `${baseUrl}/series/query?${getParams.toString()}`,
             methods: 'GET',
             showSuccessAlert: false,
-            requestId: getRequestId(),
             headers,
         };
         try {
@@ -114,7 +107,7 @@ class PmSeriesApiService {
     }
 
     async metrics(params: SeriesMetricsQueryParams): Promise<SeriesMetricsResponse> {
-        const { baseUrl, getRequestId, headers, backendSrv } = this;
+        const { baseUrl, headers, backendSrv } = this;
         const getParams = new URLSearchParams();
         if (params.series !== undefined) {
             getParams.append('series', params.series.join(','));
@@ -129,7 +122,6 @@ class PmSeriesApiService {
             url: `${baseUrl}/series/metrics?${getParams.toString()}`,
             methods: 'GET',
             showSuccessAlert: false,
-            requestId: getRequestId(),
             headers,
         };
         try {
@@ -147,7 +139,7 @@ class PmSeriesApiService {
     }
 
     async labels(params: SeriesLabelsQueryParams): Promise<SeriesLabelsResponse> {
-        const { baseUrl, getRequestId, headers, backendSrv } = this;
+        const { baseUrl, headers, backendSrv } = this;
         const getParams = new URLSearchParams();
         if (params.series !== undefined) {
             getParams.append('series', params.series.join(','));
@@ -168,7 +160,6 @@ class PmSeriesApiService {
             url: `${baseUrl}/series/labels?${getParams.toString()}`,
             methods: 'GET',
             showSuccessAlert: false,
-            requestId: getRequestId(),
             headers,
         };
         try {

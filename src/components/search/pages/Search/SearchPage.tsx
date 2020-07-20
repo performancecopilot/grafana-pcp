@@ -103,11 +103,13 @@ export class SearchPage extends React.Component<SearchPageProps, {}> {
             renderSearchElapsedTime,
         } = this;
         const { result, query } = props;
-        if (!result) {
-            return <p>No result data.</p>;
-        }
         const { data, status } = result;
         switch (status) {
+            case FetchStatus.INIT: {
+                if (!data) {
+                    <p>Enter query.</p>;
+                }
+            }
             case FetchStatus.PENDING:
                 if (!data) {
                     return <p>Searching&hellip;</p>;
