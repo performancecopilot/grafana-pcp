@@ -1,8 +1,15 @@
 # Change Log
 
-## 2.0.3 (unreleased)
+## 3.0.0 (unreleased)
 
-- **build**: update dependencies
+### New features
+- **vector**: set background metric poll interval according to current dashboard refresh interval
+- **vector**: automatically configure the unit of the panel
+- **vector**: configurable hostspec (access remote PMCDs through a central pmproxy)
+- **vector**: access context, metric, instancedomain and instance labels
+
+### Enhancements / Bug Fixes
+- **build**: convert dashboards to jsonnet/grafonnet
 
 ## 2.0.2 (2020-02-25)
 
