@@ -88,12 +88,12 @@
         {
             "type": "dashboard",
             "name": "Graph Entity Preview",
-            "path": "components/search/dashboards/fulltext-graph-preview.json"
+            "path": "dashboards/fulltext-graph-preview.json"
         },
         {
             "type": "dashboard",
             "name": "Table Entity Preview",
-            "path": "components/search/dashboards/fulltext-table-preview.json"
+            "path": "dashboards/fulltext-table-preview.json"
         }
     ],
     "dependencies": {
