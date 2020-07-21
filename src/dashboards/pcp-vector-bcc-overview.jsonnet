@@ -34,7 +34,7 @@ grafana.dashboard.new(
     )
     .addTargets([
       { expr: 'bcc.runq.latency', format: 'heatmap' },
-    ]) + {height: 360}
+    ]) + {height: '360px'}
   )
   .addPanel(
     grafana.heatmapPanel.new(
@@ -49,7 +49,7 @@ grafana.dashboard.new(
     )
     .addTargets([
       { expr: 'bcc.disk.all.latency', format: 'heatmap' },
-    ]) + {height: 360}
+    ]) + {height: '360px'}
   )
   .addPanel(
     grafana.tablePanel.new(

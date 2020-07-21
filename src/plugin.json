@@ -66,8 +66,13 @@
         },
         {
             "type": "dashboard",
-            "name": "PCP Vector Container Overview",
-            "path": "dashboards/pcp-vector-container-overview.json"
+            "name": "PCP Vector Container Overview (CGroups v1)",
+            "path": "dashboards/pcp-vector-container-overview-cgroups1.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector Container Overview (CGroups v2)",
+            "path": "dashboards/pcp-vector-container-overview-cgroups2.json"
         },
         {
             "type": "dashboard",
