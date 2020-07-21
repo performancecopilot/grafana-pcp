@@ -5,7 +5,7 @@ import Autosuggest, {
     SuggestionSelectedEventData,
     Theme,
 } from 'react-autosuggest';
-import { VerticalGroup, Button, HorizontalGroup, Checkbox, withTheme, Themeable } from '@grafana/ui';
+import { VerticalGroup, Button, HorizontalGroup, Checkbox, withTheme, Themeable, Icon } from '@grafana/ui';
 import { connect } from 'react-redux';
 
 import { ThunkDispatch } from 'redux-thunk';
@@ -29,6 +29,8 @@ import {
     autosuggestSectionContainer,
     autosuggestSectionContainerFirst,
     autosuggestSectionTitle,
+    autosuggestWrapper,
+    autosuggestIcon,
 } from './styles';
 import { RootState } from '../../store/reducer';
 import withServices, { WithServicesProps } from '../../components/withServices/withServices';
@@ -207,6 +209,7 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
             onInputChange,
             state,
             autosuggestTheme,
+            props,
         } = this;
         const { suggestions, query } = state;
         const searchInputProps = {
@@ -216,19 +219,24 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
             'data-test': 'text-input',
         };
         return (
-            <Autosuggest
-                theme={autosuggestTheme}
-                suggestions={suggestions}
-                onSuggestionsFetchRequested={onSuggestionsFetchRequested}
-                onSuggestionsClearRequested={onSuggestionsClearRequested}
-                onSuggestionSelected={onSuggestionSelected}
-                getSuggestionValue={getSuggestionValue}
-                renderSuggestion={renderSuggestion}
-                // Actually disables suggestions completely
-                shouldRenderSuggestions={allowSuggestions}
-                inputProps={searchInputProps}
-                data-test="query-input"
-            ></Autosuggest>
+            <div className={autosuggestWrapper}>
+                <div className={autosuggestIcon(props.theme)}>
+                    <Icon name="search" />
+                </div>
+                <Autosuggest
+                    theme={autosuggestTheme}
+                    suggestions={suggestions}
+                    onSuggestionsFetchRequested={onSuggestionsFetchRequested}
+                    onSuggestionsClearRequested={onSuggestionsClearRequested}
+                    onSuggestionSelected={onSuggestionSelected}
+                    getSuggestionValue={getSuggestionValue}
+                    renderSuggestion={renderSuggestion}
+                    // Actually disables suggestions completely
+                    shouldRenderSuggestions={allowSuggestions}
+                    inputProps={searchInputProps}
+                    data-test="query-input"
+                ></Autosuggest>
+            </div>
         );
     }
 
