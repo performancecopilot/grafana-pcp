@@ -84,7 +84,6 @@ export class MetricDetailPage extends React.Component<MetricDetailPageProps, {}>
         }
         // assume that all series have same type of value
         const { meta } = data.series[0];
-        console.log(data, meta);
         switch (meta.type) {
             case 'string':
                 this.props.onPreview({ id: data.name, type: 'table' });
