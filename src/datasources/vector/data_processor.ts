@@ -3,10 +3,10 @@ import {
     MutableDataFrame,
     FieldType,
     MutableField,
-    DataQueryResponseData,
     Labels as GrafanaLabels,
     Field,
     MISSING_VALUE,
+    DataFrame,
 } from '@grafana/data';
 import { VectorQuery, TargetFormat, Dict } from './types';
 import { Metric, QueryResult } from './poller';
@@ -284,7 +284,7 @@ export function processTargets(
     request: DataQueryRequest<VectorQuery>,
     results: QueryResult[],
     sampleIntervalSec: number
-): DataQueryResponseData[] {
+): DataFrame[] {
     if (results.length === 0) {
         return [];
     }
@@ -295,23 +295,27 @@ export function processTargets(
     }
 
     if (format === TargetFormat.TimeSeries) {
-        return results.map(result => {
-            const dataFrame = applyTransformations(
-                format,
-                result.target.metric.metadata,
-                toDataFrame(request, result, sampleIntervalSec)
-            );
-            return toTimeSeries(request, result, dataFrame);
-        });
+        return results
+            .map(result => {
+                const dataFrame = applyTransformations(
+                    format,
+                    result.target.metric.metadata,
+                    toDataFrame(request, result, sampleIntervalSec)
+                );
+                return toTimeSeries(request, result, dataFrame);
+            })
+            .filter(dataFrame => dataFrame.fields.length > 1);
     } else if (format === TargetFormat.Heatmap) {
-        return results.map(result => {
-            const dataFrame = applyTransformations(
-                format,
-                result.target.metric.metadata,
-                toDataFrame(request, result, sampleIntervalSec)
-            );
-            return toHeatMap(request, result, dataFrame);
-        });
+        return results
+            .map(result => {
+                const dataFrame = applyTransformations(
+                    format,
+                    result.target.metric.metadata,
+                    toDataFrame(request, result, sampleIntervalSec)
+                );
+                return toHeatMap(request, result, dataFrame);
+            })
+            .filter(dataFrame => dataFrame.fields.length > 1);
     } else if (format === TargetFormat.MetricsTable) {
         const dataFrameAndResults = results.map(result => ({
             result,
