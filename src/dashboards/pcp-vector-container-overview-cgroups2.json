@@ -96,7 +96,7 @@
                "format": "percentunit",
                "label": null,
                "logBase": 1,
-               "max": 1,
+               "max": null,
                "min": 0,
                "show": true
             },
@@ -104,7 +104,7 @@
                "format": "percentunit",
                "label": null,
                "logBase": 1,
-               "max": 1,
+               "max": null,
                "min": 0,
                "show": true
             }

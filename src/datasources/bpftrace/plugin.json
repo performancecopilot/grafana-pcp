@@ -1,6 +1,6 @@
 {
-    "name": "PCP bpftrace (Legacy)",
-    "id": "pcp-bpftrace-datasource-legacy",
+    "name": "PCP bpftrace",
+    "id": "pcp-bpftrace-datasource",
     "type": "datasource",
     "category": "other",
     "metrics": true,

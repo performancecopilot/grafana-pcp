@@ -18,28 +18,22 @@ interface FetchResponse {
     values: MetricInstanceValues[];
 }
 
-export class MetricsNotFoundError extends Error {
-    readonly metrics: string[];
-    constructor(metrics: string[], message?: string) {
-        const s = metrics.length !== 1 ? 's' : '';
-        if (!message) {
-            message = `Cannot find metric${s} ${metrics.join(', ')}. Please check if the PMDA is enabled.`;
-        }
-        super(message);
-        this.metrics = metrics;
-        Object.setPrototypeOf(this, MetricsNotFoundError.prototype);
+interface StoreResponse {
+    success: boolean;
+}
+
+export class MetricNotFoundError extends Error {
+    constructor(readonly metric: string, message?: string) {
+        super(message ?? `Cannot find metric ${metric}. Please check if the PMDA is enabled.`);
+        this.metric = metric;
+        Object.setPrototypeOf(this, MetricNotFoundError.prototype);
     }
 }
 
 export class PermissionError extends Error {
-    readonly metrics: string[];
-    constructor(metrics: string[], message?: string) {
-        const s = metrics.length !== 1 ? 's' : '';
-        if (!message) {
-            message = `Insufficient permissions to store metric${s} ${metrics.join(', ')}.`;
-        }
-        super(message);
-        this.metrics = metrics;
+    constructor(readonly metric: string, message?: string) {
+        super(message ?? `Insufficient permissions to store metric ${metric}. Please check the PMDA configuration.`);
+        this.metric = metric;
         Object.setPrototypeOf(this, PermissionError.prototype);
     }
 }
@@ -120,5 +114,29 @@ export class PmApi {
             throw new NetworkError('Received malformed response');
         }
         return response.data;
+    }
+
+    async storeMetricValue(url: string, ctxid: number | null, name: string, value: string): Promise<StoreResponse> {
+        const ctxPath = ctxid == null ? '' : `/${ctxid}`;
+        try {
+            const response = await this.datasourceRequest({
+                url: `${url}/pmapi${ctxPath}/store`,
+                params: { name, value },
+            });
+            return response.data;
+        } catch (error) {
+            if (has(error, 'data.message') && error.data.message.includes('failed to lookup metric')) {
+                throw new MetricNotFoundError(name);
+            } else if (
+                has(error, 'data.message') &&
+                error.data.message.includes('No permission to perform requested operation')
+            ) {
+                throw new PermissionError(name);
+            } else if (has(error, 'data.message') && error.data.message.includes('Bad input')) {
+                return { success: false };
+            } else {
+                throw error;
+            }
+        }
     }
 }

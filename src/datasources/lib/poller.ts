@@ -5,11 +5,11 @@
  * All metric related requests happen in the background, to use the same PCP Context and fetch multiple metrics at once
  */
 
-import { MetricMetadata, Context, Instance, InstanceValuesSnapshot, Expr, Labels } from './pcp';
-import { VectorQueryWithEndpointInfo } from './types';
-// import PollTimerWorker from './timer.worker'
-import { PmApi, MetricsNotFoundError } from './pmapi';
-import { difference, has } from 'lodash';
+import { MetricMetadata, Context, Instance, InstanceValuesSnapshot, Labels } from './pcp';
+import { CompletePmapiQuery } from './types';
+import { PmApi, MetricNotFoundError } from './pmapi';
+import { difference, has, remove, uniq } from 'lodash';
+import * as config from '../vector/config';
 
 /**
  * Represents a PCP Metric including metadata, instance names and values
@@ -25,44 +25,40 @@ export interface Metric {
 }
 
 enum TargetState {
-    /** newly entered target, no metric metadata available */
+    /** newly entered target */
     PENDING,
-    /** metric metadata available */
-    INITIALIZED,
+    /** metrics exists and metadata available */
+    METRICS_AVAILABLE,
+    /** fatal error, won't try again */
+    ERROR,
 }
 
 /**
  * Represents a target of a Grafana panel, which will be polled in the background
  * Collects possible errors (e.g. MetricNotFoundError) which occured while polling in the background
  */
-interface Target {
+export interface Target {
     state: TargetState;
-
-    /** expression, as entered by the user */
-    expr: string;
-
+    query: CompletePmapiQuery;
+    /** valid PCP metric names (can be a derived metric, e.g. derived_xxx) */
+    metricNames: string[];
     errors: any[];
     lastActiveMs: number;
+    custom: any;
 }
 
-export interface VectorTarget extends Target {
-    /** a valid PCP metric name (can be a derived metric, e.g. derived_xxx) */
-    metricName?: string;
-    /** metric data, will be created at next poll */
-    metric?: Metric;
+export interface VectorTarget {
     isDerivedMetric?: boolean;
 }
 
-/*
-interface BPFtraceTarget extends Target {
-    metrics: Metric[];
+/*interface BPFtraceTarget extends Target {
 }*/
 
 enum EndpointState {
     /** new entered endpoint, no context available */
     PENDING,
     /** context available */
-    INITIALIZED,
+    CONNECTED,
 }
 
 /**
@@ -74,7 +70,8 @@ export interface Endpoint {
     state: EndpointState;
     url: string;
     hostspec: string;
-    targets: VectorTarget[];
+    metrics: Metric[];
+    targets: Target[];
     errors: any[];
 
     /** context, will be created at next poll */
@@ -84,43 +81,50 @@ export interface Endpoint {
 }
 
 export interface QueryResult {
-    query: VectorQueryWithEndpointInfo;
     endpoint: Required<Endpoint>;
-    target: Required<VectorTarget>;
+    target: Target;
+    metrics: Metric[];
 }
 
 interface PollerState {
     endpoints: Endpoint[];
-    refreshIntervalMs: number;
-    retentionTimeMs: number;
 }
+
+type RegisterTargetHandler = (target: Target) => Promise<void>;
+type RedisBackfill = (endpoint: Endpoint, targets: Target[]) => Promise<void>;
 
 export class Poller {
     state: PollerState;
+    pageIsVisible: boolean;
     timer: NodeJS.Timeout;
-    //timer: PollTimerWorker;
 
-    constructor(private pmApi: PmApi, refreshIntervalMs: number, retentionTimeMs: number) {
+    constructor(
+        private pmApi: PmApi,
+        private refreshIntervalMs: number,
+        private retentionTimeMs: number,
+        private registerTargetHandler: RegisterTargetHandler,
+        private redisBackfill?: RedisBackfill
+    ) {
+        this.pageIsVisible = true;
         this.state = {
             endpoints: [],
-            refreshIntervalMs,
-            retentionTimeMs,
         };
 
-        //this.timer = new PollTimerWorker();
-        //this.timer.onmessage = this.poll.bind(this);
-        //this.timer.postMessage({ interval: 1000 });
-        this.timer = setInterval(this.poll.bind(this), this.state.refreshIntervalMs);
+        this.timer = setInterval(this.poll.bind(this), this.refreshIntervalMs);
     }
 
     setRefreshInterval(intervalMs: number) {
-        if (intervalMs === this.state.refreshIntervalMs) {
+        if (intervalMs === this.refreshIntervalMs) {
             return;
         }
 
         clearInterval(this.timer);
-        this.state.refreshIntervalMs = intervalMs;
-        this.timer = setInterval(this.poll.bind(this), this.state.refreshIntervalMs);
+        this.refreshIntervalMs = intervalMs;
+        this.timer = setInterval(this.poll.bind(this), this.refreshIntervalMs);
+    }
+
+    setPageVisibility(visible: boolean) {
+        this.pageIsVisible = visible;
     }
 
     async refreshInstanceNames(endpoint: Endpoint, metric: Metric) {
@@ -135,40 +139,41 @@ export class Poller {
         }
     }
 
-    isDerivedMetric(expr: Expr) {
-        // TODO
-        return false;
+    /**
+     * set the target's state to TargetState.METRICS_AVAILABLE if all metrics are available
+     */
+    updateTargetStates(endpoint: Endpoint, targets: Target[]) {
+        const allMetricNames = endpoint.metrics.map(metric => metric.metadata.name);
+        for (const target of targets) {
+            if (target.metricNames.length > 0 && difference(target.metricNames, allMetricNames).length === 0) {
+                target.state = TargetState.METRICS_AVAILABLE;
+            }
+        }
     }
 
-    async backfillWithRedis(targets: VectorTarget[]) {
-        // TODO: store metric values from redis (if available) in Metric#values
-    }
-
-    async initializePendingTargets(endpoint: Endpoint) {
-        const pendingTargets = endpoint.targets.filter(target => target.state === TargetState.PENDING);
+    async initializePendingTargets(endpoint: Required<Endpoint>) {
+        let pendingTargets = endpoint.targets.filter(target => target.state === TargetState.PENDING);
         if (pendingTargets.length === 0) {
             return;
         }
 
-        for (const target of pendingTargets) {
-            if (this.isDerivedMetric(target.expr)) {
-                // TOOD: register derived metric
-                target.isDerivedMetric = true;
-            } else {
-                target.metricName = target.expr;
-                target.isDerivedMetric = false;
-            }
+        await Promise.all(
+            pendingTargets.map(target => this.registerTargetHandler(target).catch(error => target.errors.push(error)))
+        );
+        this.updateTargetStates(endpoint, pendingTargets);
+
+        pendingTargets = endpoint.targets.filter(target => target.state === TargetState.PENDING);
+        if (pendingTargets.length === 0) {
+            return;
         }
 
-        const pendingMetricNames = pendingTargets.map(target => target.metricName!);
+        const pendingMetricNames = uniq(pendingTargets.flatMap(target => target.metricNames));
         const metadataResponse = await this.pmApi.getMetricMetadata(
             endpoint.url,
-            endpoint.context!.context,
+            endpoint.context.context,
             pendingMetricNames
         );
         for (const metadata of metadataResponse.metrics) {
-            const target = pendingTargets.find(target => target.metricName === metadata.name)!;
-
             let metric: Metric = {
                 metadata,
                 instanceDomain: {
@@ -177,10 +182,9 @@ export class Poller {
                 },
                 values: [],
             };
-
-            target.metric = metric;
-            target.state = TargetState.INITIALIZED;
+            endpoint.metrics.push(metric);
         }
+        this.updateTargetStates(endpoint, pendingTargets);
 
         const missingMetrics = difference(
             pendingMetricNames,
@@ -189,14 +193,19 @@ export class Poller {
         if (missingMetrics.length > 0) {
             for (const missingMetric of missingMetrics) {
                 pendingTargets
-                    .find(target => target.metricName === missingMetric)!
-                    .errors.push(new MetricsNotFoundError(missingMetrics));
+                    .filter(target => target.metricNames.includes(missingMetric))
+                    .forEach(target => target.errors.push(new MetricNotFoundError(missingMetric)));
             }
         }
 
-        if (endpoint.hasRedis) {
-            await this.backfillWithRedis(pendingTargets);
+        if (endpoint.hasRedis && this.redisBackfill) {
+            await this.redisBackfill(endpoint, pendingTargets);
         }
+    }
+
+    async endpointHasRedis(endpoint: Endpoint): Promise<boolean> {
+        // TODO: check if redis is available
+        return false;
     }
 
     async pollEndpoint(endpoint: Endpoint) {
@@ -204,18 +213,25 @@ export class Poller {
             endpoint.context = await this.pmApi.createContext(
                 endpoint.url,
                 endpoint.hostspec,
-                Math.round(this.state.refreshIntervalMs / 1000) + 10
+                Math.round((this.refreshIntervalMs + config.gracePeriodMs) / 1000)
             );
-            endpoint.hasRedis = false; // TODO: check if redis is available
-            endpoint.state = EndpointState.INITIALIZED;
+            endpoint.hasRedis = this.redisBackfill && (await this.endpointHasRedis(endpoint));
+            endpoint.state = EndpointState.CONNECTED;
         }
 
-        await this.initializePendingTargets(endpoint);
-        let metricsToPoll = endpoint.targets.map(target => target.metricName!);
+        await this.initializePendingTargets(endpoint as Required<Endpoint>);
+        let metricsToPoll = uniq(
+            endpoint.targets
+                .filter(target => target.state === TargetState.METRICS_AVAILABLE)
+                .flatMap(target => target.metricNames)
+        );
+        if (metricsToPoll.length === 0) {
+            return;
+        }
 
         const valuesResponse = await this.pmApi.getMetricValues(endpoint.url, endpoint.context!.context, metricsToPoll);
         for (const metricInstanceValues of valuesResponse.values) {
-            const metric = endpoint.targets.find(target => target.metricName === metricInstanceValues.name)!.metric!;
+            const metric = endpoint.metrics.find(metric => metric.metadata.name === metricInstanceValues.name)!;
 
             if (metric.metadata.indom) {
                 let needRefresh = false;
@@ -246,7 +262,7 @@ export class Poller {
                 endpoint.context = await this.pmApi.createContext(
                     endpoint.url,
                     endpoint.hostspec,
-                    Math.round(this.state.refreshIntervalMs / 1000) + 10
+                    Math.round((this.refreshIntervalMs + config.gracePeriodMs) / 1000)
                 );
                 await this.pollEndpoint(endpoint);
             } else {
@@ -256,29 +272,34 @@ export class Poller {
     }
 
     async poll() {
-        this.cleanup();
+        this.cleanInactiveTargets();
+        this.cleanHistoryData();
 
-        //console.log('poll', this.state);
         await Promise.all(
             this.state.endpoints.map(endpoint =>
                 this.pollEndpointAndHandleContextTimeout(endpoint).catch(error => endpoint.errors.push(error))
             )
         );
-
-        /*const deltas = this.state.endpoints.flatMap(ep => Object.values(ep.activeMetrics)).flatMap(am => am.deltas);
-        if (deltas.length > 0) {
-            const medianRequestTime = this.getMedian(deltas);
-            this.timer.postMessage({ interval: medianRequestTime });
-        }*/
     }
 
-    cleanup() {
-        const keepExpiry = new Date().getTime() - this.state.retentionTimeMs;
+    cleanInactiveTargets() {
+        if (!this.pageIsVisible) {
+            // Grafana stops polling the datasource if the page is in the background
+            // therefore do not clean inactive targets in this case
+            return;
+        }
+
+        const keepPolling = new Date().getTime() - (this.refreshIntervalMs + config.gracePeriodMs);
         for (const endpoint of this.state.endpoints) {
-            for (const target of endpoint.targets) {
-                if (target.metric) {
-                    target.metric.values = target.metric.values.filter(snapshot => snapshot.timestampMs > keepExpiry);
-                }
+            endpoint.targets = endpoint.targets.filter(target => target.lastActiveMs > keepPolling);
+        }
+    }
+
+    cleanHistoryData() {
+        const keepExpiry = new Date().getTime() - this.retentionTimeMs;
+        for (const endpoint of this.state.endpoints) {
+            for (const metric of endpoint.metrics) {
+                metric.values = metric.values.filter(snapshot => snapshot.timestampMs > keepExpiry);
             }
         }
     }
@@ -296,32 +317,48 @@ export class Poller {
      * do *not* create a context here, or fetch any metric
      * otherwise the initial load of a dashboard creates lots of duplicate contexts
      */
-    query(query: VectorQueryWithEndpointInfo): QueryResult | null {
+    query(query: CompletePmapiQuery): QueryResult | null {
         let endpoint = this.state.endpoints.find(ep => ep.url === query.url && ep.hostspec === query.hostspec);
         if (!endpoint) {
             endpoint = {
                 state: EndpointState.PENDING,
                 url: query.url,
                 hostspec: query.hostspec,
-                errors: [],
+                metrics: [],
                 targets: [],
+                errors: [],
             };
             this.state.endpoints.push(endpoint);
         }
         this.throwBackgroundError(endpoint);
 
         const nowMs = new Date().getTime();
-        let target = endpoint.targets.find(target => target.expr === query.expr);
-        if (target) {
+        let target = endpoint.targets.find(target => target.query.targetId === query.targetId);
+
+        if (target && target.query.expr === query.expr) {
+            // unchanged target
             target.lastActiveMs = nowMs;
         } else {
-            target = { state: TargetState.PENDING, expr: query.expr, lastActiveMs: nowMs, errors: [] };
+            if (target) {
+                // target exists but expr changes -> remove from list & create a new target
+                remove(endpoint.targets, t => t === target);
+            }
+
+            target = {
+                state: TargetState.PENDING,
+                query,
+                metricNames: [],
+                lastActiveMs: nowMs,
+                errors: [],
+                custom: {},
+            };
             endpoint.targets.push(target);
         }
         this.throwBackgroundError(target);
 
-        if (target.state === TargetState.INITIALIZED) {
-            return { query, endpoint, target } as QueryResult;
+        if (target.state === TargetState.METRICS_AVAILABLE) {
+            const metrics = endpoint.metrics.filter(metric => target?.metricNames.includes(metric.metadata.name));
+            return { query, endpoint, target, metrics } as QueryResult;
         }
         return null;
     }

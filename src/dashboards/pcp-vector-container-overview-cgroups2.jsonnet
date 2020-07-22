@@ -46,7 +46,6 @@ grafana.dashboard.new(
     datasource='$datasource',
     format='percentunit',
     min=0,
-    max=1,
     legend_show=false,
     repeat='container',
   )

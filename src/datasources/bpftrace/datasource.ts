@@ -8,24 +8,25 @@ import {
 import { DefaultRequestOptions, CompletePmapiQuery } from '../lib/types';
 import { defaults } from 'lodash';
 import { isBlank, interval_to_ms, getDashboardRefreshInterval } from '../lib/utils';
-import { Poller, QueryResult, Target, Endpoint } from '../lib/poller';
+import { Poller, QueryResult, Target } from '../lib/poller';
 import { PmApi } from '../lib/pmapi';
 import { processTargets } from '../lib/data_processor';
 import { getTemplateSrv } from '@grafana/runtime';
 import * as config from './config';
-import { Expr } from '../lib/pcp';
-import { VectorQuery, VectorOptions, defaultVectorQuery } from './types';
+import { BPFtraceQuery, BPFtraceOptions, defaultBPFtraceQuery } from './types';
+import { ScriptManager } from './script_manager';
 
 interface DataSourceState {
     defaultRequestOptions: DefaultRequestOptions;
     pmApi: PmApi;
     poller: Poller;
+    scriptManager: ScriptManager;
 }
 
-export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
+export class DataSource extends DataSourceApi<BPFtraceQuery, BPFtraceOptions> {
     state: DataSourceState;
 
-    constructor(readonly instanceSettings: DataSourceInstanceSettings<VectorOptions>) {
+    constructor(readonly instanceSettings: DataSourceInstanceSettings<BPFtraceOptions>) {
         super(instanceSettings);
 
         this.instanceSettings.jsonData = defaults(this.instanceSettings.jsonData, {
@@ -49,18 +50,14 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         const refreshIntervalMs = getDashboardRefreshInterval() || 1000;
 
         const pmApi = new PmApi(defaultRequestOptions);
-        const poller = new Poller(
-            pmApi,
-            refreshIntervalMs,
-            retentionTimeMs,
-            this.registerTarget.bind(this),
-            this.backfillWithRedis.bind(this)
-        );
+        const poller = new Poller(pmApi, refreshIntervalMs, retentionTimeMs, this.registerTarget.bind(this));
+        const scriptManager = new ScriptManager(pmApi);
 
         this.state = {
             defaultRequestOptions,
-            pmApi: pmApi,
-            poller: poller,
+            pmApi,
+            poller,
+            scriptManager,
         };
 
         document.addEventListener('visibilitychange', () => {
@@ -68,23 +65,8 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         });
     }
 
-    isDerivedMetric(expr: Expr) {
-        // TODO
-        return false;
-    }
-
     async registerTarget(target: Target) {
-        if (this.isDerivedMetric(target.query.expr)) {
-            target.metricNames = ['derived_XXX']; // TOOD: register derived metric
-            target.custom.isDerivedMetric = true;
-        } else {
-            target.metricNames = [target.query.expr];
-            target.custom.isDerivedMetric = false;
-        }
-    }
-
-    async backfillWithRedis(endpoint: Endpoint, targets: Target[]) {
-        // TODO: store metric values from redis (if available) in Metric#values
+        await this.state.scriptManager.register(target.query.url, target.query.hostspec, target.query.expr);
     }
 
     async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
@@ -93,9 +75,9 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         return metricValues.values[0].instances.map(instance => ({ text: instance.value.toString() }));
     }
 
-    buildQueries(request: DataQueryRequest<VectorQuery>): Array<CompletePmapiQuery<VectorQuery>> {
+    buildQueries(request: DataQueryRequest<BPFtraceQuery>): Array<CompletePmapiQuery<BPFtraceQuery>> {
         return request.targets
-            .map(target => defaults(target, defaultVectorQuery))
+            .map(target => defaults(target, defaultBPFtraceQuery))
             .filter(target => !target.hide && !isBlank(target.expr))
             .map(target => {
                 const url = target.url ?? this.instanceSettings.url;
@@ -121,14 +103,14 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             });
     }
 
-    async query(request: DataQueryRequest<VectorQuery>): Promise<DataQueryResponse> {
+    async query(request: DataQueryRequest<BPFtraceQuery>): Promise<DataQueryResponse> {
         const refreshInterval = getDashboardRefreshInterval();
         if (refreshInterval) {
             this.state.poller.setRefreshInterval(refreshInterval);
         }
+        console.log('q');
 
         const queries = this.buildQueries(request);
-        console.log(queries);
         const result = queries.map(query => this.state.poller.query(query)).filter(result => !!result) as QueryResult[];
         const data = processTargets(request, result, 10);
         return { data };

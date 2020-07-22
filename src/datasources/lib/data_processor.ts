@@ -8,7 +8,7 @@ import {
     MISSING_VALUE,
     DataFrame,
 } from '@grafana/data';
-import { VectorQuery, TargetFormat, Dict } from './types';
+import { TargetFormat } from './types';
 import { Metric, QueryResult } from './poller';
 import {
     InstanceId,
@@ -24,69 +24,58 @@ import { applyTransformations } from './field_transformations';
 import { getTemplateSrv } from '@grafana/runtime';
 
 function getLabels(context: Context, metric: Metric, instanceId: InstanceId | null): Labels {
-    return {
+    let labels = {
         ...context.labels,
         ...metric.metadata.labels,
         ...metric.instanceDomain.labels,
-        ...(instanceId != null && metric.instanceDomain.instances.has(instanceId)
-            ? metric.instanceDomain.instances.get(instanceId)!.labels
-            : {}),
     };
+    if (instanceId != null && metric.instanceDomain.instances.has(instanceId)) {
+        Object.assign(labels, metric.instanceDomain.instances.get(instanceId)!.labels);
+    }
+    return labels;
 }
 
 function getLegendName(
-    request: DataQueryRequest<VectorQuery>,
+    request: DataQueryRequest,
     result: QueryResult,
+    metric: Metric,
     instanceId: InstanceId | null,
-    defaultLegend: (
-        request: DataQueryRequest<VectorQuery>,
-        result: QueryResult,
-        instanceId: InstanceId | null
-    ) => string
+    defaultLegend: (result: QueryResult, metric: Metric, instanceId: InstanceId | null) => string
 ) {
-    if (!result.query.legendFormat) {
-        return defaultLegend(request, result, instanceId);
+    if (!result.target.query.legendFormat) {
+        return defaultLegend(result, metric, instanceId);
     }
 
-    const metric = result.target.metric;
-    const vars: Dict<string, string> = {
-        ...getLabels(result.endpoint.context, metric, instanceId),
-        metric: result.query.expr,
-    };
-
-    if (!result.target.isDerivedMetric) {
+    const vars = getLabels(result.endpoint.context, metric, instanceId);
+    if (result.target.custom.isDerivedMetric) {
+        vars['metric'] = result.target.query.expr;
+    } else {
         const spl = metric.metadata.name.split('.');
+        vars['metric'] = metric.metadata.name;
         vars['metric0'] = spl[spl.length - 1];
     }
+
     if (instanceId != null && metric.instanceDomain.instances.has(instanceId)) {
         vars['instance'] = metric.instanceDomain.instances.get(instanceId)!.name;
     }
 
-    return getTemplateSrv().replace(result.query.legendFormat, {
+    return getTemplateSrv().replace(result.target.query.legendFormat, {
         ...mapValues(vars, value => ({ text: value, value })),
         ...request.scopedVars,
     });
 }
 
-function defaultTimeSeriesLegend(
-    request: DataQueryRequest<VectorQuery>,
-    result: QueryResult,
-    instanceId: InstanceId | null
-) {
-    if (instanceId != null && result.target.metric.instanceDomain.instances.has(instanceId)) {
-        return result.target.metric.instanceDomain.instances.get(instanceId)!.name;
+function defaultTimeSeriesLegend(result: QueryResult, metric: Metric, instanceId: InstanceId | null) {
+    if (instanceId != null && metric.instanceDomain.instances.has(instanceId)) {
+        return metric.instanceDomain.instances.get(instanceId)!.name;
     } else {
-        return result.target.isDerivedMetric ? result.query.expr : result.target.metric.metadata.name;
+        return result.target.custom.isDerivedMetric ? result.target.query.expr : metric.metadata.name;
     }
 }
 
-function defaultHeatmapLegend(
-    request: DataQueryRequest<VectorQuery>,
-    result: QueryResult,
-    instanceId: InstanceId | null
-) {
+function defaultHeatmapLegend(result: QueryResult, metric: Metric, instanceId: InstanceId | null) {
     // target name is the upper bound
-    const instanceName = result.target.metric.instanceDomain.instances.get(instanceId!)?.name;
+    const instanceName = metric.instanceDomain.instances.get(instanceId!)?.name;
     if (instanceName) {
         const match = instanceName.match(/^(.+?)\-(.+?)$/);
         if (match) {
@@ -96,38 +85,35 @@ function defaultHeatmapLegend(
     return '-';
 }
 
-function defaultMetricsTableHeader(
-    request: DataQueryRequest<VectorQuery>,
-    result: QueryResult,
-    instanceId: InstanceId | null
-) {
-    if (result.target.isDerivedMetric) {
-        return result.query.expr;
+function defaultMetricsTableHeader(result: QueryResult, metric: Metric, instanceId: InstanceId | null) {
+    if (result.target.custom.isDerivedMetric) {
+        return result.target.query.expr;
     } else {
-        const metricSpl = result.target.metric.metadata.name.split('.');
+        const metricSpl = metric.metadata.name.split('.');
         return metricSpl[metricSpl.length - 1];
     }
 }
 
 function getFieldMetadata(
     result: QueryResult,
+    metric: Metric,
     instanceId: InstanceId | null,
     instanceName: InstanceName | null
 ): Partial<Field> {
     return {
-        type: pcpTypeToGrafanaType(result.target.metric.metadata),
+        type: pcpTypeToGrafanaType(metric.metadata),
         config: {
-            unit: pcpUnitToGrafanaUnit(result.target.metric.metadata),
+            unit: pcpUnitToGrafanaUnit(metric.metadata),
             custom: {
                 instanceId,
                 instanceName,
             },
         },
-        labels: getLabels(result.endpoint.context, result.target.metric, instanceId) as GrafanaLabels,
+        labels: getLabels(result.endpoint.context, metric, instanceId) as GrafanaLabels,
     };
 }
 
-function toDataFrame(request: DataQueryRequest<VectorQuery>, result: QueryResult, sampleIntervalSec: number) {
+function toDataFrame(request: DataQueryRequest, result: QueryResult, metric: Metric, sampleIntervalSec: number) {
     let requestRangeFromMs = request.range?.from.valueOf()!;
     let requestRangeToMs = request.range?.to.valueOf()!;
 
@@ -136,14 +122,14 @@ function toDataFrame(request: DataQueryRequest<VectorQuery>, result: QueryResult
     requestRangeToMs += sampleIntervalSec * 1000;
 
     // the first value of a counter metric is lost due to rate conversation
-    if (result.target.metric.metadata.sem === Semantics.Counter) {
+    if (metric.metadata.sem === Semantics.Counter) {
         requestRangeFromMs -= sampleIntervalSec * 1000;
     }
 
     const dataFrame = new MutableDataFrame();
     const timeField = dataFrame.addField({ name: 'Time', type: FieldType.time });
     const instanceIdToField = new Map<InstanceId | null, MutableField>();
-    for (const snapshot of result.target.metric.values) {
+    for (const snapshot of metric.values) {
         if (
             !(
                 requestRangeFromMs <= snapshot.timestampMs &&
@@ -157,11 +143,10 @@ function toDataFrame(request: DataQueryRequest<VectorQuery>, result: QueryResult
         // the vector length of newly created fields with already existing fields by adding empty data
         for (const instanceValue of snapshot.values) {
             if (!instanceIdToField.has(instanceValue.instance)) {
-                let fieldName = result.target.isDerivedMetric ? result.query.expr : result.target.metric.metadata.name;
+                let fieldName = result.target.custom.isDerivedMetric ? result.target.query.expr : metric.metadata.name;
                 let instanceName: InstanceName | null = null;
                 if (instanceValue.instance !== null) {
-                    instanceName =
-                        result.target.metric.instanceDomain.instances.get(instanceValue.instance)?.name || null;
+                    instanceName = metric.instanceDomain.instances.get(instanceValue.instance)?.name || null;
                     if (instanceName) {
                         fieldName += `[${instanceName}]`;
                     }
@@ -171,7 +156,7 @@ function toDataFrame(request: DataQueryRequest<VectorQuery>, result: QueryResult
                     instanceValue.instance,
                     dataFrame.addField({
                         name: fieldName,
-                        ...getFieldMetadata(result, instanceValue.instance, instanceName),
+                        ...getFieldMetadata(result, metric, instanceValue.instance, instanceName),
                     })
                 );
             }
@@ -186,7 +171,7 @@ function toDataFrame(request: DataQueryRequest<VectorQuery>, result: QueryResult
     return dataFrame;
 }
 
-function toTimeSeries(request: DataQueryRequest<VectorQuery>, result: QueryResult, dataFrame: MutableDataFrame) {
+function toTimeSeries(request: DataQueryRequest, result: QueryResult, metric: Metric, dataFrame: MutableDataFrame) {
     for (const field of dataFrame.fields) {
         if (field.type === FieldType.time) {
             continue;
@@ -194,6 +179,7 @@ function toTimeSeries(request: DataQueryRequest<VectorQuery>, result: QueryResul
         field.config.displayName = getLegendName(
             request,
             result,
+            metric,
             field.config.custom.instanceId,
             defaultTimeSeriesLegend
         );
@@ -201,12 +187,18 @@ function toTimeSeries(request: DataQueryRequest<VectorQuery>, result: QueryResul
     return dataFrame;
 }
 
-function toHeatMap(request: DataQueryRequest<VectorQuery>, result: QueryResult, dataFrame: MutableDataFrame) {
+function toHeatMap(request: DataQueryRequest, result: QueryResult, metric: Metric, dataFrame: MutableDataFrame) {
     for (const field of dataFrame.fields) {
         if (field.type === FieldType.time) {
             continue;
         }
-        field.config.displayName = getLegendName(request, result, field.config.custom.instanceId, defaultHeatmapLegend);
+        field.config.displayName = getLegendName(
+            request,
+            result,
+            metric,
+            field.config.custom.instanceId,
+            defaultHeatmapLegend
+        );
     }
 
     const timeVector = dataFrame.values['Time'];
@@ -218,8 +210,8 @@ function toHeatMap(request: DataQueryRequest<VectorQuery>, result: QueryResult, 
 }
 
 function toMetricsTable(
-    request: DataQueryRequest<VectorQuery>,
-    dataFrameAndResults: Array<{ result: QueryResult; dataFrame: MutableDataFrame }>
+    request: DataQueryRequest,
+    dataFrameAndResults: Array<{ result: QueryResult; dataFrame: MutableDataFrame; metric: Metric }>
 ) {
     const tableDataFrame = new MutableDataFrame();
     tableDataFrame.addField({
@@ -227,26 +219,26 @@ function toMetricsTable(
     });
 
     let instanceNames: Map<number | null, string> = new Map();
-    for (const { result } of dataFrameAndResults) {
+    for (const { result, metric } of dataFrameAndResults) {
         tableDataFrame.addField({
-            name: result.target.isDerivedMetric ? result.query.expr : result.target.metric.metadata.name,
-            ...getFieldMetadata(result, null, null),
+            name: result.target.custom.isDerivedMetric ? result.target.query.expr : metric.metadata.name,
+            ...getFieldMetadata(result, metric, null, null),
             config: {
-                displayName: getLegendName(request, result, null, defaultMetricsTableHeader),
+                displayName: getLegendName(request, result, metric, null, defaultMetricsTableHeader),
             },
         });
 
         // metric.instanceDomain contains all instances ever recorded
         // use the last snapshot of metric.values to get only the current instances
-        if (result.target.metric.values.length > 0) {
-            const instanceIds = result.target.metric.values[result.target.metric.values.length - 1].values.map(
+        if (metric.values.length > 0) {
+            const instanceIds = metric.values[metric.values.length - 1].values.map(
                 instanceValue => instanceValue.instance
             );
             for (const instanceId of instanceIds) {
                 if (!instanceNames.has(instanceId)) {
                     let instanceName: string | undefined;
                     if (instanceId !== null) {
-                        instanceName = result.target.metric.instanceDomain.instances.get(instanceId)?.name;
+                        instanceName = metric.instanceDomain.instances.get(instanceId)?.name;
                     }
                     instanceNames.set(instanceId, instanceName ?? '');
                 }
@@ -281,7 +273,7 @@ function toMetricsTable(
 }
 
 export function processTargets(
-    request: DataQueryRequest<VectorQuery>,
+    request: DataQueryRequest,
     results: QueryResult[],
     sampleIntervalSec: number
 ): DataFrame[] {
@@ -289,42 +281,49 @@ export function processTargets(
         return [];
     }
 
-    const format = results[0].query.format;
+    const format = results[0].target.query.format;
     if (!every(results, ['query.format', format])) {
         throw new Error('Format must be the same for all queries of a panel.');
     }
 
     if (format === TargetFormat.TimeSeries) {
         return results
-            .map(result => {
-                const dataFrame = applyTransformations(
-                    format,
-                    result.target.metric.metadata,
-                    toDataFrame(request, result, sampleIntervalSec)
-                );
-                return toTimeSeries(request, result, dataFrame);
-            })
+            .flatMap(result =>
+                result.metrics.map(metric => {
+                    const dataFrame = applyTransformations(
+                        format,
+                        metric.metadata,
+                        toDataFrame(request, result, metric, sampleIntervalSec)
+                    );
+                    return toTimeSeries(request, result, metric, dataFrame);
+                })
+            )
             .filter(dataFrame => dataFrame.fields.length > 1);
     } else if (format === TargetFormat.Heatmap) {
         return results
-            .map(result => {
-                const dataFrame = applyTransformations(
-                    format,
-                    result.target.metric.metadata,
-                    toDataFrame(request, result, sampleIntervalSec)
-                );
-                return toHeatMap(request, result, dataFrame);
-            })
+            .flatMap(result =>
+                result.metrics.map(metric => {
+                    const dataFrame = applyTransformations(
+                        format,
+                        metric.metadata,
+                        toDataFrame(request, result, metric, sampleIntervalSec)
+                    );
+                    return toHeatMap(request, result, metric, dataFrame);
+                })
+            )
             .filter(dataFrame => dataFrame.fields.length > 1);
     } else if (format === TargetFormat.MetricsTable) {
-        const dataFrameAndResults = results.map(result => ({
-            result,
-            dataFrame: applyTransformations(
-                format,
-                result.target.metric.metadata,
-                toDataFrame(request, result, sampleIntervalSec)
-            ),
-        }));
+        const dataFrameAndResults = results.flatMap(result =>
+            result.metrics.map(metric => ({
+                result,
+                dataFrame: applyTransformations(
+                    format,
+                    metric.metadata,
+                    toDataFrame(request, result, metric, sampleIntervalSec)
+                ),
+                metric,
+            }))
+        );
         return [toMetricsTable(request, dataFrameAndResults)];
     } else {
         throw { message: `Invalid target format '${format}'.` };

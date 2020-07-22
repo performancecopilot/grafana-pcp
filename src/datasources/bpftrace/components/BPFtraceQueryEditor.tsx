@@ -3,8 +3,8 @@ import React, { PureComponent } from 'react';
 import { InlineFormLabel, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
-import { VectorOptions, VectorQuery, defaultVectorQuery } from '../types';
-import VectorQueryField from './VectorQueryField';
+import { BPFtraceOptions, BPFtraceQuery, defaultBPFtraceQuery } from '../types';
+import BPFtraceQueryField from './BPFtraceQueryField';
 import { isBlank } from '../../lib/utils';
 import { TargetFormat } from '../../lib/types';
 
@@ -14,7 +14,7 @@ const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Heatmap', value: TargetFormat.Heatmap },
 ];
 
-type Props = QueryEditorProps<DataSource, VectorQuery, VectorOptions>;
+type Props = QueryEditorProps<DataSource, BPFtraceQuery, BPFtraceOptions>;
 
 interface State {
     expr: string;
@@ -24,10 +24,10 @@ interface State {
     hostspec?: string;
 }
 
-export class VectorQueryEditor extends PureComponent<Props, State> {
+export class BPFtraceQueryEditor extends PureComponent<Props, State> {
     constructor(props: Props) {
         super(props);
-        const query = defaults(this.props.query, defaultVectorQuery);
+        const query = defaults(this.props.query, defaultBPFtraceQuery);
         this.state = {
             expr: query.expr,
             format: FORMAT_OPTIONS.find(option => option.value === query.format) || FORMAT_OPTIONS[0],
@@ -75,7 +75,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
     render() {
         return (
             <div>
-                <VectorQueryField expr={this.state.expr} onChange={this.onExprChange} />
+                <BPFtraceQueryField expr={this.state.expr} onChange={this.onExprChange} />
 
                 <div className="gf-form-inline">
                     <div className="gf-form">
