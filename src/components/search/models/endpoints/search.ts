@@ -21,7 +21,10 @@ export interface AutocompleteQueryParams {
     limit?: number;
 }
 
-export type AutocompleteSuggestion = string;
+export type AutocompleteSuggestion = {
+    name: string;
+    type: EntityType;
+};
 
 export type AutocompleteResponse = AutocompleteSuggestion[];
 

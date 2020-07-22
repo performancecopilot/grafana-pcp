@@ -161,6 +161,7 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
     }
 
     onSuggestionsFetchRequested(request: SuggestionsFetchRequestedParams): void {
+        console.log(request);
         this.props.services.searchService.autocomplete({ query: request.value }).then(result => {
             this.setState({
                 suggestions: result,
@@ -178,7 +179,7 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
         this.setState({
             query: {
                 ...this.state.query,
-                pattern: data.suggestionValue,
+                pattern: data.suggestion.name,
             },
         });
     }
@@ -191,11 +192,11 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
     }
 
     getSuggestionValue(suggestion: AutocompleteSuggestion): string {
-        return suggestion;
+        return suggestion.name;
     }
 
     renderSuggestion(suggestion: AutocompleteSuggestion, params: RenderSuggestionParams): React.ReactNode {
-        return <div>{suggestion}</div>;
+        return <div>{suggestion.name}</div>;
     }
 
     renderSearchInput() {
