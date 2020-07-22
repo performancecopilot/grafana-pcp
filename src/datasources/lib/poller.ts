@@ -96,7 +96,7 @@ export class Poller {
         private retentionTimeMs: number,
         private hooks: {
             queryHasChanged: (prevQuery: CompletePmapiQuery, newQuery: CompletePmapiQuery) => boolean;
-            registerTarget: (target: Target) => Promise<void>;
+            registerTarget: (target: Target) => Promise<string[]>;
             deregisterTarget?: (target: Target) => void;
             redisBackfill?: (endpoint: Endpoint, targets: Target[]) => Promise<void>;
         }
@@ -154,7 +154,12 @@ export class Poller {
         }
 
         await Promise.all(
-            pendingTargets.map(target => this.hooks.registerTarget(target).catch(error => target.errors.push(error)))
+            pendingTargets.map(target =>
+                this.hooks
+                    .registerTarget(target)
+                    .then(metricNames => (target.metricNames = metricNames))
+                    .catch(error => target.errors.push(error))
+            )
         );
         this.updateTargetStates(endpoint, pendingTargets);
 

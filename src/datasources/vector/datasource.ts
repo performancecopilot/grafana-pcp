@@ -70,11 +70,11 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         target.custom = {};
 
         if (this.isDerivedMetric(target.query.expr)) {
-            target.metricNames = ['derived_XXX']; // TOOD: register derived metric
             target.custom.isDerivedMetric = true;
+            return ['derived_XXX']; // TOOD: register derived metric
         } else {
-            target.metricNames = [target.query.expr];
             target.custom.isDerivedMetric = false;
+            return [target.query.expr];
         }
     }
 

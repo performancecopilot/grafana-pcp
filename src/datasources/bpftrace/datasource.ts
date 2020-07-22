@@ -64,7 +64,13 @@ export class DataSource extends DataSourceApi<BPFtraceQuery, BPFtraceOptions> {
     }
 
     async registerTarget(target: Target) {
-        await this.state.scriptManager.register(target.query.url, target.query.hostspec, target.query.expr);
+        target.custom = {};
+        target.custom.script = await this.state.scriptManager.register(
+            target.query.url,
+            target.query.hostspec,
+            target.query.expr
+        );
+        return this.state.scriptManager.getMetrics(target.custom.script, target.query.format);
     }
 
     async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
