@@ -39,6 +39,7 @@ export interface InstanceDomain {
 }
 
 export interface InstanceValue {
+    /** the actual value null is returned by the pmproxy REST API */
     instance: InstanceId | null;
     value: number | string;
 }

@@ -47,7 +47,7 @@ function getLegendName(
     }
 
     const vars = getLabels(result.endpoint.context, metric, instanceId);
-    if (result.target.custom.isDerivedMetric) {
+    if (result.target.custom?.isDerivedMetric) {
         vars['metric'] = result.target.query.expr;
     } else {
         const spl = metric.metadata.name.split('.');
@@ -69,7 +69,7 @@ function defaultTimeSeriesLegend(result: QueryResult, metric: Metric, instanceId
     if (instanceId != null && metric.instanceDomain.instances.has(instanceId)) {
         return metric.instanceDomain.instances.get(instanceId)!.name;
     } else {
-        return result.target.custom.isDerivedMetric ? result.target.query.expr : metric.metadata.name;
+        return result.target.custom?.isDerivedMetric ? result.target.query.expr : metric.metadata.name;
     }
 }
 
@@ -86,7 +86,7 @@ function defaultHeatmapLegend(result: QueryResult, metric: Metric, instanceId: I
 }
 
 function defaultMetricsTableHeader(result: QueryResult, metric: Metric, instanceId: InstanceId | null) {
-    if (result.target.custom.isDerivedMetric) {
+    if (result.target.custom?.isDerivedMetric) {
         return result.target.query.expr;
     } else {
         const metricSpl = metric.metadata.name.split('.');
@@ -98,7 +98,7 @@ function getFieldMetadata(
     result: QueryResult,
     metric: Metric,
     instanceId: InstanceId | null,
-    instanceName: InstanceName | null
+    instanceName?: InstanceName
 ): Partial<Field> {
     return {
         type: pcpTypeToGrafanaType(metric.metadata),
@@ -143,10 +143,10 @@ function toDataFrame(request: DataQueryRequest, result: QueryResult, metric: Met
         // the vector length of newly created fields with already existing fields by adding empty data
         for (const instanceValue of snapshot.values) {
             if (!instanceIdToField.has(instanceValue.instance)) {
-                let fieldName = result.target.custom.isDerivedMetric ? result.target.query.expr : metric.metadata.name;
-                let instanceName: InstanceName | null = null;
+                let fieldName = result.target.custom?.isDerivedMetric ? result.target.query.expr : metric.metadata.name;
+                let instanceName: InstanceName | undefined;
                 if (instanceValue.instance !== null) {
-                    instanceName = metric.instanceDomain.instances.get(instanceValue.instance)?.name || null;
+                    instanceName = metric.instanceDomain.instances.get(instanceValue.instance)?.name;
                     if (instanceName) {
                         fieldName += `[${instanceName}]`;
                     }
@@ -221,8 +221,8 @@ function toMetricsTable(
     let instanceNames: Map<number | null, string> = new Map();
     for (const { result, metric } of dataFrameAndResults) {
         tableDataFrame.addField({
-            name: result.target.custom.isDerivedMetric ? result.target.query.expr : metric.metadata.name,
-            ...getFieldMetadata(result, metric, null, null),
+            name: result.target.custom?.isDerivedMetric ? result.target.query.expr : metric.metadata.name,
+            ...getFieldMetadata(result, metric, null),
             config: {
                 displayName: getLegendName(request, result, metric, null, defaultMetricsTableHeader),
             },
@@ -282,7 +282,7 @@ export function processTargets(
     }
 
     const format = results[0].target.query.format;
-    if (!every(results, ['query.format', format])) {
+    if (!every(results, result => result.target.query.format === format)) {
         throw new Error('Format must be the same for all queries of a panel.');
     }
 

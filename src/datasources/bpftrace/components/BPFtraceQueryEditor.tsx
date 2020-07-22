@@ -30,7 +30,7 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
         const query = defaults(this.props.query, defaultBPFtraceQuery);
         this.state = {
             expr: query.expr,
-            format: FORMAT_OPTIONS.find(option => option.value === query.format) || FORMAT_OPTIONS[0],
+            format: FORMAT_OPTIONS.find(option => option.value === query.format) ?? FORMAT_OPTIONS[0],
             legendFormat: query.legendFormat,
             url: query.url,
             hostspec: query.hostspec,

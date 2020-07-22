@@ -1,4 +1,13 @@
 import { isString } from 'lodash';
+import rootLogger from 'loglevel';
+import logPrefixer from 'loglevel-plugin-prefix';
+
+export function getLogger(name: string) {
+    rootLogger.setLevel('error');
+    logPrefixer.reg(rootLogger);
+    logPrefixer.apply(rootLogger, { template: '[%t] %l %n:' });
+    return rootLogger.getLogger(name);
+}
 
 export function isBlank(str?: string) {
     return !(str && isString(str) && str.trim().length > 0);

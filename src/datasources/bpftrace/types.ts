@@ -1,14 +1,14 @@
 import { PmapiQuery, TargetFormat } from '../lib/types';
-import { DataSourceJsonData, DataQuery } from '@grafana/data';
+import { DataSourceJsonData } from '@grafana/data';
 
 export interface BPFtraceOptions extends DataSourceJsonData {
     hostspec?: string;
     retentionTime?: string;
 }
 
-export interface BPFtraceQuery extends DataQuery, PmapiQuery {}
+export interface BPFtraceQuery extends PmapiQuery {}
 
-export const defaultBPFtraceQuery: Partial<BPFtraceQuery> = {
+export const defaultBPFtraceQuery = {
     expr: '',
     format: TargetFormat.TimeSeries,
 };

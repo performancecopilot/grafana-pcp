@@ -1,4 +1,5 @@
 import { BackendSrvRequest } from '@grafana/runtime';
+import { DataQuery } from '@grafana/data';
 
 export type Dict<K extends string, T> = {
     [P in K]?: T;
@@ -14,7 +15,7 @@ export enum TargetFormat {
     MetricsTable = 'metrics_table',
 }
 
-export interface PmapiQuery {
+export interface PmapiQuery extends DataQuery {
     expr: string;
     format: TargetFormat;
     legendFormat?: string;
@@ -24,4 +25,4 @@ export interface PmapiQuery {
     targetId?: string;
 }
 
-export type CompletePmapiQuery<T = {}> = T & RequiredField<PmapiQuery, 'url' | 'hostspec' | 'targetId'>;
+export type CompletePmapiQuery = RequiredField<PmapiQuery, 'url' | 'hostspec' | 'targetId'>;

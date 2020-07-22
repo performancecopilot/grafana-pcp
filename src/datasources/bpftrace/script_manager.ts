@@ -1,4 +1,6 @@
 import { PmApi, PermissionError } from '../lib/pmapi';
+import { getLogger } from '../lib/utils';
+const log = getLogger('script_manager');
 
 export class ScriptManager {
     constructor(private pmApi: PmApi) {}
@@ -24,7 +26,9 @@ export class ScriptManager {
     }
 
     async register(url: string, hostspec: string, code: string) {
+        log.info('registering script', code);
         const response = await this.storeControlMetric(url, hostspec, 'bpftrace.control.register', code);
+        log.info('registering script response', response);
         return response;
     }
 }

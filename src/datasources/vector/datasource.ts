@@ -7,14 +7,16 @@ import {
 } from '@grafana/data';
 import { DefaultRequestOptions, CompletePmapiQuery } from '../lib/types';
 import { defaults } from 'lodash';
-import { isBlank, interval_to_ms, getDashboardRefreshInterval } from '../lib/utils';
-import { Poller, QueryResult, Target, Endpoint } from '../lib/poller';
+import { interval_to_ms, getDashboardRefreshInterval, getLogger } from '../lib/utils';
+import { Poller, Target, Endpoint, QueryResult } from '../lib/poller';
 import { PmApi } from '../lib/pmapi';
 import { processTargets } from '../lib/data_processor';
 import { getTemplateSrv } from '@grafana/runtime';
 import * as config from './config';
 import { Expr } from '../lib/pcp';
 import { VectorQuery, VectorOptions, defaultVectorQuery } from './types';
+import { buildQueries, testDatasource, getRequestOptions } from '../lib/pmapi_datasource_utils';
+const log = getLogger('datasource');
 
 interface DataSourceState {
     defaultRequestOptions: DefaultRequestOptions;
@@ -33,29 +35,16 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             retentionTime: config.defaults.retentionTime,
         });
 
-        const defaultRequestOptions: DefaultRequestOptions = {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        };
-        if (this.instanceSettings.basicAuth || this.instanceSettings.withCredentials) {
-            defaultRequestOptions.withCredentials = true;
-        }
-        if (this.instanceSettings.basicAuth) {
-            defaultRequestOptions.headers['Authorization'] = this.instanceSettings.basicAuth;
-        }
-
+        const defaultRequestOptions = getRequestOptions(this.instanceSettings);
         const retentionTimeMs = interval_to_ms(this.instanceSettings.jsonData.retentionTime!);
-        const refreshIntervalMs = getDashboardRefreshInterval() || 1000;
+        const refreshIntervalMs = getDashboardRefreshInterval() ?? 1000;
 
         const pmApi = new PmApi(defaultRequestOptions);
-        const poller = new Poller(
-            pmApi,
-            refreshIntervalMs,
-            retentionTimeMs,
-            this.registerTarget.bind(this),
-            this.backfillWithRedis.bind(this)
-        );
+        const poller = new Poller(pmApi, refreshIntervalMs, retentionTimeMs, {
+            queryHasChanged: this.queryHasChanged,
+            registerTarget: this.registerTarget.bind(this),
+            redisBackfill: this.redisBackfill.bind(this),
+        });
 
         this.state = {
             defaultRequestOptions,
@@ -73,7 +62,13 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         return false;
     }
 
+    queryHasChanged(prevQuery: CompletePmapiQuery, newQuery: CompletePmapiQuery) {
+        return newQuery.expr !== prevQuery.expr;
+    }
+
     async registerTarget(target: Target) {
+        target.custom = {};
+
         if (this.isDerivedMetric(target.query.expr)) {
             target.metricNames = ['derived_XXX']; // TOOD: register derived metric
             target.custom.isDerivedMetric = true;
@@ -83,7 +78,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         }
     }
 
-    async backfillWithRedis(endpoint: Endpoint, targets: Target[]) {
+    async redisBackfill(endpoint: Endpoint, targets: Target[]) {
         // TODO: store metric values from redis (if available) in Metric#values
     }
 
@@ -93,67 +88,28 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         return metricValues.values[0].instances.map(instance => ({ text: instance.value.toString() }));
     }
 
-    buildQueries(request: DataQueryRequest<VectorQuery>): Array<CompletePmapiQuery<VectorQuery>> {
-        return request.targets
-            .map(target => defaults(target, defaultVectorQuery))
-            .filter(target => !target.hide && !isBlank(target.expr))
-            .map(target => {
-                const url = target.url ?? this.instanceSettings.url;
-                const hostspec = target.hostspec ?? this.instanceSettings.jsonData.hostspec;
-                if (isBlank(url)) {
-                    throw new Error(
-                        'Please specify a connection URL in the datasource settings or in the query editor.'
-                    );
-                }
-                if (isBlank(hostspec)) {
-                    throw new Error(
-                        'Please specify a host specification in the datasource settings or in the query editor.'
-                    );
-                }
-
-                return {
-                    ...target,
-                    expr: getTemplateSrv().replace(target.expr.trim(), request.scopedVars),
-                    url: getTemplateSrv().replace(url!, request.scopedVars),
-                    hostspec: getTemplateSrv().replace(hostspec!, request.scopedVars),
-                    targetId: `${request.dashboardId}/${request.panelId}/${target.refId}`,
-                };
-            });
-    }
-
     async query(request: DataQueryRequest<VectorQuery>): Promise<DataQueryResponse> {
         const refreshInterval = getDashboardRefreshInterval();
         if (refreshInterval) {
             this.state.poller.setRefreshInterval(refreshInterval);
         }
 
-        const queries = this.buildQueries(request);
-        console.log(queries);
-        const result = queries.map(query => this.state.poller.query(query)).filter(result => !!result) as QueryResult[];
+        const queries = buildQueries(
+            request,
+            defaultVectorQuery,
+            this.instanceSettings.url!,
+            this.instanceSettings.jsonData.hostspec!
+        );
+        const result = queries
+            .map(query => this.state.poller.query(query))
+            .filter(result => result !== null) as QueryResult[];
         const data = processTargets(request, result, 10);
+
+        log.debug('query', request, data);
         return { data };
     }
 
     async testDatasource() {
-        try {
-            const context = await this.state.pmApi.createContext(
-                this.instanceSettings.url!,
-                this.instanceSettings.jsonData.hostspec!
-            );
-            const pmcdVersionMetric = await this.state.pmApi.getMetricValues(
-                this.instanceSettings.url!,
-                context.context,
-                ['pmcd.version']
-            );
-            return {
-                status: 'success',
-                message: `Data source is working, using PCP Version ${pmcdVersionMetric.values[0].instances[0].value}`,
-            };
-        } catch (error) {
-            return {
-                status: 'error',
-                message: `${error.message}. To use this data source, please configure the URL in the query editor.`,
-            };
-        }
+        await testDatasource(this.state.pmApi, this.instanceSettings.url!, this.instanceSettings.jsonData.hostspec!);
     }
 }

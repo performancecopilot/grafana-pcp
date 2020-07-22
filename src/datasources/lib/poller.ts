@@ -6,10 +6,12 @@
  */
 
 import { MetricMetadata, Context, Instance, InstanceValuesSnapshot, Labels } from './pcp';
-import { CompletePmapiQuery } from './types';
+import { CompletePmapiQuery, Dict } from './types';
 import { PmApi, MetricNotFoundError } from './pmapi';
 import { difference, has, remove, uniq } from 'lodash';
 import * as config from '../vector/config';
+import { getLogger } from './utils';
+const log = getLogger('poller');
 
 /**
  * Represents a PCP Metric including metadata, instance names and values
@@ -37,22 +39,15 @@ enum TargetState {
  * Represents a target of a Grafana panel, which will be polled in the background
  * Collects possible errors (e.g. MetricNotFoundError) which occured while polling in the background
  */
-export interface Target {
+export interface Target<T = Dict<string, any>> {
     state: TargetState;
     query: CompletePmapiQuery;
     /** valid PCP metric names (can be a derived metric, e.g. derived_xxx) */
     metricNames: string[];
     errors: any[];
     lastActiveMs: number;
-    custom: any;
+    custom?: T;
 }
-
-export interface VectorTarget {
-    isDerivedMetric?: boolean;
-}
-
-/*interface BPFtraceTarget extends Target {
-}*/
 
 enum EndpointState {
     /** new entered endpoint, no context available */
@@ -90,9 +85,6 @@ interface PollerState {
     endpoints: Endpoint[];
 }
 
-type RegisterTargetHandler = (target: Target) => Promise<void>;
-type RedisBackfill = (endpoint: Endpoint, targets: Target[]) => Promise<void>;
-
 export class Poller {
     state: PollerState;
     pageIsVisible: boolean;
@@ -102,22 +94,26 @@ export class Poller {
         private pmApi: PmApi,
         private refreshIntervalMs: number,
         private retentionTimeMs: number,
-        private registerTargetHandler: RegisterTargetHandler,
-        private redisBackfill?: RedisBackfill
+        private hooks: {
+            queryHasChanged: (prevQuery: CompletePmapiQuery, newQuery: CompletePmapiQuery) => boolean;
+            registerTarget: (target: Target) => Promise<void>;
+            deregisterTarget?: (target: Target) => void;
+            redisBackfill?: (endpoint: Endpoint, targets: Target[]) => Promise<void>;
+        }
     ) {
         this.pageIsVisible = true;
         this.state = {
             endpoints: [],
         };
-
-        this.timer = setInterval(this.poll.bind(this), this.refreshIntervalMs);
+        this.setRefreshInterval(this.refreshIntervalMs, true);
     }
 
-    setRefreshInterval(intervalMs: number) {
-        if (intervalMs === this.refreshIntervalMs) {
+    setRefreshInterval(intervalMs: number, force = false) {
+        if (intervalMs === this.refreshIntervalMs && !force) {
             return;
         }
 
+        log.info('setting poll refresh interval to', intervalMs);
         clearInterval(this.timer);
         this.refreshIntervalMs = intervalMs;
         this.timer = setInterval(this.poll.bind(this), this.refreshIntervalMs);
@@ -158,7 +154,7 @@ export class Poller {
         }
 
         await Promise.all(
-            pendingTargets.map(target => this.registerTargetHandler(target).catch(error => target.errors.push(error)))
+            pendingTargets.map(target => this.hooks.registerTarget(target).catch(error => target.errors.push(error)))
         );
         this.updateTargetStates(endpoint, pendingTargets);
 
@@ -198,8 +194,8 @@ export class Poller {
             }
         }
 
-        if (endpoint.hasRedis && this.redisBackfill) {
-            await this.redisBackfill(endpoint, pendingTargets);
+        if (endpoint.hasRedis) {
+            await this.hooks.redisBackfill?.(endpoint, pendingTargets);
         }
     }
 
@@ -215,7 +211,7 @@ export class Poller {
                 endpoint.hostspec,
                 Math.round((this.refreshIntervalMs + config.gracePeriodMs) / 1000)
             );
-            endpoint.hasRedis = this.redisBackfill && (await this.endpointHasRedis(endpoint));
+            endpoint.hasRedis = this.hooks.redisBackfill && (await this.endpointHasRedis(endpoint));
             endpoint.state = EndpointState.CONNECTED;
         }
 
@@ -275,6 +271,7 @@ export class Poller {
         this.cleanInactiveTargets();
         this.cleanHistoryData();
 
+        log.debug('polling endpoints', this.state.endpoints);
         await Promise.all(
             this.state.endpoints.map(endpoint =>
                 this.pollEndpointAndHandleContextTimeout(endpoint).catch(error => endpoint.errors.push(error))
@@ -335,12 +332,13 @@ export class Poller {
         const nowMs = new Date().getTime();
         let target = endpoint.targets.find(target => target.query.targetId === query.targetId);
 
-        if (target && target.query.expr === query.expr) {
+        if (target && !this.hooks.queryHasChanged(target.query, query)) {
             // unchanged target
             target.lastActiveMs = nowMs;
         } else {
             if (target) {
-                // target exists but expr changes -> remove from list & create a new target
+                // target exists but has changed -> remove from list & create a new target
+                this.hooks.deregisterTarget?.(target);
                 remove(endpoint.targets, t => t === target);
             }
 
@@ -350,7 +348,6 @@ export class Poller {
                 metricNames: [],
                 lastActiveMs: nowMs,
                 errors: [],
-                custom: {},
             };
             endpoint.targets.push(target);
         }
@@ -358,7 +355,7 @@ export class Poller {
 
         if (target.state === TargetState.METRICS_AVAILABLE) {
             const metrics = endpoint.metrics.filter(metric => target?.metricNames.includes(metric.metadata.name));
-            return { query, endpoint, target, metrics } as QueryResult;
+            return { endpoint: endpoint as Required<Endpoint>, target, metrics };
         }
         return null;
     }
