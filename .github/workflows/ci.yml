@@ -14,11 +14,26 @@ jobs:
       with:
         node-version: 12
 
-    - name: Install dependencies
+    - name: Installing jsonnet and jsonnet-bundler
+      run: |
+        go get github.com/google/go-jsonnet/cmd/jsonnet
+        go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
+        echo "::add-path::$HOME/go/bin"
+
+    - name: Install Node.js dependencies
       run: make node_modules
+
+    - name: Install jsonnet dependencies
+      run: make vendor
 
     - name: Build
       run: make build
 
     - name: Test
       run: make test
+
+    - name: Publish build artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: grafana-pcp
+        path: dist

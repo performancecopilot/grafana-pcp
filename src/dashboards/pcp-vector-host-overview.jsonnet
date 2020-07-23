@@ -1,4 +1,4 @@
-local grafana = import 'vendor/grafonnet/grafana.libsonnet';
+local grafana = import 'grafonnet/grafana.libsonnet';
 
 grafana.dashboard.new(
   'PCP Vector Host Overview',
