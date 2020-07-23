@@ -1,5 +1,5 @@
 import React from 'react';
-import { HorizontalGroup, Button, VerticalGroup } from '@grafana/ui';
+import { HorizontalGroup, Button, VerticalGroup, withTheme, Themeable } from '@grafana/ui';
 import {
     detailPageItem,
     detailPageHeader,
@@ -8,6 +8,7 @@ import {
     detailPageDescription,
     detailPageActions,
     detailPageProperties,
+    detailPageEntityType,
 } from '../styles';
 import { connect } from 'react-redux';
 import Series from './Series/Series';
@@ -39,7 +40,7 @@ export type MetricDetailPageReduxStateProps = ReturnType<typeof mapStateToProps>
 
 export type MetricDetailPageReduxProps = MetricDetailPageReduxStateProps;
 
-export type MetricDetailPageProps = MetricDetailPageReduxProps & MetricDetailPageBasicProps;
+export type MetricDetailPageProps = MetricDetailPageReduxProps & MetricDetailPageBasicProps & Themeable;
 
 export class MetricDetailPage extends React.Component<MetricDetailPageProps, {}> {
     constructor(props: MetricDetailPageProps) {
@@ -196,6 +197,14 @@ export class MetricDetailPage extends React.Component<MetricDetailPageProps, {}>
                             <h2 className={detailPageTitle} data-test="title">
                                 {data.name}
                             </h2>
+                            <Button
+                                variant="link"
+                                size="md"
+                                icon="tag-alt"
+                                className={detailPageEntityType(props.theme)}
+                            >
+                                Metric
+                            </Button>
                         </header>
                         <div className={detailPageDescription} data-test="description">
                             {renderDesc()}
@@ -232,4 +241,4 @@ export class MetricDetailPage extends React.Component<MetricDetailPageProps, {}>
     }
 }
 
-export default connect(mapStateToProps, {})(MetricDetailPage);
+export default withTheme(connect(mapStateToProps, {})(MetricDetailPage));

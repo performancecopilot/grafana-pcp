@@ -10,11 +10,14 @@ import { EntityType } from '../../../models/endpoints/search';
 import { FetchStatus } from '../../../store/slices/search/shared/state';
 import { MetricEntity } from '../../../models/entities/metric';
 import { LoaderBasicProps } from '../../../components/Loader/Loader';
+import { GrafanaThemeType } from '@grafana/data';
+import { getTheme } from '@grafana/ui';
 
 describe('Detail Page <MetricDetailpage/>', () => {
     let mockReduxProps: MetricDetailPageReduxProps;
     let metricDetailEntityProps: MetricDetailPageBasicProps;
     let metricDetailProps: MetricDetailPageProps;
+    const theme = getTheme(GrafanaThemeType.Light);
 
     beforeEach(() => {
         mockReduxProps = {
@@ -59,7 +62,7 @@ describe('Detail Page <MetricDetailpage/>', () => {
                 status: FetchStatus.SUCCESS,
             },
         };
-        metricDetailProps = { ...mockReduxProps, ...metricDetailEntityProps };
+        metricDetailProps = { ...mockReduxProps, ...metricDetailEntityProps, theme };
     });
 
     test('renders without crashing', () => {

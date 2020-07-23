@@ -1,4 +1,5 @@
 import { css } from 'emotion';
+import { GrafanaTheme } from '@grafana/data';
 
 const detailPageContainer = css`
     grid-area: content;
@@ -13,7 +14,16 @@ const detailPageItem = css`
 const detailPageHeader = css``;
 
 const detailPageTitle = css`
-    margin-bottom: 24px;
+    margin-bottom: 16px;
+`;
+
+const detailPageEntityType = (theme: GrafanaTheme) => css`
+    margin-bottom: 16px;
+    padding: 0;
+    cursor: default;
+    pointer-events: none;
+    text-transform: capitalize;
+    color: ${theme.colors.text};
 `;
 
 const detailPageDescription = css`
@@ -87,6 +97,7 @@ export {
     detailPageItem,
     detailPageHeader,
     detailPageTitle,
+    detailPageEntityType,
     detailPageDescription,
     detailPageActions,
     detailPageProperties,

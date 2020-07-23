@@ -21,38 +21,35 @@ class EntityService {
         if (metric === '') {
             throw Error('Metric identifier cannot be empty.');
         }
+        let entitySeriesTransformed: MetricEntitySeries[] = [];
         const series: string[] = (await seriesService.query({ expr: `${metric}*` })) as string[];
-        if (series.length === 0) {
-            return {
-                name: metric,
-                series: [],
-            };
+        if (series.length !== 0) {
+            const [metadata, labels] = await Promise.all([
+                seriesService.descs({ series }),
+                seriesService.labels({ series }),
+            ]);
+            const entitySeries: _.Dictionary<LabelsAndMeta> = _.groupBy(
+                _.merge(metadata, labels) as LabelsAndMeta,
+                'series'
+            );
+            entitySeriesTransformed = Object.keys(entitySeries).reduce<MetricEntitySeries[]>(
+                (prev: MetricEntitySeries[], val: string) => {
+                    return [
+                        ...prev,
+                        ...(entitySeries[val]
+                            ? [
+                                  {
+                                      series: val,
+                                      meta: _.omit(entitySeries[val][0], 'series', 'labels'),
+                                      ...(entitySeries[val][0].labels ? { labels: entitySeries[val][0].labels } : {}),
+                                  },
+                              ]
+                            : {}),
+                    ];
+                },
+                []
+            );
         }
-        const [metadata, labels] = await Promise.all([
-            seriesService.descs({ series }),
-            seriesService.labels({ series }),
-        ]);
-        const entitySeries: _.Dictionary<LabelsAndMeta> = _.groupBy(
-            _.merge(metadata, labels) as LabelsAndMeta,
-            'series'
-        );
-        const entitySeriesTransformed: MetricEntitySeries[] = Object.keys(entitySeries).reduce<MetricEntitySeries[]>(
-            (prev: MetricEntitySeries[], val: string) => {
-                return [
-                    ...prev,
-                    ...(entitySeries[val]
-                        ? [
-                              {
-                                  series: val,
-                                  meta: _.omit(entitySeries[val][0], 'series', 'labels'),
-                                  ...(entitySeries[val][0].labels ? { labels: entitySeries[val][0].labels } : {}),
-                              },
-                          ]
-                        : {}),
-                ];
-            },
-            []
-        );
         const searchRecord = await searchService.text({
             query: metric,
             limit: 1,

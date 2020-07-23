@@ -54,6 +54,7 @@ export type SearchFormReduxProps = SearchFormReduxStateProps & SearchFormReduxDi
 export type SearchFormProps = SearchFormReduxProps & WithServicesProps & Themeable;
 
 export interface SearchFormState {
+    valid: boolean;
     query: {
         pattern: string;
         entityFlags: SearchEntity;
@@ -67,6 +68,7 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
 
     get initialState() {
         return {
+            valid: true,
             query: {
                 pattern: '',
                 entityFlags: SearchEntity.All,
@@ -134,34 +136,46 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
         }
     }
 
+    checkQueryValidity(): boolean {
+        const { query } = this.state;
+        const valid = query.pattern.trim().length !== 0 && query.entityFlags > 0;
+        this.setState({ valid });
+        return valid;
+    }
+
     setEntityFlag(entity: SearchEntity) {
-        this.setState({
-            query: {
-                ...this.state.query,
-                entityFlags: this.state.query.entityFlags ^ entity,
+        this.setState(
+            {
+                query: {
+                    ...this.state.query,
+                    entityFlags: this.state.query.entityFlags ^ entity,
+                },
             },
-        });
+            this.checkQueryValidity
+        );
     }
 
     onSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-
-        if (this.state.query.pattern.trim().length) {
-            this.props.querySearch({ ...this.state.query, pageNum: 1 });
+        const { query } = this.state;
+        if (this.checkQueryValidity()) {
+            this.props.querySearch({ ...query, pageNum: 1 });
         }
     }
 
     onInputChange(e: React.FormEvent<HTMLInputElement>) {
-        this.setState({
-            query: {
-                ...this.state.query,
-                pattern: e.currentTarget.value,
+        this.setState(
+            {
+                query: {
+                    ...this.state.query,
+                    pattern: e.currentTarget.value,
+                },
             },
-        });
+            this.checkQueryValidity
+        );
     }
 
     onSuggestionsFetchRequested(request: SuggestionsFetchRequestedParams): void {
-        console.log(request);
         this.props.services.searchService.autocomplete({ query: request.value }).then(result => {
             this.setState({
                 suggestions: result,
@@ -179,24 +193,24 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
         this.setState({
             query: {
                 ...this.state.query,
-                pattern: data.suggestion.name,
+                pattern: data.suggestion,
             },
         });
     }
 
     allowSuggestions(value: string): boolean {
         if (Config.ALLOW_SEARCH_SUGGESTIONS) {
-            return value.length > 2;
+            return value.length >= 2;
         }
         return false;
     }
 
     getSuggestionValue(suggestion: AutocompleteSuggestion): string {
-        return suggestion.name;
+        return suggestion;
     }
 
     renderSuggestion(suggestion: AutocompleteSuggestion, params: RenderSuggestionParams): React.ReactNode {
-        return <div>{suggestion.name}</div>;
+        return <div>{suggestion}</div>;
     }
 
     renderSearchInput() {
@@ -242,13 +256,22 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
     }
 
     render() {
-        const { onSubmit, metricFlag, instancesFlag, instanceDomainsFlag, setEntityFlag, renderSearchInput } = this;
+        const {
+            onSubmit,
+            metricFlag,
+            instancesFlag,
+            instanceDomainsFlag,
+            setEntityFlag,
+            renderSearchInput,
+            state,
+        } = this;
         return (
             <form className={searchContainer} onSubmit={onSubmit} data-test="form">
                 <VerticalGroup spacing="sm">
                     <div className={searchFormGroup}>
                         <div className={searchBlockWrapper}>{renderSearchInput()}</div>
                         <Button
+                            disabled={!state.valid}
                             className={searchSubmitBtn}
                             variant="primary"
                             size="md"

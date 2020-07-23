@@ -8,7 +8,7 @@ export enum SearchEntity {
 
 export enum EntityType {
     Metric = 'metric',
-    Instance = 'instance',
+    Instance = 'inst',
     InstanceDomain = 'indom',
 }
 
@@ -21,10 +21,7 @@ export interface AutocompleteQueryParams {
     limit?: number;
 }
 
-export type AutocompleteSuggestion = {
-    name: string;
-    type: EntityType;
-};
+export type AutocompleteSuggestion = string;
 
 export type AutocompleteResponse = AutocompleteSuggestion[];
 

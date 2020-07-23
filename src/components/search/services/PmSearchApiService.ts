@@ -11,6 +11,7 @@ import {
 } from '../models/endpoints/search';
 import { timeout } from '../utils/utils';
 import Config from '../config/config';
+import { SearchEntityUtil } from '../utils/SearchEntityUtil';
 
 class PmSearchApiService {
     baseUrl: string;
@@ -83,7 +84,8 @@ class PmSearchApiService {
             getParams.append('return', params.return.join(','));
         }
         if (params.type !== undefined) {
-            getParams.append('type', params.type.toString());
+            let entityTypes = SearchEntityUtil.toEntityTypes(params.type);
+            getParams.append('type', entityTypes.join(','));
         }
         const options = {
             url: `${baseUrl}/search/text?${getParams.toString()}`,

@@ -7,6 +7,7 @@ import {
 } from './styles';
 import { cx } from 'emotion';
 import { SearchQuery } from '../../store/slices/search/shared/state';
+import { SearchEntityUtil } from '../../utils/SearchEntityUtil';
 
 export interface SearchHistoryListProps {
     showClearBtn?: boolean;
@@ -36,8 +37,17 @@ export class SearchHistoryList extends React.Component<SearchHistoryListProps, {
         this.props.onClearSearchHistoryClick();
     }
 
+    searchHistoryItemDesc(query: SearchQuery) {
+        let desc = `${query.pattern}`;
+        const types = SearchEntityUtil.toEntityTypes(query.entityFlags);
+        if (types.length > 0) {
+            desc += ` (types: ${types.join(', ')})`;
+        }
+        return desc;
+    }
+
     render() {
-        const { props, onSearchHistoryClick, onClearSearchHistoryClick } = this;
+        const { props, onSearchHistoryClick, onClearSearchHistoryClick, searchHistoryItemDesc } = this;
         const { searchHistory } = props;
 
         if (searchHistory.length === 0) {
@@ -65,6 +75,7 @@ export class SearchHistoryList extends React.Component<SearchHistoryListProps, {
                                 className={searchHistoryListBtnWithNoSpacing}
                                 onClick={() => onSearchHistoryClick(item)}
                                 data-test="search-history-go"
+                                title={searchHistoryItemDesc(item)}
                             >
                                 {item.pattern}
                             </Button>

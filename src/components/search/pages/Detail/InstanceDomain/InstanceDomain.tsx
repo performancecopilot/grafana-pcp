@@ -10,6 +10,7 @@ import {
     instanceDomainItemList,
     detailPageActions,
     detailPageProperties,
+    detailPageEntityType,
 } from '../styles';
 import { RootState } from '../../../store/reducer';
 import { IndomDataState } from '../../../store/slices/search/slices/entity/state';
@@ -151,6 +152,14 @@ export class InstanceDomainDetailPage extends React.Component<InstanceDomainDeta
                             <h2 className={detailPageTitle} data-test="title">
                                 {data.indom}
                             </h2>
+                            <Button
+                                variant="link"
+                                size="md"
+                                icon="tag-alt"
+                                className={detailPageEntityType(props.theme)}
+                            >
+                                Instance Domain
+                            </Button>
                         </header>
                         <div className={detailPageDescription} data-test="description">
                             {renderDesc()}
