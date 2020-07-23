@@ -8,13 +8,7 @@
             "name": "Performance Co-Pilot and Netflix",
             "url": "https://pcp.io"
         },
-        "keywords": [
-            "performancecopilot",
-            "pcp",
-            "ebpf",
-            "bpftrace",
-            "containers"
-        ],
+        "keywords": ["performancecopilot", "pcp", "ebpf", "bpftrace", "containers"],
         "logos": {
             "small": "img/pcp-logo.svg",
             "large": "img/pcp-logo.svg"
@@ -38,6 +32,13 @@
         "updated": "%TODAY%"
     },
     "includes": [
+        {
+            "type": "page",
+            "name": "Full-Text search",
+            "path": "/a/performancecopilot-pcp-app",
+            "addToNav": true,
+            "defaultNav": true
+        },
         {
             "type": "datasource",
             "name": "PCP Redis"
@@ -88,8 +89,17 @@
             "type": "dashboard",
             "name": "PCP bpftrace Flame Graphs",
             "path": "dashboards/pcp-bpftrace-flame-graphs.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Graph Entity Preview",
+            "path": "dashboards/fulltext-graph-preview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Table Entity Preview",
+            "path": "dashboards/fulltext-table-preview.json"
         }
-
     ],
     "dependencies": {
         "grafanaVersion": "7.0.x",
