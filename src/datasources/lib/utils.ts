@@ -3,7 +3,7 @@ import rootLogger from 'loglevel';
 import logPrefixer from 'loglevel-plugin-prefix';
 
 export function getLogger(name: string) {
-    rootLogger.setLevel('error');
+    rootLogger.setDefaultLevel('ERROR');
     logPrefixer.reg(rootLogger);
     logPrefixer.apply(rootLogger, { template: '[%t] %l %n:' });
     return rootLogger.getLogger(name);

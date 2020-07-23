@@ -3,7 +3,6 @@ import { getLogger } from '../lib/utils';
 import { Script, MetricType } from './script';
 import { TargetFormat } from '../lib/types';
 const log = getLogger('script_manager');
-log.setLevel('trace');
 
 export class ScriptManager {
     constructor(private pmApi: PmApi) {}
@@ -74,9 +73,16 @@ export class ScriptManager {
     }
 
     async register(url: string, hostspec: string, code: string): Promise<Script> {
-        log.info('registering script', code);
+        log.info('registering script:\n', code);
         const response = await this.storeControlMetric(url, hostspec, 'bpftrace.control.register', code);
-        log.info('registering script response', response);
+        log.debug('registering script response', response);
         return response;
+    }
+
+    async deregister(url: string, hostspec: string, script: Script) {
+        log.info('deregistering script:\n', script);
+
+        const response = await this.storeControlMetric(url, hostspec, 'bpftrace.control.deregister', script.script_id);
+        log.debug('deregistering script response', response);
     }
 }

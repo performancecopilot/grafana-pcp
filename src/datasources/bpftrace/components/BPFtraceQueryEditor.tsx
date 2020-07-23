@@ -10,8 +10,9 @@ import { TargetFormat } from '../../lib/types';
 
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },
-    { label: 'Table', value: TargetFormat.MetricsTable },
     { label: 'Heatmap', value: TargetFormat.Heatmap },
+    { label: 'Table', value: TargetFormat.CsvTable },
+    { label: 'Flame Graph', value: TargetFormat.FlameGraph },
 ];
 
 type Props = QueryEditorProps<DataSource, BPFtraceQuery, BPFtraceOptions>;

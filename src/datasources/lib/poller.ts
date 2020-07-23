@@ -5,7 +5,7 @@
  * All metric related requests happen in the background, to use the same PCP Context and fetch multiple metrics at once
  */
 
-import { MetricMetadata, Context, Instance, InstanceValuesSnapshot, Labels } from './pcp';
+import { MetricMetadata, Context, Instance, InstanceValuesSnapshot, Labels, InstanceValue } from './pcp';
 import { CompletePmapiQuery, Dict } from './types';
 import { PmApi, MetricNotFoundError } from './pmapi';
 import { difference, has, remove, uniq } from 'lodash';
@@ -26,12 +26,12 @@ export interface Metric {
     values: InstanceValuesSnapshot[];
 }
 
-enum TargetState {
-    /** newly entered target */
+export enum TargetState {
+    /** newly entered target or target with error (trying again) */
     PENDING,
     /** metrics exists and metadata available */
     METRICS_AVAILABLE,
-    /** fatal error, won't try again */
+    /** fatal error, will not try again */
     ERROR,
 }
 
@@ -61,13 +61,15 @@ enum EndpointState {
  * each url/hostspec has a different context
  * each url/hostspec can have different metrics (and values)
  */
-export interface Endpoint {
+export interface Endpoint<T = Dict<string, any>> {
     state: EndpointState;
     url: string;
     hostspec: string;
     metrics: Metric[];
     targets: Target[];
+    additionalMetricsToPoll: Array<{ name: string; callback: (values: InstanceValue[]) => void }>;
     errors: any[];
+    custom?: T;
 
     /** context, will be created at next poll */
     context?: Context;
@@ -79,6 +81,14 @@ export interface QueryResult {
     endpoint: Required<Endpoint>;
     target: Target;
     metrics: Metric[];
+}
+
+interface PollerHooks {
+    queryHasChanged: (prevQuery: CompletePmapiQuery, newQuery: CompletePmapiQuery) => boolean;
+    registerEndpoint?: (endpoint: Endpoint) => Promise<void>;
+    registerTarget: (target: Target) => Promise<string[]>;
+    deregisterTarget?: (target: Target) => void;
+    redisBackfill?: (endpoint: Endpoint, targets: Target[]) => Promise<void>;
 }
 
 interface PollerState {
@@ -94,12 +104,7 @@ export class Poller {
         private pmApi: PmApi,
         private refreshIntervalMs: number,
         private retentionTimeMs: number,
-        private hooks: {
-            queryHasChanged: (prevQuery: CompletePmapiQuery, newQuery: CompletePmapiQuery) => boolean;
-            registerTarget: (target: Target) => Promise<string[]>;
-            deregisterTarget?: (target: Target) => void;
-            redisBackfill?: (endpoint: Endpoint, targets: Target[]) => Promise<void>;
-        }
+        private hooks: PollerHooks
     ) {
         this.pageIsVisible = true;
         this.state = {
@@ -135,44 +140,24 @@ export class Poller {
         }
     }
 
-    /**
-     * set the target's state to TargetState.METRICS_AVAILABLE if all metrics are available
-     */
-    updateTargetStates(endpoint: Endpoint, targets: Target[]) {
-        const allMetricNames = endpoint.metrics.map(metric => metric.metadata.name);
-        for (const target of targets) {
-            if (target.metricNames.length > 0 && difference(target.metricNames, allMetricNames).length === 0) {
-                target.state = TargetState.METRICS_AVAILABLE;
-            }
+    detectMissingMetrics(endpoint: Required<Endpoint>, requestedMetrics: string[], receivedMetrics: string[]) {
+        const missingMetrics = difference(requestedMetrics, receivedMetrics);
+        for (const missingMetric of missingMetrics) {
+            endpoint.targets
+                .filter(target => target.metricNames.includes(missingMetric))
+                .forEach(target => {
+                    log.debug('missing metric', missingMetric, 'for target', target);
+                    target.state = TargetState.PENDING;
+                    target.errors.push(new MetricNotFoundError(missingMetric));
+                });
         }
     }
 
-    async initializePendingTargets(endpoint: Required<Endpoint>) {
-        let pendingTargets = endpoint.targets.filter(target => target.state === TargetState.PENDING);
-        if (pendingTargets.length === 0) {
-            return;
-        }
-
-        await Promise.all(
-            pendingTargets.map(target =>
-                this.hooks
-                    .registerTarget(target)
-                    .then(metricNames => (target.metricNames = metricNames))
-                    .catch(error => target.errors.push(error))
-            )
-        );
-        this.updateTargetStates(endpoint, pendingTargets);
-
-        pendingTargets = endpoint.targets.filter(target => target.state === TargetState.PENDING);
-        if (pendingTargets.length === 0) {
-            return;
-        }
-
-        const pendingMetricNames = uniq(pendingTargets.flatMap(target => target.metricNames));
+    async loadPendingMetricsMetadata(endpoint: Required<Endpoint>, metricNames: string[]) {
         const metadataResponse = await this.pmApi.getMetricMetadata(
             endpoint.url,
             endpoint.context.context,
-            pendingMetricNames
+            metricNames
         );
         for (const metadata of metadataResponse.metrics) {
             let metric: Metric = {
@@ -185,17 +170,48 @@ export class Poller {
             };
             endpoint.metrics.push(metric);
         }
-        this.updateTargetStates(endpoint, pendingTargets);
 
-        const missingMetrics = difference(
-            pendingMetricNames,
+        this.detectMissingMetrics(
+            endpoint,
+            metricNames,
             metadataResponse.metrics.map(metric => metric.name)
         );
-        if (missingMetrics.length > 0) {
-            for (const missingMetric of missingMetrics) {
-                pendingTargets
-                    .filter(target => target.metricNames.includes(missingMetric))
-                    .forEach(target => target.errors.push(new MetricNotFoundError(missingMetric)));
+    }
+
+    async initializePendingTargets(endpoint: Required<Endpoint>) {
+        let pendingTargets = endpoint.targets.filter(target => target.state === TargetState.PENDING);
+        if (pendingTargets.length === 0) {
+            return;
+        }
+
+        // reset errors for pending targets - will try again
+        pendingTargets.forEach(target => (target.errors = []));
+
+        await Promise.all(
+            pendingTargets.map(target =>
+                this.hooks
+                    .registerTarget(target)
+                    .then(metricNames => (target.metricNames = metricNames))
+                    .catch(error => {
+                        target.state = TargetState.ERROR;
+                        target.errors.push(error);
+                    })
+            )
+        );
+
+        let currentMetricNames = endpoint.metrics.map(metric => metric.metadata.name);
+        const pendingMetricNames = difference(
+            uniq(pendingTargets.flatMap(target => target.metricNames)),
+            currentMetricNames
+        );
+        if (pendingMetricNames.length > 0) {
+            await this.loadPendingMetricsMetadata(endpoint, pendingMetricNames);
+        }
+
+        currentMetricNames = endpoint.metrics.map(metric => metric.metadata.name);
+        for (const target of pendingTargets) {
+            if (target.metricNames.length > 0 && difference(target.metricNames, currentMetricNames).length === 0) {
+                target.state = TargetState.METRICS_AVAILABLE;
             }
         }
 
@@ -218,10 +234,12 @@ export class Poller {
             );
             endpoint.hasRedis = this.hooks.redisBackfill && (await this.endpointHasRedis(endpoint));
             endpoint.state = EndpointState.CONNECTED;
+            await this.hooks.registerEndpoint?.(endpoint);
         }
 
         await this.initializePendingTargets(endpoint as Required<Endpoint>);
-        let metricsToPoll = uniq(
+
+        const metricsToPoll = uniq(
             endpoint.targets
                 .filter(target => target.state === TargetState.METRICS_AVAILABLE)
                 .flatMap(target => target.metricNames)
@@ -230,10 +248,21 @@ export class Poller {
             return;
         }
 
+        // only poll additional metrics if metrics from targets are also requrested
+        const additionalMetricNamesToPoll = uniq(endpoint.additionalMetricsToPoll.map(amp => amp.name));
+        metricsToPoll.push(...additionalMetricNamesToPoll);
+
         const valuesResponse = await this.pmApi.getMetricValues(endpoint.url, endpoint.context!.context, metricsToPoll);
         for (const metricInstanceValues of valuesResponse.values) {
-            const metric = endpoint.metrics.find(metric => metric.metadata.name === metricInstanceValues.name)!;
+            if (additionalMetricNamesToPoll.includes(metricInstanceValues.name)) {
+                endpoint.additionalMetricsToPoll
+                    .filter(({ name }) => name === metricInstanceValues.name)
+                    .forEach(({ callback }) => callback(metricInstanceValues.instances));
+                // do not store additional requested metrics
+                continue;
+            }
 
+            const metric = endpoint.metrics.find(metric => metric.metadata.name === metricInstanceValues.name)!;
             if (metric.metadata.indom) {
                 let needRefresh = false;
                 for (const instance of metricInstanceValues.instances) {
@@ -252,14 +281,22 @@ export class Poller {
                 values: metricInstanceValues.instances,
             });
         }
+
+        this.detectMissingMetrics(
+            endpoint as Required<Endpoint>,
+            metricsToPoll,
+            valuesResponse.values.map(metricInstanceValues => metricInstanceValues.name)
+        );
     }
 
     async pollEndpointAndHandleContextTimeout(endpoint: Endpoint) {
+        endpoint.errors = [];
+
         try {
             await this.pollEndpoint(endpoint);
         } catch (error) {
             if (has(error, 'data.message') && error.data.message.includes('unknown context identifier')) {
-                console.log('context expired, requesting new');
+                log.debug('context expired. requesting a new context');
                 endpoint.context = await this.pmApi.createContext(
                     endpoint.url,
                     endpoint.hostspec,
@@ -279,7 +316,10 @@ export class Poller {
         log.debug('polling endpoints', this.state.endpoints);
         await Promise.all(
             this.state.endpoints.map(endpoint =>
-                this.pollEndpointAndHandleContextTimeout(endpoint).catch(error => endpoint.errors.push(error))
+                this.pollEndpointAndHandleContextTimeout(endpoint).catch(error => {
+                    endpoint.state = EndpointState.PENDING;
+                    endpoint.errors.push(error);
+                })
             )
         );
     }
@@ -308,10 +348,8 @@ export class Poller {
 
     throwBackgroundError(obj: { errors: any[] }) {
         if (obj.errors.length > 0) {
-            const error = obj.errors.pop();
-            obj.errors = [];
-            console.log(error);
-            throw error;
+            obj.errors.forEach(error => log.error(error));
+            throw Error(obj.errors.map(error => error.message).join('\n'));
         }
     }
 
@@ -328,6 +366,7 @@ export class Poller {
                 hostspec: query.hostspec,
                 metrics: [],
                 targets: [],
+                additionalMetricsToPoll: [],
                 errors: [],
             };
             this.state.endpoints.push(endpoint);

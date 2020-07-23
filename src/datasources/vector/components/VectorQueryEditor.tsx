@@ -10,8 +10,8 @@ import { TargetFormat } from '../../lib/types';
 
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },
-    { label: 'Table', value: TargetFormat.MetricsTable },
     { label: 'Heatmap', value: TargetFormat.Heatmap },
+    { label: 'Table', value: TargetFormat.MetricsTable },
 ];
 
 type Props = QueryEditorProps<DataSource, VectorQuery, VectorOptions>;

@@ -14,7 +14,7 @@ import { processTargets } from '../lib/data_processor';
 import { getTemplateSrv } from '@grafana/runtime';
 import * as config from './config';
 import { Expr } from '../lib/pcp';
-import { VectorQuery, VectorOptions, defaultVectorQuery } from './types';
+import { VectorQuery, VectorOptions, defaultVectorQuery, VectorTargetData } from './types';
 import { buildQueries, testDatasource, getRequestOptions } from '../lib/pmapi_datasource_utils';
 const log = getLogger('datasource');
 
@@ -57,28 +57,29 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         });
     }
 
+    queryHasChanged(prevQuery: CompletePmapiQuery, newQuery: CompletePmapiQuery) {
+        return newQuery.expr !== prevQuery.expr;
+    }
+
     isDerivedMetric(expr: Expr) {
         // TODO
         return false;
     }
 
-    queryHasChanged(prevQuery: CompletePmapiQuery, newQuery: CompletePmapiQuery) {
-        return newQuery.expr !== prevQuery.expr;
-    }
+    async registerTarget(target: Target<VectorTargetData>) {
+        target.custom = {
+            isDerivedMetric: this.isDerivedMetric(target.query.expr),
+        };
 
-    async registerTarget(target: Target) {
-        target.custom = {};
-
-        if (this.isDerivedMetric(target.query.expr)) {
-            target.custom.isDerivedMetric = true;
-            return ['derived_XXX']; // TOOD: register derived metric
+        if (target.custom.isDerivedMetric) {
+            // TOOD: register derived metric
+            return ['derived_hash(target.query.expr)'];
         } else {
-            target.custom.isDerivedMetric = false;
             return [target.query.expr];
         }
     }
 
-    async redisBackfill(endpoint: Endpoint, targets: Target[]) {
+    async redisBackfill(endpoint: Endpoint, targets: Array<Target<VectorTargetData>>) {
         // TODO: store metric values from redis (if available) in Metric#values
     }
 
@@ -97,8 +98,8 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         const queries = buildQueries(
             request,
             defaultVectorQuery,
-            this.instanceSettings.url!,
-            this.instanceSettings.jsonData.hostspec!
+            this.instanceSettings.url,
+            this.instanceSettings.jsonData.hostspec
         );
         const result = queries
             .map(query => this.state.poller.query(query))

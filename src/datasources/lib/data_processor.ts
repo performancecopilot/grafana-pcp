@@ -19,7 +19,7 @@ import {
     InstanceName,
     Semantics,
 } from './pcp';
-import { mapValues, every } from 'lodash';
+import { mapValues, every, isString } from 'lodash';
 import { applyTransformations } from './field_transformations';
 import { getTemplateSrv } from '@grafana/runtime';
 
@@ -272,6 +272,73 @@ function toMetricsTable(
     return tableDataFrame;
 }
 
+function* parseCsvLine(line: string) {
+    let quote = '';
+    let record = '';
+    for (const char of line) {
+        // no quotation
+        if (quote.length === 0) {
+            if (char === '"' || char === "'") {
+                // start quotation
+                quote = char;
+            } else if (char === ',') {
+                yield record;
+                record = '';
+            } else {
+                record += char;
+            }
+        }
+        // inside quotation
+        else {
+            if (char === quote) {
+                // end quotation
+                quote = '';
+            } else {
+                record += char;
+            }
+        }
+    }
+    if (record.length > 0) {
+        yield record;
+    }
+}
+
+function toCsvTable(dataFrameAndResults: Array<{ result: QueryResult; dataFrame: MutableDataFrame; metric: Metric }>) {
+    let tableText = '';
+    if (dataFrameAndResults.length === 1 && dataFrameAndResults[0].metric.values.length > 0) {
+        const snapshots = dataFrameAndResults[0].metric.values;
+        const lastSnapshot = snapshots[snapshots.length - 1];
+        if (lastSnapshot.values.length > 0) {
+            const lastValue = lastSnapshot.values[0].value;
+            if (isString(lastValue) && lastValue.includes(',')) {
+                tableText = lastValue;
+            }
+        }
+    }
+
+    const tableDataFrame = new MutableDataFrame();
+    const lines = tableText.split('\n');
+    for (let line of lines) {
+        line = line.trim();
+        if (line.length === 0) {
+            continue;
+        }
+
+        if (tableDataFrame.fields.length === 0) {
+            const header = Array.from(parseCsvLine(line));
+            for (const title of header) {
+                tableDataFrame.addField({ name: title });
+            }
+        } else {
+            const row = Array.from(parseCsvLine(line));
+            for (let i = 0; i < tableDataFrame.fields.length; i++) {
+                tableDataFrame.fields[i].values.add(row[i]);
+            }
+        }
+    }
+    return tableDataFrame;
+}
+
 export function processTargets(
     request: DataQueryRequest,
     results: QueryResult[],
@@ -286,45 +353,30 @@ export function processTargets(
         throw new Error('Format must be the same for all queries of a panel.');
     }
 
+    const dataFrameAndResults = results.flatMap(result =>
+        result.metrics.map(metric => ({
+            result,
+            metric,
+            dataFrame: applyTransformations(
+                format,
+                metric.metadata,
+                toDataFrame(request, result, metric, sampleIntervalSec)
+            ),
+        }))
+    );
+
     if (format === TargetFormat.TimeSeries) {
-        return results
-            .flatMap(result =>
-                result.metrics.map(metric => {
-                    const dataFrame = applyTransformations(
-                        format,
-                        metric.metadata,
-                        toDataFrame(request, result, metric, sampleIntervalSec)
-                    );
-                    return toTimeSeries(request, result, metric, dataFrame);
-                })
-            )
+        return dataFrameAndResults
+            .map(({ result, metric, dataFrame }) => toTimeSeries(request, result, metric, dataFrame))
             .filter(dataFrame => dataFrame.fields.length > 1);
     } else if (format === TargetFormat.Heatmap) {
-        return results
-            .flatMap(result =>
-                result.metrics.map(metric => {
-                    const dataFrame = applyTransformations(
-                        format,
-                        metric.metadata,
-                        toDataFrame(request, result, metric, sampleIntervalSec)
-                    );
-                    return toHeatMap(request, result, metric, dataFrame);
-                })
-            )
+        return dataFrameAndResults
+            .map(({ result, metric, dataFrame }) => toHeatMap(request, result, metric, dataFrame))
             .filter(dataFrame => dataFrame.fields.length > 1);
     } else if (format === TargetFormat.MetricsTable) {
-        const dataFrameAndResults = results.flatMap(result =>
-            result.metrics.map(metric => ({
-                result,
-                dataFrame: applyTransformations(
-                    format,
-                    metric.metadata,
-                    toDataFrame(request, result, metric, sampleIntervalSec)
-                ),
-                metric,
-            }))
-        );
         return [toMetricsTable(request, dataFrameAndResults)];
+    } else if (format === TargetFormat.CsvTable) {
+        return [toCsvTable(dataFrameAndResults)];
     } else {
         throw { message: `Invalid target format '${format}'.` };
     }

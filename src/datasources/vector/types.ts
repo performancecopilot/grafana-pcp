@@ -14,5 +14,5 @@ export const defaultVectorQuery: Partial<VectorQuery> = {
 };
 
 export interface VectorTargetData {
-    isDerivedMetric?: boolean;
+    isDerivedMetric: boolean;
 }

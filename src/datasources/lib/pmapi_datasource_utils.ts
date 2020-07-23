@@ -23,8 +23,8 @@ export function getRequestOptions(instanceSettings: DataSourceInstanceSettings) 
 export function buildQueries<Q extends PmapiQuery>(
     request: DataQueryRequest<Q>,
     defaultQuery: Partial<Q>,
-    defaultUrl: string,
-    defaultHostspec: string
+    defaultUrl?: string,
+    defaultHostspec?: string
 ): CompletePmapiQuery[] {
     return request.targets
         .map(target => defaults(target, defaultQuery))
