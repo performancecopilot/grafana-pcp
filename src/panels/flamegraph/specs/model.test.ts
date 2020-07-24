@@ -1,4 +1,4 @@
-import { LoadingState, PanelData, MutableDataFrame, FieldType } from '@grafana/data';
+import { LoadingState, PanelData, MutableDataFrame, FieldType, MISSING_VALUE } from '@grafana/data';
 import { generateFlameGraphModel } from '../model';
 
 describe('Model', () => {
@@ -10,36 +10,27 @@ describe('Model', () => {
                 new MutableDataFrame({
                     name: '',
                     fields: [
-                        { name: 'time', type: FieldType.time, values: [1] },
-                        { name: 'data', values: [1] },
-                    ],
-                }),
-                new MutableDataFrame({
-                    name: '\n    write+24\n    0x3266377830202020\n',
-                    fields: [
-                        { name: 'time', type: FieldType.time, values: [2] },
-                        { name: 'data', values: [2] },
-                    ],
-                }),
-                new MutableDataFrame({
-                    name: '\n    write+24\n    0x3266377830202020\n    0x123',
-                    fields: [
-                        { name: 'time', type: FieldType.time, values: [1] },
-                        { name: 'data', values: [3] },
-                    ],
-                }),
-                new MutableDataFrame({
-                    name: '\n    writev+24\n    0x400007ffd\n',
-                    fields: [
-                        { name: 'time', type: FieldType.time, values: [3] },
-                        { name: 'data', values: [4] },
-                    ],
-                }),
-                new MutableDataFrame({
-                    name: '\n    zmalloc_get_rss+20\n',
-                    fields: [
-                        { name: 'time', type: FieldType.time, values: [1] },
-                        { name: 'data', values: [5] },
+                        { name: 'Time', type: FieldType.time, values: [1, 2, 3] },
+                        {
+                            name: '\n    write+24\n    0x3266377830202020\n',
+                            config: { custom: { instanceName: '\n    write+24\n    0x3266377830202020\n' } },
+                            values: [MISSING_VALUE, 2],
+                        },
+                        {
+                            name: '\n    write+24\n    0x3266377830202020\n    0x123',
+                            config: { custom: { instanceName: '\n    write+24\n    0x3266377830202020\n    0x123' } },
+                            values: [3],
+                        },
+                        {
+                            name: '\n    writev+24\n    0x400007ffd\n',
+                            config: { custom: { instanceName: '\n    writev+24\n    0x400007ffd\n' } },
+                            values: [MISSING_VALUE, MISSING_VALUE, 4],
+                        },
+                        {
+                            name: '\n    zmalloc_get_rss+20\n',
+                            config: { custom: { instanceName: '\n    zmalloc_get_rss+20\n' } },
+                            values: [5],
+                        },
                     ],
                 }),
             ],
@@ -104,22 +95,17 @@ describe('Model', () => {
                 new MutableDataFrame({
                     name: '',
                     fields: [
-                        { name: 'time', type: FieldType.time, values: [1] },
-                        { name: 'data', values: [1] },
-                    ],
-                }),
-                new MutableDataFrame({
-                    name: 'swapper/2,\n    write+24\n    0x3266377830202020\n',
-                    fields: [
-                        { name: 'time', type: FieldType.time, values: [2] },
-                        { name: 'data', values: [2] },
-                    ],
-                }),
-                new MutableDataFrame({
-                    name: 'Xorg,\n    read+24\n    0x123\n    0x456',
-                    fields: [
-                        { name: 'time', type: FieldType.time, values: [1] },
-                        { name: 'data', values: [3] },
+                        { name: 'Time', type: FieldType.time, values: [1, 2] },
+                        {
+                            name: 'swapper/2,\n    write+24\n    0x3266377830202020\n',
+                            config: { custom: { instanceName: 'swapper/2,\n    write+24\n    0x3266377830202020\n' } },
+                            values: [MISSING_VALUE, 2],
+                        },
+                        {
+                            name: 'Xorg,\n    read+24\n    0x123\n    0x456',
+                            config: { custom: { instanceName: 'Xorg,\n    read+24\n    0x123\n    0x456' } },
+                            values: [3],
+                        },
                     ],
                 }),
             ],
