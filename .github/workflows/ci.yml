@@ -26,11 +26,8 @@ jobs:
     - name: Install jsonnet dependencies
       run: make vendor
 
-    - name: Build
+    - name: Test and Build
       run: make build
-
-    - name: Test
-      run: make test
 
     - name: Publish build artifact
       uses: actions/upload-artifact@v2
