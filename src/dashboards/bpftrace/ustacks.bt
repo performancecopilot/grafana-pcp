@@ -1,0 +1,18 @@
+/*
+ * sample user stacks every 99 Hz, and clear map every 5 seconds
+ *
+ * 30-Oct-2019  Andreas Gerstmayr  Created this.
+ */
+// include: @stacks
+// custom-output-block
+
+profile:hz:99 { @stacks[ustack] = count(); }
+
+interval:s:1 {
+  print(@stacks);
+  @cnt++;
+  if (@cnt >= 5) {
+    clear(@stacks);
+    @cnt = 0;
+  }
+}

@@ -1,0 +1,6 @@
+tracepoint:syscalls:sys_enter_open, tracepoint:syscalls:sys_enter_openat { @open = count(); }
+tracepoint:syscalls:sys_enter_read { @read = count(); }
+tracepoint:syscalls:sys_enter_write { @write = count(); }
+tracepoint:syscalls:sys_enter_recvmsg { @recvmsg = count(); }
+tracepoint:syscalls:sys_enter_sendmsg { @sendmsg = count(); }
+tracepoint:syscalls:sys_enter_execve, tracepoint:syscalls:sys_enter_execveat { @execve = count(); }
