@@ -104,7 +104,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         const result = queries
             .map(query => this.state.poller.query(query))
             .filter(result => result !== null) as QueryResult[];
-        const data = processTargets(request, result, 10);
+        const data = processTargets(request, result, 1);
 
         log.debug('query', request, data);
         return { data };

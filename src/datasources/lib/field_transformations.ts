@@ -10,7 +10,7 @@ function cloneFieldDefinitions(input: MutableDataFrame) {
     return output;
 }
 
-function rateConversion(input: MutableDataFrame) {
+function rateConversion(input: MutableDataFrame, discreteValues = false) {
     const output = cloneFieldDefinitions(input);
     for (let i = 1; i < input.length; i++) {
         for (const field of input.fields) {
@@ -18,7 +18,11 @@ function rateConversion(input: MutableDataFrame) {
                 const diff = field.values.get(i) - field.values.get(i - 1);
                 if (diff >= 0) {
                     const deltaSec = (input.values['Time'].get(i) - input.values['Time'].get(i - 1)) / 1000;
-                    output.values[field.name].add(diff / deltaSec);
+                    if (discreteValues) {
+                        output.values[field.name].add(Math.round(diff / deltaSec));
+                    } else {
+                        output.values[field.name].add(diff / deltaSec);
+                    }
                 } else {
                     // counter wrap
                     // we don't know if the counter wrapped multiple times
@@ -59,10 +63,12 @@ export function applyTransformations(
     dataFrame: MutableDataFrame
 ) {
     if (metadata.sem === Semantics.Counter) {
-        dataFrame = rateConversion(dataFrame);
+        const discreteValues = targetFormat === TargetFormat.FlameGraph;
+        dataFrame = rateConversion(dataFrame, discreteValues);
 
         if (targetFormat !== TargetFormat.Heatmap && metadata.units in PCP_TIME_UNITS) {
             // for time based counters, convert to time utilization
+            // but not for heatmaps, otherwise bcc.runq.latency would also get converted
             dataFrame = divideBy(dataFrame, PCP_TIME_UNITS[metadata.units]!);
             for (const field of dataFrame.fields) {
                 field.config.unit = 'percentunit';

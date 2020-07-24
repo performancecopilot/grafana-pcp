@@ -187,6 +187,7 @@ export class Poller {
         // reset errors for pending targets - will try again
         pendingTargets.forEach(target => (target.errors = []));
 
+        log.debug('registering targets', pendingTargets);
         await Promise.all(
             pendingTargets.map(target =>
                 this.hooks
@@ -313,7 +314,7 @@ export class Poller {
         this.cleanInactiveTargets();
         this.cleanHistoryData();
 
-        log.debug('polling endpoints', this.state.endpoints);
+        log.trace('polling endpoints', this.state.endpoints);
         await Promise.all(
             this.state.endpoints.map(endpoint =>
                 this.pollEndpointAndHandleContextTimeout(endpoint).catch(error => {
@@ -322,6 +323,12 @@ export class Poller {
                 })
             )
         );
+    }
+
+    deregisterTarget(endpoint: Endpoint, target: Target) {
+        log.debug('deregistering target', target);
+        this.hooks.deregisterTarget?.(target);
+        remove(endpoint.targets, target);
     }
 
     cleanInactiveTargets() {
@@ -333,7 +340,8 @@ export class Poller {
 
         const keepPolling = new Date().getTime() - (this.refreshIntervalMs + config.gracePeriodMs);
         for (const endpoint of this.state.endpoints) {
-            endpoint.targets = endpoint.targets.filter(target => target.lastActiveMs > keepPolling);
+            const targetsToDeregister = endpoint.targets.filter(target => target.lastActiveMs <= keepPolling);
+            targetsToDeregister.forEach(target => this.deregisterTarget(endpoint, target));
         }
     }
 
@@ -382,8 +390,7 @@ export class Poller {
         } else {
             if (target) {
                 // target exists but has changed -> remove from list & create a new target
-                this.hooks.deregisterTarget?.(target);
-                remove(endpoint.targets, t => t === target);
+                this.deregisterTarget(endpoint, target);
             }
 
             target = {

@@ -377,6 +377,8 @@ export function processTargets(
         return [toMetricsTable(request, dataFrameAndResults)];
     } else if (format === TargetFormat.CsvTable) {
         return [toCsvTable(dataFrameAndResults)];
+    } else if (format === TargetFormat.FlameGraph) {
+        return dataFrameAndResults.map(({ dataFrame }) => dataFrame);
     } else {
         throw { message: `Invalid target format '${format}'.` };
     }

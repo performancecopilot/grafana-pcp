@@ -1,7 +1,7 @@
 import { PanelData } from '@grafana/data';
 import { StackFrame } from 'd3-flame-graph';
 import { Options } from './types';
-import { getTimeField, getFlotPairs, FieldType, NullValueMode } from '@grafana/data';
+import { getTimeField, FieldType } from '@grafana/data';
 
 interface FlameGraphModel {
     root: StackFrame;
@@ -9,9 +9,9 @@ interface FlameGraphModel {
     maxDate: number;
 }
 
-function readStacks(root: StackFrame, options: Options, dataFrameName: string, count: number) {
+function readStacks(root: StackFrame, options: Options, instanceName: string, count: number) {
     let curNode = root;
-    const stacks = dataFrameName.split(/[\n,]/);
+    const stacks = instanceName.split(/[\n,]/);
     for (let stackFrame of stacks) {
         stackFrame = stackFrame.trim();
         if (!stackFrame || (options.hideUnresolvedStackFrames && stackFrame.startsWith('0x'))) {
@@ -38,47 +38,36 @@ export function generateFlameGraphModel(panelData: PanelData, options: Options):
         maxDate: 0,
     };
 
-    // dataFrame == target == PCP instance == stack
-    for (const dataFrame of panelData.series) {
-        const { timeField } = getTimeField(dataFrame);
-        if (!timeField) {
+    if (panelData.series.length !== 1) {
+        return model;
+    }
+
+    const dataFrame = panelData.series[0];
+    const { timeField } = getTimeField(dataFrame);
+    if (!timeField || dataFrame.length === 0) {
+        return model;
+    }
+
+    model.minDate = timeField.values.get(0);
+    model.maxDate = timeField.values.get(timeField.values.length - 1);
+
+    for (const field of dataFrame.fields) {
+        if (field.type !== FieldType.number || !field.config.custom?.instanceName) {
             continue;
         }
 
-        for (const field of dataFrame.fields) {
-            if (field.type !== FieldType.number) {
-                continue;
-            }
-            const points = getFlotPairs({
-                xField: timeField,
-                yField: field,
-                nullValueMode: NullValueMode.AsZero,
-            });
-
-            if (!dataFrame.name || points.length === 0) {
-                continue;
-            }
-
-            // each dataframe (stack) is a rate-converted counter
-            // sum all rates in the selected time frame
-            const count = points.reduce((prev, cur) => prev + cur[1]!, 0);
-            if (count < options.minSamples) {
-                continue;
-            }
-
-            // we have to examine all stacks, as we clear dataframes every 5 seconds
-            // it's possible that the first stack got only sampled a fraction of the overall time period
-            const minDate = points[0][0]!;
-            const maxDate = points[points.length - 1][0]!;
-            if (!model.minDate || minDate < model.minDate) {
-                model.minDate = minDate;
-            }
-            if (!model.maxDate || maxDate > model.maxDate) {
-                model.maxDate = maxDate;
-            }
-
-            readStacks(model.root, options, dataFrame.name, count);
+        // each dataframe (stack) is a rate-converted counter
+        // sum all rates in the selected time frame
+        let count = 0;
+        for (let i = 0; i < field.values.length; i++) {
+            count += field.values.get(i);
         }
+        if (count < options.minSamples) {
+            continue;
+        }
+
+        readStacks(model.root, options, field.config.custom?.instanceName, count);
     }
+
     return model;
 }

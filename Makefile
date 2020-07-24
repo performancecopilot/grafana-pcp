@@ -6,7 +6,7 @@ JSONNET = jsonnet
 JSONNETBUNDLER = jb
 
 DASHBOARD_DIR := src/dashboards
-DASHBOARDS := $(addprefix $(DASHBOARD_DIR)/,pcp-vector-host-overview.json pcp-vector-container-overview-cgroups1.json pcp-vector-container-overview-cgroups2.json pcp-vector-bcc-overview.json fulltext-graph-preview.json fulltext-table-preview.json)
+DASHBOARDS := $(addprefix $(DASHBOARD_DIR)/,pcp-vector-host-overview.json pcp-vector-container-overview-cgroups1.json pcp-vector-container-overview-cgroups2.json pcp-vector-bcc-overview.json pcp-bpftrace-system-analysis.json pcp-bpftrace-flame-graphs.json fulltext-graph-preview.json fulltext-table-preview.json)
 
 default: build
 
