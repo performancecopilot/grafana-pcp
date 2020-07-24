@@ -113,7 +113,7 @@ function getFieldMetadata(
     };
 }
 
-function toDataFrame(request: DataQueryRequest, result: QueryResult, metric: Metric, sampleIntervalSec: number) {
+export function toDataFrame(request: DataQueryRequest, result: QueryResult, metric: Metric, sampleIntervalSec: number) {
     let requestRangeFromMs = request.range?.from.valueOf()!;
     let requestRangeToMs = request.range?.to.valueOf()!;
 
@@ -166,6 +166,13 @@ function toDataFrame(request: DataQueryRequest, result: QueryResult, metric: Met
         for (const instanceValue of snapshot.values) {
             let field = instanceIdToField.get(instanceValue.instance)!;
             field.values.add(instanceValue.value);
+        }
+
+        // some instance existed previously but disappeared -> fill field with MISSING_VALUE
+        for (const field of instanceIdToField.values()) {
+            if (field.values.length !== timeField.values.length) {
+                field.values.add(MISSING_VALUE);
+            }
         }
     }
     return dataFrame;
