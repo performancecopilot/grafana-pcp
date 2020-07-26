@@ -3,13 +3,14 @@ import PmSeriesApiService from './PmSeriesApiService';
 import _ from 'lodash';
 import { SeriesLabelsItemResponse, SeriesDescResponse } from '../models/endpoints/series';
 import { MetricEntity, MetricEntitySeries } from '../models/entities/metric';
-import { SearchEntity, TextItemResponseField } from '../models/endpoints/search';
+import { SearchEntity, TextItemResponseField, TextItemResponse } from '../models/endpoints/search';
+import { IndomEntity } from '../models/entities/indom';
 
 type LabelsAndMeta = SeriesLabelsItemResponse[] & SeriesDescResponse;
 
 class EntityService {
-    searchService: PmSearchApiService;
-    seriesService: PmSeriesApiService;
+    private searchService: PmSearchApiService;
+    private seriesService: PmSeriesApiService;
 
     constructor(searchService: PmSearchApiService, seriesService: PmSeriesApiService) {
         this.searchService = searchService;
@@ -74,7 +75,41 @@ class EntityService {
         };
     }
 
-    async indom(indom: string) {}
+    async indom(indom: string): Promise<IndomEntity | null> {
+        const { searchService } = this;
+        if (indom === '') {
+            throw Error('Indom identifier cannot be empty.');
+        }
+        const indomData = await searchService.indom({ query: indom, limit: 999 });
+        if (indomData === null) {
+            throw Error('Unable to find any data related to given indom identifier');
+        }
+        const groupedData = _.groupBy(indomData.results, x => x.type);
+        if (!groupedData.indom) {
+            throw Error('Unable to find any such indom');
+        }
+        const mapSparseData = (x: TextItemResponse): Omit<TextItemResponse, 'type' | 'indom'> => ({
+            name: x.name,
+            oneline: x.oneline,
+            helptext: x.helptext,
+        });
+        return {
+            indom: groupedData.indom.map(mapSparseData)[0],
+            metrics: groupedData.metric?.map(mapSparseData) ?? [],
+            instances: groupedData.instance?.map(mapSparseData) ?? [],
+        };
+    }
+
+    async relatedMetricNames(metricName: string, depth: number): Promise<string[]> {
+        const { seriesService } = this;
+        const metricNameSegments = metricName.split('.');
+        if (!(depth - 1 < metricNameSegments.length) || depth < 1) {
+            return [];
+        }
+        const parents = metricNameSegments.slice(0, depth * -1);
+        const data = (await seriesService.metrics({ match: `${parents.join('.')}*` })) as string[];
+        return data.sort();
+    }
 }
 
 export default EntityService;

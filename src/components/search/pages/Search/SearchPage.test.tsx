@@ -38,9 +38,6 @@ describe('<SearchPage/>', () => {
                     elapsed: 0.001047,
                     results: [
                         {
-                            docid: 'e2fbdde2fa19c29a5385b82de5744a87f2333c77',
-                            count: 1,
-                            score: 0,
                             name: '60.10',
                             type: EntityType.InstanceDomain,
                             indom: '',
@@ -48,9 +45,6 @@ describe('<SearchPage/>', () => {
                             helptext: '',
                         },
                         {
-                            docid: 'ae9a90d0ae9f61f4bf4b431215ad2ae5771a74ec',
-                            count: 2,
-                            score: 0,
                             name: '<b>disk</b>.all.avactive',
                             type: EntityType.Metric,
                             indom: '',
@@ -59,9 +53,6 @@ describe('<SearchPage/>', () => {
                                 'Counts the number of milliseconds for which at least one I/O is in\nprogress on each <b>disk</b>, summed across all disks.\n\nWhen converted to a rate and divided by the number of disks (hinv.ndisk),\nthis metric represents the average utilization of all disks during the\nsampling interval.  A value of 0.25 (or 25%) means that on average every\ndisk was active (i.e. busy) one quarter of the time.',
                         },
                         {
-                            docid: '16412319d4613137f21b6a030e9de71a51a18065',
-                            count: 3,
-                            score: 0,
                             name: '<b>disk</b>.all.aveq',
                             type: EntityType.Metric,
                             indom: '',
@@ -70,9 +61,6 @@ describe('<SearchPage/>', () => {
                                 'When converted to a rate, this metric represents the average across all disks\nof the time averaged request queue length during the sampling interval.  A\nvalue of 1.5 (or 150%) suggests that (on average) each all <b>disk</b> experienced a\ntime averaged queue length of 1.5 requests during the sampling interval.',
                         },
                         {
-                            docid: '5d30d5061b5159720984526fa155c27408d65fde',
-                            count: 4,
-                            score: 0,
                             name: '<b>disk</b>.all.blkread',
                             type: EntityType.Metric,
                             indom: '',
@@ -81,9 +69,6 @@ describe('<SearchPage/>', () => {
                                 'Cumulative number of <b>disk</b> block read operations since system boot time\n(subject to counter wrap), summed over all <b>disk</b> devices.',
                         },
                         {
-                            docid: 'ff4bd24a15efed169f1b0c79b6e7ac29d6f09171',
-                            count: 5,
-                            score: 0,
                             name: '<b>disk</b>.all.blktotal',
                             type: EntityType.Metric,
                             indom: '',
@@ -92,9 +77,6 @@ describe('<SearchPage/>', () => {
                                 'Cumulative number of <b>disk</b> block read and write operations since system\nboot time (subject to counter wrap), summed over all <b>disk</b> devices.',
                         },
                         {
-                            docid: 'f720d8bea05750c5b3e607151753d850d1030edd',
-                            count: 6,
-                            score: 0,
                             name: '<b>disk</b>.all.blkwrite',
                             type: EntityType.Metric,
                             indom: '',
@@ -103,9 +85,6 @@ describe('<SearchPage/>', () => {
                                 'Cumulative number of <b>disk</b> block write operations since system boot time\n(subject to counter wrap), summed over all <b>disk</b> devices.',
                         },
                         {
-                            docid: 'b4e970668dea3b77fac5b78e39617fabccd7cec3',
-                            count: 7,
-                            score: 0,
                             name: '<b>disk</b>.all.read',
                             type: EntityType.Metric,
                             indom: '',
@@ -114,9 +93,6 @@ describe('<SearchPage/>', () => {
                                 'Cumulative number of <b>disk</b> read operations since system boot time\n(subject to counter wrap), summed over all <b>disk</b> devices.',
                         },
                         {
-                            docid: 'c6a3f583cc86db82fa977819684d2564e508519d',
-                            count: 8,
-                            score: 0,
                             name: '<b>disk</b>.all.read_bytes',
                             type: EntityType.Metric,
                             indom: '',

@@ -44,24 +44,26 @@ export enum TextItemResponseField {
 }
 
 export interface TextItemResponse {
-    docid: string; // docId from redisearch
     /* All the ones below may be omited when they are filtered out by ?return param, or whey they lack any value (helptexts for example) */
-    count: number;
-    score: number;
-    name: string; // name field
-    type: EntityType; // type field (we always have only single type value on any record
-    indom: string; // indom field
-    oneline: string; // oneline field
-    helptext: string; // helptext field
+    name?: string; // name field
+    type?: EntityType; // type field (we always have only single type value on any record
+    indom?: string; // indom field
+    oneline?: string; // oneline field
+    helptext?: string; // helptext field
 }
 
 export interface TextResponse {
-    elapsed: number;
-    results: TextItemResponse[];
     total: number; // Redisearch returns total number of matching records even if results themselves are limited
-    // TODO: make sure that they are included in the response
+    elapsed: number;
     limit: number;
     offset: number;
+    results: TextItemResponse[];
+}
+
+export interface IndomQueryParams {
+    query: string;
+    limit?: number;
+    offset?: number;
 }
 
 export type TextMaybeResponse = TextResponse | SearchNoRecordResponse;

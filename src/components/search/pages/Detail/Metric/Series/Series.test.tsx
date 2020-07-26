@@ -8,6 +8,7 @@ describe('Metric <Series/>', () => {
 
     beforeEach(() => {
         seriesProps = {
+            openDetail: jest.fn(),
             series: {
                 series: 'series1',
                 meta: {

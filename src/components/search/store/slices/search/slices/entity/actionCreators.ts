@@ -15,7 +15,7 @@ import {
     LOAD_METRIC_SIBLINGS_ERROR,
 } from './types';
 import { Services } from '../../../../../services/services';
-import { indomFetchEndpoint } from '../../../../../mocks/endpoints';
+
 export const loadMetric = (id: string): ThunkAction<Promise<string>, {}, Services, LoadMetricAction> => async (
     dispatch: ThunkDispatch<{}, {}, LoadMetricAction>,
     {},
@@ -39,21 +39,21 @@ export const loadMetric = (id: string): ThunkAction<Promise<string>, {}, Service
 };
 
 export const loadMetricSiblings = (
-    metricName: string
+    metricName: string,
+    depth: number = 1
 ): ThunkAction<Promise<void>, {}, Services, LoadMetricSiblingsAction> => async (
     dispatch: ThunkDispatch<{}, {}, LoadMetricSiblingsAction>,
     {},
-    { seriesService }
+    { entityService }
 ): Promise<void> => {
     dispatch({ type: LOAD_METRIC_SIBLINGS_INIT });
     dispatch({ type: LOAD_METRIC_SIBLINGS_PENDING });
     try {
-        const parents = metricName.split('.').slice(0, -1);
-        const data = (await seriesService.metrics({ match: `${parents.join('.')}*` })) as string[];
+        const data = await entityService.relatedMetricNames(metricName, depth);
         dispatch({
             type: LOAD_METRIC_SIBLINGS_SUCCESS,
             payload: {
-                data: data.sort(),
+                data,
             },
         });
     } catch (e) {
@@ -65,19 +65,21 @@ export const loadMetricSiblings = (
 export const loadIndom = (id: string): ThunkAction<Promise<void>, {}, Services, LoadIndomAction> => async (
     dispatch: ThunkDispatch<{}, {}, LoadIndomAction>,
     {},
-    {}
+    { entityService }
 ): Promise<void> => {
     dispatch({ type: LOAD_INDOM_INIT });
     dispatch({ type: LOAD_INDOM_PENDING });
     try {
-        const data = await indomFetchEndpoint(id);
+        // @ts-ignore
+        const data = await entityService.indom(id);
         dispatch({
             type: LOAD_INDOM_SUCCESS,
             payload: {
                 data,
             },
         });
-    } catch {
+    } catch (e) {
+        console.log(e);
         dispatch({ type: LOAD_INDOM_ERROR });
     }
 };

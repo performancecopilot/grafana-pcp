@@ -7,6 +7,7 @@ describe('Metric <Meta/>', () => {
 
     beforeEach(() => {
         metaProps = {
+            onIndomClick: jest.fn(),
             meta: {
                 pmid: 'pmid',
                 type: 'type',

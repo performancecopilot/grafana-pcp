@@ -38,80 +38,41 @@ describe('Detail Page <InstanceDomainPage/>', () => {
             onUnbookmark: jest.fn(),
             indom: {
                 data: {
-                    context: 927862141,
-                    indom: '60.3',
-                    labels: {
-                        device_type: 'interface',
-                        domainname: 'localdomain',
-                        hostname: 'localhost.localdomain',
-                        indom_name: 'per interface',
-                        machineid: 'e89b1710db70431e96453dae52cd95c2',
+                    indom: {
+                        name: '60.3',
+                        oneline: 'set of network interfaces',
                     },
-                    'text-oneline': 'set of network interfaces',
-                    'text-help': 'set of network interfaces',
                     instances: [
                         {
-                            instance: 5,
-                            name: 'docker0',
-                            labels: {
-                                domainname: 'localdomain',
-                                hostname: 'localhost.localdomain',
-                                machineid: 'e89b1710db70431e96453dae52cd95c2',
-                            },
-                        },
-                        {
-                            instance: 2,
-                            name: 'wlp0s20f3',
-                            labels: {
-                                domainname: 'localdomain',
-                                hostname: 'localhost.localdomain',
-                                machineid: 'e89b1710db70431e96453dae52cd95c2',
-                            },
-                        },
-                        {
-                            instance: 35,
-                            name: 'veth80732b1',
-                            labels: {
-                                domainname: 'localdomain',
-                                hostname: 'localhost.localdomain',
-                                machineid: 'e89b1710db70431e96453dae52cd95c2',
-                            },
-                        },
-                        {
-                            instance: 0,
-                            name: 'lo',
-                            labels: {
-                                domainname: 'localdomain',
-                                hostname: 'localhost.localdomain',
-                                machineid: 'e89b1710db70431e96453dae52cd95c2',
-                            },
-                        },
-                        {
-                            instance: 4,
                             name: 'virbr0-nic',
-                            labels: {
-                                domainname: 'localdomain',
-                                hostname: 'localhost.localdomain',
-                                machineid: 'e89b1710db70431e96453dae52cd95c2',
-                            },
                         },
                         {
-                            instance: 3,
                             name: 'virbr0',
-                            labels: {
-                                domainname: 'localdomain',
-                                hostname: 'localhost.localdomain',
-                                machineid: 'e89b1710db70431e96453dae52cd95c2',
-                            },
                         },
                         {
-                            instance: 1,
+                            name: 'wlp0s20f3',
+                        },
+                        {
                             name: 'ens20u2',
-                            labels: {
-                                domainname: 'localdomain',
-                                hostname: 'localhost.localdomain',
-                                machineid: 'e89b1710db70431e96453dae52cd95c2',
-                            },
+                        },
+                        {
+                            name: 'lo',
+                        },
+                        {
+                            name: 'veth2d4d8bb',
+                        },
+                        {
+                            name: 'docker0',
+                        },
+                    ],
+                    metrics: [
+                        {
+                            name: 'network.interface.wireless',
+                            oneline: 'boolean for whether interface is wireless',
+                        },
+                        {
+                            name: 'network.interface.up',
+                            oneline: 'boolean for whether interface is currently up or down',
                         },
                     ],
                 },
@@ -133,7 +94,7 @@ describe('Detail Page <InstanceDomainPage/>', () => {
 
     test('displays unbookmark button when instance domain is bookmarked', () => {
         // this metric is not in bookmarked items mock
-        (instanceDomainDetailProps.indom.data as IndomEntity).indom = '60.2';
+        (instanceDomainDetailProps.indom.data as IndomEntity).indom.name = '60.2';
         const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
         expect(wrapper.exists('[data-test="unbookmark-button"]')).toBe(true);
     });
@@ -149,7 +110,7 @@ describe('Detail Page <InstanceDomainPage/>', () => {
     });
 
     test('can trigger unbookmark', () => {
-        (instanceDomainDetailProps.indom.data as IndomEntity).indom = '60.2';
+        (instanceDomainDetailProps.indom.data as IndomEntity).indom.name = '60.2';
         const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
         const unbookmarkButton = wrapper.find('[data-test="unbookmark-button"]');
         unbookmarkButton.simulate('click');
@@ -195,7 +156,6 @@ describe('Detail Page <InstanceDomainPage/>', () => {
             const instanceRecord = wrapper.find(`[data-test="${instance.name}-record"]`);
             expect(instanceRecord.exists()).toBe(true);
             expect(instanceRecord.find('[data-test="instance-name"]').text()).toBe(instance.name);
-            expect(instanceRecord.find('[data-test="instance-value"]').text()).toBe(instance.instance.toString());
         });
     });
 
