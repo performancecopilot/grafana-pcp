@@ -8,7 +8,7 @@ export enum SearchEntity {
 
 export enum EntityType {
     Metric = 'metric',
-    Instance = 'inst',
+    Instance = 'instance',
     InstanceDomain = 'indom',
 }
 

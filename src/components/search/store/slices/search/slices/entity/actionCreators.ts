@@ -40,7 +40,7 @@ export const loadMetric = (id: string): ThunkAction<Promise<string>, {}, Service
 
 export const loadMetricSiblings = (
     metricName: string,
-    depth: number = 1
+    depth = 1
 ): ThunkAction<Promise<void>, {}, Services, LoadMetricSiblingsAction> => async (
     dispatch: ThunkDispatch<{}, {}, LoadMetricSiblingsAction>,
     {},
@@ -70,7 +70,6 @@ export const loadIndom = (id: string): ThunkAction<Promise<void>, {}, Services, 
     dispatch({ type: LOAD_INDOM_INIT });
     dispatch({ type: LOAD_INDOM_PENDING });
     try {
-        // @ts-ignore
         const data = await entityService.indom(id);
         dispatch({
             type: LOAD_INDOM_SUCCESS,
@@ -79,7 +78,7 @@ export const loadIndom = (id: string): ThunkAction<Promise<void>, {}, Services, 
             },
         });
     } catch (e) {
-        console.log(e);
         dispatch({ type: LOAD_INDOM_ERROR });
+        throw e;
     }
 };

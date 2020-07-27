@@ -33,6 +33,12 @@ describe('<BookmarkList/>', () => {
         expect(component.exists('[data-test="multicol"]')).toBe(true);
     });
 
+    test('items have title filled', () => {
+        const component = shallow(<BookmarkList bookmarks={bookmarkItems} {...placeholderCallbacks} theme={theme} />);
+        const buttons = component.find('[data-test="bookmark-go"]');
+        buttons.forEach(button => expect(button.prop('title')).toBeDefined());
+    });
+
     test('renders clear button by default', () => {
         const component = shallow(<BookmarkList bookmarks={bookmarkItems} {...placeholderCallbacks} theme={theme} />);
         expect(component.exists('[data-test="bookmark-reset"]')).toBe(true);

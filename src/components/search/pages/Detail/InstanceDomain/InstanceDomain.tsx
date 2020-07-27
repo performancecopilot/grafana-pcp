@@ -9,6 +9,7 @@ import {
     detailPageBtn,
     detailPageActions,
     detailPageEntityType,
+    detailPageProperties,
 } from '../styles';
 import { RootState } from '../../../store/reducer';
 import { IndomDataState } from '../../../store/slices/search/slices/entity/state';
@@ -17,6 +18,7 @@ import { EntityType } from '../../../models/endpoints/search';
 import { FetchStatus } from '../../../store/slices/search/shared/state';
 import Card from '../../../components/Card/Card';
 import Loader from '../../../components/Loader/Loader';
+import Instances from './Instances/Instances';
 
 const mapStateToProps = (state: RootState) => ({
     bookmarks: state.search.bookmarks,
@@ -166,18 +168,7 @@ export class InstanceDomainDetailPage extends React.Component<InstanceDomainDeta
                             </Button>
                         </header>
                         <div className={detailPageDescription} data-test="description">
-                            <VerticalGroup spacing="lg">
-                                <article>{renderDesc()}</article>
-                                <article>
-                                    <h4>Instances:</h4>
-                                    <p>
-                                        {data.instances.map((instance, i) =>
-                                            i === 0 ? instance.name : `, ${instance.name}`
-                                        )}
-                                    </p>
-                                    <p>Instance Count: {data.instances.length}</p>
-                                </article>
-                            </VerticalGroup>
+                            {renderDesc()}
                         </div>
                         <div className={detailPageActions}>
                             <HorizontalGroup spacing="lg" justify="space-between">
@@ -186,6 +177,13 @@ export class InstanceDomainDetailPage extends React.Component<InstanceDomainDeta
                         </div>
                     </article>
                 </Card>
+                <div className={detailPageProperties}>
+                    <VerticalGroup spacing="lg">
+                        <Card background="weak">
+                            <Instances instances={data.instances} data-test="instances" />
+                        </Card>
+                    </VerticalGroup>
+                </div>
             </VerticalGroup>
         );
     }

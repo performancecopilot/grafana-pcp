@@ -37,6 +37,12 @@ describe('<SearchHistoryList/>', () => {
         expect(component.exists('[data-test="multicol"]')).toBe(true);
     });
 
+    test('items have title filled', () => {
+        const component = shallow(<SearchHistoryList searchHistory={historyItems} {...placeholderCallbacks} />);
+        const buttons = component.find('[data-test="search-history-go"]');
+        buttons.forEach(button => expect(button.prop('title')).toBeDefined());
+    });
+
     test('renders clear button by default', () => {
         const component = shallow(<SearchHistoryList searchHistory={historyItems} {...placeholderCallbacks} />);
         expect(component.exists('[data-test="search-history-reset"]')).toBe(true);

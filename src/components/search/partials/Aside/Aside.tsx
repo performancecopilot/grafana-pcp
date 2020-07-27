@@ -70,7 +70,7 @@ export class Aside extends React.Component<AsideProps, {}> {
                 }
                 return (
                     <VerticalGroup spacing="md">
-                        <h4>Similar Metrics</h4>
+                        <h4>Series of similar metrics</h4>
                         <VerticalGroup spacing="xs">
                             {siblings.data?.map((m, i) =>
                                 m === metric.data?.name ? (

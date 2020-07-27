@@ -25,6 +25,7 @@ export class BookmarkList extends React.Component<BookmarkListProps, {}> {
         super(props);
         this.onClearBookmarksClick = this.onClearBookmarksClick.bind(this);
         this.onBookmarkClick = this.onBookmarkClick.bind(this);
+        this.bookmarkDesc = this.bookmarkDesc.bind(this);
     }
 
     onBookmarkClick(item: BookmarkItem) {
@@ -35,8 +36,12 @@ export class BookmarkList extends React.Component<BookmarkListProps, {}> {
         this.props.onClearBookmarksClick();
     }
 
+    bookmarkDesc(item: BookmarkItem): string {
+        return `${item.id} (type: ${item.type})`;
+    }
+
     render() {
-        const { props, onBookmarkClick, onClearBookmarksClick } = this;
+        const { props, onBookmarkClick, onClearBookmarksClick, bookmarkDesc } = this;
         const { bookmarks } = props;
 
         if (bookmarks.length === 0) {
@@ -63,6 +68,7 @@ export class BookmarkList extends React.Component<BookmarkListProps, {}> {
                                 icon="star"
                                 className={bookmarkListBtnWithNoSpacing}
                                 onClick={() => onBookmarkClick(item)}
+                                title={bookmarkDesc(item)}
                                 data-test="bookmark-go"
                             >
                                 {item.id}

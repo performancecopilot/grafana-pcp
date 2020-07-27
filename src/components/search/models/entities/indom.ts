@@ -1,7 +1,9 @@
 import { TextItemResponse } from '../endpoints/search';
 
+export type IndomEntitySparseItem = Omit<TextItemResponse, 'type' | 'indom'>;
+
 export interface IndomEntity {
-    indom: Omit<TextItemResponse, 'type' | 'indom'>;
-    metrics: Omit<TextItemResponse, 'type' | 'indom'>[];
-    instances: Omit<TextItemResponse, 'type' | 'indom'>[];
+    indom: IndomEntitySparseItem;
+    metrics: IndomEntitySparseItem[];
+    instances: IndomEntitySparseItem[];
 }

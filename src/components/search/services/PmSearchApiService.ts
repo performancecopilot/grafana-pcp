@@ -69,6 +69,12 @@ class PmSearchApiService {
         const { headers, baseUrl, backendSrv } = this;
         const getParams = new URLSearchParams();
         getParams.append('query', params.query);
+        if (params.limit !== undefined) {
+            getParams.append('limit', params.limit.toString());
+        }
+        if (params.offset !== undefined) {
+            getParams.append('offset', params.offset.toString());
+        }
         const options = {
             url: `${baseUrl}/search/indom?${getParams.toString()}`,
             methods: 'GET',

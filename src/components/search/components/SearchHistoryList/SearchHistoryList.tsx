@@ -8,6 +8,7 @@ import {
 import { cx } from 'emotion';
 import { SearchQuery } from '../../store/slices/search/shared/state';
 import { SearchEntityUtil } from '../../utils/SearchEntityUtil';
+import { wrappedBtn } from '../../styles';
 
 export interface SearchHistoryListProps {
     showClearBtn?: boolean;
@@ -72,7 +73,7 @@ export class SearchHistoryList extends React.Component<SearchHistoryListProps, {
                                 variant="link"
                                 size="md"
                                 icon="search"
-                                className={searchHistoryListBtnWithNoSpacing}
+                                className={cx(searchHistoryListBtnWithNoSpacing, wrappedBtn)}
                                 onClick={() => onSearchHistoryClick(item)}
                                 data-test="search-history-go"
                                 title={searchHistoryItemDesc(item)}

@@ -16,4 +16,15 @@ const appLayout = css`
     }
 `;
 
-export { appLayout };
+const wrappedBtn = css`
+    > span {
+        min-width: 0;
+    }
+
+    > span > span:nth-child(2) {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+`;
+export { appLayout, wrappedBtn };

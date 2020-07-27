@@ -12,6 +12,7 @@ import { EntityType } from '../../../models/endpoints/search';
 import { FetchStatus } from '../../../store/slices/search/shared/state';
 import { IndomEntity } from '../../../models/entities/indom';
 import { LoaderBasicProps } from '../../../components/Loader/Loader';
+import { InstancesProps } from './Instances/Instances';
 
 describe('Detail Page <InstanceDomainPage/>', () => {
     let mockReduxProps: InstanceDomainDetailPageReduxProps;
@@ -41,6 +42,7 @@ describe('Detail Page <InstanceDomainPage/>', () => {
                     indom: {
                         name: '60.3',
                         oneline: 'set of network interfaces',
+                        helptext: 'example helptext that may not really exist',
                     },
                     instances: [
                         {
@@ -105,7 +107,7 @@ describe('Detail Page <InstanceDomainPage/>', () => {
         bookmarkButton.simulate('click');
         const indom = (instanceDomainDetailProps.indom.data as IndomEntity).indom;
         const bookmarkCallback: jest.Mock<typeof instanceDomainDetailProps.onBookmark> = instanceDomainDetailProps.onBookmark as any;
-        expect(bookmarkCallback.mock.calls[0][0]).toEqual({ id: indom, type: EntityType.InstanceDomain });
+        expect(bookmarkCallback.mock.calls[0][0]).toEqual({ id: indom.name, type: EntityType.InstanceDomain });
         expect(bookmarkCallback).toHaveBeenCalled();
     });
 
@@ -116,7 +118,7 @@ describe('Detail Page <InstanceDomainPage/>', () => {
         unbookmarkButton.simulate('click');
         const indom = (instanceDomainDetailProps.indom.data as IndomEntity).indom;
         const unbookmarkCallback: jest.Mock<typeof instanceDomainDetailProps.onBookmark> = instanceDomainDetailProps.onUnbookmark as any;
-        expect(unbookmarkCallback.mock.calls[0][0]).toEqual({ id: indom, type: EntityType.InstanceDomain });
+        expect(unbookmarkCallback.mock.calls[0][0]).toEqual({ id: indom.name, type: EntityType.InstanceDomain });
         expect(unbookmarkCallback).toHaveBeenCalled();
     });
 
@@ -124,39 +126,44 @@ describe('Detail Page <InstanceDomainPage/>', () => {
         const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
         const title = wrapper.find('[data-test="title"]');
         expect(title.exists()).toBe(true);
-        expect(title.text()).toBe(instanceDomainDetailProps.indom.data?.indom);
+        expect(title.text()).toBe(instanceDomainDetailProps.indom.data?.indom.name);
     });
 
     test('displays description', () => {
         const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
         const description = wrapper.find('[data-test="description"]');
-        expect(description.exists());
+        expect(description.exists()).toBe(true);
+    });
+
+    test('displays instances', () => {
+        const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        const instances = wrapper.find('[data-test="instances"]');
+        expect(instances.exists()).toBe(true);
     });
 
     test('description priortizes long help text', () => {
         const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
         const description = wrapper.find('[data-test="description"]');
         expect(description.text()).toBe(
-            instanceDomainDetailProps.indom.data ? instanceDomainDetailProps.indom.data['text-help'] : ''
+            instanceDomainDetailProps.indom.data ? instanceDomainDetailProps.indom.data.indom.helptext : ''
         );
     });
 
     test('description falls back to oneline help when long help text is not available', () => {
-        (instanceDomainDetailProps.indom.data as IndomEntity)['text-help'] = '';
+        (instanceDomainDetailProps.indom.data as IndomEntity).indom.helptext = '';
         const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
         const description = wrapper.find('[data-test="description"]');
         expect(description.text()).toBe(
-            instanceDomainDetailProps.indom.data ? instanceDomainDetailProps.indom.data['text-oneline'] : ''
+            instanceDomainDetailProps.indom.data ? instanceDomainDetailProps.indom.data.indom.oneline : ''
         );
     });
 
-    test('displays list of all instance names + values', () => {
+    test('renders instances', () => {
         const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
-        (instanceDomainDetailProps.indom.data as IndomEntity).instances.forEach(instance => {
-            const instanceRecord = wrapper.find(`[data-test="${instance.name}-record"]`);
-            expect(instanceRecord.exists()).toBe(true);
-            expect(instanceRecord.find('[data-test="instance-name"]').text()).toBe(instance.name);
-        });
+        const instances = wrapper.find('[data-test="instances"]');
+        const instancesProps = instances.props() as InstancesProps;
+        expect(instances.exists()).toBe(true);
+        expect(instancesProps.instances).toBe(instanceDomainDetailProps.indom.data?.instances);
     });
 
     test('handles lack of instance domain data gracefully', () => {

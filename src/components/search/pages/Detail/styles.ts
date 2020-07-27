@@ -54,7 +54,8 @@ const gridList = css`
     justify-content: space-between;
 
     > * {
-        flex: 1 1 50%;
+        flex: 1 1 calc(50% - 5px);
+        max-width: calc(50% - 5px);
     }
 
     > *:nth-child(2n + 3),
@@ -67,6 +68,17 @@ const gridList = css`
             flex: 1 1 100%;
             margin-top: 8px;
         }
+    }
+`;
+
+const gridListSingleCol = css`
+    > * {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+
+    > * + * {
+        margin-top: 8px;
     }
 `;
 
@@ -103,6 +115,7 @@ export {
     detailPageProperties,
     detailPageBtn,
     gridList,
+    gridListSingleCol,
     gridItem,
     gridTitle,
     gridValue,

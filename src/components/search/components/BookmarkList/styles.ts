@@ -12,6 +12,7 @@ const bookmarkListContainer = css`
 
     > * {
         flex: 1 1 100%;
+        max-width: 100%;
     }
 
     @media screen and (max-width: 1024px) {
@@ -24,7 +25,8 @@ const bookmarkListContainer = css`
 
 const bookmarkListContainerMultiCol = css`
     > * {
-        flex: 1 1 50%;
+        flex: 1 1 calc(50% - 5px);
+        max-width: calc(50% - 5px);
     }
 
     > *:nth-child(2n + 3),
