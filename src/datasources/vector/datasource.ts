@@ -106,7 +106,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             .filter(result => result !== null) as QueryResult[];
         const data = processTargets(request, result, 1);
 
-        log.debug('query', request, data);
+        log.debug('query', request, queries, data);
         return { data };
     }
 

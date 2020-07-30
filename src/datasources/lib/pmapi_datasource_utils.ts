@@ -48,7 +48,10 @@ export function buildQueries<Q extends PmapiQuery>(
                 hostspec: getTemplateSrv().replace(hostspec!, request.scopedVars),
                 targetId: `${request.dashboardId}/${request.panelId}/${target.refId}`,
             };
-        });
+        })
+        // filter out targets with container hostspec set to empty string
+        // happens in the Vector Container Overview dashboard, when selecting "All" and no containers are present
+        .filter(target => target.hostspec.match(/container=(&|$)/) === null);
 }
 
 export async function testDatasource(pmApi: PmApi, url: string, hostspec: string) {
