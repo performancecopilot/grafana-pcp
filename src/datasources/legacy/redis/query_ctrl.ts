@@ -5,7 +5,7 @@ import { TargetFormat } from '../lib/models/datasource';
 import loadPmseriesMode from './mode-pmseries';
 
 export class PCPRedisDatasourceQueryCtrl extends PCPQueryCtrl {
-    static templateUrl = 'datasources/redis/partials/query.editor.html';
+    static templateUrl = 'datasources/legacy/redis/partials/query.editor.html';
 
     formats: any = [];
 
