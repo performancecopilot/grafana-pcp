@@ -62,18 +62,15 @@ class PmSeriesApiService {
         if (params.client !== undefined) {
             getParams.append('client', params.toString());
         }
+
         const options = {
             url: `${this.baseUrl}/series/descs?${getParams.toString()}`,
         };
-        try {
-            const response: SeriesDescMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
-            if (PmSeriesApiService.isNoRecordResponse(response)) {
-                return [];
-            }
-            return response as Exclude<SeriesDescMaybeResponse, SeriesNoRecordResponse>;
-        } catch {
+        const response: SeriesDescMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        if (PmSeriesApiService.isNoRecordResponse(response)) {
             return [];
         }
+        return response as Exclude<SeriesDescMaybeResponse, SeriesNoRecordResponse>;
     }
 
     async query(params: SeriesQueryQueryParams): Promise<SeriesQueryResponse> {
@@ -85,15 +82,12 @@ class PmSeriesApiService {
         const options = {
             url: `${this.baseUrl}/series/query?${getParams.toString()}`,
         };
-        try {
-            const response: SeriesQueryMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
-            if (PmSeriesApiService.isNoRecordResponse(response)) {
-                return [];
-            }
-            return response as Exclude<SeriesQueryMaybeResponse, SeriesNoRecordResponse>;
-        } catch {
+
+        const response: SeriesQueryMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        if (PmSeriesApiService.isNoRecordResponse(response)) {
             return [];
         }
+        return response as Exclude<SeriesQueryMaybeResponse, SeriesNoRecordResponse>;
     }
 
     async metrics(params: SeriesMetricsQueryParams): Promise<SeriesMetricsResponse> {
@@ -107,18 +101,15 @@ class PmSeriesApiService {
         if (params.client !== undefined) {
             getParams.append('client', params.client);
         }
+
         const options = {
             url: `${this.baseUrl}/series/metrics?${getParams.toString()}`,
         };
-        try {
-            const response: SeriesMetricsMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
-            if (PmSeriesApiService.isNoRecordResponse(response)) {
-                return [];
-            }
-            return response as Exclude<SeriesMetricsMaybeResponse, SeriesNoRecordResponse>;
-        } catch {
+        const response: SeriesMetricsMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        if (PmSeriesApiService.isNoRecordResponse(response)) {
             return [];
         }
+        return response as Exclude<SeriesMetricsMaybeResponse, SeriesNoRecordResponse>;
     }
 
     async labels(params: SeriesLabelsQueryParams): Promise<SeriesLabelsResponse> {
@@ -138,18 +129,15 @@ class PmSeriesApiService {
         if (params.client !== undefined) {
             getParams.append('client', params.client);
         }
+
         const options = {
             url: `${this.baseUrl}/series/labels?${getParams.toString()}`,
         };
-        try {
-            const response: SeriesLabelsMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
-            if (PmSeriesApiService.isNoRecordResponse(response)) {
-                return {};
-            }
-            return response as Exclude<SeriesLabelsResponse, SeriesNoRecordResponse>;
-        } catch {
+        const response: SeriesLabelsMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        if (PmSeriesApiService.isNoRecordResponse(response)) {
             return {};
         }
+        return response as Exclude<SeriesLabelsResponse, SeriesNoRecordResponse>;
     }
 }
 
