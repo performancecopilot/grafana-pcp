@@ -1,11 +1,11 @@
 jest.mock('../../services/PmSearchApiService');
-jest.mock('../../services/PmSeriesApiService');
+jest.mock('../../../../lib/services/PmSeriesApiService');
 jest.mock('../../services/EntityDetailService');
 import { shallow } from 'enzyme';
 import withServices, { WithServicesProps } from './withServices';
 import React from 'react';
 import PmSearchApiService from '../../services/PmSearchApiService';
-import PmSeriesApiService from '../../services/PmSeriesApiService';
+import PmSeriesApiService from '../../../../lib/services/PmSeriesApiService';
 import EntityService from '../../services/EntityDetailService';
 import { Services } from '../../services/services';
 import ServicesContext from '../../contexts/services';

@@ -1,7 +1,7 @@
 import { BackendSrvRequest, getBackendSrv } from '@grafana/runtime';
 import { MetricMetadata, InstanceDomain, MetricName, Context, InstanceValue } from './pcp';
 import { has, defaults } from 'lodash';
-import { NetworkError } from './errors';
+import { NetworkError } from '../../lib/models/errors/network';
 import { DefaultRequestOptions } from './types';
 
 interface MetricsResponse {

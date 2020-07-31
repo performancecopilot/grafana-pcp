@@ -15,8 +15,9 @@ import { getTemplateSrv } from '@grafana/runtime';
 import * as config from './config';
 import { BPFtraceQuery, BPFtraceOptions, defaultBPFtraceQuery, BPFtraceTargetData } from './types';
 import { ScriptManager } from './script_manager';
-import { buildQueries, testDatasource, getRequestOptions } from '../lib/pmapi_datasource_utils';
+import { buildQueries, testDatasource } from '../lib/pmapi_datasource_utils';
 import { Status, Script } from './script';
+import { getRequestOptions } from '../../lib/utils/api';
 const log = getLogger('datasource');
 
 interface DataSourceState {

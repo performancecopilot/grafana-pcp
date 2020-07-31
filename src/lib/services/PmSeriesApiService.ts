@@ -1,5 +1,4 @@
-import { BackendSrv } from '@grafana/runtime';
-import { DataSourceInstanceSettings } from '@grafana/data';
+import { BackendSrv, BackendSrvRequest } from '@grafana/runtime';
 import {
     SeriesMaybeResponse,
     SeriesDescQueryParams,
@@ -15,27 +14,32 @@ import {
     SeriesLabelsQueryParams,
     SeriesLabelsResponse,
     SeriesLabelsMaybeResponse,
-} from '../models/endpoints/series';
-import { timeout } from '../utils/utils';
-import Config from '../config/config';
+} from '../models/api/series';
+import { timeout } from '../utils/timeout';
+import Config from '../../components/search/config/config';
+import { DefaultRequestOptions } from '../../datasources/lib/types';
+import { defaults } from 'lodash';
+import { NetworkError } from '../models/errors/network';
 
 class PmSeriesApiService {
-    baseUrl: string;
-    backendSrv: BackendSrv;
-    headers = {
-        'Content-Type': 'application/json',
-    };
+    constructor(
+        private backendSrv: BackendSrv,
+        private baseUrl: string,
+        private defaultRequestOptions: DefaultRequestOptions,
+        private isDatasourceRequest = true
+    ) {}
 
-    constructor(instanceSettings: DataSourceInstanceSettings, backendSrv: BackendSrv) {
-        if (!instanceSettings.url) {
-            throw new Error();
+    async request(options: BackendSrvRequest) {
+        options = defaults(options, this.defaultRequestOptions);
+        try {
+            if (this.isDatasourceRequest) {
+                return await this.backendSrv.datasourceRequest(options);
+            } else {
+                return await this.backendSrv.request(options);
+            }
+        } catch (error) {
+            throw new NetworkError(error);
         }
-        this.baseUrl = instanceSettings.url;
-        this.headers = {
-            ...this.headers,
-            ...(instanceSettings.basicAuth ? { Authorization: instanceSettings.basicAuth } : {}),
-        };
-        this.backendSrv = backendSrv;
     }
 
     static isNoRecordResponse(response: SeriesMaybeResponse) {
@@ -50,7 +54,6 @@ class PmSeriesApiService {
     }
 
     async descs(params: SeriesDescQueryParams): Promise<SeriesDescResponse> {
-        const { baseUrl, headers, backendSrv } = this;
         const getParams = new URLSearchParams();
         getParams.append('series', params.series.join(','));
         if (getParams.get('series')?.length === 0) {
@@ -60,16 +63,10 @@ class PmSeriesApiService {
             getParams.append('client', params.toString());
         }
         const options = {
-            url: `${baseUrl}/series/descs?${getParams.toString()}`,
-            methods: 'GET',
-            showSuccessAlert: false,
-            headers,
+            url: `${this.baseUrl}/series/descs?${getParams.toString()}`,
         };
         try {
-            const response: SeriesDescMaybeResponse = await timeout(
-                backendSrv.request(options),
-                Config.REQUEST_TIMEOUT
-            );
+            const response: SeriesDescMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
             if (PmSeriesApiService.isNoRecordResponse(response)) {
                 return [];
             }
@@ -80,23 +77,16 @@ class PmSeriesApiService {
     }
 
     async query(params: SeriesQueryQueryParams): Promise<SeriesQueryResponse> {
-        const { baseUrl, headers, backendSrv } = this;
         const getParams = new URLSearchParams();
         getParams.append('expr', params.expr);
         if (params.client !== undefined) {
             getParams.append('client', params.toString());
         }
         const options = {
-            url: `${baseUrl}/series/query?${getParams.toString()}`,
-            methods: 'GET',
-            showSuccessAlert: false,
-            headers,
+            url: `${this.baseUrl}/series/query?${getParams.toString()}`,
         };
         try {
-            const response: SeriesQueryMaybeResponse = await timeout(
-                backendSrv.request(options),
-                Config.REQUEST_TIMEOUT
-            );
+            const response: SeriesQueryMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
             if (PmSeriesApiService.isNoRecordResponse(response)) {
                 return [];
             }
@@ -107,7 +97,6 @@ class PmSeriesApiService {
     }
 
     async metrics(params: SeriesMetricsQueryParams): Promise<SeriesMetricsResponse> {
-        const { baseUrl, headers, backendSrv } = this;
         const getParams = new URLSearchParams();
         if (params.series !== undefined) {
             getParams.append('series', params.series.join(','));
@@ -119,16 +108,10 @@ class PmSeriesApiService {
             getParams.append('client', params.client);
         }
         const options = {
-            url: `${baseUrl}/series/metrics?${getParams.toString()}`,
-            methods: 'GET',
-            showSuccessAlert: false,
-            headers,
+            url: `${this.baseUrl}/series/metrics?${getParams.toString()}`,
         };
         try {
-            const response: SeriesMetricsMaybeResponse = await timeout(
-                backendSrv.request(options),
-                Config.REQUEST_TIMEOUT
-            );
+            const response: SeriesMetricsMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
             if (PmSeriesApiService.isNoRecordResponse(response)) {
                 return [];
             }
@@ -139,7 +122,6 @@ class PmSeriesApiService {
     }
 
     async labels(params: SeriesLabelsQueryParams): Promise<SeriesLabelsResponse> {
-        const { baseUrl, headers, backendSrv } = this;
         const getParams = new URLSearchParams();
         if (params.series !== undefined) {
             getParams.append('series', params.series.join(','));
@@ -157,16 +139,10 @@ class PmSeriesApiService {
             getParams.append('client', params.client);
         }
         const options = {
-            url: `${baseUrl}/series/labels?${getParams.toString()}`,
-            methods: 'GET',
-            showSuccessAlert: false,
-            headers,
+            url: `${this.baseUrl}/series/labels?${getParams.toString()}`,
         };
         try {
-            const response: SeriesLabelsMaybeResponse = await timeout(
-                backendSrv.request(options),
-                Config.REQUEST_TIMEOUT
-            );
+            const response: SeriesLabelsMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
             if (PmSeriesApiService.isNoRecordResponse(response)) {
                 return {};
             }

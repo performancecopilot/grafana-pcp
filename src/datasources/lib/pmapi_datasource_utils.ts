@@ -1,24 +1,9 @@
 import { getTemplateSrv } from '@grafana/runtime';
 import { isBlank } from './utils';
 import { defaults } from 'lodash';
-import { DataQueryRequest, DataSourceInstanceSettings } from '@grafana/data';
-import { CompletePmapiQuery, PmapiQuery, DefaultRequestOptions } from './types';
+import { DataQueryRequest } from '@grafana/data';
+import { CompletePmapiQuery, PmapiQuery } from './types';
 import { PmApi } from './pmapi';
-
-export function getRequestOptions(instanceSettings: DataSourceInstanceSettings) {
-    const defaultRequestOptions: DefaultRequestOptions = {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    };
-    if (instanceSettings.basicAuth || instanceSettings.withCredentials) {
-        defaultRequestOptions.withCredentials = true;
-    }
-    if (instanceSettings.basicAuth) {
-        defaultRequestOptions.headers['Authorization'] = instanceSettings.basicAuth;
-    }
-    return defaultRequestOptions;
-}
 
 export function buildQueries<Q extends PmapiQuery>(
     request: DataQueryRequest<Q>,

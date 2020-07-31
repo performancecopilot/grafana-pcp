@@ -1,7 +1,7 @@
 import PmSearchApiService from './PmSearchApiService';
-import PmSeriesApiService from './PmSeriesApiService';
+import PmSeriesApiService from '../../../lib/services/PmSeriesApiService';
 import _ from 'lodash';
-import { SeriesLabelsItemResponse, SeriesDescResponse } from '../models/endpoints/series';
+import { SeriesLabelsItemResponse, SeriesDescResponse } from '../../../lib/models/api/series';
 import { MetricEntity, MetricEntitySeries } from '../models/entities/metric';
 import { SearchEntity, TextItemResponseField, TextItemResponse } from '../models/endpoints/search';
 import { IndomEntity } from '../models/entities/indom';

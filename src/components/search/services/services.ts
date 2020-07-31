@@ -1,7 +1,8 @@
 import { getBackendSrv, getDataSourceSrv } from '@grafana/runtime';
 import PmSearchApiService from './PmSearchApiService';
-import PmSeriesApiService from './PmSeriesApiService';
+import PmSeriesApiService from '../../../lib/services/PmSeriesApiService';
 import EntityService from './EntityDetailService';
+import { getRequestOptions } from '../../../lib/utils/api';
 
 export interface Services {
     searchService: PmSearchApiService;
@@ -24,7 +25,7 @@ export const initServices = async (): Promise<Services> => {
     const backendSrv = getBackendSrv();
 
     const searchService = new PmSearchApiService(settings, backendSrv);
-    const seriesService = new PmSeriesApiService(settings, backendSrv);
+    const seriesService = new PmSeriesApiService(backendSrv, settings.url!, getRequestOptions(settings), false);
     const entityService = new EntityService(searchService, seriesService);
     return { searchService, seriesService, entityService };
 };

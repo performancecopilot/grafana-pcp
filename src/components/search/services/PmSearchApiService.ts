@@ -10,8 +10,8 @@ import {
     SearchNoRecordResponse,
     IndomQueryParams,
 } from '../models/endpoints/search';
-import { timeout } from '../utils/utils';
 import Config from '../config/config';
+import { timeout } from '../../../lib/utils/timeout';
 import { SearchEntityUtil } from '../utils/SearchEntityUtil';
 
 class PmSearchApiService {

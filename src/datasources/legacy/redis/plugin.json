@@ -1,6 +1,6 @@
 {
     "name": "PCP Redis",
-    "id": "pcp-redis-datasource",
+    "id": "pcp-redis-datasource-legacy",
     "type": "datasource",
     "category": "tsdb",
     "metrics": true,

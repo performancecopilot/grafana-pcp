@@ -15,7 +15,8 @@ import { getTemplateSrv } from '@grafana/runtime';
 import * as config from './config';
 import { Expr } from '../lib/pcp';
 import { VectorQuery, VectorOptions, defaultVectorQuery, VectorTargetData } from './types';
-import { buildQueries, testDatasource, getRequestOptions } from '../lib/pmapi_datasource_utils';
+import { buildQueries, testDatasource } from '../lib/pmapi_datasource_utils';
+import { getRequestOptions } from '../../lib/utils/api';
 const log = getLogger('datasource');
 
 interface DataSourceState {
