@@ -5,11 +5,26 @@ import Meta from '../Meta/Meta';
 import { VerticalGroup, RadioButtonGroup } from '@grafana/ui';
 import { MetricEntitySeries } from '../../../../models/entities/metric';
 import { radioBtnGroupContainer } from '../../styles';
+import { openDetail } from '../../../../store/slices/search/shared/actionCreators';
+import { ThunkDispatch } from 'redux-thunk';
+import { RootState } from '../../../../store/reducer';
+import { AnyAction, bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { EntityType } from '../../../../models/endpoints/search';
 
-export interface SeriesProps {
+const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, AnyAction>) =>
+    bindActionCreators({ openDetail }, dispatch);
+
+export interface SeriesBasicProps {
     initTab?: SeriesTabOpt;
     series: MetricEntitySeries;
 }
+
+export type SeriesReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
+
+export type SeriesReduxProps = SeriesReduxDispatchProps;
+
+export type SeriesProps = SeriesBasicProps & SeriesReduxProps;
 
 export interface SeriesState {
     selectedOption: SeriesTabOpt;
@@ -29,6 +44,7 @@ export class Series extends React.Component<SeriesProps, SeriesState> {
         if (props.initTab) {
             this.state = { ...this.state, selectedOption: props.initTab };
         }
+        this.onIndomClick = this.onIndomClick.bind(this);
         this.setSelected = this.setSelected.bind(this);
         this.renderTab = this.renderTab.bind(this);
     }
@@ -43,8 +59,12 @@ export class Series extends React.Component<SeriesProps, SeriesState> {
         };
     }
 
+    onIndomClick(indom: string) {
+        this.props.openDetail(indom, EntityType.InstanceDomain);
+    }
+
     renderTab() {
-        const { state, props } = this;
+        const { state, props, onIndomClick } = this;
         const { selectedOption } = state;
         const { series } = props;
         switch (selectedOption) {
@@ -55,7 +75,7 @@ export class Series extends React.Component<SeriesProps, SeriesState> {
                 return <p>No labels available.</p>;
             }
             case SeriesTabOpt.Meta:
-                return <Meta meta={series.meta} data-test="meta" />;
+                return <Meta meta={series.meta} onIndomClick={onIndomClick} data-test="meta" />;
             default:
                 return;
         }
@@ -91,4 +111,4 @@ export class Series extends React.Component<SeriesProps, SeriesState> {
     }
 }
 
-export default Series;
+export default connect(null, mapDispatchToProps)(Series);

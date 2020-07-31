@@ -1,4 +1,5 @@
 import { css } from 'emotion';
+import { GrafanaTheme } from '@grafana/data';
 
 const detailPageContainer = css`
     grid-area: content;
@@ -13,7 +14,16 @@ const detailPageItem = css`
 const detailPageHeader = css``;
 
 const detailPageTitle = css`
-    margin-bottom: 24px;
+    margin-bottom: 16px;
+`;
+
+const detailPageEntityType = (theme: GrafanaTheme) => css`
+    margin-bottom: 16px;
+    padding: 0;
+    cursor: default;
+    pointer-events: none;
+    text-transform: capitalize;
+    color: ${theme.colors.text};
 `;
 
 const detailPageDescription = css`
@@ -44,7 +54,8 @@ const gridList = css`
     justify-content: space-between;
 
     > * {
-        flex: 1 1 50%;
+        flex: 1 1 calc(50% - 5px);
+        max-width: calc(50% - 5px);
     }
 
     > *:nth-child(2n + 3),
@@ -57,6 +68,17 @@ const gridList = css`
             flex: 1 1 100%;
             margin-top: 8px;
         }
+    }
+`;
+
+const gridListSingleCol = css`
+    > * {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+
+    > * + * {
+        margin-top: 8px;
     }
 `;
 
@@ -87,11 +109,13 @@ export {
     detailPageItem,
     detailPageHeader,
     detailPageTitle,
+    detailPageEntityType,
     detailPageDescription,
     detailPageActions,
     detailPageProperties,
     detailPageBtn,
     gridList,
+    gridListSingleCol,
     gridItem,
     gridTitle,
     gridValue,

@@ -10,35 +10,26 @@ describe('<SearchResult/>', () => {
     const theme = getTheme(GrafanaThemeType.Light);
     // will test most cases with each metric type
     const metricItem: TextItemResponse = {
-        docid: 'metricItem',
         name: 'statsd.settings.dropped',
         indom: '20.0',
         helptext:
             'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nisi nam temporibus excepturi corporis atque, quibusdam, suscipit repellat ipsam officiis consectetur, accusamus eaque esse.',
         oneline: 'Lorem, ipsum dolor sit amet.',
-        count: 0,
-        score: 0,
         type: EntityType.Metric,
     };
     const instanceItem: TextItemResponse = {
-        docid: 'instanceItem',
         name: 'cpu0',
         indom: '10.0',
         helptext:
             'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Esse sit, atque distinctio voluptatum sed maiores iusto quisquam.',
         oneline: 'Lorem, ipsum dolor.',
-        count: 0,
-        score: 0,
         type: EntityType.Instance,
     };
     const indomItem: TextItemResponse = {
-        docid: 'indomItem',
         name: '23.2',
         indom: '23.2',
         helptext: 'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Aut, cupiditate.',
         oneline: 'Lorem, ipsum.',
-        count: 0,
-        score: 0,
         type: EntityType.InstanceDomain,
     };
 

@@ -1,5 +1,5 @@
 import { searchEntities, detailEntities, indomEntities } from './responses';
-import { SearchEntity, TextResponse, AutocompleteResponse, EntityType } from '../models/endpoints/search';
+import { SearchEntity, TextResponse, AutocompleteResponse } from '../models/endpoints/search';
 import { PmApiMetricMetricResponse, PmApiIndomEndpointResponse } from '../models/endpoints/pmapi';
 
 export const querySearchEndpoint = (
@@ -34,14 +34,7 @@ export const metricFetchEndpoint = (metricId: string): Promise<PmApiMetricMetric
 export const autocompleteFetchEndpoint = (query: string): Promise<AutocompleteResponse> => {
     return new Promise<AutocompleteResponse>((resolve, reject) => {
         setTimeout(() => {
-            resolve([
-                { name: 'metric.name1', type: EntityType.Metric },
-                { name: 'metrika2', type: EntityType.Metric },
-                { name: 'metrický metr', type: EntityType.Metric },
-                { name: 'bazooka', type: EntityType.Metric },
-                { name: 'extraordinary', type: EntityType.Metric },
-                { name: 'zlatý důl', type: EntityType.Metric },
-            ]);
+            resolve(['metric.name1', 'metrika2', 'metrický metr', 'bazooka', 'extraordinary', 'zlatý důl']);
         }, 100);
     });
 };

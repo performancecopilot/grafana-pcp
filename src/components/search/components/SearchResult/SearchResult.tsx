@@ -69,7 +69,11 @@ export class SearchResult extends React.PureComponent<SearchResultProps, {}> {
 
     renderName() {
         const { item } = this.props;
-        return <span data-test="name" dangerouslySetInnerHTML={{ __html: item.name }}></span>;
+        if (item.name) {
+            return <span data-test="name" dangerouslySetInnerHTML={{ __html: item.name }}></span>;
+        } else {
+            return <span data-test="name">Name is missing.</span>;
+        }
     }
 
     render() {

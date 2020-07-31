@@ -20,80 +20,41 @@ describe('<DetailPage/>', () => {
             type: EntityType.InstanceDomain,
             indom: {
                 data: {
-                    context: 927862141,
-                    indom: '60.3',
-                    labels: {
-                        device_type: 'interface',
-                        domainname: 'localdomain',
-                        hostname: 'localhost.localdomain',
-                        indom_name: 'per interface',
-                        machineid: 'e89b1710db70431e96453dae52cd95c2',
+                    indom: {
+                        name: '60.3',
+                        oneline: 'set of network interfaces',
                     },
-                    'text-oneline': 'set of network interfaces',
-                    'text-help': 'set of network interfaces',
                     instances: [
                         {
-                            instance: 5,
-                            name: 'docker0',
-                            labels: {
-                                domainname: 'localdomain',
-                                hostname: 'localhost.localdomain',
-                                machineid: 'e89b1710db70431e96453dae52cd95c2',
-                            },
-                        },
-                        {
-                            instance: 2,
-                            name: 'wlp0s20f3',
-                            labels: {
-                                domainname: 'localdomain',
-                                hostname: 'localhost.localdomain',
-                                machineid: 'e89b1710db70431e96453dae52cd95c2',
-                            },
-                        },
-                        {
-                            instance: 35,
-                            name: 'veth80732b1',
-                            labels: {
-                                domainname: 'localdomain',
-                                hostname: 'localhost.localdomain',
-                                machineid: 'e89b1710db70431e96453dae52cd95c2',
-                            },
-                        },
-                        {
-                            instance: 0,
-                            name: 'lo',
-                            labels: {
-                                domainname: 'localdomain',
-                                hostname: 'localhost.localdomain',
-                                machineid: 'e89b1710db70431e96453dae52cd95c2',
-                            },
-                        },
-                        {
-                            instance: 4,
                             name: 'virbr0-nic',
-                            labels: {
-                                domainname: 'localdomain',
-                                hostname: 'localhost.localdomain',
-                                machineid: 'e89b1710db70431e96453dae52cd95c2',
-                            },
                         },
                         {
-                            instance: 3,
                             name: 'virbr0',
-                            labels: {
-                                domainname: 'localdomain',
-                                hostname: 'localhost.localdomain',
-                                machineid: 'e89b1710db70431e96453dae52cd95c2',
-                            },
                         },
                         {
-                            instance: 1,
+                            name: 'wlp0s20f3',
+                        },
+                        {
                             name: 'ens20u2',
-                            labels: {
-                                domainname: 'localdomain',
-                                hostname: 'localhost.localdomain',
-                                machineid: 'e89b1710db70431e96453dae52cd95c2',
-                            },
+                        },
+                        {
+                            name: 'lo',
+                        },
+                        {
+                            name: 'veth2d4d8bb',
+                        },
+                        {
+                            name: 'docker0',
+                        },
+                    ],
+                    metrics: [
+                        {
+                            name: 'network.interface.wireless',
+                            oneline: 'boolean for whether interface is wireless',
+                        },
+                        {
+                            name: 'network.interface.up',
+                            oneline: 'boolean for whether interface is currently up or down',
                         },
                     ],
                 },
@@ -177,14 +138,14 @@ describe('<DetailPage/>', () => {
         const wrapper = shallow<DetailPage, DetailPageProps, {}>(<DetailPage {...props} />);
         const instanceDomainDetail = wrapper.find('[data-test="instance-domain-detail"]');
         const instanceDomainDetailProps: InstanceDomainDetailPageBasicProps = instanceDomainDetail.props() as any;
-        const id = ((props.entity as InstanceDomainDetailState).indom.data as IndomEntity).indom;
+        const name = ((props.entity as InstanceDomainDetailState).indom.data as IndomEntity).indom.name as string;
         const type = (props.entity as InstanceDomainDetailState).type;
         instanceDomainDetailProps.onBookmark({
-            id,
+            id: name,
             type,
         });
         const addBookmark: jest.Mock<typeof mockReduxProps.addBookmark> = mockReduxProps.addBookmark as any;
-        expect(addBookmark.mock.calls[0][0]).toEqual({ id, type });
+        expect(addBookmark.mock.calls[0][0]).toEqual({ id: name, type });
         expect(addBookmark).toHaveBeenCalled();
     });
 
@@ -208,16 +169,14 @@ describe('<DetailPage/>', () => {
         const wrapper = shallow<DetailPage, DetailPageProps, {}>(<DetailPage {...props} />);
         const instanceDomainDetail = wrapper.find('[data-test="instance-domain-detail"]');
         const instanceDomainDetailProps: InstanceDomainDetailPageBasicProps = instanceDomainDetail.props() as any;
-        // const locationSrvMock = jest.fn();
-        // (wrapper.instance().locationSrv as any) = locationSrvMock;
-        const id = ((props.entity as InstanceDomainDetailState).indom.data as IndomEntity).indom;
+        const name = ((props.entity as InstanceDomainDetailState).indom.data as IndomEntity).indom as string;
         const type = (props.entity as InstanceDomainDetailState).type;
         instanceDomainDetailProps.onUnbookmark({
-            id,
+            id: name,
             type,
         });
         const removeBookmark: jest.Mock<typeof mockReduxProps.removeBookmark> = mockReduxProps.removeBookmark as any;
-        expect(removeBookmark.mock.calls[0][0]).toEqual({ id, type });
+        expect(removeBookmark.mock.calls[0][0]).toEqual({ id: name, type });
         expect(removeBookmark).toHaveBeenCalled();
     });
 

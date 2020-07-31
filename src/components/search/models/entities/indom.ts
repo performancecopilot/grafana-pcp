@@ -1,4 +1,9 @@
-import { PmApiIndomEndpointResponse } from '../endpoints/pmapi';
+import { TextItemResponse } from '../endpoints/search';
 
-// only an alias for now
-export type IndomEntity = PmApiIndomEndpointResponse;
+export type IndomEntitySparseItem = Omit<TextItemResponse, 'type' | 'indom'>;
+
+export interface IndomEntity {
+    indom: IndomEntitySparseItem;
+    metrics: IndomEntitySparseItem[];
+    instances: IndomEntitySparseItem[];
+}

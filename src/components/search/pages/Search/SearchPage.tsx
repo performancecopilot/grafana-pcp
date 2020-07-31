@@ -5,7 +5,7 @@ import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
 import { paginationContainer, searchPageElapsed, searchPageMatchesDesc } from './styles';
 import { RootState } from '../../store/reducer';
-import { TextItemResponse } from '../../models/endpoints/search';
+import { TextItemResponse, EntityType } from '../../models/endpoints/search';
 import { stripHtml } from '../../utils/utils';
 import { FetchStatus } from '../../store/slices/search/shared/state';
 import SearchResult from '../../components/SearchResult/SearchResult';
@@ -18,7 +18,7 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, AnyAction>) =>
-    bindActionCreators({ querySearch, openDetail: openDetail }, dispatch);
+    bindActionCreators({ querySearch, openDetail }, dispatch);
 
 export type SearchPageReduxStateProps = ReturnType<typeof mapStateToProps>;
 
@@ -61,7 +61,18 @@ export class SearchPage extends React.Component<SearchPageProps, {}> {
 
     onDetailClick(entity: TextItemResponse) {
         if (entity.name !== undefined && entity.type !== undefined) {
-            this.props.openDetail(stripHtml(entity.name), entity.type);
+            switch (entity.type) {
+                case EntityType.Instance:
+                case EntityType.InstanceDomain:
+                    if (entity.indom) {
+                        this.props.openDetail(entity.indom, EntityType.InstanceDomain);
+                    }
+                    break;
+                case EntityType.Metric:
+                    this.props.openDetail(stripHtml(entity.name), EntityType.Metric);
+                    break;
+                default:
+            }
         }
     }
 

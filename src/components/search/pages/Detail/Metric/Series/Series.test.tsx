@@ -1,4 +1,4 @@
-import Series, { SeriesProps, SeriesTabOpt } from './Series';
+import { Series, SeriesProps, SeriesTabOpt } from './Series';
 import { shallow } from 'enzyme';
 import React from 'react';
 import { LabelsProps } from '../Labels/Labels';
@@ -8,6 +8,7 @@ describe('Metric <Series/>', () => {
 
     beforeEach(() => {
         seriesProps = {
+            openDetail: jest.fn(),
             series: {
                 series: 'series1',
                 meta: {
@@ -58,6 +59,7 @@ describe('Metric <Series/>', () => {
         const wrapper = shallow(
             <Series
                 {...{
+                    openDetail: jest.fn(),
                     series: { series: seriesProps.series.series, meta: seriesProps.series.meta },
                     initTab: SeriesTabOpt.Meta,
                 }}

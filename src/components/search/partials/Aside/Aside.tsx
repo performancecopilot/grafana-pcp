@@ -8,7 +8,7 @@ import { RootState } from '../../store/reducer';
 import { ThunkDispatch } from 'redux-thunk';
 import { AnyAction, bindActionCreators } from 'redux';
 import { EntityType } from '../../models/endpoints/search';
-import { MetricDetailState } from '../../store/slices/search/slices/entity/state';
+import { MetricDetailState, InstanceDomainDetailState } from '../../store/slices/search/slices/entity/state';
 import { FetchStatus } from '../../store/slices/search/shared/state';
 import Loader from '../../components/Loader/Loader';
 import { ViewState } from '../../store/slices/search/slices/view/state';
@@ -41,6 +41,7 @@ export class Aside extends React.Component<AsideProps, {}> {
         super(props);
         this.renderContents = this.renderContents.bind(this);
         this.renderMetricSiblings = this.renderMetricSiblings.bind(this);
+        this.renderIndomMetrics = this.renderIndomMetrics.bind(this);
         this.onMetricClick = this.onMetricClick.bind(this);
     }
 
@@ -69,7 +70,7 @@ export class Aside extends React.Component<AsideProps, {}> {
                 }
                 return (
                     <VerticalGroup spacing="md">
-                        <h4>Similar Metrics</h4>
+                        <h4>Series of similar metrics</h4>
                         <VerticalGroup spacing="xs">
                             {siblings.data?.map((m, i) =>
                                 m === metric.data?.name ? (
@@ -106,8 +107,58 @@ export class Aside extends React.Component<AsideProps, {}> {
         }
     }
 
+    renderIndomMetrics(indomDetail: InstanceDomainDetailState) {
+        const { onMetricClick } = this;
+        const { indom } = indomDetail;
+        switch (indom.status) {
+            case FetchStatus.INIT:
+                return;
+            case FetchStatus.PENDING:
+                return (
+                    <Loader loaded={false} data-test="loader">
+                        <p>Loading metrics &hellip;</p>
+                    </Loader>
+                );
+            case FetchStatus.SUCCESS: {
+                if (!indom) {
+                    return <p>Incorrect response from server.</p>;
+                }
+                if (!indom.data?.indom) {
+                    return;
+                }
+                return (
+                    <VerticalGroup spacing="md">
+                        <h4>Metrics in {indom.data.indom.name}</h4>
+                        <VerticalGroup spacing="xs">
+                            {indom.data.metrics.map(
+                                (m, i) =>
+                                    m.name !== undefined && (
+                                        <Button
+                                            key={i}
+                                            onClick={() => onMetricClick(m.name as string)}
+                                            icon="arrow-right"
+                                            variant="link"
+                                            className={asideButton}
+                                            data-test="sibling-link"
+                                            title={m.oneline}
+                                        >
+                                            {m.name}
+                                        </Button>
+                                    )
+                            )}
+                        </VerticalGroup>
+                    </VerticalGroup>
+                );
+            }
+            case FetchStatus.ERROR:
+                return <p data-test="error-loading">Unable to fetch indom metrics.</p>;
+            default:
+                return;
+        }
+    }
+
     renderContents() {
-        const { renderMetricSiblings, props } = this;
+        const { renderMetricSiblings, renderIndomMetrics, props } = this;
         const { view, entity } = props;
         switch (view) {
             case ViewState.Detail: {
@@ -118,6 +169,7 @@ export class Aside extends React.Component<AsideProps, {}> {
                     case EntityType.Metric:
                         return renderMetricSiblings(entity);
                     case EntityType.InstanceDomain:
+                        return renderIndomMetrics(entity);
                     default:
                         return;
                 }

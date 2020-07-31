@@ -7,8 +7,8 @@ import {
     detailPageHeader,
     detailPageTitle,
     detailPageBtn,
-    instanceDomainItemList,
     detailPageActions,
+    detailPageEntityType,
     detailPageProperties,
 } from '../styles';
 import { RootState } from '../../../store/reducer';
@@ -18,6 +18,7 @@ import { EntityType } from '../../../models/endpoints/search';
 import { FetchStatus } from '../../../store/slices/search/shared/state';
 import Card from '../../../components/Card/Card';
 import Loader from '../../../components/Loader/Loader';
+import Instances from './Instances/Instances';
 
 const mapStateToProps = (state: RootState) => ({
     bookmarks: state.search.bookmarks,
@@ -51,23 +52,29 @@ export class InstanceDomainDetailPage extends React.Component<InstanceDomainDeta
     get isBookmarked() {
         const { indom, bookmarks } = this.props;
         return bookmarks.some(
-            bookmark => indom.data?.indom === bookmark.id && bookmark.type === EntityType.InstanceDomain
+            bookmark => indom.data?.indom.name === bookmark.id && bookmark.type === EntityType.InstanceDomain
         );
     }
 
     onBookmark() {
         const { indom } = this.props;
         const { data } = indom;
+        if (!data?.indom.name) {
+            return;
+        }
         if (data) {
-            this.props.onBookmark({ id: data.indom, type: EntityType.InstanceDomain });
+            this.props.onBookmark({ id: data.indom.name, type: EntityType.InstanceDomain });
         }
     }
 
     onUnbookmark() {
         const { indom } = this.props;
         const { data } = indom;
+        if (!data?.indom.name) {
+            return;
+        }
         if (data) {
-            this.props.onUnbookmark({ id: data.indom, type: EntityType.InstanceDomain });
+            this.props.onUnbookmark({ id: data.indom.name, type: EntityType.InstanceDomain });
         }
     }
 
@@ -99,9 +106,9 @@ export class InstanceDomainDetailPage extends React.Component<InstanceDomainDeta
         if (!data) {
             return <p>Unable to render description.</p>;
         }
-        let description = data['text-oneline'];
-        if (data['text-help']) {
-            description = data['text-help'];
+        let description = data.indom.oneline;
+        if (data.indom.helptext) {
+            description = data.indom.helptext;
         }
         return <p>{description}</p>;
     }
@@ -149,8 +156,16 @@ export class InstanceDomainDetailPage extends React.Component<InstanceDomainDeta
                     <article className={detailPageItem}>
                         <header className={detailPageHeader}>
                             <h2 className={detailPageTitle} data-test="title">
-                                {data.indom}
+                                {data.indom.name}
                             </h2>
+                            <Button
+                                variant="link"
+                                size="md"
+                                icon="tag-alt"
+                                className={detailPageEntityType(props.theme)}
+                            >
+                                Instance Domain
+                            </Button>
                         </header>
                         <div className={detailPageDescription} data-test="description">
                             {renderDesc()}
@@ -162,22 +177,13 @@ export class InstanceDomainDetailPage extends React.Component<InstanceDomainDeta
                         </div>
                     </article>
                 </Card>
-                <Card background="weak">
-                    <div className={detailPageProperties}>
-                        <VerticalGroup spacing="md">
-                            <h4>Instances:</h4>
-                            <ul className={instanceDomainItemList}>
-                                {data.instances.map((instance, i) => (
-                                    <li key={i} data-test={`${instance.name}-record`}>
-                                        <strong data-test="instance-name">{instance.name}</strong>{' '}
-                                        <span data-test="instance-value">{instance.instance}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                            <p>Instance Count: {data.instances.length}</p>
-                        </VerticalGroup>
-                    </div>
-                </Card>
+                <div className={detailPageProperties}>
+                    <VerticalGroup spacing="lg">
+                        <Card background="weak">
+                            <Instances instances={data.instances} data-test="instances" />
+                        </Card>
+                    </VerticalGroup>
+                </div>
             </VerticalGroup>
         );
     }

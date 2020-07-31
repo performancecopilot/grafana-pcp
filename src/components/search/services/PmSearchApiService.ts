@@ -8,9 +8,11 @@ import {
     TextResponse,
     TextMaybeResponse,
     SearchNoRecordResponse,
+    IndomQueryParams,
 } from '../models/endpoints/search';
 import { timeout } from '../utils/utils';
 import Config from '../config/config';
+import { SearchEntityUtil } from '../utils/SearchEntityUtil';
 
 class PmSearchApiService {
     baseUrl: string;
@@ -63,6 +65,44 @@ class PmSearchApiService {
         }
     }
 
+    async indom(params: IndomQueryParams): Promise<TextResponse | null> {
+        const { headers, baseUrl, backendSrv } = this;
+        const getParams = new URLSearchParams();
+        getParams.append('query', params.query);
+        if (params.limit !== undefined) {
+            getParams.append('limit', params.limit.toString());
+        }
+        if (params.offset !== undefined) {
+            getParams.append('offset', params.offset.toString());
+        }
+        const options = {
+            url: `${baseUrl}/search/indom?${getParams.toString()}`,
+            methods: 'GET',
+            showSuccessAlert: false,
+            headers,
+        };
+        try {
+            const response: TextMaybeResponse = await timeout(backendSrv.request(options), Config.REQUEST_TIMEOUT);
+            if (PmSearchApiService.isNoRecordResponse(response)) {
+                // monkey patch
+                return {
+                    elapsed: 0,
+                    total: 0,
+                    results: [],
+                    limit: params.limit ?? 0,
+                    offset: params.offset ?? 0,
+                };
+            }
+            return {
+                ...(response as Exclude<TextResponse, SearchNoRecordResponse>),
+                limit: params.limit ?? 0,
+                offset: params.offset ?? 0,
+            };
+        } catch {
+            return null;
+        }
+    }
+
     async text(params: TextQueryParams): Promise<TextResponse | null> {
         const { headers, baseUrl, backendSrv } = this;
         const getParams = new URLSearchParams();
@@ -77,13 +117,14 @@ class PmSearchApiService {
             getParams.append('limit', params.limit.toString());
         }
         if (params.field !== undefined) {
-            getParams.append('field', params.field.join(','));
+            getParams.append('fields', params.field.join(','));
         }
         if (params.return !== undefined) {
             getParams.append('return', params.return.join(','));
         }
         if (params.type !== undefined) {
-            getParams.append('type', params.type.toString());
+            let entityTypes = SearchEntityUtil.toEntityTypes(params.type);
+            getParams.append('type', entityTypes.join(','));
         }
         const options = {
             url: `${baseUrl}/search/text?${getParams.toString()}`,
