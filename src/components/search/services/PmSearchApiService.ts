@@ -117,7 +117,7 @@ class PmSearchApiService {
             getParams.append('limit', params.limit.toString());
         }
         if (params.field !== undefined) {
-            getParams.append('fields', params.field.join(','));
+            getParams.append('field', params.field.join(','));
         }
         if (params.return !== undefined) {
             getParams.append('return', params.return.join(','));
