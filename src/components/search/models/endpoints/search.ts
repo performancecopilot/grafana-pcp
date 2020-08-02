@@ -27,10 +27,10 @@ export type AutocompleteResponse = AutocompleteSuggestion[];
 
 export interface TextQueryParams {
     query: string;
-    highlight?: Omit<TextItemResponseField, 'indom' | 'type'>[];
+    highlight?: Array<Omit<TextItemResponseField, 'indom' | 'type'>>;
     offset?: number;
     limit?: number;
-    field?: Omit<TextItemResponseField, 'indom' | 'type'>[];
+    field?: Array<Omit<TextItemResponseField, 'indom' | 'type'>>;
     return?: TextItemResponseField[];
     type?: SearchEntity;
 }
