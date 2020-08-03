@@ -112,6 +112,6 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
     }
 
     async testDatasource() {
-        await testDatasource(this.state.pmApi, this.instanceSettings.url!, this.instanceSettings.jsonData.hostspec!);
+        return await testDatasource(this.state.pmApi, this.instanceSettings.url!, this.instanceSettings.jsonData.hostspec!);
     }
 }
