@@ -161,7 +161,12 @@ export class Poller {
             pendingTargets.map(target =>
                 this.hooks
                     .registerTarget(target)
-                    .then(metricNames => (target.metricNames = metricNames))
+                    .then(async request => {
+                        if (request.renewContext) {
+                            await this.initContext(endpoint);
+                        }
+                        target.metricNames = request.metrics;
+                    })
                     .catch(error => {
                         target.state = PmapiTargetState.ERROR;
                         target.errors.push(error);
@@ -195,16 +200,20 @@ export class Poller {
         return false;
     }
 
+    async initContext(endpoint: Endpoint) {
+        endpoint.context = await this.pmApi.createContext(
+            endpoint.url,
+            endpoint.hostspec,
+            Math.round((this.refreshIntervalMs + config.gracePeriodMs) / 1000)
+        );
+        endpoint.hasRedis = this.hooks.redisBackfill && (await this.endpointHasRedis(endpoint));
+        endpoint.state = EndpointState.CONNECTED;
+        await this.hooks.registerEndpoint?.(endpoint);
+    }
+
     async pollEndpoint(endpoint: Endpoint) {
         if (endpoint.state === EndpointState.PENDING) {
-            endpoint.context = await this.pmApi.createContext(
-                endpoint.url,
-                endpoint.hostspec,
-                Math.round((this.refreshIntervalMs + config.gracePeriodMs) / 1000)
-            );
-            endpoint.hasRedis = this.hooks.redisBackfill && (await this.endpointHasRedis(endpoint));
-            endpoint.state = EndpointState.CONNECTED;
-            await this.hooks.registerEndpoint?.(endpoint);
+            await this.initContext(endpoint);
         }
 
         await this.initializePendingTargets(endpoint as Required<Endpoint>);
@@ -218,7 +227,7 @@ export class Poller {
             return;
         }
 
-        // only poll additional metrics if metrics from targets are also requrested
+        // only poll additional metrics if metrics from targets are also requested
         const additionalMetricNamesToPoll = uniq(endpoint.additionalMetricsToPoll.map(amp => amp.name));
         metricsToPoll.push(...additionalMetricNamesToPoll);
 
