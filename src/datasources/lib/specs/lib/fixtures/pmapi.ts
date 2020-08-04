@@ -1,4 +1,4 @@
-import { MetricMetadata, Semantics } from '../../../pcp';
+import { MetricMetadata, Semantics } from '../../../../../lib/models/pcp';
 
 export const metricMetadataSingle: MetricMetadata = {
     name: 'metric.single',

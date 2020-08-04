@@ -1,3 +1,5 @@
+import { Semantics, Labels, SeriesId, SeriesInstanceId, InstanceId, InstanceName } from '../pcp';
+
 export interface SeriesNoRecordResponse {
     success: boolean;
 }
@@ -12,7 +14,7 @@ export interface SeriesDescItemResponse {
     source: string;
     pmid: string;
     indom: string;
-    semantics: string;
+    semantics: Semantics;
     type: string;
     units: string;
 }
@@ -37,6 +39,23 @@ export type SeriesQueryResponse = string[] | SeriesQueryItemResponse[];
 
 export type SeriesQueryMaybeResponse = SeriesQueryResponse | SeriesNoRecordResponse;
 
+export interface SeriesInstancesQueryParams {
+    /** Comma-separated list of series identifiers */
+    series?: string[];
+    /** Glob pattern string to match on all labels */
+    match?: string;
+}
+
+export interface SeriesInstancesItemResponse {
+    series: SeriesId;
+    source: string;
+    instance: SeriesInstanceId;
+    id: InstanceId;
+    name: InstanceName;
+}
+
+export type SeriesInstancesResponse = SeriesInstancesItemResponse[];
+
 export interface SeriesLabelsQueryParams {
     series?: string[]; // Comma-separated list of series identifiers
     match?: string; // Glob pattern string to match on all labels
@@ -47,9 +66,7 @@ export interface SeriesLabelsQueryParams {
 
 export interface SeriesLabelsItemResponse {
     series: string;
-    labels: {
-        [key: string]: string | number | boolean;
-    };
+    labels: Labels;
 }
 
 export interface SeriesLabelsLabelValuesItemResponse {

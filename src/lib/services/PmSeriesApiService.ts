@@ -14,6 +14,8 @@ import {
     SeriesLabelsQueryParams,
     SeriesLabelsResponse,
     SeriesLabelsMaybeResponse,
+    SeriesInstancesQueryParams,
+    SeriesInstancesResponse,
 } from '../models/api/series';
 import { timeout } from '../utils/timeout';
 import Config from '../../components/search/config/config';
@@ -33,7 +35,7 @@ class PmSeriesApiService {
         options = defaults(options, this.defaultRequestOptions);
         try {
             if (this.isDatasourceRequest) {
-                return await this.backendSrv.datasourceRequest(options);
+                return (await this.backendSrv.datasourceRequest(options)).data;
             } else {
                 return await this.backendSrv.request(options);
             }
@@ -110,6 +112,25 @@ class PmSeriesApiService {
             return [];
         }
         return response as Exclude<SeriesMetricsMaybeResponse, SeriesNoRecordResponse>;
+    }
+
+    async instances(params: SeriesInstancesQueryParams): Promise<SeriesInstancesResponse> {
+        const getParams = new URLSearchParams();
+        if (params.series !== undefined) {
+            getParams.append('series', params.series.join(','));
+        }
+        if (params.match !== undefined) {
+            getParams.append('match', params.match);
+        }
+
+        const options = {
+            url: `${this.baseUrl}/series/instances?${getParams.toString()}`,
+        };
+        const response = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        if (PmSeriesApiService.isNoRecordResponse(response)) {
+            return [];
+        }
+        return response;
     }
 
     async labels(params: SeriesLabelsQueryParams): Promise<SeriesLabelsResponse> {

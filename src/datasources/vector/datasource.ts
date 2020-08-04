@@ -13,7 +13,6 @@ import { PmApi } from '../lib/pmapi';
 import { processTargets } from '../lib/data_processor';
 import { getTemplateSrv } from '@grafana/runtime';
 import * as config from './config';
-import { Expr } from '../lib/pcp';
 import { VectorQuery, VectorOptions, defaultVectorQuery, VectorTargetData } from './types';
 import { buildQueries, testDatasource } from '../lib/pmapi_datasource_utils';
 import { getRequestOptions } from '../../lib/utils/api';
@@ -62,7 +61,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         return newQuery.expr !== prevQuery.expr;
     }
 
-    isDerivedMetric(expr: Expr) {
+    isDerivedMetric(expr: string) {
         // TODO
         return false;
     }

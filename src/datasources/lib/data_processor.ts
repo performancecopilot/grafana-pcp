@@ -10,18 +10,11 @@ import {
 } from '@grafana/data';
 import { TargetFormat } from './types';
 import { Metric, QueryResult } from './poller';
-import {
-    InstanceId,
-    pcpUnitToGrafanaUnit,
-    Context,
-    Labels,
-    pcpTypeToGrafanaType,
-    InstanceName,
-    Semantics,
-} from './pcp';
+import { pcpUnitToGrafanaUnit, Context, pcpTypeToGrafanaType } from './pcp';
 import { mapValues, every, isString } from 'lodash';
 import { applyTransformations } from './field_transformations';
 import { getTemplateSrv } from '@grafana/runtime';
+import { InstanceId, Labels, InstanceName, Semantics } from '../../lib/models/pcp';
 
 function getLabels(context: Context, metric: Metric, instanceId: InstanceId | null): Labels {
     let labels = {

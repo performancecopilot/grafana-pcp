@@ -1,29 +1,8 @@
-import { Dict } from './types';
 import { FieldType } from '@grafana/data';
-
-export type MetricName = string;
-export type Expr = string;
-export type InstanceName = string;
-export type InstanceId = number;
-export type Labels = Dict<string, string>;
-
-export enum Semantics {
-    Instant = 'instant',
-    Discrete = 'discrete',
-    Counter = 'counter',
-}
+import { Labels, InstanceName, InstanceId, MetricMetadata, Semantics } from '../../lib/models/pcp';
 
 export interface Context {
     context: number;
-    labels: Labels;
-}
-
-export interface MetricMetadata {
-    name: MetricName;
-    indom?: string;
-    type: string;
-    sem: Semantics;
-    units: string;
     labels: Labels;
 }
 

@@ -5,12 +5,14 @@
  * All metric related requests happen in the background, to use the same PCP Context and fetch multiple metrics at once
  */
 
-import { MetricMetadata, Context, Instance, InstanceValuesSnapshot, Labels, InstanceValue } from './pcp';
-import { CompletePmapiQuery, Dict } from './types';
+import { Context, Instance, InstanceValuesSnapshot, InstanceValue } from './pcp';
+import { CompletePmapiQuery } from './types';
 import { PmApi, MetricNotFoundError } from './pmapi';
 import { difference, has, remove, uniq } from 'lodash';
 import * as config from '../vector/config';
 import { getLogger } from './utils';
+import { MetricMetadata, Labels } from '../../lib/models/pcp';
+import { Dict } from '../../lib/models/utils';
 const log = getLogger('poller');
 
 /**
