@@ -1,5 +1,6 @@
-import { Metric, TargetState } from '../../../poller';
+import { TargetState } from '../../../poller';
 import { metricMetadataIndom } from './pmapi';
+import { Metric } from '../../../../../lib/models/pcp/pcp';
 
 export const endpoint = {
     context: {
@@ -32,11 +33,11 @@ export const instanceDomain = {
 export const metricIndom: Metric = {
     metadata: metricMetadataIndom,
     instanceDomain: {
-        instances: new Map([
-            [0, { name: 'inst0', instance: 0, labels: { inst0labelkey: 'inst0labelvalue' } }],
-            [1, { name: 'inst1', instance: 1, labels: {} }],
-            [2, { name: 'inst2', instance: 2, labels: {} }],
-        ]),
+        instances: {
+            0: { name: 'inst0', instance: 0, labels: { inst0labelkey: 'inst0labelvalue' } },
+            1: { name: 'inst1', instance: 1, labels: {} },
+            2: { name: 'inst2', instance: 2, labels: {} },
+        },
         labels: {
             indomlabelkey: 'indomlabelvalue',
         },

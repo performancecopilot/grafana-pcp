@@ -1,32 +1,5 @@
 import { FieldType } from '@grafana/data';
-import { Labels, InstanceName, InstanceId, MetricMetadata, Semantics } from '../../lib/models/pcp';
-
-export interface Context {
-    context: number;
-    labels: Labels;
-}
-
-export interface Instance {
-    name: InstanceName;
-    instance: InstanceId;
-    labels: Labels;
-}
-
-export interface InstanceDomain {
-    instances: Instance[];
-    labels: Labels;
-}
-
-export interface InstanceValue {
-    /** the actual value null is returned by the pmproxy REST API */
-    instance: InstanceId | null;
-    value: number | string;
-}
-
-export interface InstanceValuesSnapshot {
-    timestampMs: number;
-    values: InstanceValue[];
-}
+import { Semantics, MetricMetadata } from '../../lib/models/pcp/pcp';
 
 const pcpNumberTypes = ['32', 'u32', '64', 'u64', 'float', 'double'];
 export function pcpTypeToGrafanaType(metadata: MetricMetadata): FieldType {

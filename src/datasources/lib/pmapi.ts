@@ -1,17 +1,27 @@
 import { BackendSrvRequest, getBackendSrv } from '@grafana/runtime';
-import { InstanceDomain, Context, InstanceValue } from './pcp';
 import { has, defaults } from 'lodash';
 import { NetworkError } from '../../lib/models/errors/network';
 import { DefaultRequestOptions } from './types';
-import { MetricMetadata, MetricName } from '../../lib/models/pcp';
+import { MetricName, Labels } from '../../lib/models/pcp/pcp';
+import { PmapiInstance, PmapiMetricMetadata, PmapiInstanceValue } from '../../lib/models/pcp/pmapi';
+
+export interface PmapiContext {
+    context: number;
+    labels: Labels;
+}
+
+export interface InstanceDomain {
+    instances: PmapiInstance[];
+    labels: Labels;
+}
 
 interface MetricsResponse {
-    metrics: MetricMetadata[];
+    metrics: PmapiMetricMetadata[];
 }
 
 interface MetricInstanceValues {
     name: MetricName;
-    instances: InstanceValue[];
+    instances: PmapiInstanceValue[];
 }
 
 interface FetchResponse {
@@ -57,7 +67,7 @@ export class PmApi {
      * @param hostspec
      * @param polltimeout context timeout in seconds
      */
-    async createContext(url: string, hostspec: string, polltimeout = 30): Promise<Context> {
+    async createContext(url: string, hostspec: string, polltimeout = 30): Promise<PmapiContext> {
         const response = await this.datasourceRequest({
             url: `${url}/pmapi/context`,
             params: { hostspec, polltimeout },

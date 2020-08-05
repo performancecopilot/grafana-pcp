@@ -5,28 +5,14 @@
  * All metric related requests happen in the background, to use the same PCP Context and fetch multiple metrics at once
  */
 
-import { Context, Instance, InstanceValuesSnapshot, InstanceValue } from './pcp';
 import { CompletePmapiQuery } from './types';
-import { PmApi, MetricNotFoundError } from './pmapi';
+import { PmApi, MetricNotFoundError, PmapiContext } from './pmapi';
 import { difference, has, remove, uniq } from 'lodash';
 import * as config from '../vector/config';
 import { getLogger } from './utils';
-import { MetricMetadata, Labels } from '../../lib/models/pcp';
 import { Dict } from '../../lib/models/utils';
+import { PmapiInstanceValue, PmapiMetric } from '../../lib/models/pcp/pmapi';
 const log = getLogger('poller');
-
-/**
- * Represents a PCP Metric including metadata, instance names and values
- * can also be a derived metric
- */
-export interface Metric {
-    metadata: MetricMetadata;
-    instanceDomain: {
-        instances: Map<number, Instance>;
-        labels: Labels;
-    };
-    values: InstanceValuesSnapshot[];
-}
 
 export enum TargetState {
     /** newly entered target or target with error (trying again) */
@@ -67,14 +53,14 @@ export interface Endpoint<T = Dict<string, any>> {
     state: EndpointState;
     url: string;
     hostspec: string;
-    metrics: Metric[];
+    metrics: PmapiMetric[];
     targets: Target[];
-    additionalMetricsToPoll: Array<{ name: string; callback: (values: InstanceValue[]) => void }>;
+    additionalMetricsToPoll: Array<{ name: string; callback: (values: PmapiInstanceValue[]) => void }>;
     errors: any[];
     custom?: T;
 
     /** context, will be created at next poll */
-    context?: Context;
+    context?: PmapiContext;
     /** backfilling with redis */
     hasRedis?: boolean;
 }
@@ -82,7 +68,7 @@ export interface Endpoint<T = Dict<string, any>> {
 export interface QueryResult {
     endpoint: Required<Endpoint>;
     target: Target;
-    metrics: Metric[];
+    metrics: PmapiMetric[];
 }
 
 interface PollerHooks {
@@ -130,7 +116,7 @@ export class Poller {
         this.pageIsVisible = visible;
     }
 
-    async refreshInstanceNames(endpoint: Endpoint, metric: Metric) {
+    async refreshInstanceNames(endpoint: Endpoint, metric: PmapiMetric) {
         const instancesResponse = await this.pmApi.getMetricInstances(
             endpoint.url,
             endpoint.context!.context,
@@ -138,7 +124,7 @@ export class Poller {
         );
         metric.instanceDomain.labels = instancesResponse.labels;
         for (const instance of instancesResponse.instances) {
-            metric.instanceDomain.instances.set(instance.instance, instance);
+            metric.instanceDomain.instances[instance.instance] = instance;
         }
     }
 
@@ -162,10 +148,10 @@ export class Poller {
             metricNames
         );
         for (const metadata of metadataResponse.metrics) {
-            let metric: Metric = {
+            let metric: PmapiMetric = {
                 metadata,
                 instanceDomain: {
-                    instances: new Map(),
+                    instances: {},
                     labels: {},
                 },
                 values: [],
@@ -269,7 +255,7 @@ export class Poller {
             if (metric.metadata.indom) {
                 let needRefresh = false;
                 for (const instance of metricInstanceValues.instances) {
-                    if (!metric.instanceDomain.instances.has(instance.instance!)) {
+                    if (!(instance.instance! in metric.instanceDomain.instances)) {
                         needRefresh = true;
                         break;
                     }

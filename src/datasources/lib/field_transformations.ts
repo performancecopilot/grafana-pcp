@@ -1,6 +1,6 @@
 import { MutableDataFrame, MISSING_VALUE, FieldType } from '@grafana/data';
 import { TargetFormat } from './types';
-import { MetricMetadata, Semantics } from '../../lib/models/pcp';
+import { MetricMetadata, Semantics } from '../../lib/models/pcp/pcp';
 import { Dict } from '../../lib/models/utils';
 
 function cloneFieldDefinitions(input: MutableDataFrame) {

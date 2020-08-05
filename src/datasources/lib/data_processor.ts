@@ -9,21 +9,22 @@ import {
     DataFrame,
 } from '@grafana/data';
 import { TargetFormat } from './types';
-import { Metric, QueryResult } from './poller';
-import { pcpUnitToGrafanaUnit, Context, pcpTypeToGrafanaType } from './pcp';
+import { QueryResult } from './poller';
+import { pcpUnitToGrafanaUnit, pcpTypeToGrafanaType } from './pcp';
 import { mapValues, every, isString } from 'lodash';
 import { applyTransformations } from './field_transformations';
 import { getTemplateSrv } from '@grafana/runtime';
-import { InstanceId, Labels, InstanceName, Semantics } from '../../lib/models/pcp';
+import { InstanceId, Labels, InstanceName, Semantics, Metric } from '../../lib/models/pcp/pcp';
+import { PmapiContext } from './pmapi';
 
-function getLabels(context: Context, metric: Metric, instanceId: InstanceId | null): Labels {
+function getLabels(metric: Metric, instanceId: InstanceId | null, context?: PmapiContext): Labels {
     let labels = {
-        ...context.labels,
+        ...context?.labels,
         ...metric.metadata.labels,
         ...metric.instanceDomain.labels,
     };
-    if (instanceId != null && metric.instanceDomain.instances.has(instanceId)) {
-        Object.assign(labels, metric.instanceDomain.instances.get(instanceId)!.labels);
+    if (instanceId != null && instanceId in metric.instanceDomain.instances) {
+        Object.assign(labels, metric.instanceDomain.instances[instanceId]!.labels);
     }
     return labels;
 }
@@ -39,7 +40,7 @@ function getLegendName(
         return defaultLegend(result, metric, instanceId);
     }
 
-    const vars = getLabels(result.endpoint.context, metric, instanceId);
+    const vars = getLabels(metric, instanceId, result.endpoint.context);
     if (result.target.custom?.isDerivedMetric) {
         vars['metric'] = result.target.query.expr;
     } else {
@@ -48,8 +49,8 @@ function getLegendName(
         vars['metric0'] = spl[spl.length - 1];
     }
 
-    if (instanceId != null && metric.instanceDomain.instances.has(instanceId)) {
-        vars['instance'] = metric.instanceDomain.instances.get(instanceId)!.name;
+    if (instanceId != null && instanceId in metric.instanceDomain.instances) {
+        vars['instance'] = metric.instanceDomain.instances[instanceId]!.name;
     }
 
     return getTemplateSrv().replace(result.target.query.legendFormat, {
@@ -59,8 +60,8 @@ function getLegendName(
 }
 
 function defaultTimeSeriesLegend(result: QueryResult, metric: Metric, instanceId: InstanceId | null) {
-    if (instanceId != null && metric.instanceDomain.instances.has(instanceId)) {
-        return metric.instanceDomain.instances.get(instanceId)!.name;
+    if (instanceId != null && instanceId in metric.instanceDomain.instances) {
+        return metric.instanceDomain.instances[instanceId]!.name;
     } else {
         return result.target.custom?.isDerivedMetric ? result.target.query.expr : metric.metadata.name;
     }
@@ -68,7 +69,7 @@ function defaultTimeSeriesLegend(result: QueryResult, metric: Metric, instanceId
 
 function defaultHeatmapLegend(result: QueryResult, metric: Metric, instanceId: InstanceId | null) {
     // target name is the upper bound
-    const instanceName = metric.instanceDomain.instances.get(instanceId!)?.name;
+    const instanceName = metric.instanceDomain.instances[instanceId!]?.name;
     if (instanceName) {
         const match = instanceName.match(/^(.+?)\-(.+?)$/);
         if (match) {
@@ -102,7 +103,7 @@ function getFieldMetadata(
                 instanceName,
             },
         },
-        labels: getLabels(result.endpoint.context, metric, instanceId) as GrafanaLabels,
+        labels: getLabels(metric, instanceId, result.endpoint.context) as GrafanaLabels,
     };
 }
 
@@ -139,7 +140,7 @@ export function toDataFrame(request: DataQueryRequest, result: QueryResult, metr
                 let fieldName = result.target.custom?.isDerivedMetric ? result.target.query.expr : metric.metadata.name;
                 let instanceName: InstanceName | undefined;
                 if (instanceValue.instance !== null) {
-                    instanceName = metric.instanceDomain.instances.get(instanceValue.instance)?.name;
+                    instanceName = metric.instanceDomain.instances[instanceValue.instance]?.name;
                     if (instanceName) {
                         fieldName += `[${instanceName}]`;
                     }
@@ -218,7 +219,7 @@ function toMetricsTable(
         name: 'instance',
     });
 
-    let instanceNames: Map<number | null, string> = new Map();
+    let instanceNames: Map<InstanceId | null, string> = new Map();
     for (const { result, metric } of dataFrameAndResults) {
         tableDataFrame.addField({
             name: result.target.custom?.isDerivedMetric ? result.target.query.expr : metric.metadata.name,
@@ -236,9 +237,9 @@ function toMetricsTable(
             );
             for (const instanceId of instanceIds) {
                 if (!instanceNames.has(instanceId)) {
-                    let instanceName: string | undefined;
+                    let instanceName: InstanceName | undefined;
                     if (instanceId !== null) {
-                        instanceName = metric.instanceDomain.instances.get(instanceId)?.name;
+                        instanceName = metric.instanceDomain.instances[instanceId]?.name;
                     }
                     instanceNames.set(instanceId, instanceName ?? '');
                 }

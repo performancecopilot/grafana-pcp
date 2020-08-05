@@ -16,6 +16,8 @@ import {
     SeriesLabelsMaybeResponse,
     SeriesInstancesQueryParams,
     SeriesInstancesResponse,
+    SeriesValuesQueryParams,
+    SeriesValuesItemResponse,
 } from '../models/api/series';
 import { timeout } from '../utils/timeout';
 import Config from '../../components/search/config/config';
@@ -159,6 +161,43 @@ class PmSeriesApiService {
             return {};
         }
         return response as Exclude<SeriesLabelsResponse, SeriesNoRecordResponse>;
+    }
+
+    async values(params: SeriesValuesQueryParams): Promise<SeriesValuesItemResponse[]> {
+        const getParams = new URLSearchParams();
+        if (params.series !== undefined) {
+            getParams.append('series', params.series.join(','));
+        }
+        if (params.samples !== undefined) {
+            getParams.append('samples', params.samples.toString());
+        }
+        if (params.interval !== undefined) {
+            getParams.append('interval', params.interval);
+        }
+        if (params.start !== undefined) {
+            getParams.append('start', params.start);
+        }
+        if (params.finish !== undefined) {
+            getParams.append('finish', params.finish);
+        }
+        if (params.offset !== undefined) {
+            getParams.append('offset', params.offset);
+        }
+        if (params.align !== undefined) {
+            getParams.append('align', params.align);
+        }
+        if (params.zone !== undefined) {
+            getParams.append('zone', params.zone);
+        }
+
+        const options = {
+            url: `${this.baseUrl}/series/values?${getParams.toString()}`,
+        };
+        const response = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        if (PmSeriesApiService.isNoRecordResponse(response)) {
+            return [];
+        }
+        return response;
     }
 }
 

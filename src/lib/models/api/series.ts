@@ -1,4 +1,6 @@
-import { Semantics, Labels, SeriesId, SeriesInstanceId, InstanceId, InstanceName } from '../pcp';
+import { Semantics, Labels, InstanceName } from '../pcp/pcp';
+import { SeriesId, SeriesInstanceId } from '../pcp/pmseries';
+import { PmapiInstanceId } from '../pcp/pmapi';
 
 export interface SeriesNoRecordResponse {
     success: boolean;
@@ -50,7 +52,7 @@ export interface SeriesInstancesItemResponse {
     series: SeriesId;
     source: string;
     instance: SeriesInstanceId;
-    id: InstanceId;
+    id: PmapiInstanceId;
     name: InstanceName;
 }
 
@@ -91,6 +93,24 @@ export interface SeriesMetricsItemResponse {
 export type SeriesMetricsResponse = string[] | SeriesMetricsItemResponse[];
 
 export type SeriesMetricsMaybeResponse = SeriesMetricsResponse | SeriesNoRecordResponse;
+
+export interface SeriesValuesQueryParams {
+    series?: string[];
+    samples?: number;
+    interval?: string;
+    start?: string;
+    finish?: string;
+    offset?: string;
+    align?: string;
+    zone?: string;
+}
+
+export interface SeriesValuesItemResponse {
+    series: string;
+    instance: string;
+    timestamp: number;
+    value: string | number;
+}
 
 export type SeriesMaybeResponse =
     | SeriesDescMaybeResponse
