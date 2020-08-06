@@ -2,8 +2,8 @@
 //import { MISSING_VALUE } from '@grafana/data';
 
 describe('data processor', () => {
-    /*it('should create a dataframe', () => {
-        fixtures.grafana.dataFrameRequest;
+    it.skip('should create a dataframe', () => {
+        /*fixtures.grafana.dataFrameRequest;
 
         const result = toDataFrame(
             fixtures.grafana.dataFrameRequest,
@@ -30,6 +30,6 @@ describe('data processor', () => {
                     values: { buffer: [MISSING_VALUE, 1002, MISSING_VALUE, 3002] },
                 },
             ],
-        });
-    });*/
+        });*/
+    });
 });
