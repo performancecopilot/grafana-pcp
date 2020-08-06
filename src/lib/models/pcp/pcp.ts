@@ -16,7 +16,7 @@ export enum Semantics {
     Counter = 'counter',
 }
 
-export interface Metric<MD = MetricMetadata, II = InstanceId, IN = Instance> {
+export interface Metric<MD = MetricMetadata, IN = Instance> {
     metadata: MD;
     instanceDomain: {
         instances: Dict<string, IN>;
