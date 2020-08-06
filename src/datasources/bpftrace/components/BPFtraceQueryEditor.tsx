@@ -6,7 +6,7 @@ import { DataSource } from '../datasource';
 import { BPFtraceOptions, BPFtraceQuery, defaultBPFtraceQuery } from '../types';
 import BPFtraceQueryField from './BPFtraceQueryField';
 import { isBlank } from '../../lib/utils';
-import { TargetFormat } from '../../lib/types';
+import { TargetFormat } from '../../lib/models/pcp';
 
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },

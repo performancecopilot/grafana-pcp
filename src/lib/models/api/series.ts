@@ -107,9 +107,9 @@ export interface SeriesValuesQueryParams {
 
 export interface SeriesValuesItemResponse {
     series: string;
-    instance: string;
+    instance?: string;
     timestamp: number;
-    value: string | number;
+    value: string;
 }
 
 export type SeriesMaybeResponse =

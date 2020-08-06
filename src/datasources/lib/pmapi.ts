@@ -1,7 +1,7 @@
 import { BackendSrvRequest, getBackendSrv } from '@grafana/runtime';
 import { has, defaults } from 'lodash';
 import { NetworkError } from '../../lib/models/errors/network';
-import { DefaultRequestOptions } from './types';
+import { DefaultRequestOptions } from './models/pcp';
 import { MetricName, Labels } from '../../lib/models/pcp/pcp';
 import { PmapiInstance, PmapiMetricMetadata, PmapiInstanceValue } from '../../lib/models/pcp/pmapi';
 

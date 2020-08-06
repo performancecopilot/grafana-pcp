@@ -1,6 +1,7 @@
-import { PmapiQuery, TargetFormat } from '../lib/types';
+import { TargetFormat } from '../lib/models/pcp';
 import { DataSourceJsonData } from '@grafana/data';
 import { Script } from './script';
+import { PmapiQuery } from '../lib/models/pmapi';
 
 export interface BPFtraceOptions extends DataSourceJsonData {
     hostspec?: string;

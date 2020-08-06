@@ -1,9 +1,9 @@
 import { getTemplateSrv } from '@grafana/runtime';
 import { isBlank } from './utils';
 import { defaults } from 'lodash';
-import { DataQueryRequest } from '@grafana/data';
-import { CompletePmapiQuery, PmapiQuery } from './types';
+import { DataQueryRequest, MetricFindValue } from '@grafana/data';
 import { PmApi } from './pmapi';
+import { PmapiQuery, CompletePmapiQuery } from './models/pmapi';
 
 export function buildQueries<Q extends PmapiQuery>(
     request: DataQueryRequest<Q>,
@@ -39,6 +39,12 @@ export function buildQueries<Q extends PmapiQuery>(
             // happens in the Vector Container Overview dashboard, when selecting "All" and no containers are present
             return target.hostspec.match(/container=(&|$)/) === null;
         });
+}
+
+export async function metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
+    query = getTemplateSrv().replace(query.trim());
+    const metricValues = await this.state.pmApi.getMetricValues(this.instanceSettings.url!, null, [query]);
+    return metricValues.values[0].instances.map(instance => ({ text: instance.value.toString() }));
 }
 
 export async function testDatasource(pmApi: PmApi, url: string, hostspec: string) {

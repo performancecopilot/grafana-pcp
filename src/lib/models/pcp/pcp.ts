@@ -22,15 +22,4 @@ export interface Metric<MD = MetricMetadata, II = InstanceId, IN = Instance> {
         instances: Dict<string, IN>;
         labels: Labels;
     };
-    values: Array<InstanceValuesSnapshot<II>>;
-}
-
-export interface InstanceValuesSnapshot<II = InstanceId> {
-    timestampMs: number;
-    values: Array<InstanceValue<II>>;
-}
-
-export interface InstanceValue<II = InstanceId> {
-    instance: II | null;
-    value: number | string;
 }

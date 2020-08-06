@@ -21,7 +21,7 @@ import {
 } from '../models/api/series';
 import { timeout } from '../utils/timeout';
 import Config from '../../components/search/config/config';
-import { DefaultRequestOptions } from '../../datasources/lib/types';
+import { DefaultRequestOptions } from '../../datasources/lib/models/pcp';
 import { defaults } from 'lodash';
 import { NetworkError } from '../models/errors/network';
 

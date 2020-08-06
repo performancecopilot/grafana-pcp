@@ -1,33 +1,10 @@
-import {
-    DataQueryRequest,
-    MutableDataFrame,
-    FieldType,
-    MutableField,
-    Labels as GrafanaLabels,
-    Field,
-    MISSING_VALUE,
-    DataFrame,
-} from '@grafana/data';
-import { TargetFormat } from './types';
-import { QueryResult } from './poller';
-import { pcpUnitToGrafanaUnit, pcpTypeToGrafanaType } from './pcp';
+import { DataQueryRequest, MutableDataFrame, FieldType, MISSING_VALUE, DataFrame } from '@grafana/data';
+import { TargetFormat, QueryResult } from './models/pcp';
 import { mapValues, every, isString } from 'lodash';
 import { applyTransformations } from './field_transformations';
 import { getTemplateSrv } from '@grafana/runtime';
-import { InstanceId, Labels, InstanceName, Semantics, Metric } from '../../lib/models/pcp/pcp';
-import { PmapiContext } from './pmapi';
-
-function getLabels(metric: Metric, instanceId: InstanceId | null, context?: PmapiContext): Labels {
-    let labels = {
-        ...context?.labels,
-        ...metric.metadata.labels,
-        ...metric.instanceDomain.labels,
-    };
-    if (instanceId != null && instanceId in metric.instanceDomain.instances) {
-        Object.assign(labels, metric.instanceDomain.instances[instanceId]!.labels);
-    }
-    return labels;
-}
+import { InstanceId, InstanceName, Metric } from '../../lib/models/pcp/pcp';
+import { getFieldMetadata, getLabels } from './dataframe_utils';
 
 function getLegendName(
     request: DataQueryRequest,
@@ -40,7 +17,7 @@ function getLegendName(
         return defaultLegend(result, metric, instanceId);
     }
 
-    const vars = getLabels(metric, instanceId, result.endpoint.context);
+    const vars = getLabels(metric, instanceId, result.endpoint?.context);
     if (result.target.custom?.isDerivedMetric) {
         vars['metric'] = result.target.query.expr;
     } else {
@@ -88,90 +65,6 @@ function defaultMetricsTableHeader(result: QueryResult, metric: Metric, instance
     }
 }
 
-function getFieldMetadata(
-    result: QueryResult,
-    metric: Metric,
-    instanceId: InstanceId | null,
-    instanceName?: InstanceName
-): Partial<Field> {
-    return {
-        type: pcpTypeToGrafanaType(metric.metadata),
-        config: {
-            unit: pcpUnitToGrafanaUnit(metric.metadata),
-            custom: {
-                instanceId,
-                instanceName,
-            },
-        },
-        labels: getLabels(metric, instanceId, result.endpoint.context) as GrafanaLabels,
-    };
-}
-
-export function toDataFrame(request: DataQueryRequest, result: QueryResult, metric: Metric, sampleIntervalSec: number) {
-    let requestRangeFromMs = request.range?.from.valueOf()!;
-    let requestRangeToMs = request.range?.to.valueOf()!;
-
-    // fill the graph by requesting more data (+/- 1 interval)
-    requestRangeFromMs -= sampleIntervalSec * 1000;
-    requestRangeToMs += sampleIntervalSec * 1000;
-
-    // the first value of a counter metric is lost due to rate conversation
-    if (metric.metadata.sem === Semantics.Counter) {
-        requestRangeFromMs -= sampleIntervalSec * 1000;
-    }
-
-    const dataFrame = new MutableDataFrame();
-    const timeField = dataFrame.addField({ name: 'Time', type: FieldType.time });
-    const instanceIdToField = new Map<InstanceId | null, MutableField>();
-    for (const snapshot of metric.values) {
-        if (
-            !(
-                requestRangeFromMs <= snapshot.timestampMs &&
-                (!request.endTime || snapshot.timestampMs <= requestRangeToMs)
-            )
-        ) {
-            continue;
-        }
-
-        // create all dataFrame fields in one go, because Grafana automatically matches
-        // the vector length of newly created fields with already existing fields by adding empty data
-        for (const instanceValue of snapshot.values) {
-            if (!instanceIdToField.has(instanceValue.instance)) {
-                let fieldName = result.target.custom?.isDerivedMetric ? result.target.query.expr : metric.metadata.name;
-                let instanceName: InstanceName | undefined;
-                if (instanceValue.instance !== null) {
-                    instanceName = metric.instanceDomain.instances[instanceValue.instance]?.name;
-                    if (instanceName) {
-                        fieldName += `[${instanceName}]`;
-                    }
-                }
-
-                instanceIdToField.set(
-                    instanceValue.instance,
-                    dataFrame.addField({
-                        name: fieldName,
-                        ...getFieldMetadata(result, metric, instanceValue.instance, instanceName),
-                    })
-                );
-            }
-        }
-
-        timeField.values.add(snapshot.timestampMs);
-        for (const instanceValue of snapshot.values) {
-            let field = instanceIdToField.get(instanceValue.instance)!;
-            field.values.add(instanceValue.value);
-        }
-
-        // some instance existed previously but disappeared -> fill field with MISSING_VALUE
-        for (const field of instanceIdToField.values()) {
-            if (field.values.length !== timeField.values.length) {
-                field.values.add(MISSING_VALUE);
-            }
-        }
-    }
-    return dataFrame;
-}
-
 function toTimeSeries(request: DataQueryRequest, result: QueryResult, metric: Metric, dataFrame: MutableDataFrame) {
     for (const field of dataFrame.fields) {
         if (field.type === FieldType.time) {
@@ -212,7 +105,7 @@ function toHeatMap(request: DataQueryRequest, result: QueryResult, metric: Metri
 
 function toMetricsTable(
     request: DataQueryRequest,
-    dataFrameAndResults: Array<{ result: QueryResult; dataFrame: MutableDataFrame; metric: Metric }>
+    flatQueryResults: Array<{ queryResult: QueryResult; dataFrame: MutableDataFrame; metric: Metric }>
 ) {
     const tableDataFrame = new MutableDataFrame();
     tableDataFrame.addField({
@@ -220,29 +113,29 @@ function toMetricsTable(
     });
 
     let instanceNames: Map<InstanceId | null, string> = new Map();
-    for (const { result, metric } of dataFrameAndResults) {
+    for (const { queryResult, dataFrame, metric } of flatQueryResults) {
         tableDataFrame.addField({
-            name: result.target.custom?.isDerivedMetric ? result.target.query.expr : metric.metadata.name,
-            ...getFieldMetadata(result, metric, null),
+            name: queryResult.target.custom?.isDerivedMetric ? queryResult.target.query.expr : metric.metadata.name,
+            ...getFieldMetadata(metric, null, undefined, queryResult.endpoint?.context),
             config: {
-                displayName: getLegendName(request, result, metric, null, defaultMetricsTableHeader),
+                displayName: getLegendName(request, queryResult, metric, null, defaultMetricsTableHeader),
             },
         });
 
-        // metric.instanceDomain contains all instances ever recorded
-        // use the last snapshot of metric.values to get only the current instances
-        if (metric.values.length > 0) {
-            const instanceIds = metric.values[metric.values.length - 1].values.map(
-                instanceValue => instanceValue.instance
-            );
-            for (const instanceId of instanceIds) {
-                if (!instanceNames.has(instanceId)) {
-                    let instanceName: InstanceName | undefined;
-                    if (instanceId !== null) {
-                        instanceName = metric.instanceDomain.instances[instanceId]?.name;
-                    }
-                    instanceNames.set(instanceId, instanceName ?? '');
-                }
+        // we're only interested in instances which have a value in the last snapshot
+        if (dataFrame.length === 0) {
+            continue;
+        }
+        for (const field of dataFrame.fields) {
+            const lastValue = field.values.get(field.values.length - 1);
+            if (field.type === FieldType.time || lastValue === MISSING_VALUE) {
+                continue;
+            }
+
+            const instanceId: InstanceId = field.config.custom.instanceId;
+            const instanceName: InstanceName | undefined = field.config.custom.instanceName;
+            if (!instanceNames.has(instanceId)) {
+                instanceNames.set(instanceId, instanceName ?? '');
             }
         }
     }
@@ -257,7 +150,7 @@ function toMetricsTable(
         tableDataFrame.fields[fieldIdx].values.add(instanceName);
         fieldIdx++;
 
-        for (const { dataFrame } of dataFrameAndResults) {
+        for (const { dataFrame } of flatQueryResults) {
             const field = dataFrame.fields.find(
                 field => field.type !== FieldType.time && field.config.custom.instanceId === instanceId
             );
@@ -304,15 +197,15 @@ function* parseCsvLine(line: string) {
     }
 }
 
-function toCsvTable(dataFrameAndResults: Array<{ result: QueryResult; dataFrame: MutableDataFrame; metric: Metric }>) {
+function toCsvTable(flatQueryResults: Array<{ dataFrame: DataFrame }>) {
     let tableText = '';
-    if (dataFrameAndResults.length === 1 && dataFrameAndResults[0].metric.values.length > 0) {
-        const snapshots = dataFrameAndResults[0].metric.values;
-        const lastSnapshot = snapshots[snapshots.length - 1];
-        if (lastSnapshot.values.length > 0) {
-            const lastValue = lastSnapshot.values[0].value;
-            if (isString(lastValue) && lastValue.includes(',')) {
-                tableText = lastValue;
+    if (flatQueryResults.length === 1 && flatQueryResults[0].dataFrame.length > 0) {
+        for (const field of flatQueryResults[0].dataFrame.fields) {
+            if (field.type !== FieldType.time) {
+                const lastValue = field.values.get(field.values.length - 1);
+                if (isString(lastValue) && lastValue.includes(',')) {
+                    tableText = lastValue;
+                }
             }
         }
     }
@@ -340,46 +233,38 @@ function toCsvTable(dataFrameAndResults: Array<{ result: QueryResult; dataFrame:
     return tableDataFrame;
 }
 
-export function processTargets(
-    request: DataQueryRequest,
-    results: QueryResult[],
-    sampleIntervalSec: number
-): DataFrame[] {
-    if (results.length === 0) {
+export function processTargets(request: DataQueryRequest, queryResults: QueryResult[]): DataFrame[] {
+    if (queryResults.length === 0) {
         return [];
     }
 
-    const format = results[0].target.query.format;
-    if (!every(results, result => result.target.query.format === format)) {
+    const format = queryResults[0].target.query.format;
+    if (!every(queryResults, result => result.target.query.format === format)) {
         throw new Error('Format must be the same for all queries of a panel.');
     }
 
-    const dataFrameAndResults = results.flatMap(result =>
-        result.metrics.map(metric => ({
-            result,
+    const flatQueryResults = queryResults.flatMap(queryResult =>
+        queryResult.targetResult.map(({ metric, dataFrame }) => ({
+            queryResult,
             metric,
-            dataFrame: applyTransformations(
-                format,
-                metric.metadata,
-                toDataFrame(request, result, metric, sampleIntervalSec)
-            ),
+            dataFrame: applyTransformations(queryResult.target.query.format, metric.metadata, dataFrame),
         }))
     );
 
     if (format === TargetFormat.TimeSeries) {
-        return dataFrameAndResults
-            .map(({ result, metric, dataFrame }) => toTimeSeries(request, result, metric, dataFrame))
+        return flatQueryResults
+            .map(({ queryResult, metric, dataFrame }) => toTimeSeries(request, queryResult, metric, dataFrame))
             .filter(dataFrame => dataFrame.fields.length > 1);
     } else if (format === TargetFormat.Heatmap) {
-        return dataFrameAndResults
-            .map(({ result, metric, dataFrame }) => toHeatMap(request, result, metric, dataFrame))
+        return flatQueryResults
+            .map(({ queryResult, metric, dataFrame }) => toHeatMap(request, queryResult, metric, dataFrame))
             .filter(dataFrame => dataFrame.fields.length > 1);
     } else if (format === TargetFormat.MetricsTable) {
-        return [toMetricsTable(request, dataFrameAndResults)];
+        return [toMetricsTable(request, flatQueryResults)];
     } else if (format === TargetFormat.CsvTable) {
-        return [toCsvTable(dataFrameAndResults)];
+        return [toCsvTable(flatQueryResults)];
     } else if (format === TargetFormat.FlameGraph) {
-        return dataFrameAndResults.map(({ dataFrame }) => dataFrame);
+        return flatQueryResults.map(({ dataFrame }) => dataFrame);
     } else {
         throw { message: `Invalid target format '${format}'.` };
     }

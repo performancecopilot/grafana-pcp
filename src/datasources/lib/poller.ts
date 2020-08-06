@@ -5,36 +5,22 @@
  * All metric related requests happen in the background, to use the same PCP Context and fetch multiple metrics at once
  */
 
-import { CompletePmapiQuery } from './types';
+import { QueryResult } from './models/pcp';
 import { PmApi, MetricNotFoundError, PmapiContext } from './pmapi';
 import { difference, has, remove, uniq } from 'lodash';
 import * as config from '../vector/config';
 import { getLogger } from './utils';
 import { Dict } from '../../lib/models/utils';
-import { PmapiInstanceValue, PmapiMetric } from '../../lib/models/pcp/pmapi';
+import { PmapiMetric, PmapiInstanceId, PmapiInstanceValue } from '../../lib/models/pcp/pmapi';
+import { CompletePmapiQuery, PmapiTarget, PmapiTargetState } from './models/pmapi';
+import { MutableDataFrame, MutableField, FieldType, MISSING_VALUE } from '@grafana/data';
+import { Semantics, InstanceName } from '../../lib/models/pcp/pcp';
+import { getFieldMetadata } from './dataframe_utils';
 const log = getLogger('poller');
 
-export enum TargetState {
-    /** newly entered target or target with error (trying again) */
-    PENDING,
-    /** metrics exists and metadata available */
-    METRICS_AVAILABLE,
-    /** fatal error, will not try again */
-    ERROR,
-}
-
-/**
- * Represents a target of a Grafana panel, which will be polled in the background
- * Collects possible errors (e.g. MetricNotFoundError) which occured while polling in the background
- */
-export interface Target<T = Dict<string, any>> {
-    state: TargetState;
-    query: CompletePmapiQuery;
-    /** valid PCP metric names (can be a derived metric, e.g. derived_xxx) */
-    metricNames: string[];
-    errors: any[];
-    lastActiveMs: number;
-    custom?: T;
+interface PmapiInstanceValuesSnapshot {
+    timestampMs: number;
+    values: PmapiInstanceValue[];
 }
 
 enum EndpointState {
@@ -54,7 +40,8 @@ export interface Endpoint<T = Dict<string, any>> {
     url: string;
     hostspec: string;
     metrics: PmapiMetric[];
-    targets: Target[];
+    metricValues: Dict<string, PmapiInstanceValuesSnapshot[]>;
+    targets: PmapiTarget[];
     additionalMetricsToPoll: Array<{ name: string; callback: (values: PmapiInstanceValue[]) => void }>;
     errors: any[];
     custom?: T;
@@ -65,18 +52,12 @@ export interface Endpoint<T = Dict<string, any>> {
     hasRedis?: boolean;
 }
 
-export interface QueryResult {
-    endpoint: Required<Endpoint>;
-    target: Target;
-    metrics: PmapiMetric[];
-}
-
 interface PollerHooks {
     queryHasChanged: (prevQuery: CompletePmapiQuery, newQuery: CompletePmapiQuery) => boolean;
     registerEndpoint?: (endpoint: Endpoint) => Promise<void>;
-    registerTarget: (target: Target) => Promise<string[]>;
-    deregisterTarget?: (target: Target) => void;
-    redisBackfill?: (endpoint: Endpoint, targets: Target[]) => Promise<void>;
+    registerTarget: (target: PmapiTarget) => Promise<string[]>;
+    deregisterTarget?: (target: PmapiTarget) => void;
+    redisBackfill?: (endpoint: Endpoint, targets: PmapiTarget[]) => Promise<void>;
 }
 
 interface PollerState {
@@ -135,7 +116,7 @@ export class Poller {
                 .filter(target => target.metricNames.includes(missingMetric))
                 .forEach(target => {
                     log.debug('missing metric', missingMetric, 'for target', target);
-                    target.state = TargetState.PENDING;
+                    target.state = PmapiTargetState.PENDING;
                     target.errors.push(new MetricNotFoundError(missingMetric));
                 });
         }
@@ -154,9 +135,9 @@ export class Poller {
                     instances: {},
                     labels: {},
                 },
-                values: [],
             };
             endpoint.metrics.push(metric);
+            endpoint.metricValues[metric.metadata.name] = [];
         }
 
         this.detectMissingMetrics(
@@ -167,7 +148,7 @@ export class Poller {
     }
 
     async initializePendingTargets(endpoint: Required<Endpoint>) {
-        let pendingTargets = endpoint.targets.filter(target => target.state === TargetState.PENDING);
+        let pendingTargets = endpoint.targets.filter(target => target.state === PmapiTargetState.PENDING);
         if (pendingTargets.length === 0) {
             return;
         }
@@ -182,7 +163,7 @@ export class Poller {
                     .registerTarget(target)
                     .then(metricNames => (target.metricNames = metricNames))
                     .catch(error => {
-                        target.state = TargetState.ERROR;
+                        target.state = PmapiTargetState.ERROR;
                         target.errors.push(error);
                     })
             )
@@ -200,7 +181,7 @@ export class Poller {
         currentMetricNames = endpoint.metrics.map(metric => metric.metadata.name);
         for (const target of pendingTargets) {
             if (target.metricNames.length > 0 && difference(target.metricNames, currentMetricNames).length === 0) {
-                target.state = TargetState.METRICS_AVAILABLE;
+                target.state = PmapiTargetState.METRICS_AVAILABLE;
             }
         }
 
@@ -230,7 +211,7 @@ export class Poller {
 
         const metricsToPoll = uniq(
             endpoint.targets
-                .filter(target => target.state === TargetState.METRICS_AVAILABLE)
+                .filter(target => target.state === PmapiTargetState.METRICS_AVAILABLE)
                 .flatMap(target => target.metricNames)
         );
         if (metricsToPoll.length === 0) {
@@ -264,8 +245,7 @@ export class Poller {
                     await this.refreshInstanceNames(endpoint, metric);
                 }
             }
-
-            metric.values.push({
+            endpoint.metricValues[metricInstanceValues.name]!.push({
                 timestampMs: valuesResponse.timestamp * 1000,
                 values: metricInstanceValues.instances,
             });
@@ -313,7 +293,7 @@ export class Poller {
         );
     }
 
-    deregisterTarget(endpoint: Endpoint, target: Target) {
+    deregisterTarget(endpoint: Endpoint, target: PmapiTarget) {
         log.debug('deregistering target', target);
         this.hooks.deregisterTarget?.(target);
         remove(endpoint.targets, target);
@@ -336,8 +316,10 @@ export class Poller {
     cleanHistoryData() {
         const keepExpiry = new Date().getTime() - this.retentionTimeMs;
         for (const endpoint of this.state.endpoints) {
-            for (const metric of endpoint.metrics) {
-                metric.values = metric.values.filter(snapshot => snapshot.timestampMs > keepExpiry);
+            for (const metricName in endpoint.metricValues) {
+                endpoint.metricValues[metricName] = endpoint.metricValues[metricName]!.filter(
+                    snapshot => snapshot.timestampMs > keepExpiry
+                );
             }
         }
     }
@@ -349,11 +331,82 @@ export class Poller {
         }
     }
 
+    createDataFrame(
+        endpoint: Endpoint,
+        target: PmapiTarget,
+        metric: PmapiMetric,
+        requestRangeFromMs: number,
+        requestRangeToMs: number,
+        sampleIntervalSec: number
+    ) {
+        // fill the graph by requesting more data (+/- 1 interval)
+        requestRangeFromMs -= sampleIntervalSec * 1000;
+        requestRangeToMs += sampleIntervalSec * 1000;
+
+        // the first value of a counter metric is lost due to rate conversation
+        if (metric.metadata.sem === Semantics.Counter) {
+            requestRangeFromMs -= sampleIntervalSec * 1000;
+        }
+
+        const dataFrame = new MutableDataFrame();
+        const timeField = dataFrame.addField({ name: 'Time', type: FieldType.time });
+        const instanceIdToField = new Map<PmapiInstanceId | null, MutableField>();
+        for (const snapshot of endpoint.metricValues[metric.metadata.name] ?? []) {
+            if (!(requestRangeFromMs <= snapshot.timestampMs && snapshot.timestampMs <= requestRangeToMs)) {
+                continue;
+            }
+
+            // create all dataFrame fields in one go, because Grafana automatically matches
+            // the vector length of newly created fields with already existing fields by adding empty data
+            for (const instanceValue of snapshot.values) {
+                if (instanceIdToField.has(instanceValue.instance)) {
+                    continue;
+                }
+
+                let fieldName = target.custom?.isDerivedMetric ? target.query.expr : metric.metadata.name;
+                let instanceName: InstanceName | undefined;
+                if (instanceValue.instance !== null) {
+                    instanceName = metric.instanceDomain.instances[instanceValue.instance]?.name;
+                    if (instanceName) {
+                        fieldName += `[${instanceName}]`;
+                    }
+                }
+
+                instanceIdToField.set(
+                    instanceValue.instance,
+                    dataFrame.addField({
+                        name: fieldName,
+                        ...getFieldMetadata(metric, instanceValue.instance, instanceName, endpoint.context),
+                    })
+                );
+            }
+
+            timeField.values.add(snapshot.timestampMs);
+            for (const instanceValue of snapshot.values) {
+                let field = instanceIdToField.get(instanceValue.instance)!;
+                field.values.add(instanceValue.value);
+            }
+
+            // some instance existed previously but disappeared -> fill field with MISSING_VALUE
+            for (const field of instanceIdToField.values()) {
+                if (field.values.length !== timeField.values.length) {
+                    field.values.add(MISSING_VALUE);
+                }
+            }
+        }
+        return dataFrame;
+    }
+
     /**
      * do *not* create a context here, or fetch any metric
      * otherwise the initial load of a dashboard creates lots of duplicate contexts
      */
-    query(query: CompletePmapiQuery): QueryResult | null {
+    query(
+        query: CompletePmapiQuery,
+        requestRangeFromMs: number,
+        requestRangeToMs: number,
+        sampleIntervalSec: number
+    ): QueryResult | null {
         let endpoint = this.state.endpoints.find(ep => ep.url === query.url && ep.hostspec === query.hostspec);
         if (!endpoint) {
             endpoint = {
@@ -361,6 +414,7 @@ export class Poller {
                 url: query.url,
                 hostspec: query.hostspec,
                 metrics: [],
+                metricValues: {},
                 targets: [],
                 additionalMetricsToPoll: [],
                 errors: [],
@@ -382,7 +436,7 @@ export class Poller {
             }
 
             target = {
-                state: TargetState.PENDING,
+                state: PmapiTargetState.PENDING,
                 query,
                 metricNames: [],
                 lastActiveMs: nowMs,
@@ -392,9 +446,22 @@ export class Poller {
         }
         this.throwBackgroundError(target);
 
-        if (target.state === TargetState.METRICS_AVAILABLE) {
-            const metrics = endpoint.metrics.filter(metric => target?.metricNames.includes(metric.metadata.name));
-            return { endpoint: endpoint as Required<Endpoint>, target, metrics };
+        if (target.state === PmapiTargetState.METRICS_AVAILABLE) {
+            const metricsOfTarget = endpoint.metrics.filter(metric =>
+                target!.metricNames.includes(metric.metadata.name)
+            );
+            const targetResult = metricsOfTarget.map(metric => ({
+                metric,
+                dataFrame: this.createDataFrame(
+                    endpoint!,
+                    target!,
+                    metric,
+                    requestRangeFromMs,
+                    requestRangeToMs,
+                    sampleIntervalSec
+                ),
+            }));
+            return { endpoint, target, targetResult };
         }
         return null;
     }

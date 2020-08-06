@@ -5,19 +5,19 @@ import {
     DataSourceInstanceSettings,
     MetricFindValue,
 } from '@grafana/data';
-import { DefaultRequestOptions, CompletePmapiQuery } from '../lib/types';
+import { DefaultRequestOptions, QueryResult } from '../lib/models/pcp';
 import { defaults, keyBy } from 'lodash';
 import { interval_to_ms, getDashboardRefreshInterval, getLogger } from '../lib/utils';
-import { Poller, QueryResult, Target, Endpoint, TargetState } from '../lib/poller';
+import { Poller, Endpoint } from '../lib/poller';
 import { PmApi } from '../lib/pmapi';
 import { processTargets } from '../lib/data_processor';
-import { getTemplateSrv } from '@grafana/runtime';
 import * as config from './config';
 import { BPFtraceQuery, BPFtraceOptions, defaultBPFtraceQuery, BPFtraceTargetData } from './types';
 import { ScriptManager } from './script_manager';
-import { buildQueries, testDatasource } from '../lib/pmapi_datasource_utils';
+import { buildQueries, testDatasource, metricFindQuery } from '../lib/pmapi_datasource_utils';
 import { Status, Script } from './script';
 import { getRequestOptions } from '../../lib/utils/api';
+import { CompletePmapiQuery, PmapiTarget, PmapiTargetState } from '../lib/models/pmapi';
 const log = getLogger('datasource');
 
 interface DataSourceState {
@@ -74,7 +74,7 @@ export class DataSource extends DataSourceApi<BPFtraceQuery, BPFtraceOptions> {
                 const scriptsList = JSON.parse(values[0].value as string) as Script[];
                 const scriptsById = keyBy(scriptsList, 'script_id');
 
-                for (const target of endpoint.targets as Array<Target<BPFtraceTargetData>>) {
+                for (const target of endpoint.targets as Array<PmapiTarget<BPFtraceTargetData>>) {
                     const scriptId = target.custom?.script?.script_id;
                     if (!scriptId) {
                         return;
@@ -83,14 +83,14 @@ export class DataSource extends DataSourceApi<BPFtraceQuery, BPFtraceOptions> {
                     const script = scriptsById[scriptId];
                     if (script?.state.status === Status.Error) {
                         target.errors.push(new Error(`BPFtrace error:\n\n${script.state.error}`));
-                        target.state = TargetState.ERROR;
+                        target.state = PmapiTargetState.ERROR;
                     }
                 }
             },
         });
     }
 
-    async registerTarget(target: Target<BPFtraceTargetData>) {
+    async registerTarget(target: PmapiTarget<BPFtraceTargetData>) {
         const script = await this.state.scriptManager.register(
             target.query.url,
             target.query.hostspec,
@@ -103,16 +103,14 @@ export class DataSource extends DataSourceApi<BPFtraceQuery, BPFtraceOptions> {
         return this.state.scriptManager.getMetrics(target.custom.script, target.query.format);
     }
 
-    deregisterTarget(target: Target<BPFtraceTargetData>) {
+    deregisterTarget(target: PmapiTarget<BPFtraceTargetData>) {
         if (target.custom?.script) {
             this.state.scriptManager.deregister(target.query.url, target.query.hostspec, target.custom.script);
         }
     }
 
     async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
-        query = getTemplateSrv().replace(query.trim());
-        const metricValues = await this.state.pmApi.getMetricValues(this.instanceSettings.url!, null, [query]);
-        return metricValues.values[0].instances.map(instance => ({ text: instance.value.toString() }));
+        return await metricFindQuery(query);
     }
 
     async query(request: DataQueryRequest<BPFtraceQuery>): Promise<DataQueryResponse> {
@@ -128,9 +126,11 @@ export class DataSource extends DataSourceApi<BPFtraceQuery, BPFtraceOptions> {
             this.instanceSettings.jsonData.hostspec
         );
         const result = queries
-            .map(query => this.state.poller.query(query))
+            .map(query =>
+                this.state.poller.query(query, request.range?.from.valueOf()!, request.range?.to.valueOf()!, 1)
+            )
             .filter(result => result !== null) as QueryResult[];
-        const data = processTargets(request, result, 1);
+        const data = processTargets(request, result);
 
         log.debug('query', request, data);
         return { data };

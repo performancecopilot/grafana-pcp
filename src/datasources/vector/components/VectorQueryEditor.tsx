@@ -6,7 +6,7 @@ import { DataSource } from '../datasource';
 import { VectorOptions, VectorQuery, defaultVectorQuery } from '../types';
 import VectorQueryField from './VectorQueryField';
 import { isBlank } from '../../lib/utils';
-import { TargetFormat } from '../../lib/types';
+import { TargetFormat } from '../../lib/models/pcp';
 
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },

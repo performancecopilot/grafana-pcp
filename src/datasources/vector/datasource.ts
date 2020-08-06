@@ -5,17 +5,17 @@ import {
     DataSourceInstanceSettings,
     MetricFindValue,
 } from '@grafana/data';
-import { DefaultRequestOptions, CompletePmapiQuery } from '../lib/types';
+import { DefaultRequestOptions, QueryResult } from '../lib/models/pcp';
 import { defaults } from 'lodash';
 import { interval_to_ms, getDashboardRefreshInterval, getLogger } from '../lib/utils';
-import { Poller, Target, Endpoint, QueryResult } from '../lib/poller';
+import { Poller, Endpoint } from '../lib/poller';
 import { PmApi } from '../lib/pmapi';
 import { processTargets } from '../lib/data_processor';
-import { getTemplateSrv } from '@grafana/runtime';
 import * as config from './config';
 import { VectorQuery, VectorOptions, defaultVectorQuery, VectorTargetData } from './types';
-import { buildQueries, testDatasource } from '../lib/pmapi_datasource_utils';
+import { buildQueries, testDatasource, metricFindQuery } from '../lib/pmapi_datasource_utils';
 import { getRequestOptions } from '../../lib/utils/api';
+import { CompletePmapiQuery, PmapiTarget } from '../lib/models/pmapi';
 const log = getLogger('datasource');
 
 interface DataSourceState {
@@ -66,7 +66,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         return false;
     }
 
-    async registerTarget(target: Target<VectorTargetData>) {
+    async registerTarget(target: PmapiTarget<VectorTargetData>) {
         target.custom = {
             isDerivedMetric: this.isDerivedMetric(target.query.expr),
         };
@@ -79,14 +79,12 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         }
     }
 
-    async redisBackfill(endpoint: Endpoint, targets: Array<Target<VectorTargetData>>) {
+    async redisBackfill(endpoint: Endpoint, targets: Array<PmapiTarget<VectorTargetData>>) {
         // TODO: store metric values from redis (if available) in Metric#values
     }
 
     async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
-        query = getTemplateSrv().replace(query.trim());
-        const metricValues = await this.state.pmApi.getMetricValues(this.instanceSettings.url!, null, [query]);
-        return metricValues.values[0].instances.map(instance => ({ text: instance.value.toString() }));
+        return await metricFindQuery(query);
     }
 
     async query(request: DataQueryRequest<VectorQuery>): Promise<DataQueryResponse> {
@@ -102,9 +100,11 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             this.instanceSettings.jsonData.hostspec
         );
         const result = queries
-            .map(query => this.state.poller.query(query))
+            .map(query =>
+                this.state.poller.query(query, request.range?.from.valueOf()!, request.range?.to.valueOf()!, 1)
+            )
             .filter(result => result !== null) as QueryResult[];
-        const data = processTargets(request, result, 1);
+        const data = processTargets(request, result);
 
         log.debug('query', request, queries, data);
         return { data };

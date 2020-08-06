@@ -1,7 +1,7 @@
 import { PmApi, PermissionError } from '../lib/pmapi';
 import { getLogger } from '../lib/utils';
 import { Script, MetricType } from './script';
-import { TargetFormat } from '../lib/types';
+import { TargetFormat } from '../lib/models/pcp';
 const log = getLogger('script_manager');
 
 export class ScriptManager {

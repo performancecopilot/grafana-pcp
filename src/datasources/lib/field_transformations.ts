@@ -1,5 +1,5 @@
 import { MutableDataFrame, MISSING_VALUE, FieldType } from '@grafana/data';
-import { TargetFormat } from './types';
+import { TargetFormat } from './models/pcp';
 import { MetricMetadata, Semantics } from '../../lib/models/pcp/pcp';
 import { Dict } from '../../lib/models/utils';
 

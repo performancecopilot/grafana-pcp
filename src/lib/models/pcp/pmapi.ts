@@ -1,4 +1,4 @@
-import { MetricName, Semantics, Labels, InstanceName, InstanceValue, Metric } from './pcp';
+import { MetricName, Semantics, Labels, InstanceName, Metric } from './pcp';
 
 export type PmapiInstanceId = number;
 export type PmapiMetric = Metric<PmapiMetricMetadata, PmapiInstanceId, PmapiInstance>;
@@ -18,4 +18,7 @@ export interface PmapiInstance {
     labels: Labels;
 }
 
-export type PmapiInstanceValue = InstanceValue<PmapiInstanceId>;
+export interface PmapiInstanceValue {
+    instance: PmapiInstanceId | null;
+    value: number | string;
+}
