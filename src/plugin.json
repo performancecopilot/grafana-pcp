@@ -56,6 +56,10 @@
             "name": "Flame Graph"
         },
         {
+            "type": "panel",
+            "name": "Notify Graph"
+        },
+        {
             "type": "dashboard",
             "name": "PCP Redis Host Overview",
             "path": "dashboards/pcp-redis-host-overview.json"
