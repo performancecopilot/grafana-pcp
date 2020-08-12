@@ -11,20 +11,11 @@ import {
     DEFAULT_DATE_TIME_FORMAT,
     hasMsResolution,
     TimeZone,
-    FieldConfigSource,
-    ThresholdsMode,
 } from '@grafana/data';
 import { colors } from '@grafana/ui';
-import { Options } from './types';
-import memoizeOne from 'memoize-one';
+import { Options, ThresholdOptions, ThresholdsOperator } from './types';
 
-export function generateGraphModel(
-    data: PanelData,
-    timeZone: TimeZone,
-    fieldConfig: FieldConfigSource,
-    options: Options
-): GraphSeriesXY[] {
-    console.log(fieldConfig);
+export function generateGraphModel(data: PanelData, timeZone: TimeZone, options: Options): GraphSeriesXY[] {
     const series: GraphSeriesXY[] = [];
     data.series
         .map(item => ({ timeInfo: getTimeField(item), seriesItem: item }))
@@ -47,7 +38,6 @@ export function generateGraphModel(
                             mode: FieldColorMode.Thresholds,
                             fixedColor: colors[series.length % colors.length],
                         },
-                        ...fieldConfig.defaults,
                     };
                     field.display = getDisplayProcessor({ field });
                     timeField.display = getDisplayProcessor({
@@ -80,16 +70,25 @@ export function generateGraphModel(
     return series;
 }
 
-export function outsideThresholdSeries(series: GraphSeriesXY[]): GraphSeriesXY[] {
+export function outsideThresholdSeries(series: GraphSeriesXY[], threshold: ThresholdOptions): GraphSeriesXY[] {
     return series.filter(seriesItem => {
-        const { config } = seriesItem.valueField;
-        console.log(config);
-        // skip checking, if no thresholds are present or is non Absolute threshold mode
-        if (!config.thresholds || config.thresholds.mode === ThresholdsMode.Percentage) {
-            return false;
-        }
-        // TODO: make validator for thresholds
-        const thresholdValidator = memoizeOne(y => config.thresholds!.steps.every(step => true));
+        const thresholdValidator = value => {
+            // might be better to just use eval
+            switch (threshold.operator) {
+                case ThresholdsOperator.GreaterThan:
+                    return threshold.value! > value;
+                case ThresholdsOperator.GreaterThanOrEqual:
+                    return threshold.value! >= value;
+                case ThresholdsOperator.Lesser:
+                    return threshold.value! < value;
+                case ThresholdsOperator.LesserThanOrEqual:
+                    return threshold.value! <= value;
+                case ThresholdsOperator.Equal:
+                    return value === threshold.value;
+                default:
+                    return true;
+            }
+        };
         return seriesItem.data.some(([_, y]) => !thresholdValidator(y));
     });
 }

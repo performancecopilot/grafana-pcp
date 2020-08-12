@@ -61,6 +61,31 @@
         },
         {
             "type": "dashboard",
+            "name": "Overview Checklist",
+            "path": "dashboards/checklist-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Overview CPU Checklist",
+            "path": "dashboards/checklist-cpu-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Overview CPU System Checklist",
+            "path": "dashboards/checklist-cpu-sys-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Overview CPU User Checklist",
+            "path": "dashboards/checklist-cpu-user-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Overview Storage Checklist",
+            "path": "dashboards/checklist-storage-overview.json"
+        },
+        {
+            "type": "dashboard",
             "name": "PCP Redis Host Overview",
             "path": "dashboards/pcp-redis-host-overview.json"
         },

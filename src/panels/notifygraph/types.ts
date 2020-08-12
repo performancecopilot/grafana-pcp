@@ -16,7 +16,27 @@ export interface LegendOptions {
     displayMode: LegendDisplayMode;
 }
 
+export interface ThresholdOptions {
+    name: string;
+    description: string;
+    label: string;
+    operator: ThresholdsOperator;
+    value: number | undefined;
+    urls: string[];
+    details: string;
+    issues: string[];
+}
+
 export interface Options {
     graph: GraphOptions;
     legend: LegendOptions;
+    threshold?: ThresholdOptions;
+}
+
+export enum ThresholdsOperator {
+    Lesser = '<',
+    LesserThanOrEqual = '<=',
+    Equal = '=',
+    GreaterThanOrEqual = '>=',
+    GreaterThan = '>',
 }
