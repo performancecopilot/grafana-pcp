@@ -4,7 +4,7 @@ import memoizeOne from 'memoize-one';
 import { generateGraphModel, outsideThresholdSeries } from './utils';
 import { GraphWithLegend, withTheme, Themeable, InfoBox, IconButton } from '@grafana/ui';
 import { GraphWithLegendProps } from '@grafana/ui/components/Graph/GraphWithLegend';
-import { Options, ThresholdOptions } from './types';
+import { Options, ThresholdOptions, MetaOptions } from './types';
 import { graphWrapper, infoBox, infoBoxToggle } from './styles';
 
 interface NotifyGraphPanelState {
@@ -24,7 +24,7 @@ export class NotifyGraphPanel extends React.PureComponent<PanelProps<Options> & 
         this.renderWarning = this.renderWarning.bind(this);
     }
 
-    renderWarning(series: GraphSeriesXY[], threshold: ThresholdOptions | undefined) {
+    renderWarning(series: GraphSeriesXY[], threshold: ThresholdOptions | undefined, meta: MetaOptions) {
         const { theme } = this.props;
 
         if (!threshold) {
@@ -48,13 +48,13 @@ export class NotifyGraphPanel extends React.PureComponent<PanelProps<Options> & 
                 />
                 {this.state.showWarning && (
                     <InfoBox
-                        title={threshold.description}
-                        url={threshold.urls.length > 0 ? threshold.urls[0] : undefined}
+                        title={meta.description}
+                        url={meta.urls.length > 0 ? meta.urls[0] : undefined}
                         branded={false}
                         className={infoBox(theme)}
                         onDismiss={() => this.setState({ showWarning: false })}
                     >
-                        {threshold.details}
+                        {meta.details}
                     </InfoBox>
                 )}
             </>
@@ -65,7 +65,7 @@ export class NotifyGraphPanel extends React.PureComponent<PanelProps<Options> & 
         const { width, height, timeRange, data, timeZone, options } = this.props;
         const series = this.computeModel(data, timeZone, options);
 
-        const { legend, graph, threshold } = options;
+        const { legend, graph, threshold, meta } = options;
 
         const { isLegendVisible, displayMode, placement } = legend;
         const { lineWidth, showBars, showLines, showPoints, isStacked } = graph;
@@ -87,7 +87,7 @@ export class NotifyGraphPanel extends React.PureComponent<PanelProps<Options> & 
         };
         return (
             <div className={graphWrapper}>
-                {this.renderWarning(series, threshold)}
+                {this.renderWarning(series, threshold, meta)}
                 <GraphWithLegend {...graphProps} />
             </div>
         );

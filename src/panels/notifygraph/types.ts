@@ -17,20 +17,29 @@ export interface LegendOptions {
 }
 
 export interface ThresholdOptions {
-    name: string;
-    description: string;
+    metric: string;
     label: string;
     operator: ThresholdsOperator;
-    value: number | undefined;
+    value: number;
+}
+
+export interface MetaOptions {
+    name: string;
+    description: string;
+    metrics: string[];
+    derived: string[];
     urls: string[];
-    details: string;
     issues: string[];
+    details?: string;
+    // dashboard Ids
+    children: string[];
 }
 
 export interface Options {
     graph: GraphOptions;
     legend: LegendOptions;
     threshold?: ThresholdOptions;
+    meta: MetaOptions;
 }
 
 export enum ThresholdsOperator {

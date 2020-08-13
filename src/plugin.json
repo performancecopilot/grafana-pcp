@@ -60,6 +60,10 @@
             "name": "Notify Graph"
         },
         {
+            "type": "panel",
+            "name": "Breadcrumbs panel"
+        },
+        {
             "type": "dashboard",
             "name": "Overview Checklist",
             "path": "dashboards/checklist-overview.json"
@@ -83,6 +87,26 @@
             "type": "dashboard",
             "name": "Overview Storage Checklist",
             "path": "dashboards/checklist-storage-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Overview Memory Checklist",
+            "path": "dashboards/checklist-memory-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Overview Memory Swap Checklist",
+            "path": "dashboards/checklist-memory-swap-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Overview Network RX Checklist",
+            "path": "dashboards/checklist-network-rx-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Overview Network TX Checklist",
+            "path": "dashboards/checklist-network-tx-overview.json"
         },
         {
             "type": "dashboard",

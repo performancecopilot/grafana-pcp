@@ -6,7 +6,10 @@ local graphPanel = grafana.graphPanel;
 local notifyGraph = import 'notifygraphpanel/notifygraphpanel.libsonnet';
 local notifyPanel = notifyGraph.panel;
 local notifyThreshold = notifyGraph.threshold;
+local notifyMeta = notifyGraph.meta;
 
+local breadcrumbsPanel = import 'breadcrumbspanel/breadcrumbspanel.libsonnet';
+local breadcrumbs = breadcrumbsPanel.breadcrumbs;
 
 dashboard.new(
   title='Checklist Overview',
@@ -29,23 +32,38 @@ dashboard.new(
   )
 )
 .addPanel(
+  breadcrumbs.new(
+    title='',
+    datasource='$vector_datasource',
+  ), gridPos={
+    x: 0,
+    y: 0,
+    w: 24,
+    h: 2,
+  },
+)
+.addPanel(
   notifyPanel.new(
     title='CPU',
     datasource='$vector_datasource',
     threshold=notifyThreshold.new(
-      name='CPU',
       label='processors 85% busy',
-      description='The speed of the CPU is limiting performance',
+      metric='kernel.percpu.cpu.util.all',
       operator='>',
       value=0.85,
+    ),
+    meta=notifyMeta.new(
+      name='CPU',
+      description='The speed of the CPU is limiting performance',
+      metrics=['kernel.percpu.cpu.idle'],
+      derived=['kernel.percpu.cpu.util.all = 1 - rate(kernel.percpu.cpu.idle)'],
       urls=['https://access.redhat.com/articles/767563#cpu']
     ),
-    time_from='5m'
   ).addTargets([
-    { expr: "1-rate(kernel.percpu.cpu.idle)", format: 'time_series' },
+    { expr: '1 - rate(kernel.percpu.cpu.idle)', format: 'time_series' },
   ]), gridPos={
     x: 0,
-    y: 0,
+    y: 3,
     w: 12,
     h: 9
   },
@@ -55,20 +73,24 @@ dashboard.new(
     title='Storage',
     datasource='$vector_datasource',
     threshold=notifyThreshold.new(
-      name='Storage',
       label='disk 85% busy',
-      description='Excessive waiting for storage',
+      metric='diskbusy',
       operator='>',
       value=0.85,
+    ),
+    meta=notifyMeta.new(
+      name='Storage',
+      description='Excessive waiting for storage',
+      metrics=['disk.dm.avactive'],
+      derived=['diskbusy = rate(disk.dm.avactive)'],
       urls=['https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html-single/Performance_Tuning_Guide/index.html#chap-Red_Hat_Enterprise_Linux-Performance_Tuning_Guide-Storage_and_File_Systems'],
       details='Storage devices have queues for the IO requests for the device.  When the queue is empty the device is idle.  As the device utilization increases the amount of idle time drops and the avactive time increases. If the utilization is excessive and the device becomes saturated the time required to service IO request can become excessive.',
     ),
-    time_from='5m'
   ).addTargets([
     { expr: "rate(disk.dm.avactive)", format: 'time_series' },
   ]), gridPos={
     x: 12,
-    y: 0,
+    y: 3,
     w: 12,
     h: 9
   },
@@ -78,20 +100,24 @@ dashboard.new(
     title='Memory',
     datasource='$vector_datasource',
     threshold=notifyThreshold.new(
-      name='Memory',
       label='< 10% available memory',
-      description='Running low on available memory',
+      metric='mem.ratio.available',
       operator='<',
       value=0.10,
+    ),
+    meta=notifyMeta.new(
+      name='Memory',
+      description='Running low on available memory',
+      metrics=['mem.util.available', 'mem.physmem'],
+      derived=['mem.ratio.available = mem.util.available/mem.physmem'],
       urls=['https://access.redhat.com/articles/781733'],
       details='When there is little memory available the system will need to free up space when addition memory is requested.  The memory can be freed by removed cached files, flushing files to disk, and paging sections of memory to swap on storage devices.',
     ),
-    time_from='5m'
   ).addTargets([
     { expr: "mem.util.available/mem.physmem", format: 'time_series' },
   ]), gridPos={
     x: 0,
-    y: 9,
+    y: 13,
     w: 12,
     h: 9
   },
@@ -101,18 +127,22 @@ dashboard.new(
     title='Network TX',
     datasource='$vector_datasource',
     threshold=notifyThreshold.new(
-      name='Network TX',
       label='network TX bandwidth',
-      description='Ammount of network trafic sent',
+      metric='network_tx_bandwidth',
       operator='>',
       value=0.85,
     ),
-    time_from='5m'
+    meta=notifyMeta.new(
+      name='Network TX',
+      description='Ammount of network trafic sent',
+      metrics=['network.interface.out.bytes', 'network.interface.baudrate'],
+      derived=['network_tx_bandwidth = rate(network.interface.out.bytes)/network.interface.baudrate'],
+    ),
   ).addTargets([
     { expr: "rate(network.interface.out.bytes)/network.interface.baudrate", format: 'time_series' },
   ]), gridPos={
     x: 12,
-    y: 9,
+    y: 13,
     w: 12,
     h: 9
   },
@@ -122,18 +152,22 @@ dashboard.new(
     title='Network RX',
     datasource='$vector_datasource',
     threshold=notifyThreshold.new(
-      name='Network RX',
       label='network RX bandwidth',
-      description='Ammount of network trafic received',
+      metric='network_rx_bandwidth',
       operator='>',
       value=0.85,
     ),
-    time_from='5m'
+    meta=notifyMeta.new(
+      name='Network RX',
+      description='Ammount of network trafic received',
+      metrics=['network.interface.in.bytes', 'network.interface.baudrate'],
+      derived=['network_rx_bandwidth = rate(network.interface.in.bytes)/network.interface.baudrate'],
+    ),
   ).addTargets([
     { expr: "rate(network.interface.in.bytes)/network.interface.baudrate", format: 'time_series' }
   ]), gridPos={
     x: 0,
-    y: 18,
+    y: 23,
     w: 12,
     h: 9
   },

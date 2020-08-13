@@ -3,6 +3,7 @@
     new(
       title,
       datasource,
+      meta,
       threshold=null,
       bars=false,
       lines=true,
@@ -34,6 +35,7 @@
             placement: placement
         },
         [if threshold != null then 'threshold']: threshold,
+        meta: meta,
       },
       timeFrom: time_from,
       timeShift: time_shift,
@@ -48,23 +50,36 @@
   },
   threshold: {
     new(
-      name='',
-      description='',
-      label='',
-      operator='',
-      value=0,
-      urls=[],
-      details=null,
-      issues=[],
+      label,
+      metric,
+      operator,
+      value,
     )::{
-      name: name,
-      description: description,
+      metric: metric,
       label: label,
       operator: operator,
       value: value,
-      urls: urls,
-      [if details != null then 'details']: details,
-      issues: issues
     },
-  }
+  },
+  meta: {
+    new(
+      name,
+      description,
+      metrics=[],
+      derived=[],
+      urls=[],
+      issues=[],
+      details='',
+      children=[],
+    )::{
+      name: name,
+      description: description,
+      metrics: metrics,
+      derived: derived,
+      urls: urls,
+      issues: issues,
+      [if details != '' then 'details']: details,
+      children: children,
+    },
+  },
 }
