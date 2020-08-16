@@ -30,6 +30,5 @@ export const breadcrumbsBtn = (theme: GrafanaTheme) => css`
 `;
 
 export const breadcrumbsControl = (theme: GrafanaTheme) => css`
-    margin-left: ${theme.spacing.sm};
-    margin-right: ${theme.spacing.sm};
+    min-width: 150px;
 `;

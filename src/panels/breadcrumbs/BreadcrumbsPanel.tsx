@@ -1,9 +1,8 @@
 import React from 'react';
 import { PanelProps } from '@grafana/data';
-import { Options, BreadcrumbsItem } from './types';
+import { Options, LinkItem } from './types';
 import { Themeable, withTheme, Button, Icon, Select } from '@grafana/ui';
 import { breadcrumbsContainer, breadcrumbsList, breadcrumbsItem, breadcrumbsControl, breadcrumbsBtn } from './styles';
-import { cx } from 'emotion';
 import { getLocationSrv, LocationSrv } from '@grafana/runtime';
 
 export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & Themeable> {
@@ -11,55 +10,70 @@ export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & 
     constructor(props) {
         super(props);
         this.onBreadcrumbClick = this.onBreadcrumbClick.bind(this);
+        this.renderBreadcrumbLink = this.renderBreadcrumbLink.bind(this);
+        this.renderBreadcrumbSelect = this.renderBreadcrumbSelect.bind(this);
         this.locationSrv = getLocationSrv();
     }
-    onBreadcrumbClick(item: BreadcrumbsItem) {
-        const path = `/d/${item.dashboardId}`;
+    onBreadcrumbClick(item: LinkItem) {
+        const path = `/d/${item.uid}`;
         this.locationSrv.update({
             path,
         });
     }
-    render() {
+    renderBreadcrumbLink(item: LinkItem) {
         const { onBreadcrumbClick, props } = this;
+        const { theme } = props;
+        return (
+            <li className={breadcrumbsItem(theme)}>
+                <Button
+                    size="md"
+                    variant="link"
+                    className={breadcrumbsBtn(theme)}
+                    onClick={() => onBreadcrumbClick(item)}
+                >
+                    {item.title}
+                </Button>
+            </li>
+        );
+    }
+    renderBreadcrumbSelect(items: LinkItem[]) {
+        const { onBreadcrumbClick, props } = this;
+        const { theme } = props;
+        const selectedItem = items.find(item => item.active);
+        return (
+            <li className={breadcrumbsItem(theme)}>
+                <Select
+                    className={breadcrumbsControl(theme)}
+                    options={items.map(item => ({ value: item.uid, label: item.title }))}
+                    value={selectedItem?.uid ?? ''}
+                    onChange={({ value, label }) => onBreadcrumbClick({ uid: value!, title: label! })}
+                />
+            </li>
+        );
+    }
+    render() {
+        const { renderBreadcrumbLink, renderBreadcrumbSelect, props } = this;
         const { theme, options } = props;
-        const { items } = options;
-        const itemCount = items.length;
+        const depthList = options.items;
+        const itemCount = depthList.length;
         if (itemCount === 0) {
             return <p>No items specified.</p>;
         }
         return (
             <nav className={breadcrumbsContainer(theme)}>
                 <ul className={breadcrumbsList(theme)}>
-                    {items.map((item, index) => (
-                        <>
-                            <li className={breadcrumbsItem(theme)}>
-                                {item.opts.length === 0 ? (
-                                    <Button
-                                        size="md"
-                                        variant="link"
-                                        className={cx(breadcrumbsBtn(theme))}
-                                        onClick={() => onBreadcrumbClick(item)}
-                                    >
-                                        {item.title}
-                                    </Button>
-                                ) : (
-                                    <Select
-                                        className={breadcrumbsControl(theme)}
-                                        options={item.opts.map(opt => ({ label: opt.title, value: opt.dashboardId }))}
-                                        value={item.dashboardId}
-                                        onChange={({ label, value }) =>
-                                            onBreadcrumbClick({ title: label!, dashboardId: value!, opts: [] })
-                                        }
-                                    />
+                    {depthList.map((depth, index) => {
+                        return (
+                            <>
+                                {depth.length === 1 ? renderBreadcrumbLink(depth[0]) : renderBreadcrumbSelect(depth)}
+                                {index !== itemCount - 1 && (
+                                    <li className={breadcrumbsItem(theme)}>
+                                        <Icon name="angle-right" />
+                                    </li>
                                 )}
-                            </li>
-                            {index !== itemCount - 1 && (
-                                <li className={breadcrumbsItem(theme)}>
-                                    <Icon name="angle-right" />
-                                </li>
-                            )}
-                        </>
-                    ))}
+                            </>
+                        );
+                    })}
                 </ul>
             </nav>
         );

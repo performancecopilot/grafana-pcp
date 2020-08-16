@@ -1,14 +1,9 @@
-export interface NavOptsItem {
+export interface LinkItem {
     title: string;
-    dashboardId: string;
-}
-
-export interface BreadcrumbsItem {
-    title: string;
-    dashboardId: string;
-    opts: NavOptsItem[];
+    uid: string;
+    active?: boolean;
 }
 
 export interface Options {
-    items: BreadcrumbsItem[];
+    items: Array<Array<LinkItem>>;
 }

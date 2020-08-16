@@ -65,48 +65,48 @@
         },
         {
             "type": "dashboard",
-            "name": "Overview Checklist",
-            "path": "dashboards/checklist-overview.json"
+            "name": "Overview",
+            "path": "dashboards/overview.json"
         },
         {
             "type": "dashboard",
-            "name": "Overview CPU Checklist",
-            "path": "dashboards/checklist-cpu-overview.json"
+            "name": "CPU Overview",
+            "path": "dashboards/cpu-overview.json"
         },
         {
             "type": "dashboard",
-            "name": "Overview CPU System Checklist",
-            "path": "dashboards/checklist-cpu-sys-overview.json"
+            "name": "CPU System Overview",
+            "path": "dashboards/cpu-sys-overview.json"
         },
         {
             "type": "dashboard",
-            "name": "Overview CPU User Checklist",
-            "path": "dashboards/checklist-cpu-user-overview.json"
+            "name": "CPU User Overview",
+            "path": "dashboards/cpu-user-overview.json"
         },
         {
             "type": "dashboard",
-            "name": "Overview Storage Checklist",
-            "path": "dashboards/checklist-storage-overview.json"
+            "name": "Storage Overview",
+            "path": "dashboards/storage-overview.json"
         },
         {
             "type": "dashboard",
-            "name": "Overview Memory Checklist",
-            "path": "dashboards/checklist-memory-overview.json"
+            "name": "Memory Overview",
+            "path": "dashboards/memory-overview.json"
         },
         {
             "type": "dashboard",
-            "name": "Overview Memory Swap Checklist",
-            "path": "dashboards/checklist-memory-swap-overview.json"
+            "name": "Memory Swap Overview",
+            "path": "dashboards/memory-swap-overview.json"
         },
         {
             "type": "dashboard",
-            "name": "Overview Network RX Checklist",
-            "path": "dashboards/checklist-network-rx-overview.json"
+            "name": "Network RX Overview",
+            "path": "dashboards/network-rx-overview.json"
         },
         {
             "type": "dashboard",
-            "name": "Overview Network TX Checklist",
-            "path": "dashboards/checklist-network-tx-overview.json"
+            "name": "Network TX Overview",
+            "path": "dashboards/network-tx-overview.json"
         },
         {
             "type": "dashboard",

@@ -9,13 +9,15 @@ local notifyThreshold = notifyGraph.threshold;
 local notifyMeta = notifyGraph.meta;
 
 local breadcrumbsPanel = import 'breadcrumbspanel/breadcrumbspanel.libsonnet';
-local breadcrumbs = breadcrumbsPanel.breadcrumbs;
+
+local overview = import 'overview.libsonnet';
+local dashboardNode = overview.getNodeByUid('pcp-network-rx-overview');
 
 dashboard.new(
-  title='Checklist Network RX Overview',
-  uid='checklist-network-rx',
+  title=dashboardNode.title,
+  uid=dashboardNode.uid,
   editable=false,
-  tags=['pcp-checklist'],
+  tags=[overview.tag],
   time_from='now-5m',
   time_to='now',
   refresh='1s',
@@ -32,9 +34,9 @@ dashboard.new(
   )
 )
 .addPanel(
-  breadcrumbs.new(
-    title='',
-    datasource='$vector_datasource',
+  breadcrumbsPanel.new()
+  .addItems(
+    overview.getNavigation(dashboardNode)
   ), gridPos={
     x: 0,
     y: 0,
