@@ -51,12 +51,12 @@ dashboard.new(
     meta=notifyMeta.new(
       name='Memory - Low system memory',
       description='Not enough memory in the system resulting in data being moved between memory and storage',
-      metrics=['mem.ratio.free', 'mem.physmem'],
+      metrics=['mem.util.free', 'mem.physmem'],
       derived=['mem.ratio.free = mem.util.free/mem.physmem']
     ),
     time_from='5m',
   ).addTargets([
-    { expr: 'mem.util.free/mem.physmem', format: 'time_series' },
+    { name: 'mem.ratio.free', expr: 'mem.util.free/mem.physmem', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -77,7 +77,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: 'mem.numa.util.free/mem.numa.util.total', format: 'time_series' },
+    { name: 'mem.numa.ratio.free', expr: 'mem.numa.util.free/mem.numa.util.total', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 3,

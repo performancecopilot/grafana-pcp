@@ -17,11 +17,22 @@ import { Options, ThresholdOptions, ThresholdsOperator } from './types';
 
 export function generateGraphModel(data: PanelData, timeZone: TimeZone, options: Options): GraphSeriesXY[] {
     const series: GraphSeriesXY[] = [];
+
+    const exprName = new Map<string, string>();
+
+    if (data?.request && data.request?.targets !== null) {
+        data.request.targets.forEach((target: any) => {
+            if (target.name !== undefined && target.expr !== undefined) {
+                exprName.set(target.expr, target.name);
+            }
+        });
+    }
+
     data.series
         .map(item => ({ timeInfo: getTimeField(item), seriesItem: item }))
         .filter(item => item.timeInfo.timeField)
         .map(item => ({ timeField: item.timeInfo.timeField!, seriesItem: item.seriesItem }))
-        .forEach(({ timeField, seriesItem }) => {
+        .forEach(({ timeField, seriesItem }, index) => {
             seriesItem.fields
                 .filter(field => field.type === FieldType.number)
                 .forEach((field, fieldIndex) => {
@@ -52,8 +63,21 @@ export function generateGraphModel(data: PanelData, timeZone: TimeZone, options:
                             },
                         },
                     });
+                    // attempt to replace derived metric expression with provided derived metric name
+                    let label = field.name;
+                    const hasInstanceIdentifier = field.state?.scopedVars?.__field.value.name !== field.name;
+                    if (hasInstanceIdentifier) {
+                        const instanceBracketIndex = field.name.lastIndexOf('[');
+                        if (instanceBracketIndex !== -1) {
+                            const metric = field.name.substr(0, instanceBracketIndex);
+                            const instance = field.name.substring(instanceBracketIndex, field.name.length);
+                            label = `${exprName.get(metric) ?? metric}${instance}`;
+                        }
+                    } else {
+                        label = `${exprName.get(label) ?? label}`;
+                    }
                     series.push({
-                        label: field.name,
+                        label,
                         data: points,
                         color: field.config.color?.fixedColor,
                         isVisible: true,

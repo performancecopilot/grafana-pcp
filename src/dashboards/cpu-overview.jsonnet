@@ -63,7 +63,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: 'rate(kernel.percpu.cpu.user)', format: 'time_series' },
+    { name: 'kernel.percpu.cpu.util.user', expr: 'rate(kernel.percpu.cpu.user)', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -90,7 +90,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: 'rate(kernel.percpu.cpu.sys)', format: 'time_series' },
+    { name: 'kernel.percpu.cpu.util.sys', expr: 'rate(kernel.percpu.cpu.sys)', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 3,
@@ -113,7 +113,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: "rate(hotproc.psinfo.utime)+rate(hotproc.psinfo.stime)", format: 'time_series' },
+    { name: 'hotproc.psinfo.ksmd.util', expr: 'rate(hotproc.psinfo.utime)+rate(hotproc.psinfo.stime)', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 13,

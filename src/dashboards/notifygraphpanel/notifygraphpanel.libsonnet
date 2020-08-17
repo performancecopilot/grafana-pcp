@@ -43,7 +43,13 @@
       addTarget(target):: self {
         local nextTarget = super._nextTarget,
         _nextTarget: nextTarget + 1,
-        targets+: [target { refId: std.char(std.codepoint('A') + nextTarget) }],
+        targets+: [
+            {
+                expr: target.expr,
+                format: target.format,
+                [if std.objectHas(target, 'name') then 'name']: target.name,
+                refId: std.char(std.codepoint('A') + nextTarget)
+            }],
       },
       addTargets(targets):: std.foldl(function(p, t) p.addTarget(t), targets, self),
     },

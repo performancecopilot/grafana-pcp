@@ -64,7 +64,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: 'rate(swap.pagesout)', format: 'time_series' },
+    { name: 'swaps', expr: 'rate(swap.pagesout)', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -93,7 +93,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: '(mem.vmstat.pgsteal_direct+mem.vmstat.pgsteal_kswapd)/(mem.vmstat.pgscan_direct+mem.vmstat.pgscan_kswapd)', format: 'time_series' },
+    { name: 'vmeff', expr: '(mem.vmstat.pgsteal_direct+mem.vmstat.pgsteal_kswapd)/(mem.vmstat.pgscan_direct+mem.vmstat.pgscan_kswapd)', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 3,

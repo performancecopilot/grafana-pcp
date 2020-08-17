@@ -65,7 +65,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: 'rate(network.interface.out.drops)', format: 'time_series' },
+    { name: 'network_tx_drops', expr: 'rate(network.interface.out.drops)', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -94,7 +94,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: 'rate(network.interface.in.drops)', format: 'time_series' },
+    { name: 'network_rx_drops', expr: 'rate(network.interface.in.drops)', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 3,
@@ -122,7 +122,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: 'rate(network.interface.in.errors)', format: 'time_series' },
+    { name: 'network_rx_errors', expr: 'rate(network.interface.in.errors)', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 13,
@@ -150,7 +150,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: 'rate(network.softnet.dropped)', format: 'time_series' },
+    { name: 'rxcpudropped', expr: 'rate(network.softnet.dropped)', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 13,
@@ -178,7 +178,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: 'rate(network.softnet.time_squeeze)', format: 'time_series' },
+    { name: 'time_squeeze', expr: 'rate(network.softnet.time_squeeze)', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 23,

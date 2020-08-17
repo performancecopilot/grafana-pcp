@@ -64,7 +64,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: "rate(disk.dm.total)", format: 'time_series' },
+    { name: 'disk.dm.bw', expr: 'rate(disk.dm.total)', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -92,7 +92,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: "delta(disk.dm.total_bytes)/delta(disk.dm.total)", format: 'time_series' },
+    { name: 'disk.dm.avgsz', expr: 'delta(disk.dm.total_bytes)/delta(disk.dm.total)', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 3,

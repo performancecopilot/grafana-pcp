@@ -65,7 +65,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: 'rate(network.interface.out.drops)', format: 'time_series' },
+    { name: 'network_tx_drops', expr: 'rate(network.interface.out.drops)', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -93,7 +93,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: 'rate(network.interface.out.errors)', format: 'time_series' },
+    { name: 'network_tx_errors', expr: 'rate(network.interface.out.errors)', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 3,

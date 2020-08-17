@@ -57,7 +57,7 @@ dashboard.new(
     ),
     time_from='5m'
   ).addTargets([
-    { expr: "hotproc.psinfo.utime", format: 'time_series' },
+    { expr: 'hotproc.psinfo.utime', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 3,

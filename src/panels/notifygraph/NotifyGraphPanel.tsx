@@ -2,30 +2,83 @@ import { PanelProps, GraphSeriesXY } from '@grafana/data';
 import React from 'react';
 import memoizeOne from 'memoize-one';
 import { generateGraphModel, outsideThresholdSeries } from './utils';
-import { GraphWithLegend, withTheme, Themeable, InfoBox, IconButton } from '@grafana/ui';
+import { GraphWithLegend, withTheme, Themeable, IconButton, Modal, VerticalGroup, Icon } from '@grafana/ui';
 import { GraphWithLegendProps } from '@grafana/ui/components/Graph/GraphWithLegend';
 import { Options, ThresholdOptions, MetaOptions } from './types';
-import { graphWrapper, infoBox, infoBoxToggle } from './styles';
+import { graphWrapper, infoBoxToggle } from './styles';
 
 interface NotifyGraphPanelState {
-    showWarning: boolean;
+    showModal: boolean;
 }
 
-export class NotifyGraphPanel extends React.PureComponent<PanelProps<Options> & Themeable, NotifyGraphPanelState> {
+type NotifyGraphPanelProps = PanelProps<Options> & Themeable;
+
+export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps, NotifyGraphPanelState> {
     computeModel: typeof generateGraphModel = memoizeOne(generateGraphModel);
     outsideThresholdSeries: typeof outsideThresholdSeries = memoizeOne(outsideThresholdSeries);
 
     state: NotifyGraphPanelState = {
-        showWarning: false,
+        showModal: false,
     };
 
-    constructor(props) {
+    constructor(props: NotifyGraphPanelProps) {
         super(props);
         this.renderWarning = this.renderWarning.bind(this);
+        this.renderContent = this.renderContent.bind(this);
+    }
+
+    renderContent(meta: MetaOptions) {
+        return (
+            <VerticalGroup spacing="lg">
+                <VerticalGroup spacing="md">
+                    <p>
+                        <strong>{meta.description}</strong>
+                    </p>
+                    {meta.details && <p>{meta.details}</p>}
+                </VerticalGroup>
+                {meta.urls.length && (
+                    <VerticalGroup spacing="md">
+                        <h3>Troubleshooting:</h3>
+                        <ul>
+                            {meta.urls.map(url => (
+                                <li>
+                                    <a href={url} target="_blank">
+                                        {url}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </VerticalGroup>
+                )}
+                {meta.metrics.length && (
+                    <VerticalGroup spacing="md">
+                        <h3>Related PCP metrics:</h3>
+                        <ul>
+                            {meta.metrics.map(metric => (
+                                <li>{metric}</li>
+                            ))}
+                        </ul>
+                    </VerticalGroup>
+                )}
+                {meta.derived.length && (
+                    <VerticalGroup spacing="md">
+                        <h3>Derived PCP Metrics:</h3>
+                        <ul>
+                            {meta.derived.map(metric => (
+                                <li>
+                                    <strong>{metric}</strong>
+                                </li>
+                            ))}
+                        </ul>
+                    </VerticalGroup>
+                )}
+            </VerticalGroup>
+        );
     }
 
     renderWarning(series: GraphSeriesXY[], threshold: ThresholdOptions | undefined, meta: MetaOptions) {
-        const { theme } = this.props;
+        const { state, props, renderContent } = this;
+        const { theme } = props;
 
         if (!threshold) {
             return;
@@ -37,6 +90,13 @@ export class NotifyGraphPanel extends React.PureComponent<PanelProps<Options> & 
             return;
         }
 
+        const modalHeader = (
+            <div className="modal-header-title">
+                <Icon name="exclamation-triangle" size="lg" />
+                <span className="p-l-1">{meta.name}</span>
+            </div>
+        );
+
         return (
             <>
                 <IconButton
@@ -44,19 +104,15 @@ export class NotifyGraphPanel extends React.PureComponent<PanelProps<Options> & 
                     name="exclamation-triangle"
                     size="lg"
                     className={infoBoxToggle(theme)}
-                    onClick={() => this.setState({ showWarning: true })}
+                    onClick={() => this.setState({ showModal: true })}
                 />
-                {this.state.showWarning && (
-                    <InfoBox
-                        title={meta.description}
-                        url={meta.urls.length > 0 ? meta.urls[0] : undefined}
-                        branded={false}
-                        className={infoBox(theme)}
-                        onDismiss={() => this.setState({ showWarning: false })}
-                    >
-                        {meta.details}
-                    </InfoBox>
-                )}
+                <Modal
+                    title={modalHeader}
+                    isOpen={state.showModal}
+                    onDismiss={() => this.setState({ showModal: false })}
+                >
+                    {renderContent(meta)}
+                </Modal>
             </>
         );
     }

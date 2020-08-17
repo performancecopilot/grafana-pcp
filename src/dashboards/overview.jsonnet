@@ -62,7 +62,7 @@ dashboard.new(
       urls=['https://access.redhat.com/articles/767563#cpu']
     ),
   ).addTargets([
-    { expr: '1 - rate(kernel.percpu.cpu.idle)', format: 'time_series' },
+    { name: 'kernel.percpu.cpu.util.all', expr: '1 - rate(kernel.percpu.cpu.idle)', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -89,7 +89,7 @@ dashboard.new(
       details='Storage devices have queues for the IO requests for the device.  When the queue is empty the device is idle.  As the device utilization increases the amount of idle time drops and the avactive time increases. If the utilization is excessive and the device becomes saturated the time required to service IO request can become excessive.',
     ),
   ).addTargets([
-    { expr: "rate(disk.dm.avactive)", format: 'time_series' },
+    { name: 'diskbusy', expr: 'rate(disk.dm.avactive)', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 3,
@@ -116,7 +116,7 @@ dashboard.new(
       details='When there is little memory available the system will need to free up space when addition memory is requested.  The memory can be freed by removed cached files, flushing files to disk, and paging sections of memory to swap on storage devices.',
     ),
   ).addTargets([
-    { expr: "mem.util.available/mem.physmem", format: 'time_series' },
+    { name: 'mem.ratio.available', expr: 'mem.util.available/mem.physmem', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 13,
@@ -141,7 +141,7 @@ dashboard.new(
       derived=['network_tx_bandwidth = rate(network.interface.out.bytes)/network.interface.baudrate'],
     ),
   ).addTargets([
-    { expr: "rate(network.interface.out.bytes)/network.interface.baudrate", format: 'time_series' },
+    { name: 'network_tx_bandwidth', expr: 'rate(network.interface.out.bytes)/network.interface.baudrate', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 13,
@@ -166,7 +166,7 @@ dashboard.new(
       derived=['network_rx_bandwidth = rate(network.interface.in.bytes)/network.interface.baudrate'],
     ),
   ).addTargets([
-    { expr: "rate(network.interface.in.bytes)/network.interface.baudrate", format: 'time_series' }
+    { name: 'network_rx_bandwidth', expr: 'rate(network.interface.in.bytes)/network.interface.baudrate', format: 'time_series' }
   ]), gridPos={
     x: 0,
     y: 23,
