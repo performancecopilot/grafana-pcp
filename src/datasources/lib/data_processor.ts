@@ -37,11 +37,28 @@ function getLegendName(
 }
 
 function defaultTimeSeriesLegend(result: QueryResult, metric: Metric, instanceId: InstanceId | null) {
+    let legend = '';
     if (instanceId != null && instanceId in metric.instanceDomain.instances) {
-        return metric.instanceDomain.instances[instanceId]!.name;
+        legend = metric.instanceDomain.instances[instanceId]!.name;
     } else {
-        return result.target.custom?.isDerivedMetric ? result.target.query.expr : metric.metadata.name;
+        legend = result.target.custom?.isDerivedMetric ? result.target.query.expr : metric.metadata.name;
     }
+
+    if (!result.endpoint) {
+        // redis datasource only: add labels to default output, to help users differentiate between series from different hosts/sources
+        const labels = getLabels(metric, instanceId);
+        const pairs: string[] = [];
+        for (const label of ['hostname', 'source']) {
+            if (label in labels) {
+                pairs.push(`${label}: "${labels[label]}"`);
+            }
+        }
+        if (pairs.length > 0) {
+            legend += ` {${pairs.join(', ')}}`;
+        }
+    }
+
+    return legend;
 }
 
 function defaultHeatmapLegend(result: QueryResult, metric: Metric, instanceId: InstanceId | null) {
