@@ -17,14 +17,86 @@ export const infoBox = (theme: GrafanaTheme) => css`
     border-color: ${theme.colors.formInputBorderInvalid};
 `;
 
-export const infoBoxToggle = (theme: GrafanaTheme) => css`
+export const infoBoxTogglesContainer = css`
     position: absolute;
-    right: ${theme.spacing.md};
-    top: calc(${theme.spacing.md} + 2px);
+    right: 0;
+    top: 0;
     z-index: 11;
+`;
+
+export const infoBoxToggle = (theme: GrafanaTheme) => css`
+    padding: 6px;
+    box-sizing: content-box;
+    border-radius: 50%;
+    background: ${theme.colors.panelBg};
+    & + & {
+        margin-left: ${theme.spacing.sm};
+    }
+`;
+
+export const infoBoxIssueToggle = (theme: GrafanaTheme) => css`
     color: ${theme.colors.formInputBorderInvalid};
+    border: 1px solid ${theme.colors.formInputBorderInvalid};
 
     &:hover {
-        color: ${theme.colors.formInputBorderInvalid};
+        color: ${theme.colors.panelBg};
+
+        &:before {
+            background: ${theme.colors.formInputBorderInvalid};
+        }
     }
+`;
+
+export const infoBoxInfoToggle = (theme: GrafanaTheme) => css`
+    color: ${theme.colors.formInputText};
+    border: 1px solid ${theme.colors.formInputText};
+
+    &:hover {
+        color: ${theme.colors.panelBg};
+
+        &:before {
+            background: ${theme.colors.formInputText};
+        }
+    }
+`;
+
+export const modalTypography = (theme: GrafanaTheme) => css`
+    p:last-child {
+        margin-bottom: 0;
+    }
+
+    ul,
+    li {
+        margin-left: ${theme.spacing.sm};
+    }
+
+    a {
+        color: ${theme.colors.linkExternal};
+    }
+`;
+
+export const modalArticleIcon = (theme: GrafanaTheme) => css`
+    margin-right: ${theme.spacing.sm};
+`;
+
+export const modalTooltipContent = (theme: GrafanaTheme) => css`
+    border-bottom: 1px dotted ${theme.colors.textFaint};
+`;
+
+export const modalRelativesLinksContainer = css`
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+
+    @media screen and (max-width: 992px) {
+        flex-direction: column;
+    }
+`;
+
+export const modalParentsLinks = css`
+    margin-right: auto;
+`;
+
+export const modalChildrenLinks = css`
+    margin-left: auto;
 `;

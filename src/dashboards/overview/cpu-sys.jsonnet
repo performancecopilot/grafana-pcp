@@ -3,19 +3,24 @@ local dashboard = grafana.dashboard;
 local template = grafana.template;
 local graphPanel = grafana.graphPanel;
 
-local notifyGraph = import 'notifygraphpanel/notifygraphpanel.libsonnet';
+local notifyGraph = import '../notifygraphpanel/notifygraphpanel.libsonnet';
 local notifyPanel = notifyGraph.panel;
 local notifyThreshold = notifyGraph.threshold;
 local notifyMeta = notifyGraph.meta;
+local notifyMetric = notifyGraph.metric;
 
-local breadcrumbsPanel = import 'breadcrumbspanel/breadcrumbspanel.libsonnet';
+local breadcrumbsPanel = import '../breadcrumbspanel/breadcrumbspanel.libsonnet';
 
-local overview = import 'overview.libsonnet';
+local overview = import 'shared.libsonnet';
 local dashboardNode = overview.getNodeByUid('pcp-cpu-sys-overview');
+
+local navigation = overview.getNavigation(dashboardNode);
+local parents = overview.getParentNodes(dashboardNode);
 
 dashboard.new(
   title=dashboardNode.title,
   uid=dashboardNode.uid,
+  description=dashboardNode.name,
   editable=false,
   tags=[overview.tag],
   time_from='now-5m',
@@ -35,9 +40,7 @@ dashboard.new(
 )
 .addPanel(
   breadcrumbsPanel.new()
-  .addItems(
-    overview.getNavigation(dashboardNode)
-  ), gridPos={
+  .addItems(navigation), gridPos={
     x: 0,
     y: 0,
     w: 24,
@@ -46,16 +49,20 @@ dashboard.new(
 )
 .addPanel(
   notifyPanel.new(
-    title='CPU - Tasks taking a lot time in kernel-space',
+    title='CPU - Intensive tasks in kernel-space',
     datasource='$vector_datasource',
     meta=notifyMeta.new(
-      name='CPU - Tasks taking a lot time in kernel-space',
-      description='CPU intensive tasks (kernel-space)',
-      metrics=['hotproc.psinfo.stime'],
+      name='CPU - Intensive tasks in kernel-space',
+      metrics=[
+        notifyMetric.new(
+          'hotproc.psinfo.stime',
+          'time (in ms) spent executing system code (calls) since process started',
+        ),
+      ],
       urls=['https://access.redhat.com/articles/781993'],
-      issues=['The hotproc.control.config does not have default setting and need to be root to set it. Can set it with: sudo pmstore hotproc.control.config \'cpuburn > 0.05\''],
+      issues=['The hotproc.control.config does not have default setting and need to be root to set it. Can set it with: <code>sudo pmstore hotproc.control.config \'cpuburn > 0.05\'</code>'],
+      parents=parents,
     ),
-    time_from='5m'
   ).addTargets([
     { expr: 'hotproc.psinfo.stime', format: 'time_series' },
   ]), gridPos={

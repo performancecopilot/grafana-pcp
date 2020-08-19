@@ -101,14 +101,8 @@ export function outsideThresholdSeries(series: GraphSeriesXY[], threshold: Thres
             switch (threshold.operator) {
                 case ThresholdsOperator.GreaterThan:
                     return threshold.value! > value;
-                case ThresholdsOperator.GreaterThanOrEqual:
-                    return threshold.value! >= value;
-                case ThresholdsOperator.Lesser:
+                case ThresholdsOperator.LesserThan:
                     return threshold.value! < value;
-                case ThresholdsOperator.LesserThanOrEqual:
-                    return threshold.value! <= value;
-                case ThresholdsOperator.Equal:
-                    return value === threshold.value;
                 default:
                     return true;
             }

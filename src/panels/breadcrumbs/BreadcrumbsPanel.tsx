@@ -9,19 +9,19 @@ export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & 
     locationSrv: LocationSrv;
     constructor(props) {
         super(props);
-        this.onBreadcrumbClick = this.onBreadcrumbClick.bind(this);
+        this.navigateDashboard = this.navigateDashboard.bind(this);
         this.renderBreadcrumbLink = this.renderBreadcrumbLink.bind(this);
         this.renderBreadcrumbSelect = this.renderBreadcrumbSelect.bind(this);
         this.locationSrv = getLocationSrv();
     }
-    onBreadcrumbClick(item: LinkItem) {
-        const path = `/d/${item.uid}`;
+    navigateDashboard(dashboardUid: string) {
+        const path = `/d/${dashboardUid}`;
         this.locationSrv.update({
             path,
         });
     }
     renderBreadcrumbLink(item: LinkItem) {
-        const { onBreadcrumbClick, props } = this;
+        const { navigateDashboard, props } = this;
         const { theme } = props;
         return (
             <li className={breadcrumbsItem(theme)}>
@@ -29,24 +29,25 @@ export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & 
                     size="md"
                     variant="link"
                     className={breadcrumbsBtn(theme)}
-                    onClick={() => onBreadcrumbClick(item)}
+                    onClick={() => navigateDashboard(item.uid)}
+                    title={item.title}
                 >
-                    {item.title}
+                    {item.name}
                 </Button>
             </li>
         );
     }
     renderBreadcrumbSelect(items: LinkItem[]) {
-        const { onBreadcrumbClick, props } = this;
+        const { navigateDashboard, props } = this;
         const { theme } = props;
         const selectedItem = items.find(item => item.active);
         return (
             <li className={breadcrumbsItem(theme)}>
                 <Select
                     className={breadcrumbsControl(theme)}
-                    options={items.map(item => ({ value: item.uid, label: item.title }))}
+                    options={items.map(item => ({ value: item.uid, label: item.name }))}
                     value={selectedItem?.uid ?? ''}
-                    onChange={({ value, label }) => onBreadcrumbClick({ uid: value!, title: label! })}
+                    onChange={({ value, label }) => navigateDashboard(value as string)}
                 />
             </li>
         );

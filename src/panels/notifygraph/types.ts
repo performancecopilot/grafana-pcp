@@ -18,21 +18,32 @@ export interface LegendOptions {
 
 export interface ThresholdOptions {
     metric: string;
-    label: string;
     operator: ThresholdsOperator;
     value: number;
 }
 
+export interface LinkItem {
+    title: string;
+    name: string;
+    uid: string;
+    active?: boolean;
+}
+
+export interface MetricItem {
+    name: string;
+    title?: string;
+}
+
 export interface MetaOptions {
     name: string;
-    description: string;
-    metrics: string[];
+    warning: string;
+    metrics: MetricItem[];
     derived: string[];
     urls: string[];
     issues: string[];
     details?: string;
-    // dashboard Ids
-    children: string[];
+    children: LinkItem[];
+    parents: LinkItem[];
 }
 
 export interface Options {
@@ -43,9 +54,6 @@ export interface Options {
 }
 
 export enum ThresholdsOperator {
-    Lesser = '<',
-    LesserThanOrEqual = '<=',
-    Equal = '=',
-    GreaterThanOrEqual = '>=',
+    LesserThan = '<',
     GreaterThan = '>',
 }

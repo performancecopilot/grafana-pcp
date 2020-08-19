@@ -66,52 +66,52 @@
         {
             "type": "dashboard",
             "name": "Overview",
-            "path": "dashboards/overview.json"
+            "path": "dashboards/overview/root.json"
         },
         {
             "type": "dashboard",
             "name": "CPU Overview",
-            "path": "dashboards/cpu-overview.json"
+            "path": "dashboards/overview/cpu.json"
         },
         {
             "type": "dashboard",
             "name": "CPU System Overview",
-            "path": "dashboards/cpu-sys-overview.json"
+            "path": "dashboards/overview/cpu-sys.json"
         },
         {
             "type": "dashboard",
             "name": "CPU User Overview",
-            "path": "dashboards/cpu-user-overview.json"
+            "path": "dashboards/overview/cpu-user.json"
         },
         {
             "type": "dashboard",
             "name": "Storage Overview",
-            "path": "dashboards/storage-overview.json"
+            "path": "dashboards/overview/storage.json"
         },
         {
             "type": "dashboard",
             "name": "Memory Overview",
-            "path": "dashboards/memory-overview.json"
+            "path": "dashboards/overview/memory.json"
         },
         {
             "type": "dashboard",
             "name": "Memory Swap Overview",
-            "path": "dashboards/memory-swap-overview.json"
+            "path": "dashboards/overview/memory-swap.json"
         },
         {
             "type": "dashboard",
             "name": "Network Overview",
-            "path": "dashboards/network-overview.json"
+            "path": "dashboards/overview/network.json"
         },
         {
             "type": "dashboard",
             "name": "Network RX Overview",
-            "path": "dashboards/network-rx-overview.json"
+            "path": "dashboards/overview/network-rx.json"
         },
         {
             "type": "dashboard",
             "name": "Network TX Overview",
-            "path": "dashboards/network-tx-overview.json"
+            "path": "dashboards/overview/network-tx.json"
         },
         {
             "type": "dashboard",

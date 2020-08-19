@@ -54,15 +54,22 @@
       addTargets(targets):: std.foldl(function(p, t) p.addTarget(t), targets, self),
     },
   },
+  metric: {
+    new(
+      name,
+      title='',
+    )::{
+      name: name,
+      [if title != '' then 'title']: title,
+    },
+  },
   threshold: {
     new(
-      label,
       metric,
       operator,
       value,
     )::{
       metric: metric,
-      label: label,
       operator: operator,
       value: value,
     },
@@ -70,22 +77,24 @@
   meta: {
     new(
       name,
-      description,
+      warning='',
       metrics=[],
       derived=[],
       urls=[],
       issues=[],
       details='',
       children=[],
+      parents=[],
     )::{
       name: name,
-      description: description,
+      [if warning != '' then 'warning']: warning,
       metrics: metrics,
       derived: derived,
       urls: urls,
       issues: issues,
       [if details != '' then 'details']: details,
       children: children,
+      parents: parents,
     },
   },
 }

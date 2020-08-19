@@ -1,71 +1,76 @@
-local breadcrumbsPanel = import 'breadcrumbspanel/breadcrumbspanel.libsonnet';
-local breadcrumbs = breadcrumbsPanel.breadcrumbs;
-local link = breadcrumbsPanel.link;
-local select = breadcrumbsPanel.select;
-
 // altrough there is 'parents' field in each node, only singular parent is supported - this is a tree representation after all
-
 {
   tag: 'pcp-checklist',
   nodes: [
     {
-      title: 'Overview',
+      title: 'PCP Vector Checklist: Overview',
+      name: 'Overview',
       uid: 'pcp-overview',
       parents: [],
     },
     {
-      title: 'CPU',
+      title: 'PCP Vector Checklist: CPU',
+      name: 'CPU',
       uid: 'pcp-cpu-overview',
       parents: ['pcp-overview'],
     },
     {
-      title: 'System CPU',
+      title: 'PCP Vector Checklist: System CPU',
+      name: 'System CPU',
       uid: 'pcp-cpu-sys-overview',
       parents: ['pcp-cpu-overview'],
     },
     {
-      title: 'User CPU',
+      title: 'PCP Vector Checklist: User CPU',
+      name: 'User CPU',
       uid: 'pcp-cpu-user-overview',
       parents: ['pcp-cpu-overview'],
     },
     {
-      title: 'Memory',
+      title: 'PCP Vector Checklist: Memory',
+      name: 'Memory',
       uid: 'pcp-memory-overview',
       parents: ['pcp-overview'],
     },
     {
-      title: 'Swap Memory',
+      title: 'PCP Vector Checklist: Swap Memory',
+      name: 'Swap Memory',
       uid: 'pcp-memory-swap-overview',
       parents: ['pcp-memory-overview'],
     },
     {
-      title: 'Storage',
+      title: 'PCP Vector Checklist: Storage',
+      name: 'Storage',
       uid: 'pcp-storage-overview',
       parents: ['pcp-overview'],
     },
     {
-      title: 'Network',
+      title: 'PCP Vector Checklist: Network',
+      name: 'Network',
       uid: 'pcp-network-overview',
       parents: ['pcp-overview'],
     },
     {
-      title: 'Network RX',
+      title: 'PCP Vector Checklist: Network RX',
+      name: 'Network RX',
       uid: 'pcp-network-rx-overview',
       parents: ['pcp-network-overview'],
     },
     {
-      title: 'Network TX',
+      title: 'PCP Vector Checklist: Network TX',
+      name: 'Network TX',
       uid: 'pcp-network-tx-overview',
       parents: ['pcp-network-overview'],
     },
   ],
-  getNodeByUid(uid)::
-    local result = std.filter(function(x) x.uid == uid, self.nodes);
+  getNodeByUid(uid, nodeCollection=self.nodes)::
+    local result = std.filter(function(x) x.uid == uid, nodeCollection);
     if std.length(result) == 0 then {} else result[0],
   pluckParents(node)::
     {
       title: node.title,
       uid: node.uid,
+      name: node.name,
       [if std.objectHas(node, 'active') then 'active']: node.active,
     },
   getSiblingNodes(node, includeNode=true)::
@@ -75,7 +80,7 @@ local select = breadcrumbsPanel.select;
         x.uid != node.uid,
       self.nodes
     ) + if includeNode then [node] else [],
-  getParentNodes(node)::
+  getParentNodes(node, deep=false)::
     local parents = std.filter(
       function(x)
         std.member(
@@ -87,10 +92,14 @@ local select = breadcrumbsPanel.select;
     if std.length(parents) == 0 then
       []
     else
-      std.flatMap(
-        self.getParentNodes,
-        parents
-      ) + [parents],
+      if deep then 
+        std.flatMap(
+          function(x)
+            self.getParentNodes(x, deep=true),
+          parents
+        ) + [parents]
+      else
+        parents,
   getChildrenNodes(node)::
     std.map(
       function (child)
@@ -127,7 +136,7 @@ local select = breadcrumbsPanel.select;
         else
           function(node_list) 
             [node_list],
-        self.getParentNodes(node) + [[node]],
+        self.getParentNodes(node, deep=true) + [[node]],
       )
     ),
   getNavigation(node)::

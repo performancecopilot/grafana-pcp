@@ -3,19 +3,24 @@ local dashboard = grafana.dashboard;
 local template = grafana.template;
 local graphPanel = grafana.graphPanel;
 
-local notifyGraph = import 'notifygraphpanel/notifygraphpanel.libsonnet';
+local notifyGraph = import '../notifygraphpanel/notifygraphpanel.libsonnet';
 local notifyPanel = notifyGraph.panel;
 local notifyThreshold = notifyGraph.threshold;
 local notifyMeta = notifyGraph.meta;
+local notifyMetric = notifyGraph.metric;
 
-local breadcrumbsPanel = import 'breadcrumbspanel/breadcrumbspanel.libsonnet';
+local breadcrumbsPanel = import '../breadcrumbspanel/breadcrumbspanel.libsonnet';
 
-local overview = import 'overview.libsonnet';
+local overview = import 'shared.libsonnet';
 local dashboardNode = overview.getNodeByUid('pcp-memory-swap-overview');
+
+local navigation = overview.getNavigation(dashboardNode);
+local parents = overview.getParentNodes(dashboardNode);
 
 dashboard.new(
   title=dashboardNode.title,
   uid=dashboardNode.uid,
+  description=dashboardNode.name,
   editable=false,
   tags=[overview.tag],
   time_from='now-5m',
@@ -35,9 +40,7 @@ dashboard.new(
 )
 .addPanel(
   breadcrumbsPanel.new()
-  .addItems(
-    overview.getNavigation(dashboardNode)
-  ), gridPos={
+  .addItems(navigation), gridPos={
     x: 0,
     y: 0,
     w: 24,
@@ -50,11 +53,20 @@ dashboard.new(
     datasource='$vector_datasource',
     meta=notifyMeta.new(
       name='Memory - Low system memory',
-      description='Not enough memory in the system resulting in data being moved between memory and storage',
-      metrics=['mem.util.free', 'mem.physmem'],
-      derived=['mem.ratio.free = mem.util.free/mem.physmem']
+      metrics=[
+        notifyMetric.new(
+          'mem.util.free',
+          'free memory metric from /proc/meminfo',
+        ),
+        notifyMetric.new(
+          'mem.physmem',
+          'total system memory metric reported by /proc/meminfo',
+        ),
+      ],
+      derived=['mem.ratio.free = mem.util.free/mem.physmem'],
+      urls=['https://access.redhat.com/solutions/406253'],
+      parents=parents,
     ),
-    time_from='5m',
   ).addTargets([
     { name: 'mem.ratio.free', expr: 'mem.util.free/mem.physmem', format: 'time_series' },
   ]), gridPos={
@@ -69,13 +81,21 @@ dashboard.new(
     title='Memory - Low NUMA node memory',
     datasource='$vector_datasource',
     meta=notifyMeta.new(
-      name='Memory - low NUMA node memory',
-      description='Not enough memory on or more NUMA nodes resulting in data being moved between memory and storage',
-      metrics=['mem.numa.util.free', 'mem.numa.util.total'],
+      name='Memory - Low NUMA node memory',
+      metrics=[
+        notifyMetric.new(
+          'mem.numa.util.free',
+          'per-node free memory',
+        ),
+        notifyMetric.new(
+          'mem.numa.util.total',
+          'per-node total memory',
+        ),
+      ],
       derived=['mem.numa.ratio.free = mem.numa.util.free/mem.numa.util.total'],
-      urls=['https://access.redhat.com/solutions/406253', 'https://access.redhat.com/solutions/465463']
+      urls=['https://access.redhat.com/solutions/465463'],
+      parents=parents,
     ),
-    time_from='5m'
   ).addTargets([
     { name: 'mem.numa.ratio.free', expr: 'mem.numa.util.free/mem.numa.util.total', format: 'time_series' },
   ]), gridPos={

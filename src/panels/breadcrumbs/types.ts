@@ -1,5 +1,6 @@
 export interface LinkItem {
     title: string;
+    name: string;
     uid: string;
     active?: boolean;
 }
