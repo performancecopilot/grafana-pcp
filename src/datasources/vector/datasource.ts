@@ -9,13 +9,14 @@ import { DefaultRequestOptions, QueryResult } from '../lib/models/pcp';
 import { defaults } from 'lodash';
 import md5 from 'blueimp-md5';
 import { interval_to_ms, getDashboardRefreshInterval, getLogger } from '../lib/utils';
-import { Poller, Target, Endpoint, QueryResult, RegisterRequest } from '../lib/poller';
+import { Poller, Endpoint } from '../lib/poller';
 import { PmApi } from '../lib/pmapi';
 import { processTargets } from '../lib/data_processor';
 import * as config from './config';
 import { VectorQuery, VectorOptions, defaultVectorQuery, VectorTargetData } from './types';
 import { buildQueries, testDatasource, metricFindQuery } from '../lib/pmapi_datasource_utils';
 import { getRequestOptions } from '../../lib/utils/api';
+import { PmapiTarget, CompletePmapiQuery } from '../lib/models/pmapi';
 const log = getLogger('datasource');
 
 interface DataSourceState {
@@ -63,7 +64,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         return newQuery.expr !== prevQuery.expr;
     }
 
-    isDerivedMetric(expr: Expr) {
+    isDerivedMetric(expr: string) {
         /* From: PCPIntro(1)
          * A node label must begin with an alphabetic character, followed by
          * zero or more characters drawn from the alphabetics, the digits and
@@ -83,7 +84,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         return `derived_${md5(expr)}`;
     }
 
-    async registerDerivedMetric(target: Target<VectorTargetData>): Promise<string[]> {
+    async registerDerivedMetric(target: PmapiTarget<VectorTargetData>): Promise<string[]> {
         const name = this.derivedMetricName(target.query.expr);
         const result = await this.state.pmApi.createDerived(this.instanceSettings.url!, target.query.expr, name);
         if (result.success) {
@@ -93,19 +94,19 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         return [];
     }
 
-    async registerTarget(target: Target<VectorTargetData>): Promise<RegisterRequest> {
+    async registerTarget(target: PmapiTarget<VectorTargetData>): Promise<string[]> {
         target.custom = {
             isDerivedMetric: this.isDerivedMetric(target.query.expr),
         };
         if (target.custom.isDerivedMetric) {
             const key = this.state.derivedMetrics.get(target.query.expr);
             if (key) {
-                return { metrics: [key] };
+                return [key];
             }
             const metrics = await this.registerDerivedMetric(target);
-            return { metrics, renewContext: true };
+            return metrics;
         } else {
-            return { metrics: [target.query.expr] };
+            return [target.query.expr];
         }
     }
 

@@ -1,7 +1,7 @@
 import { DataSource } from './datasource';
 import { VectorOptions, VectorTargetData } from './types';
 import { DataSourceInstanceSettings } from '@grafana/data';
-import { Target } from '../lib/poller';
+import { PmapiTarget } from '../lib/models/pmapi';
 
 jest.mock('../lib/poller');
 jest.mock('../lib/pmapi');
@@ -63,7 +63,7 @@ describe('PCP Vector datasource', () => {
             .spyOn(instance.state.pmApi, 'createDerived')
             .mockImplementation(() => Promise.resolve({ success: true }));
         const expr = 'disk.all.blktotal/2';
-        const targetMock: jest.Mocked<Target<VectorTargetData>> = { query: { expr } } as any;
+        const targetMock: jest.Mocked<PmapiTarget<VectorTargetData>> = { query: { expr } } as any;
         await instance.registerDerivedMetric(targetMock);
         expect(spy).toBeCalledTimes(1);
         expect(spy.mock.calls[0][2]).toBe(instance.derivedMetricName(expr));
@@ -77,16 +77,16 @@ describe('PCP Vector datasource', () => {
             .spyOn(instance.state.pmApi, 'createDerived')
             .mockImplementation(() => Promise.resolve({ success: true }));
         const registerDeriverMetricSpy = jest.spyOn(instance, 'registerDerivedMetric');
-        const targetMock: jest.Mocked<Target<VectorTargetData>> = { query: { expr } } as any;
+        const targetMock: jest.Mocked<PmapiTarget<VectorTargetData>> = { query: { expr } } as any;
         const resultRegistered = await instance.registerTarget(targetMock);
-        expect(resultRegistered).toEqual({ metrics: [metricName], renewContext: true });
+        expect(resultRegistered).toEqual([metricName]);
         expect(createDerivedSpy).toBeCalledTimes(1);
         expect(registerDeriverMetricSpy).toBeCalledTimes(1);
         expect(instance.state.derivedMetrics.size).toBe(1);
         expect(instance.state.derivedMetrics.has(expr)).toBe(true);
         // will skip registering derived metric, since we already did so
         const resultRegistrationSkipped = await instance.registerTarget(targetMock);
-        expect(resultRegistrationSkipped).toEqual({ metrics: [metricName] });
+        expect(resultRegistrationSkipped).toEqual([metricName]);
         expect(createDerivedSpy).toBeCalledTimes(1);
         expect(registerDeriverMetricSpy).toBeCalledTimes(1);
         expect(instance.state.derivedMetrics.size).toBe(1);

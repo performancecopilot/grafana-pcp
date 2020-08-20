@@ -101,7 +101,7 @@ export class DataSource extends DataSourceApi<BPFtraceQuery, BPFtraceOptions> {
         }
         target.custom = { script };
         const metrics = this.state.scriptManager.getMetrics(target.custom.script, target.query.format);
-        return { metrics };
+        return metrics;
     }
 
     deregisterTarget(target: PmapiTarget<BPFtraceTargetData>) {

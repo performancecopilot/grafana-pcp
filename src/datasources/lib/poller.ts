@@ -161,12 +161,7 @@ export class Poller {
             pendingTargets.map(target =>
                 this.hooks
                     .registerTarget(target)
-                    .then(async request => {
-                        if (request.renewContext) {
-                            await this.initContext(endpoint);
-                        }
-                        target.metricNames = request.metrics;
-                    })
+                    .then(metricNames => (target.metricNames = metricNames))
                     .catch(error => {
                         target.state = PmapiTargetState.ERROR;
                         target.errors.push(error);
