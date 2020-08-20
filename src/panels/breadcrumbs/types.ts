@@ -7,4 +7,5 @@ export interface LinkItem {
 
 export interface Options {
     items: Array<Array<LinkItem>>;
+    scripted: boolean;
 }

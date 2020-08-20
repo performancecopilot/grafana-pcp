@@ -2,7 +2,14 @@ import React from 'react';
 import { PanelProps } from '@grafana/data';
 import { Options, LinkItem } from './types';
 import { Themeable, withTheme, Button, Icon, Select } from '@grafana/ui';
-import { breadcrumbsContainer, breadcrumbsList, breadcrumbsItem, breadcrumbsControl, breadcrumbsBtn } from './styles';
+import {
+    breadcrumbsContainer,
+    breadcrumbsList,
+    breadcrumbsItem,
+    breadcrumbsControl,
+    breadcrumbsBtn,
+    notUsableContainer,
+} from './styles';
 import { getLocationSrv, LocationSrv } from '@grafana/runtime';
 
 export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & Themeable> {
@@ -12,6 +19,7 @@ export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & 
         this.navigateDashboard = this.navigateDashboard.bind(this);
         this.renderBreadcrumbLink = this.renderBreadcrumbLink.bind(this);
         this.renderBreadcrumbSelect = this.renderBreadcrumbSelect.bind(this);
+        this.renderNotUsable = this.renderNotUsable.bind(this);
         this.locationSrv = getLocationSrv();
     }
     navigateDashboard(dashboardUid: string) {
@@ -52,9 +60,21 @@ export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & 
             </li>
         );
     }
+    renderNotUsable(width: number, height: number) {
+        return (
+            <div className={notUsableContainer(width, height)}>
+                <p>PCP Breadcrumbs panel is not intended for use in user defined dashboards.</p>
+            </div>
+        );
+    }
     render() {
-        const { renderBreadcrumbLink, renderBreadcrumbSelect, props } = this;
-        const { theme, options } = props;
+        const { renderBreadcrumbLink, renderBreadcrumbSelect, renderNotUsable, props } = this;
+        const { theme, options, width, height } = props;
+
+        if (!options.scripted) {
+            return renderNotUsable(width, height);
+        }
+
         const depthList = options.items;
         const itemCount = depthList.length;
         if (itemCount === 0) {

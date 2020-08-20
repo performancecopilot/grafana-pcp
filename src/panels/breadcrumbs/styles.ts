@@ -32,3 +32,11 @@ export const breadcrumbsBtn = (theme: GrafanaTheme) => css`
 export const breadcrumbsControl = (theme: GrafanaTheme) => css`
     min-width: 150px;
 `;
+
+export const notUsableContainer = (width, height) => css`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: ${width}px;
+    height: ${height}px;
+`;

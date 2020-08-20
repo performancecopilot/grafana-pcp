@@ -34,10 +34,17 @@
     "includes": [
         {
             "type": "page",
-            "name": "Full-Text search",
+            "name": "Full-Text Search",
             "path": "/a/performancecopilot-pcp-app",
             "addToNav": true,
             "defaultNav": true
+        },
+        {
+            "type": "page",
+            "name": "Checklist Overview",
+            "path": "/d/pcp-overview",
+            "addToNav": true,
+            "defaultNav": false
         },
         {
             "type": "datasource",

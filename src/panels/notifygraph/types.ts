@@ -51,6 +51,7 @@ export interface Options {
     legend: LegendOptions;
     threshold?: ThresholdOptions;
     meta: MetaOptions;
+    scripted: boolean;
 }
 
 export enum ThresholdsOperator {

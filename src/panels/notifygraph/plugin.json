@@ -3,10 +3,10 @@
     "name": "Notify Graph",
     "id": "pcp-notifygraph-panel",
     "info": {
-        "description": "Grafana Panel that supports notifications",
+        "description": "Grafana Panel for displaying basic graphs in PCP checklist overview dashboards",
         "logos": {
-            "small": "img/flamegraph.svg",
-            "large": "img/flamegraph.svg"
+            "small": "img/pcp-logo.svg",
+            "large": "img/pcp-logo.svg"
         },
         "links": [
             {

@@ -3,10 +3,10 @@
     "name": "Breacrumbs",
     "id": "pcp-breadcrumbs-panel",
     "info": {
-        "description": "Breadcrumbs panel",
+        "description": "Grafana Panel for displaying breadcrumbs navigation in PCP checklist overview dashboards",
         "logos": {
-            "small": "img/flamegraph.svg",
-            "large": "img/flamegraph.svg"
+            "small": "img/pcp-logo.svg",
+            "large": "img/pcp-logo.svg"
         },
         "links": [
             {

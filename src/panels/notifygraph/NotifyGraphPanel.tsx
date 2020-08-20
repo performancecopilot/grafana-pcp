@@ -17,6 +17,7 @@ import {
     infoBoxTogglesContainer,
     infoBoxInfoToggle,
     infoBoxToggle,
+    notUsableContainer,
 } from './styles';
 import { LocationSrv, getLocationSrv } from '@grafana/runtime';
 import { cx } from 'emotion';
@@ -32,12 +33,10 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
     locationSrv: LocationSrv;
     computeModel: typeof generateGraphModel = memoizeOne(generateGraphModel);
     outsideThresholdSeries: typeof outsideThresholdSeries = memoizeOne(outsideThresholdSeries);
-
     state: NotifyGraphPanelState = {
         showInfoModal: false,
         showIssueModal: false,
     };
-
     constructor(props: NotifyGraphPanelProps) {
         super(props);
         this.renderWarning = this.renderWarning.bind(this);
@@ -46,16 +45,15 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
         this.renderIssueModalContent = this.renderIssueModalContent.bind(this);
         this.thresholdDescription = this.thresholdDescription.bind(this);
         this.navigateDashboard = this.navigateDashboard.bind(this);
+        this.renderNotUsable = this.renderNotUsable.bind(this);
         this.locationSrv = getLocationSrv();
     }
-
     navigateDashboard(dashboardUid: string) {
         const path = `/d/${dashboardUid}`;
         this.locationSrv.update({
             path,
         });
     }
-
     thresholdDescription(threshold: ThresholdOptions) {
         return (
             <p>
@@ -67,7 +65,6 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
             </p>
         );
     }
-
     renderModalNavigation(meta: MetaOptions) {
         const { navigateDashboard, props } = this;
         const { theme } = props;
@@ -117,7 +114,6 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
             </VerticalGroup>
         );
     }
-
     renderInfoModalContent(meta: MetaOptions) {
         const { props, renderModalNavigation } = this;
         const { theme } = props;
@@ -201,7 +197,6 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
             </div>
         );
     }
-
     renderIssueModalContent(meta: MetaOptions, threshold: ThresholdOptions) {
         const { thresholdDescription, renderModalNavigation, props } = this;
         const { theme } = props;
@@ -245,7 +240,6 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
             </div>
         );
     }
-
     renderWarning(series: GraphSeriesXY[], meta: MetaOptions, threshold: ThresholdOptions | undefined) {
         const { state, props, renderIssueModalContent, renderInfoModalContent } = this;
         const { theme } = props;
@@ -302,9 +296,21 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
             </>
         );
     }
-
+    renderNotUsable(width: number, height: number) {
+        return (
+            <div className={notUsableContainer(width, height)}>
+                <p>PCP NotifyGraphPanel panel is not intended for use in user defined dashboards.</p>
+            </div>
+        );
+    }
     render() {
-        const { width, height, timeRange, data, timeZone, options } = this.props;
+        const { props, renderNotUsable } = this;
+        const { width, height, timeRange, data, timeZone, options } = props;
+
+        if (!options.scripted) {
+            return renderNotUsable(width, height);
+        }
+
         const series = this.computeModel(data, timeZone, options);
 
         const { legend, graph, threshold, meta } = options;

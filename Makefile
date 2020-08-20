@@ -6,7 +6,7 @@ JSONNET = jsonnet
 JSONNETBUNDLER = jb
 
 DASHBOARD_DIR := src/dashboards
-DASHBOARDS_JSONNET = $(shell echo $(DASHBOARD_DIR)/*.jsonnet)
+DASHBOARDS_JSONNET = $(shell echo $(DASHBOARD_DIR)/**/*.jsonnet)
 DASHBOARDS = $(DASHBOARDS_JSONNET:.jsonnet=.json)
 
 default: build
