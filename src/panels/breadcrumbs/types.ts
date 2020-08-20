@@ -6,6 +6,6 @@ export interface LinkItem {
 }
 
 export interface Options {
-    items: Array<Array<LinkItem>>;
+    items: LinkItem[][];
     scripted: boolean;
 }

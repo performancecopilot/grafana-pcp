@@ -70,7 +70,9 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
         const { theme } = props;
         const hasParents = meta.parents.length !== 0;
         const hasChildren = meta.children.length !== 0;
-        if (!hasChildren && !hasParents) return;
+        if (!hasChildren && !hasParents) {
+            return;
+        }
         return (
             <VerticalGroup spacing="md">
                 <h4>
