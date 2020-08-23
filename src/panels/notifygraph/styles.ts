@@ -29,6 +29,8 @@ export const infoBoxToggle = (theme: GrafanaTheme) => css`
     box-sizing: content-box;
     border-radius: 50%;
     background: ${theme.colors.panelBg};
+    border: 0;
+
     & + & {
         margin-left: ${theme.spacing.sm};
     }
@@ -36,7 +38,6 @@ export const infoBoxToggle = (theme: GrafanaTheme) => css`
 
 export const infoBoxIssueToggle = (theme: GrafanaTheme) => css`
     color: ${theme.colors.formInputBorderInvalid};
-    border: 1px solid ${theme.colors.formInputBorderInvalid};
 
     &:hover {
         color: ${theme.colors.panelBg};
@@ -49,7 +50,6 @@ export const infoBoxIssueToggle = (theme: GrafanaTheme) => css`
 
 export const infoBoxInfoToggle = (theme: GrafanaTheme) => css`
     color: ${theme.colors.formInputText};
-    border: 1px solid ${theme.colors.formInputText};
 
     &:hover {
         color: ${theme.colors.panelBg};

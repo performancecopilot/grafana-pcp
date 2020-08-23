@@ -73,52 +73,52 @@
         {
             "type": "dashboard",
             "name": "Overview",
-            "path": "dashboards/overview/root.json"
+            "path": "dashboards/checklist/root.json"
         },
         {
             "type": "dashboard",
             "name": "CPU Overview",
-            "path": "dashboards/overview/cpu.json"
+            "path": "dashboards/checklist/cpu.json"
         },
         {
             "type": "dashboard",
             "name": "CPU System Overview",
-            "path": "dashboards/overview/cpu-sys.json"
+            "path": "dashboards/checklist/cpu-sys.json"
         },
         {
             "type": "dashboard",
             "name": "CPU User Overview",
-            "path": "dashboards/overview/cpu-user.json"
+            "path": "dashboards/checklist/cpu-user.json"
         },
         {
             "type": "dashboard",
             "name": "Storage Overview",
-            "path": "dashboards/overview/storage.json"
+            "path": "dashboards/checklist/storage.json"
         },
         {
             "type": "dashboard",
             "name": "Memory Overview",
-            "path": "dashboards/overview/memory.json"
+            "path": "dashboards/checklist/memory.json"
         },
         {
             "type": "dashboard",
             "name": "Memory Swap Overview",
-            "path": "dashboards/overview/memory-swap.json"
+            "path": "dashboards/checklist/memory-swap.json"
         },
         {
             "type": "dashboard",
             "name": "Network Overview",
-            "path": "dashboards/overview/network.json"
+            "path": "dashboards/checklist/network.json"
         },
         {
             "type": "dashboard",
             "name": "Network RX Overview",
-            "path": "dashboards/overview/network-rx.json"
+            "path": "dashboards/checklist/network-rx.json"
         },
         {
             "type": "dashboard",
             "name": "Network TX Overview",
-            "path": "dashboards/overview/network-tx.json"
+            "path": "dashboards/checklist/network-tx.json"
         },
         {
             "type": "dashboard",
