@@ -2,6 +2,7 @@ import { DataSource } from './datasource';
 import { VectorOptions, VectorTargetData } from './types';
 import { DataSourceInstanceSettings } from '@grafana/data';
 import { PmapiTarget } from '../lib/models/pmapi';
+import { Endpoint } from '../lib/poller';
 
 jest.mock('../lib/poller');
 jest.mock('../lib/pmapi');
@@ -64,13 +65,14 @@ describe('PCP Vector datasource', () => {
             .mockImplementation(() => Promise.resolve({ success: true }));
         const expr = 'disk.all.blktotal/2';
         const targetMock: jest.Mocked<PmapiTarget<VectorTargetData>> = { query: { expr } } as any;
-        await instance.registerDerivedMetric(targetMock);
+        const endpointMock: jest.Mocked<Endpoint> = { context: { context: 0 } } as any;
+        await instance.registerDerivedMetric(targetMock, endpointMock);
         expect(spy).toBeCalledTimes(1);
-        expect(spy.mock.calls[0][2]).toBe(instance.derivedMetricName(expr));
+        expect(spy.mock.calls[0][3]).toBe(instance.derivedMetricName(expr));
         expect(instance.state.derivedMetrics.has(expr)).toBe(true);
     });
 
-    it('should request context renewal on registration of derived metric', async () => {
+    it('should request registration of derived metric', async () => {
         const expr = 'disk.all.blktotal/2';
         const metricName = instance.derivedMetricName(expr);
         const createDerivedSpy = jest
@@ -78,14 +80,15 @@ describe('PCP Vector datasource', () => {
             .mockImplementation(() => Promise.resolve({ success: true }));
         const registerDeriverMetricSpy = jest.spyOn(instance, 'registerDerivedMetric');
         const targetMock: jest.Mocked<PmapiTarget<VectorTargetData>> = { query: { expr } } as any;
-        const resultRegistered = await instance.registerTarget(targetMock);
+        const endpointMock: jest.Mocked<Endpoint> = { context: { context: 0 } } as any;
+        const resultRegistered = await instance.registerTarget(targetMock, endpointMock);
         expect(resultRegistered).toEqual([metricName]);
         expect(createDerivedSpy).toBeCalledTimes(1);
         expect(registerDeriverMetricSpy).toBeCalledTimes(1);
         expect(instance.state.derivedMetrics.size).toBe(1);
         expect(instance.state.derivedMetrics.has(expr)).toBe(true);
         // will skip registering derived metric, since we already did so
-        const resultRegistrationSkipped = await instance.registerTarget(targetMock);
+        const resultRegistrationSkipped = await instance.registerTarget(targetMock, endpointMock);
         expect(resultRegistrationSkipped).toEqual([metricName]);
         expect(createDerivedSpy).toBeCalledTimes(1);
         expect(registerDeriverMetricSpy).toBeCalledTimes(1);

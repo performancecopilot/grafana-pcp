@@ -55,7 +55,7 @@ export interface Endpoint<T = Dict<string, any>> {
 interface PollerHooks {
     queryHasChanged: (prevQuery: CompletePmapiQuery, newQuery: CompletePmapiQuery) => boolean;
     registerEndpoint?: (endpoint: Endpoint) => Promise<void>;
-    registerTarget: (target: PmapiTarget) => Promise<string[]>;
+    registerTarget: (target: PmapiTarget, endpoint: Endpoint) => Promise<string[]>;
     deregisterTarget?: (target: PmapiTarget) => void;
     redisBackfill?: (endpoint: Endpoint, targets: PmapiTarget[]) => Promise<void>;
 }
@@ -160,7 +160,7 @@ export class Poller {
         await Promise.all(
             pendingTargets.map(target =>
                 this.hooks
-                    .registerTarget(target)
+                    .registerTarget(target, endpoint)
                     .then(metricNames => (target.metricNames = metricNames))
                     .catch(error => {
                         target.state = PmapiTargetState.ERROR;

@@ -20,7 +20,6 @@ interface MetricsResponse {
 }
 
 interface MetricInstanceValues {
-    pmapi: string;
     name: MetricName;
     instances: PmapiInstanceValue[];
 }
@@ -162,10 +161,11 @@ export class PmApi {
         }
     }
 
-    async createDerived(url: string, expr: string, name: string): Promise<DeriveResponse> {
+    async createDerived(url: string, ctxid: number | null, expr: string, name: string): Promise<DeriveResponse> {
+        const ctxPath = ctxid == null ? '' : `/${ctxid}`;
         try {
             const response = await this.datasourceRequest({
-                url: `${url}/pmapi/derive`,
+                url: `${url}/pmapi${ctxPath}/derive`,
                 params: { name, expr },
             });
             return response.data;

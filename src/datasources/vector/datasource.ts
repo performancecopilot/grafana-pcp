@@ -84,9 +84,10 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         return `derived_${md5(expr)}`;
     }
 
-    async registerDerivedMetric(target: PmapiTarget<VectorTargetData>): Promise<string[]> {
+    async registerDerivedMetric(target: PmapiTarget<VectorTargetData>, endpoint: Endpoint): Promise<string[]> {
         const name = this.derivedMetricName(target.query.expr);
-        const result = await this.state.pmApi.createDerived(this.instanceSettings.url!, target.query.expr, name);
+        const ctx = endpoint.context?.context ?? null;
+        const result = await this.state.pmApi.createDerived(target.query.url!, ctx, target.query.expr, name);
         if (result.success) {
             this.state.derivedMetrics.set(target.query.expr, name);
             return [name];
@@ -94,7 +95,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         return [];
     }
 
-    async registerTarget(target: PmapiTarget<VectorTargetData>): Promise<string[]> {
+    async registerTarget(target: PmapiTarget<VectorTargetData>, endpoint: Endpoint): Promise<string[]> {
         target.custom = {
             isDerivedMetric: this.isDerivedMetric(target.query.expr),
         };
@@ -103,8 +104,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             if (key) {
                 return [key];
             }
-            const metrics = await this.registerDerivedMetric(target);
-            return metrics;
+            return await this.registerDerivedMetric(target, endpoint);
         } else {
             return [target.query.expr];
         }
