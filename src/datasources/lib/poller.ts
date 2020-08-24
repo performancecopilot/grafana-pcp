@@ -55,7 +55,7 @@ export interface Endpoint<T = Dict<string, any>> {
 interface PollerHooks {
     queryHasChanged: (prevQuery: CompletePmapiQuery, newQuery: CompletePmapiQuery) => boolean;
     registerEndpoint?: (endpoint: Endpoint) => Promise<void>;
-    registerTarget: (target: PmapiTarget) => Promise<string[]>;
+    registerTarget: (target: PmapiTarget, endpoint: Endpoint) => Promise<string[]>;
     deregisterTarget?: (target: PmapiTarget) => void;
     redisBackfill?: (endpoint: Endpoint, targets: PmapiTarget[]) => Promise<void>;
 }
@@ -160,7 +160,7 @@ export class Poller {
         await Promise.all(
             pendingTargets.map(target =>
                 this.hooks
-                    .registerTarget(target)
+                    .registerTarget(target, endpoint)
                     .then(metricNames => (target.metricNames = metricNames))
                     .catch(error => {
                         target.state = PmapiTargetState.ERROR;
@@ -195,16 +195,20 @@ export class Poller {
         return false;
     }
 
+    async initContext(endpoint: Endpoint) {
+        endpoint.context = await this.pmApi.createContext(
+            endpoint.url,
+            endpoint.hostspec,
+            Math.round((this.refreshIntervalMs + config.gracePeriodMs) / 1000)
+        );
+        endpoint.hasRedis = this.hooks.redisBackfill && (await this.endpointHasRedis(endpoint));
+        endpoint.state = EndpointState.CONNECTED;
+        await this.hooks.registerEndpoint?.(endpoint);
+    }
+
     async pollEndpoint(endpoint: Endpoint) {
         if (endpoint.state === EndpointState.PENDING) {
-            endpoint.context = await this.pmApi.createContext(
-                endpoint.url,
-                endpoint.hostspec,
-                Math.round((this.refreshIntervalMs + config.gracePeriodMs) / 1000)
-            );
-            endpoint.hasRedis = this.hooks.redisBackfill && (await this.endpointHasRedis(endpoint));
-            endpoint.state = EndpointState.CONNECTED;
-            await this.hooks.registerEndpoint?.(endpoint);
+            await this.initContext(endpoint);
         }
 
         await this.initializePendingTargets(endpoint as Required<Endpoint>);
@@ -218,7 +222,7 @@ export class Poller {
             return;
         }
 
-        // only poll additional metrics if metrics from targets are also requrested
+        // only poll additional metrics if metrics from targets are also requested
         const additionalMetricNamesToPoll = uniq(endpoint.additionalMetricsToPoll.map(amp => amp.name));
         metricsToPoll.push(...additionalMetricNamesToPoll);
 

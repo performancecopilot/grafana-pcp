@@ -33,11 +33,21 @@ interface StoreResponse {
     success: boolean;
 }
 
+interface DeriveResponse extends StoreResponse {}
+
 export class MetricNotFoundError extends Error {
     constructor(readonly metric: string, message?: string) {
         super(message ?? `Cannot find metric ${metric}. Please check if the PMDA is enabled.`);
         this.metric = metric;
         Object.setPrototypeOf(this, MetricNotFoundError.prototype);
+    }
+}
+
+export class DuplicateDerivedMetricNameError extends Error {
+    constructor(readonly metric: string, message?: string) {
+        super(message ?? `Duplicate derived metric name ${metric}`);
+        this.metric = metric;
+        Object.setPrototypeOf(this, DuplicateDerivedMetricNameError.prototype);
     }
 }
 
@@ -145,6 +155,23 @@ export class PmApi {
                 throw new PermissionError(name);
             } else if (has(error, 'data.message') && error.data.message.includes('Bad input')) {
                 return { success: false };
+            } else {
+                throw error;
+            }
+        }
+    }
+
+    async createDerived(url: string, ctxid: number | null, expr: string, name: string): Promise<DeriveResponse> {
+        const ctxPath = ctxid == null ? '' : `/${ctxid}`;
+        try {
+            const response = await this.datasourceRequest({
+                url: `${url}/pmapi${ctxPath}/derive`,
+                params: { name, expr },
+            });
+            return response.data;
+        } catch (error) {
+            if (has(error, 'data.message') && error.data.message.includes('Duplicate derived metric name')) {
+                return { success: true };
             } else {
                 throw error;
             }

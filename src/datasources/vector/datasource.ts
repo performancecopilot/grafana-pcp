@@ -7,6 +7,7 @@ import {
 } from '@grafana/data';
 import { DefaultRequestOptions, QueryResult } from '../lib/models/pcp';
 import { defaults } from 'lodash';
+import md5 from 'blueimp-md5';
 import { interval_to_ms, getDashboardRefreshInterval, getLogger } from '../lib/utils';
 import { Poller, Endpoint } from '../lib/poller';
 import { PmApi } from '../lib/pmapi';
@@ -15,13 +16,14 @@ import * as config from './config';
 import { VectorQuery, VectorOptions, defaultVectorQuery, VectorTargetData } from './types';
 import { buildQueries, testDatasource, metricFindQuery } from '../lib/pmapi_datasource_utils';
 import { getRequestOptions } from '../../lib/utils/api';
-import { CompletePmapiQuery, PmapiTarget } from '../lib/models/pmapi';
+import { PmapiTarget, CompletePmapiQuery } from '../lib/models/pmapi';
 const log = getLogger('datasource');
 
 interface DataSourceState {
     defaultRequestOptions: DefaultRequestOptions;
     pmApi: PmApi;
     poller: Poller;
+    derivedMetrics: Map<string, string>;
 }
 
 export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
@@ -50,6 +52,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             defaultRequestOptions,
             pmApi: pmApi,
             poller: poller,
+            derivedMetrics: new Map<string, string>(),
         };
 
         document.addEventListener('visibilitychange', () => {
@@ -62,18 +65,46 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
     }
 
     isDerivedMetric(expr: string) {
-        // TODO
-        return false;
+        /* From: PCPIntro(1)
+         * A node label must begin with an alphabetic character, followed by
+         * zero or more characters drawn from the alphabetics, the digits and
+         * character ``_'' (underscore).  For alphabetic characters in a node
+         * label, upper and lower case are distinguished.
+         *
+         * By convention, the name of a performance metric is constructed by
+         * concatenation of the node labels on a path through the PMNS from the
+         * root node to a leaf node, with a ``.'' as a separator.
+         *
+         * -> Anything that is not a name is considered derived metric expression
+         */
+        return !/^[a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z][a-zA-Z0-9_]+)*$/.test(expr);
     }
 
-    async registerTarget(target: PmapiTarget<VectorTargetData>) {
+    derivedMetricName(expr: string): string {
+        return `derived_${md5(expr)}`;
+    }
+
+    async registerDerivedMetric(target: PmapiTarget<VectorTargetData>, endpoint: Endpoint): Promise<string[]> {
+        const name = this.derivedMetricName(target.query.expr);
+        const ctx = endpoint.context?.context ?? null;
+        const result = await this.state.pmApi.createDerived(target.query.url!, ctx, target.query.expr, name);
+        if (result.success) {
+            this.state.derivedMetrics.set(target.query.expr, name);
+            return [name];
+        }
+        return [];
+    }
+
+    async registerTarget(target: PmapiTarget<VectorTargetData>, endpoint: Endpoint): Promise<string[]> {
         target.custom = {
             isDerivedMetric: this.isDerivedMetric(target.query.expr),
         };
-
         if (target.custom.isDerivedMetric) {
-            // TOOD: register derived metric
-            return ['derived_hash(target.query.expr)'];
+            const key = this.state.derivedMetrics.get(target.query.expr);
+            if (key) {
+                return [key];
+            }
+            return await this.registerDerivedMetric(target, endpoint);
         } else {
             return [target.query.expr];
         }
