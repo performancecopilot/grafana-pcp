@@ -2,6 +2,7 @@
     "type": "panel",
     "name": "Breacrumbs",
     "id": "pcp-breadcrumbs-panel",
+    "skipDataQuery": true,
     "info": {
         "description": "Grafana Panel for displaying breadcrumbs navigation in PCP checklist overview dashboards",
         "logos": {
