@@ -51,6 +51,14 @@ export class MetricSemanticError extends Error {
     }
 }
 
+export class MetricSyntaxError extends Error {
+    constructor(readonly expr: string, message?: string) {
+        super(message ?? `Syntax error in '${expr}' definition.`);
+        this.expr = expr;
+        Object.setPrototypeOf(this, MetricSyntaxError.prototype);
+    }
+}
+
 export class DuplicateDerivedMetricNameError extends Error {
     constructor(readonly metric: string, message?: string) {
         super(message ?? `Duplicate derived metric name ${metric}`);
@@ -182,6 +190,8 @@ export class PmApi {
                 return { success: true };
             } else if (has(error, 'data.message') && error.data.message.includes('Semantic Error')) {
                 throw new MetricSemanticError(expr);
+            } else if (has(error, 'data.message') && error.data.message.includes('Syntax Error')) {
+                throw new MetricSyntaxError(expr);
             } else {
                 throw error;
             }
