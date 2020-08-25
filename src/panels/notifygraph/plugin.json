@@ -1,0 +1,18 @@
+{
+    "type": "panel",
+    "name": "Notify Graph",
+    "id": "pcp-notifygraph-panel",
+    "info": {
+        "description": "Grafana Panel for displaying basic graphs in PCP checklist overview dashboards",
+        "logos": {
+            "small": "img/pcp-logo.svg",
+            "large": "img/pcp-logo.svg"
+        },
+        "links": [
+            {
+                "name": "GitHub",
+                "url": "https://github.com/performancecopilot/grafana-pcp"
+            }
+        ]
+    }
+}

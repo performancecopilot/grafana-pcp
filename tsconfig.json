@@ -6,10 +6,7 @@
         "moduleResolution": "node",
         "rootDir": "./src",
         "jsx": "react",
-        "lib": [
-            "dom",
-            "esnext"
-        ],
+        "lib": ["dom", "esnext"],
         "declaration": false,
         "allowSyntheticDefaultImports": true,
         "inlineSourceMap": false,
@@ -28,11 +25,6 @@
         "resolveJsonModule": true,
         "strictBindCallApply": true
     },
-    "include": [
-        "./src/**/*.ts",
-        "./src/**/*.tsx"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+    "include": ["./src/**/*.ts", "./src/**/*.tsx"],
+    "exclude": ["node_modules"]
 }

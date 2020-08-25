@@ -6,7 +6,7 @@ JSONNET = jsonnet
 JSONNETBUNDLER = jb
 
 DASHBOARD_DIR := src/dashboards
-DASHBOARDS_JSONNET = $(shell echo $(DASHBOARD_DIR)/*.jsonnet)
+DASHBOARDS_JSONNET = $(shell echo $(DASHBOARD_DIR)/**/*.jsonnet)
 DASHBOARDS = $(DASHBOARDS_JSONNET:.jsonnet=.json)
 
 default: build
@@ -21,15 +21,17 @@ vendor: jsonnetfile.json
 $(DASHBOARD_DIR)/%.json: $(DASHBOARD_DIR)/%.jsonnet
 	$(JSONNET) -J vendor -o $@ $<
 
-dist: node_modules vendor $(DASHBOARDS)
+dashboards: $(DASHBOARDS)
+
+dist: node_modules vendor dashboards
 	$(YARN) run build
 
 build: dist
 
-dev: node_modules vendor $(DASHBOARDS)
+dev: node_modules vendor dashboards
 	$(YARN) run dev
 
-watch: node_modules vendor $(DASHBOARDS)
+watch: node_modules vendor dashboards
 	$(YARN) run watch
 
 test: node_modules

@@ -8,7 +8,7 @@ dashboard.new(
   title='Graph Preview',
   uid='grafana-pcp-app-graph-preview',
   editable=false,
-  tags=['grafana-pcp-up'],
+  tags=['grafana-pcp-app'],
   time_from='now-2m',
   time_to='now',
   refresh='5s',

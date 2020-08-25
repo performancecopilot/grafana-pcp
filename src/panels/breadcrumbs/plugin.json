@@ -1,0 +1,18 @@
+{
+    "type": "panel",
+    "name": "Breacrumbs",
+    "id": "pcp-breadcrumbs-panel",
+    "info": {
+        "description": "Grafana Panel for displaying breadcrumbs navigation in PCP checklist overview dashboards",
+        "logos": {
+            "small": "img/pcp-logo.svg",
+            "large": "img/pcp-logo.svg"
+        },
+        "links": [
+            {
+                "name": "GitHub",
+                "url": "https://github.com/performancecopilot/grafana-pcp"
+            }
+        ]
+    }
+}

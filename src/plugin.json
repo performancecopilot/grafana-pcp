@@ -34,10 +34,17 @@
     "includes": [
         {
             "type": "page",
-            "name": "Full-Text search",
+            "name": "Full-Text Search",
             "path": "/a/performancecopilot-pcp-app",
             "addToNav": true,
             "defaultNav": true
+        },
+        {
+            "type": "page",
+            "name": "Checklist Overview",
+            "path": "/d/pcp-overview",
+            "addToNav": true,
+            "defaultNav": false
         },
         {
             "type": "datasource",
@@ -54,6 +61,64 @@
         {
             "type": "panel",
             "name": "Flame Graph"
+        },
+        {
+            "type": "panel",
+            "name": "Notify Graph"
+        },
+        {
+            "type": "panel",
+            "name": "Breadcrumbs panel"
+        },
+        {
+            "type": "dashboard",
+            "name": "Overview",
+            "path": "dashboards/checklist/root.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "CPU Overview",
+            "path": "dashboards/checklist/cpu.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "CPU System Overview",
+            "path": "dashboards/checklist/cpu-sys.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "CPU User Overview",
+            "path": "dashboards/checklist/cpu-user.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Storage Overview",
+            "path": "dashboards/checklist/storage.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Memory Overview",
+            "path": "dashboards/checklist/memory.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Memory Swap Overview",
+            "path": "dashboards/checklist/memory-swap.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Network Overview",
+            "path": "dashboards/checklist/network.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Network RX Overview",
+            "path": "dashboards/checklist/network-rx.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "Network TX Overview",
+            "path": "dashboards/checklist/network-tx.json"
         },
         {
             "type": "dashboard",
