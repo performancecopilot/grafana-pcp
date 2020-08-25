@@ -139,7 +139,7 @@ dashboard.new(
   ).addTargets([
     { name: 'network_rx_errors', expr: 'rate(network.interface.in.errors)', format: 'time_series' },
   ]), gridPos={
-    x: 12,
+    x: 0,
     y: 13,
     w: 12,
     h: 9
@@ -203,7 +203,7 @@ dashboard.new(
   ).addTargets([
     { name: 'time_squeeze', expr: 'rate(network.softnet.time_squeeze)', format: 'time_series' },
   ]), gridPos={
-    x: 12,
+    x: 0,
     y: 23,
     w: 12,
     h: 9
