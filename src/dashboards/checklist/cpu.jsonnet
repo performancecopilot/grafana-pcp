@@ -129,14 +129,14 @@ dashboard.new(
           'time (in ms) spent executing system code (calls) since process started',
         ),
       ],
-      derived=['hotproc.psinfo.ksmd.util = rate(hotproc.psinfo.utime)+rate(hotproc.psinfo.stime)'],
+      derived=['hotproc.psinfo.ksmd.util = rate(hotproc.psinfo.utime) + rate(hotproc.psinfo.stime)'],
       urls=['https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html-single/Virtualization_Tuning_and_Optimization_Guide/index.html'],
       details='The goal of the Kernel SamePage Merging Daemon (ksmd) is to reduce memory use by merging separate identical pages in one page.  However, this process can require significant amounts of CPU resources to compare pages of memory.  If the system has ample memory but less CPU resources, disabling ksmd or changing its configuration to reduce CPU use might be better options.',
       issues=['There can only be one hotproc predicate at a time. For this to work hotproc.control.config needs to be set to \'(fname==\"ksmd\" && cpuburn > 0.10)\'. Can be set with <code>sudo pmstore hotproc.control.config \'(fname==\"ksmd\" && cpuburn > 0.10)\'</code>'],
       parents=parents,
     ),
   ).addTargets([
-    { name: 'hotproc.psinfo.ksmd.util', expr: 'rate(hotproc.psinfo.utime)+rate(hotproc.psinfo.stime)', format: 'time_series' },
+    { name: 'hotproc.psinfo.ksmd.util', expr: 'rate(hotproc.psinfo.utime) + rate(hotproc.psinfo.stime)', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 13,

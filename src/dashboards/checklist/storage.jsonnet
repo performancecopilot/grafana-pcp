@@ -100,12 +100,12 @@ dashboard.new(
           'per-device-mapper device total (read+write) operations',
         ),
       ],
-      derived=['disk.dm.avgsz = delta(disk.dm.total_bytes)/delta(disk.dm.total)'],
+      derived=['disk.dm.avgsz = delta(disk.dm.total_bytes) / delta(disk.dm.total)'],
       details='Operations on storage devices provide higher bandwidth with larger operations.  For rotational media the cost of seek operation to access different data on device is much higher that the cost of streaming the same amount of data from single continous region.',
       parents=parents,
     ),
   ).addTargets([
-    { name: 'disk.dm.avgsz', expr: 'delta(disk.dm.total_bytes)/delta(disk.dm.total)', format: 'time_series' },
+    { name: 'disk.dm.avgsz', expr: 'delta(disk.dm.total_bytes) / delta(disk.dm.total)', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 3,

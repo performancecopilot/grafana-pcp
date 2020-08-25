@@ -111,14 +111,14 @@ dashboard.new(
           'mem pages scanned by kswapd',
         ),
       ],
-      derived=['vmeff = (mem.vmstat.pgsteal_direct+mem.vmstat.pgsteal_kswapd)/(mem.vmstat.pgscan_direct+mem.vmstat.pgscan_kswapd)'],
+      derived=['vmeff = (mem.vmstat.pgsteal_direct + mem.vmstat.pgsteal_kswapd) / (mem.vmstat.pgscan_direct + mem.vmstat.pgscan_kswapd)'],
       urls=['https://engineering.linkedin.com/performance/optimizing-linux-memory-management-low-latency-high-throughput-databases'],
       details='The linux virtual memory management system has a mechanism that places pages in memory into three lists: active, inactive, and free.  When a page is initially used it is put on the active list. Over time pages on the active list may fall off the end of the active list and be added to the inactive list as possible canidates to reclaim and to reuse for other data.  The inactive list is linearly scanned for possible pages to reclaim, but pages on the inactive list may have various reasons to disqualify them from being reclaimed.  This scanning of the inactive list for candidates to reclaim requires cpu processing.  One would like the the computer system to be efficient and avoid having to scan many pages on the inactive list to find few candidates to reclaim. This problem behavior can be observed with a low %vmeff in the \'sar -B\' output, a low number of pgsteal/s in relation to the sum of pgscank/s and pgscand/s.',
       issues=['The various aggregate pgsteal and pgscan pcp metrics do not currently exist', 'The specific pgsteal and pgscan metrics provided by vmstat vary between kernels'],
       parents=parents,
     ),
   ).addTargets([
-    { name: 'vmeff', expr: '(mem.vmstat.pgsteal_direct+mem.vmstat.pgsteal_kswapd)/(mem.vmstat.pgscan_direct+mem.vmstat.pgscan_kswapd)', format: 'time_series' },
+    { name: 'vmeff', expr: '(mem.vmstat.pgsteal_direct + mem.vmstat.pgsteal_kswapd) / (mem.vmstat.pgscan_direct + mem.vmstat.pgscan_kswapd)', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 3,

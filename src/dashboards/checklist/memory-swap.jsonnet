@@ -63,12 +63,12 @@ dashboard.new(
           'total system memory metric reported by /proc/meminfo',
         ),
       ],
-      derived=['mem.ratio.free = mem.util.free/mem.physmem'],
+      derived=['mem.ratio.free = mem.util.free / mem.physmem'],
       urls=['https://access.redhat.com/solutions/406253'],
       parents=parents,
     ),
   ).addTargets([
-    { name: 'mem.ratio.free', expr: 'mem.util.free/mem.physmem', format: 'time_series' },
+    { name: 'mem.ratio.free', expr: 'mem.util.free / mem.physmem', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -92,12 +92,12 @@ dashboard.new(
           'per-node total memory',
         ),
       ],
-      derived=['mem.numa.ratio.free = mem.numa.util.free/mem.numa.util.total'],
+      derived=['mem.numa.ratio.free = mem.numa.util.free / mem.numa.util.total'],
       urls=['https://access.redhat.com/solutions/465463'],
       parents=parents,
     ),
   ).addTargets([
-    { name: 'mem.numa.ratio.free', expr: 'mem.numa.util.free/mem.numa.util.total', format: 'time_series' },
+    { name: 'mem.numa.ratio.free', expr: 'mem.numa.util.free / mem.numa.util.total', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 3,

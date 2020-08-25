@@ -70,12 +70,12 @@ dashboard.new(
           'interface speed in bytes per second',
         ),
       ],
-      derived=['network_tx_bandwidth = rate(network.interface.out.bytes)/network.interface.baudrate'],
+      derived=['network_tx_bandwidth = rate(network.interface.out.bytes) / network.interface.baudrate'],
       children=[overview.getNodeByUid('pcp-network-tx-overview', children)],
       parents=parents,
     ),
   ).addTargets([
-    { name: 'network_tx_bandwidth', expr: 'rate(network.interface.out.bytes)/network.interface.baudrate', format: 'time_series' },
+    { name: 'network_tx_bandwidth', expr: 'rate(network.interface.out.bytes) / network.interface.baudrate', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -105,12 +105,12 @@ dashboard.new(
           'interface speed in bytes per second',
         ),
       ],
-      derived=['network_rx_bandwidth = rate(network.interface.in.bytes)/network.interface.baudrate'],
+      derived=['network_rx_bandwidth = rate(network.interface.in.bytes) / network.interface.baudrate'],
       children=[overview.getNodeByUid('pcp-network-rx-overview', children)],
       parents=parents,
     ),
   ).addTargets([
-    { name: 'network_tx_errors', expr: 'rate(network.interface.out.errors)', format: 'time_series' },
+    { name: 'network_rx_bandwidth', expr: 'rate(network.interface.in.bytes) / network.interface.baudrate', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 3,
