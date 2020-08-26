@@ -24,11 +24,11 @@ project = 'grafana-pcp'
 copyright = '2019-2020 Performance Co-Pilot'
 author = 'Performance Co-Pilot'
 
-with open('../src/plugin.json') as f:
-    plugin_info = json.load(f)
+with open('../package.json') as f:
+    package_info = json.load(f)
 
     # The full version, including alpha/beta/rc tags
-    release = plugin_info['info']['version']
+    release = package_info['version']
     # The short X.Y version
     version = release if '-' not in release else release[:release.find('-')]
 
