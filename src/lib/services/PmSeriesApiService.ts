@@ -17,7 +17,10 @@ import {
     SeriesInstancesQueryParams,
     SeriesInstancesResponse,
     SeriesValuesQueryParams,
-    SeriesValuesItemResponse,
+    SeriesPingResponse,
+    SeriesInstancesMaybeResponse,
+    SeriesValuesResponse,
+    SeriesValuesMaybeResponse,
 } from '../models/api/series';
 import { timeout } from '../utils/timeout';
 import Config from '../../components/search/config/config';
@@ -55,6 +58,13 @@ class PmSeriesApiService {
             return true;
         }
         return false;
+    }
+
+    async ping(): Promise<SeriesPingResponse> {
+        const options = {
+            url: `${this.baseUrl}/series/ping`,
+        };
+        return await timeout(this.request(options), Config.REQUEST_TIMEOUT);
     }
 
     async descs(params: SeriesDescQueryParams): Promise<SeriesDescResponse> {
@@ -128,11 +138,11 @@ class PmSeriesApiService {
         const options = {
             url: `${this.baseUrl}/series/instances?${getParams.toString()}`,
         };
-        const response = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        const response: SeriesInstancesMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
         if (PmSeriesApiService.isNoRecordResponse(response)) {
             return [];
         }
-        return response;
+        return response as Exclude<SeriesInstancesMaybeResponse, SeriesNoRecordResponse>;
     }
 
     async labels(params: SeriesLabelsQueryParams): Promise<SeriesLabelsResponse> {
@@ -163,7 +173,7 @@ class PmSeriesApiService {
         return response as Exclude<SeriesLabelsResponse, SeriesNoRecordResponse>;
     }
 
-    async values(params: SeriesValuesQueryParams): Promise<SeriesValuesItemResponse[]> {
+    async values(params: SeriesValuesQueryParams): Promise<SeriesValuesResponse> {
         const getParams = new URLSearchParams();
         if (params.series !== undefined) {
             getParams.append('series', params.series.join(','));
@@ -193,11 +203,11 @@ class PmSeriesApiService {
         const options = {
             url: `${this.baseUrl}/series/values?${getParams.toString()}`,
         };
-        const response = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        const response: SeriesValuesMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
         if (PmSeriesApiService.isNoRecordResponse(response)) {
             return [];
         }
-        return response;
+        return response as Exclude<SeriesValuesMaybeResponse, SeriesNoRecordResponse>;
     }
 }
 

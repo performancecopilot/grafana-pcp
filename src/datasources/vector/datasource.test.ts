@@ -2,7 +2,9 @@ import { DataSource } from './datasource';
 import { VectorOptions, VectorTargetData } from './types';
 import { DataSourceInstanceSettings } from '@grafana/data';
 import { PmapiTarget } from '../lib/models/pmapi';
-import { Endpoint } from '../lib/poller';
+import { Endpoint, PmapiInstanceValuesSnapshot } from '../lib/poller';
+import { SeriesMetricsItemResponse, SeriesInstancesResponse, SeriesValuesResponse } from '../../lib/models/api/series';
+import { Dict } from '../../lib/models/utils';
 
 jest.mock('../lib/poller');
 jest.mock('../lib/pmapi');
@@ -94,5 +96,146 @@ describe('PCP Vector datasource', () => {
         expect(registerDeriverMetricSpy).toBeCalledTimes(1);
         expect(instance.state.derivedMetrics.size).toBe(1);
         expect(instance.state.derivedMetrics.has(expr)).toBe(true);
+    });
+
+    it('redisBackfill hook should request series api for backfilling and populate metricValues with returned stuff', async () => {
+        const endpointMock: jest.Mocked<Endpoint> = {
+            metricValues: {
+                'disk.dev.read': [],
+                'disk.dev.write': [],
+                bogus_metric: [],
+            },
+            metrics: [
+                { metadata: { name: 'disk.dev.read', series: 'series_0' } },
+                { metadata: { name: 'disk.dev.write', series: 'series_1' } },
+                { metadata: { name: 'bogus_metric', series: 'series_2' } },
+            ],
+        } as any;
+        const pendingTargetsMock: jest.Mocked<Array<PmapiTarget<VectorTargetData>>> = [
+            {
+                metricNames: ['disk.dev.read'],
+            },
+            {
+                metricNames: ['disk.dev.write'],
+            },
+        ] as any;
+        const seriesValuesMockResponse: SeriesValuesResponse = [
+            {
+                series: 'series_0',
+                instance: 'series_0_instance_0',
+                timestamp: 1599320691309.87,
+                value: '72125',
+            },
+            {
+                series: 'series_0',
+                instance: 'series_0_instance_0',
+                timestamp: 1599320751310.403,
+                value: '72835',
+            },
+            {
+                series: 'series_1',
+                instance: 'series_1_instance_0',
+                timestamp: 1599320691309.87,
+                value: '5373',
+            },
+            {
+                series: 'series_1',
+                instance: 'series_1_instance_0',
+                timestamp: 1599320751310.403,
+                value: '6870',
+            },
+        ];
+        const seriesInstancesMockResponse: SeriesInstancesResponse = [
+            {
+                series: 'series_0',
+                source: 'source_0',
+                instance: 'series_0_instance_0',
+                id: 0,
+                name: 'nvme0n1',
+            },
+            {
+                series: 'series_1',
+                source: 'source_0',
+                instance: 'series_1_instance_0',
+                id: 0,
+                name: 'nvme0n1',
+            },
+        ];
+        const seriesMetricsMockResponse: SeriesMetricsItemResponse[] = [
+            {
+                series: 'series_0',
+                name: 'disk.dev.read',
+            },
+            {
+                series: 'series_1',
+                name: 'disk.dev.write',
+            },
+        ];
+        const seriesApiValuesSpy = jest
+            .spyOn(instance.state.pmSeriesApi, 'values')
+            .mockImplementation(() => Promise.resolve(seriesValuesMockResponse));
+        const seriesApiInstancesSpy = jest
+            .spyOn(instance.state.pmSeriesApi, 'instances')
+            .mockImplementation(() => Promise.resolve(seriesInstancesMockResponse));
+        const seriesApiMetricsSpy = jest
+            .spyOn(instance.state.pmSeriesApi, 'metrics')
+            .mockImplementation(() => Promise.resolve(seriesMetricsMockResponse));
+        await instance.redisBackfill(endpointMock, pendingTargetsMock);
+        // check that only pending targets' series have been queried for
+        const requestedSeriesIdentifiers = ['series_0', 'series_1'];
+        expect(seriesApiValuesSpy).toBeCalledTimes(1);
+        const seriesApiValuesSeriesParam = seriesApiValuesSpy.mock.calls[0][0].series!;
+        expect(seriesApiValuesSeriesParam).toEqual(requestedSeriesIdentifiers);
+        expect(seriesApiInstancesSpy).toBeCalledTimes(1);
+        const seriesApiInstancesSeriesParam = seriesApiInstancesSpy.mock.calls[0][0].series!;
+        expect(seriesApiInstancesSeriesParam).toEqual(requestedSeriesIdentifiers);
+        expect(seriesApiMetricsSpy).toBeCalledTimes(1);
+        const seriesApiMetricsSeriesParam = seriesApiMetricsSpy.mock.calls[0][0].series!;
+        expect(seriesApiMetricsSeriesParam).toEqual(requestedSeriesIdentifiers);
+        // check that pending targets have populated metricValues inside endpoint grouped by time
+        const expectedPopulatedValues: Dict<string, PmapiInstanceValuesSnapshot[]> = {
+            'disk.dev.read': [
+                {
+                    timestampMs: 1599320691309.87,
+                    values: [
+                        {
+                            instance: 0,
+                            value: 72125,
+                        },
+                    ],
+                },
+                {
+                    timestampMs: 1599320751310.403,
+                    values: [
+                        {
+                            instance: 0,
+                            value: 72835,
+                        },
+                    ],
+                },
+            ],
+            'disk.dev.write': [
+                {
+                    timestampMs: 1599320691309.87,
+                    values: [
+                        {
+                            instance: 0,
+                            value: 5373,
+                        },
+                    ],
+                },
+                {
+                    timestampMs: 1599320751310.403,
+                    values: [
+                        {
+                            instance: 0,
+                            value: 6870,
+                        },
+                    ],
+                },
+            ],
+            bogus_metric: [],
+        };
+        expect(endpointMock.metricValues).toEqual(expectedPopulatedValues);
     });
 });

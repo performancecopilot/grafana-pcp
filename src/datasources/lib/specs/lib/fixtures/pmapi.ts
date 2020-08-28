@@ -5,6 +5,7 @@ export const metricMetadataSingle: PmapiMetricMetadata = {
     name: 'metric.single',
     type: 'u64',
     sem: Semantics.Instant,
+    series: 'series_id_0',
     units: 'bytes',
     labels: {},
 };
@@ -14,6 +15,7 @@ export const metricMetadataIndom: PmapiMetricMetadata = {
     indom: '1',
     type: 'u64',
     sem: Semantics.Instant,
+    series: 'series_id_1',
     units: 'bytes',
     labels: {},
 };
