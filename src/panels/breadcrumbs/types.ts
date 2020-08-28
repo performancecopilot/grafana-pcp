@@ -3,6 +3,7 @@ export interface LinkItem {
     name: string;
     uid: string;
     active?: boolean;
+    current?: boolean;
 }
 
 export interface Options {

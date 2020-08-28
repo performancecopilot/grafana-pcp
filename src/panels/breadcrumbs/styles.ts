@@ -6,6 +6,8 @@ export const breadcrumbsContainer = (theme: GrafanaTheme) => css`
     height: 100%;
     justify-content: flex-start;
     align-items: center;
+    margin-left: ${theme.spacing.sm};
+    margin-right: ${theme.spacing.sm};
 `;
 
 export const breadcrumbsList = (theme: GrafanaTheme) => css`
@@ -21,6 +23,21 @@ export const breadcrumbsList = (theme: GrafanaTheme) => css`
 export const breadcrumbsItem = (theme: GrafanaTheme) => css`
     & + & {
         margin-left: ${theme.spacing.sm};
+    }
+`;
+
+export const breadcrumbsCurrentItem = (theme: GrafanaTheme) => css`
+    position: relative;
+    &:before {
+        content: '';
+        position: absolute;
+        top: -4px;
+        left: -4px;
+        width: calc(100% + 8px);
+        height: calc(100% + 8px);
+        border: 2px solid ${theme.colors.formInputBorderActive};
+        border-radius: ${theme.border.radius.md};
+        opacity: 0.25;
     }
 `;
 
