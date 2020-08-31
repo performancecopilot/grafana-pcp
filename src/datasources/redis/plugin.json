@@ -7,6 +7,8 @@
     "alerting": false,
     "annotations": false,
     "tables": true,
+    "backend": true,
+    "executable": "pcp_redis_datasource",
     "info": {
         "description": "fast, scalable time series aggregation across multiple hosts",
         "logos": {

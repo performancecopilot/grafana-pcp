@@ -20,14 +20,13 @@ jobs:
         go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
         echo "::add-path::$HOME/go/bin"
 
-    - name: Install Node.js dependencies
-      run: make node_modules
+    - name: Install dependencies
+      run: make deps
 
-    - name: Install jsonnet dependencies
-      run: make vendor
-
-    - name: Test and Build
-      run: make build
+    - name: Build and Test
+      run: |
+        make test-backend
+        make dist
 
     - name: Publish build artifact
       uses: actions/upload-artifact@v2

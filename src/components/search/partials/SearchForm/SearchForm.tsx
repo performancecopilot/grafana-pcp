@@ -288,18 +288,21 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
                                 onChange={() => setEntityFlag(SearchEntity.Metrics)}
                                 label="Metrics"
                                 data-test="metrics-toggle"
+                                css=""
                             />
                             <Checkbox
                                 value={instancesFlag}
                                 onChange={() => setEntityFlag(SearchEntity.Instances)}
                                 label="Instances"
                                 data-test="instances-toggle"
+                                css=""
                             />
                             <Checkbox
                                 value={instanceDomainsFlag}
                                 onChange={() => setEntityFlag(SearchEntity.InstanceDomains)}
                                 label="Instance Domains"
                                 data-test="indoms-toggle"
+                                css=""
                             />
                         </HorizontalGroup>
                     </div>

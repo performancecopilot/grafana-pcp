@@ -1,84 +1,69 @@
+import { DataSourceWithBackend, getTemplateSrv, getBackendSrv } from '@grafana/runtime';
+import { RedisQuery, RedisOptions } from './types';
 import {
+    DataSourceInstanceSettings,
+    ScopedVars,
+    MetricFindValue,
     DataQueryRequest,
     DataQueryResponse,
-    DataSourceApi,
-    DataSourceInstanceSettings,
-    MetricFindValue,
-    MutableDataFrame,
-    MutableField,
-    FieldType,
-    MISSING_VALUE,
 } from '@grafana/data';
 import { DefaultRequestOptions } from '../lib/models/pcp';
-import { defaults, groupBy } from 'lodash';
-import { getLogger, isBlank } from '../lib/utils';
-import { getTemplateSrv, getBackendSrv } from '@grafana/runtime';
-import { RedisQuery, RedisOptions, defaultRedisQuery, SeriesTarget } from './types';
-import { getRequestOptions } from '../../lib/utils/api';
 import PmSeriesApiService from '../../lib/services/PmSeriesApiService';
-import { RootStore, configureAppStore } from './state/store';
-import { unwrapResult } from '@reduxjs/toolkit';
-import { fetchMetrics } from './state/metricsSlice';
-import { processTargets } from '../lib/data_processor';
-import { SeriesValuesItemResponse, SeriesLabelsLabelValuesItemResponse } from '../../lib/models/api/series';
-import { SeriesId, SeriesMetric, SeriesInstanceId } from '../../lib/models/pcp/pmseries';
-import { Dict } from '../../lib/models/utils';
-import { InstanceName } from '../../lib/models/pcp/pcp';
-import { getFieldMetadata } from '../lib/dataframe_utils';
+import { getRequestOptions } from '../../lib/utils/api';
+import { isBlank, getLogger } from '../lib/utils';
+import { Observable } from 'rxjs';
 const log = getLogger('datasource');
+log.setDefaultLevel('debug');
 
 interface DataSourceState {
     defaultRequestOptions: DefaultRequestOptions;
     pmSeriesApi: PmSeriesApiService;
-    store: RootStore;
 }
 
-export class DataSource extends DataSourceApi<RedisQuery, RedisOptions> {
+export class DataSource extends DataSourceWithBackend<RedisQuery, RedisOptions> {
     state: DataSourceState;
 
-    constructor(readonly instanceSettings: DataSourceInstanceSettings<RedisOptions>) {
+    constructor(instanceSettings: DataSourceInstanceSettings<RedisOptions>) {
         super(instanceSettings);
 
-        this.instanceSettings.jsonData = defaults(this.instanceSettings.jsonData, {});
-
-        const defaultRequestOptions = getRequestOptions(this.instanceSettings);
-        const pmSeriesApi = new PmSeriesApiService(getBackendSrv(), this.instanceSettings.url!, defaultRequestOptions);
+        const defaultRequestOptions = getRequestOptions(instanceSettings);
+        const pmSeriesApi = new PmSeriesApiService(getBackendSrv(), instanceSettings.url!, defaultRequestOptions);
 
         this.state = {
             defaultRequestOptions,
             pmSeriesApi,
-            store: configureAppStore({ pmSeriesApi }),
         };
+    }
+
+    applyTemplateVariables(query: RedisQuery, scopedVars: ScopedVars): Record<string, any> {
+        return {
+            ...query,
+            expr: getTemplateSrv().replace(query.expr, scopedVars),
+        };
+    }
+
+    filterQuery(query: RedisQuery): boolean {
+        return !(query.hide === true || isBlank(query.expr));
+    }
+
+    query(request: DataQueryRequest<RedisQuery>): Observable<DataQueryResponse> {
+        const data = super.query(request);
+        return data;
+
+        data.subscribe({
+            next: x => {
+                log.debug('query', request, x);
+            },
+        });
+        return data;
     }
 
     async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
         query = getTemplateSrv().replace(query.trim());
-
-        const metricNamesRegex = /^metrics\(([a-zA-Z0-9._*]*)\)$/;
-        const labelValuesRegex = /^label_values\(([a-zA-Z][a-zA-Z0-9._]*),\s*(\S+)\)$/;
-
-        const metricNamesQuery = query.match(metricNamesRegex);
-        if (metricNamesQuery) {
-            const pattern = metricNamesQuery[1] === '' ? '*' : metricNamesQuery[1];
-            const metrics = (await this.state.pmSeriesApi.metrics({ match: pattern })) as string[];
-            return metrics.map(metric => ({ text: metric, value: metric }));
-        }
-
-        const labelValuesQuery = query.match(labelValuesRegex);
-        if (labelValuesQuery) {
-            const [, , label] = labelValuesQuery;
-            const labelValues = (await this.state.pmSeriesApi.labels({
-                name: label,
-            })) as SeriesLabelsLabelValuesItemResponse;
-            return (labelValues[label] || []).map(labelValue => ({
-                text: labelValue.toString(),
-                value: labelValue.toString(),
-            }));
-        }
-
-        return [];
+        return await this.getResource('metricFindQuery', { query });
     }
 
+    /*
     buildQueries(request: DataQueryRequest<RedisQuery>, defaultQuery: Partial<RedisQuery>): RedisQuery[] {
         return request.targets
             .map(target => defaults(target, defaultQuery))
@@ -206,5 +191,5 @@ export class DataSource extends DataSourceApi<RedisQuery, RedisOptions> {
         return { data };
     }
 
-    async testDatasource() {}
+    async testDatasource() {}*/
 }
