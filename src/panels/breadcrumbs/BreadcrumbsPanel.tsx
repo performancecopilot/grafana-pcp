@@ -9,6 +9,7 @@ import {
     breadcrumbsControl,
     breadcrumbsBtn,
     notUsableContainer,
+    breadcrumbsCurrentItem,
 } from './styles';
 import { getLocationSrv, LocationSrv } from '@grafana/runtime';
 
@@ -31,8 +32,9 @@ export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & 
     renderBreadcrumbLink(item: LinkItem) {
         const { navigateDashboard, props } = this;
         const { theme } = props;
+        const hasCurrent = item.current ?? false;
         return (
-            <li className={breadcrumbsItem(theme)}>
+            <li className={`${breadcrumbsItem(theme)} ${hasCurrent ? breadcrumbsCurrentItem(theme) : ''}`}>
                 <Button
                     size="md"
                     variant="link"
@@ -49,8 +51,9 @@ export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & 
         const { navigateDashboard, props } = this;
         const { theme } = props;
         const selectedItem = items.find(item => item.active);
+        const hasCurrent = items.some(item => item.current);
         return (
-            <li className={breadcrumbsItem(theme)}>
+            <li className={`${breadcrumbsItem(theme)} ${hasCurrent ? breadcrumbsCurrentItem(theme) : ''}`}>
                 <Select
                     className={breadcrumbsControl(theme)}
                     options={items.map(item => ({ value: item.uid, label: item.name }))}

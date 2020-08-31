@@ -99,6 +99,7 @@
       uid: node.uid,
       name: node.name,
       [if std.objectHas(node, 'active') then 'active']: node.active,
+      [if std.objectHas(node, 'current') then 'current']: node.current,
     },
   /**
    * Returns all nodes from 'nodes' field with same parent as given *node*
@@ -197,10 +198,12 @@
    * Used for fetching breadcrumbs navigation
    *
    * @param node Node of origin
+   * @param markSelf Mark provided node with current attribute
    */
-  getNavigation(node)::
-    local pathToRoot = self.getPathToRoot(node, includeSiblings=true, markPath=true);
-    local children = self.getChildrenNodes(node);
+  getNavigation(node, markSelf=true)::
+    local origin = if markSelf then node + { current: true } else node;
+    local pathToRoot = self.getPathToRoot(origin, includeSiblings=true, markPath=true);
+    local children = self.getChildrenNodes(origin);
     if std.length(children) == 0 then
       pathToRoot
     else
