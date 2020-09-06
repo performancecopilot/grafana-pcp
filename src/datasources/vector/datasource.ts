@@ -23,7 +23,6 @@ import {
     SeriesValuesItemResponse,
     SeriesInstancesItemResponse,
     SeriesMetricsItemResponse,
-    SeriesInstancesResponse,
 } from '../../lib/models/api/series';
 const log = getLogger('datasource');
 
@@ -158,10 +157,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
                 }
                 timedSeries.set(seriesItem.timestamp, [seriesItem]);
             });
-            // Unless this cast is here, Grafana's toolkit Typescript complains
-            // because it incorrectly interprets `instancesForName` type. VSCode's Intellisense shows no error.
-            // Maybe bumbing "@grafana/toolkit"'s TS version (there is 3.7.5, latest is 4.0) could fit it
-            backfills.set(name, [timedSeries, instancesForName as SeriesInstancesResponse]);
+            backfills.set(name, [timedSeries, instancesForName]);
         });
         backfills.forEach((values, key) => {
             const metricValues = endpoint.metricValues[key];
