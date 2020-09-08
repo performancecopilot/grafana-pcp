@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -33,7 +32,7 @@ func NewPmseriesAPI(url string) *PmseriesAPI {
 func (api *PmseriesAPI) doRequest(url string, params url.Values, response interface{}) error {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return err
+		return &Error{URL: url, Err: err}
 	}
 
 	req.URL.RawQuery = params.Encode()
@@ -41,24 +40,33 @@ func (api *PmseriesAPI) doRequest(url string, params url.Values, response interf
 	resp, err := api.Client.Do(req)
 	if err != nil {
 		log.DefaultLogger.Error("HTTP Response", "url", req.URL.String(), "err", err)
-		return err
+		return &Error{URL: req.URL.String(), Err: err}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return err
+			return &Error{URL: req.URL.String(), StatusCode: resp.StatusCode, Err: err}
 		}
 		bodyStr := string(bodyBytes)
 		log.DefaultLogger.Error("HTTP Response", "url", req.URL.String(), "code", resp.StatusCode, "data", bodyStr)
-		return errors.New(bodyStr)
+		return &Error{
+			URL:        req.URL.String(),
+			StatusCode: resp.StatusCode,
+			Response:   bodyStr,
+			Err:        fmt.Errorf("HTTP Error %d", resp.StatusCode),
+		}
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
 		log.DefaultLogger.Error("HTTP Response", "url", req.URL.String(), "code", resp.StatusCode, "err", err)
-		return err
+		return &Error{
+			URL:        req.URL.String(),
+			StatusCode: resp.StatusCode,
+			Err:        err,
+		}
 	}
 	//log.DefaultLogger.Debug("HTTP response", "url", req.URL.String(), "code", resp.StatusCode, "response", response)
 	return nil

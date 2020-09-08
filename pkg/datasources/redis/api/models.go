@@ -44,3 +44,13 @@ type ValuesResponseItem struct {
 	Instance  string  `json:"instance"`
 	Value     string  `json:"value"`
 }
+
+type Error struct {
+	URL        string
+	StatusCode int
+	Response   string
+	Err        error
+}
+
+func (e *Error) Unwrap() error { return e.Err }
+func (e *Error) Error() string { return e.Err.Error() }
