@@ -1,24 +1,18 @@
 import defaults from 'lodash/defaults';
 import React, { PureComponent } from 'react';
-import { InlineFormLabel, Select } from '@grafana/ui';
-import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import { InlineFormLabel } from '@grafana/ui';
+import { QueryEditorProps } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { RedisOptions, RedisQuery, defaultRedisQuery } from '../types';
 import RedisQueryField from './RedisQueryField';
 import { isBlank } from '../../lib/utils';
-import { TargetFormat } from '../../lib/models/pcp';
 
-const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
-    { label: 'Time series', value: TargetFormat.TimeSeries },
-    { label: 'Heatmap', value: TargetFormat.Heatmap },
-    { label: 'Table', value: TargetFormat.MetricsTable },
-];
+
 
 type Props = QueryEditorProps<DataSource, RedisQuery, RedisOptions>;
 
 interface State {
     expr: string;
-    format: SelectableValue<string>;
     legendFormat?: string;
 }
 
@@ -28,7 +22,6 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
         const query = defaults(this.props.query, defaultRedisQuery);
         this.state = {
             expr: query.expr,
-            format: FORMAT_OPTIONS.find(option => option.value === query.format) ?? FORMAT_OPTIONS[0],
             legendFormat: query.legendFormat,
         };
     }
@@ -42,15 +35,10 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
         this.setState({ legendFormat }, this.onRunQuery);
     };
 
-    onFormatChange = (format: SelectableValue<string>) => {
-        this.setState({ format }, this.onRunQuery);
-    };
-
     onRunQuery = () => {
         this.props.onChange({
             ...this.props.query,
             expr: this.state.expr,
-            format: this.state.format.value as TargetFormat,
             legendFormat: this.state.legendFormat,
         });
         this.props.onRunQuery();
@@ -78,17 +66,6 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
                             value={this.state.legendFormat}
                             onChange={this.onLegendFormatChange}
                             onBlur={this.onRunQuery}
-                        />
-                    </div>
-
-                    <div className="gf-form">
-                        <div className="gf-form-label">Format</div>
-                        <Select
-                            className="width-9"
-                            isSearchable={false}
-                            options={FORMAT_OPTIONS}
-                            value={this.state.format}
-                            onChange={this.onFormatChange}
                         />
                     </div>
                 </div>

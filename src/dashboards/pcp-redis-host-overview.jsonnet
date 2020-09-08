@@ -19,7 +19,7 @@ grafana.dashboard.new(
   grafana.template.new(
     'host',
     '$datasource',
-    'label_values(kernel.all.uptime, hostname)',
+    'label_values(hostname)',
     refresh='load',
   )
 )

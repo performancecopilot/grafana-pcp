@@ -112,7 +112,7 @@ func getFieldUnit(desc *SeriesDesc) string {
 
 func (ds *redisDatasourceInstance) getFieldName(series *Series, instanceID string) (string, error) {
 	if series.Instances == nil {
-		return "", nil
+		return series.MetricName, nil
 	}
 
 	instance, ok := series.Instances[instanceID]
@@ -127,14 +127,18 @@ func (ds *redisDatasourceInstance) getFieldName(series *Series, instanceID strin
 
 	// try again after (possibly) refreshing indoms
 	if ok {
-		return instance.Name, nil
+		return fmt.Sprintf("%s[%s]", series.MetricName, instance.Name), nil
 	}
-	return "", nil
+	return fmt.Sprintf("%s[?]", series.MetricName), nil
 }
 
 var legendFormatRegex = regexp.MustCompile(`\$\w+`)
 
 func getDisplayName(series *Series, instanceID string, labels data.Labels, legendFormat string) string {
+	if legendFormat == "" {
+		return ""
+	}
+
 	result := legendFormatRegex.ReplaceAllStringFunc(legendFormat, func(match string) string {
 		varName := match[1:]
 		switch varName {
@@ -208,7 +212,7 @@ func (ds *redisDatasourceInstance) createDataFrames(redisQuery *Query, series ma
 	for i := 0; i < len(values); {
 		curSeriesID := values[i].Series
 		curTimestamp := 0.0
-		curFrame := data.NewFrame(series[curSeriesID].MetricName)
+		curFrame := data.NewFrame("")
 		curTimeField := data.NewField("time", nil, []time.Time{})
 		curFrame.Fields = append(curFrame.Fields, curTimeField)
 		curInstanceToField := map[string]*data.Field{}

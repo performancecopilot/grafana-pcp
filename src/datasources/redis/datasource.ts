@@ -4,14 +4,11 @@ import {
     DataSourceInstanceSettings,
     ScopedVars,
     MetricFindValue,
-    DataQueryRequest,
-    DataQueryResponse,
 } from '@grafana/data';
 import { DefaultRequestOptions } from '../lib/models/pcp';
 import PmSeriesApiService from '../../lib/services/PmSeriesApiService';
 import { getRequestOptions } from '../../lib/utils/api';
 import { isBlank, getLogger } from '../lib/utils';
-import { Observable } from 'rxjs';
 const log = getLogger('datasource');
 log.setDefaultLevel('debug');
 
@@ -46,17 +43,15 @@ export class DataSource extends DataSourceWithBackend<RedisQuery, RedisOptions> 
         return !(query.hide === true || isBlank(query.expr));
     }
 
-    query(request: DataQueryRequest<RedisQuery>): Observable<DataQueryResponse> {
+    /*query(request: DataQueryRequest<RedisQuery>): Observable<DataQueryResponse> {
         const data = super.query(request);
-        return data;
-
         data.subscribe({
             next: x => {
                 log.debug('query', request, x);
             },
         });
         return data;
-    }
+    }*/
 
     async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
         query = getTemplateSrv().replace(query.trim());

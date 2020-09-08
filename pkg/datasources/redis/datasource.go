@@ -10,7 +10,6 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
-	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/api"
 )
 
@@ -21,8 +20,18 @@ func NewDatasource() datasource.ServeOpts {
 		im: im,
 	}
 
+	mux := datasource.NewQueryTypeMux()
+	mux.HandleFunc("", func(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
+		var response *backend.QueryDataResponse
+		return response, ds.im.Do(req.PluginContext, func(dsInst *redisDatasourceInstance) error {
+			var err error
+			response, err = dsInst.handleTimeSeriesQueries(ctx, req)
+			return err
+		})
+	})
+
 	return datasource.ServeOpts{
-		QueryDataHandler:    ds,
+		QueryDataHandler:    mux,
 		CheckHealthHandler:  ds,
 		CallResourceHandler: ds,
 	}
@@ -48,46 +57,6 @@ func newDataSourceInstance(setting backend.DataSourceInstanceSettings) (instance
 
 func (ds *redisDatasourceInstance) Dispose() {
 	// Called before creating a new instance
-}
-
-// QueryData handles multiple queries and returns multiple responses.
-// req contains the queries []DataQuery (where each query contains RefID as a unique identifer).
-// The QueryDataResponse contains a map of RefID to the response for each query, and each response
-// contains Frames ([]*Frame).
-func (ds *redisDatasource) QueryData(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
-	log.DefaultLogger.Debug("QueryData", "request", req)
-
-	response := backend.NewQueryDataResponse()
-	err := ds.im.Do(req.PluginContext, func(dsInst *redisDatasourceInstance) error {
-		for _, q := range req.Queries {
-			res := dsInst.query(ctx, &q)
-			response.Responses[q.RefID] = res
-		}
-		return nil
-	})
-
-	return response, err
-}
-
-func (ds *redisDatasourceInstance) query(ctx context.Context, dataQuery *backend.DataQuery) backend.DataResponse {
-	response := backend.DataResponse{}
-
-	var redisQuery Query
-	err := json.Unmarshal(dataQuery.JSON, &redisQuery)
-	if err != nil {
-		response.Error = err
-		return response
-	}
-
-	log.DefaultLogger.Info("Query", "query", redisQuery)
-	frames, err := ds.executeQuery(dataQuery, &redisQuery)
-	if err != nil {
-		response.Error = err
-	} else {
-		response.Frames = frames
-	}
-
-	return response
 }
 
 func (ds *redisDatasource) CallResource(ctx context.Context, req *backend.CallResourceRequest, sender backend.CallResourceResponseSender) error {

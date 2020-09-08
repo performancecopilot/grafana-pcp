@@ -1,4 +1,3 @@
-import { TargetFormat, PcpTarget } from '../lib/models/pcp';
 import { DataSourceJsonData, DataQuery } from '@grafana/data';
 
 export interface RedisOptions extends DataSourceJsonData {
@@ -6,18 +5,22 @@ export interface RedisOptions extends DataSourceJsonData {
     retentionTime?: string;
 }
 
+export enum RedisQueryType {
+    TimeSeries = 'time_series',
+    MetricFindQuery = 'metric_find_query',
+}
+
 export interface RedisQuery extends DataQuery {
     expr: string;
-    format: TargetFormat;
+    queryType?: RedisQueryType;
     legendFormat?: string;
 }
 
 export const defaultRedisQuery: Partial<RedisQuery> = {
     expr: '',
-    format: TargetFormat.TimeSeries,
 };
 
-export interface SeriesTarget extends PcpTarget<{}> {
+export interface SeriesTarget {
     query: RedisQuery;
     /** expr with adhoc filters applied */
     adhocExpr: string;

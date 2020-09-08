@@ -1,6 +1,8 @@
 package redis
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"math"
 
@@ -11,7 +13,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 )
 
-func (ds *redisDatasourceInstance) getSeries(seriesIds []string) (map[string]*Series, error) {
+func (ds *redisDatasourceInstance) memoizeSeries(seriesIds []string) (map[string]*Series, error) {
 	seriesMap := map[string]*Series{}
 	missingSeries := []string{}
 
@@ -126,7 +128,7 @@ func (ds *redisDatasourceInstance) refreshInstances(series *Series) error {
 	return nil
 }
 
-func (ds *redisDatasourceInstance) executeQuery(dataQuery *backend.DataQuery, redisQuery *Query) (data.Frames, error) {
+func (ds *redisDatasourceInstance) executeTimeSeriesQuery(dataQuery *backend.DataQuery, redisQuery *Query) (data.Frames, error) {
 	seriesIds, err := ds.pmseriesAPI.Query(redisQuery.Expr)
 	if err != nil {
 		return nil, err
@@ -135,7 +137,7 @@ func (ds *redisDatasourceInstance) executeQuery(dataQuery *backend.DataQuery, re
 		return nil, fmt.Errorf("Cannot find any data for expression '%s'", redisQuery.Expr)
 	}
 
-	series, err := ds.getSeries(seriesIds)
+	series, err := ds.memoizeSeries(seriesIds)
 	if err != nil {
 		return nil, err
 	}
@@ -156,4 +158,40 @@ func (ds *redisDatasourceInstance) executeQuery(dataQuery *backend.DataQuery, re
 		return nil, err
 	}
 	return frames, nil
+}
+
+func (ds *redisDatasourceInstance) handleTimeSeriesQuery(ctx context.Context, dataQuery *backend.DataQuery) backend.DataResponse {
+	response := backend.DataResponse{}
+
+	var redisQuery Query
+	err := json.Unmarshal(dataQuery.JSON, &redisQuery)
+	if err != nil {
+		response.Error = err
+		return response
+	}
+
+	log.DefaultLogger.Info("Query", "query", &redisQuery)
+	frames, err := ds.executeTimeSeriesQuery(dataQuery, &redisQuery)
+	if err != nil {
+		response.Error = err
+	} else {
+		response.Frames = frames
+	}
+
+	return response
+}
+
+// handles multiple queries and returns multiple responses.
+// req contains the queries []DataQuery (where each query contains RefID as a unique identifer).
+// The QueryDataResponse contains a map of RefID to the response for each query, and each response
+// contains Frames ([]*Frame).
+func (ds *redisDatasourceInstance) handleTimeSeriesQueries(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
+	log.DefaultLogger.Debug("handleTimeSeriesQueries", "request", req)
+
+	response := backend.NewQueryDataResponse()
+	for _, q := range req.Queries {
+		res := ds.handleTimeSeriesQuery(ctx, &q)
+		response.Responses[q.RefID] = res
+	}
+	return response, nil
 }
