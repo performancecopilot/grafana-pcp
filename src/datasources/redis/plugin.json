@@ -4,7 +4,7 @@
     "type": "datasource",
     "category": "tsdb",
     "metrics": true,
-    "alerting": false,
+    "alerting": true,
     "annotations": false,
     "tables": true,
     "backend": true,
