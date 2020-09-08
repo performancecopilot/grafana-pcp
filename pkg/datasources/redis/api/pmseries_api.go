@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 )
@@ -16,14 +17,16 @@ import (
 // PmseriesAPI contains basic API infos
 type PmseriesAPI struct {
 	URL    string
-	Client http.Client
+	Client *http.Client
 }
 
 // NewPmseriesAPI constructs a new PmseriesAPI struct
 func NewPmseriesAPI(url string) *PmseriesAPI {
 	return &PmseriesAPI{
-		URL:    url,
-		Client: http.Client{},
+		URL: url,
+		Client: &http.Client{
+			Timeout: 5 * time.Second,
+		},
 	}
 }
 
@@ -59,6 +62,16 @@ func (api *PmseriesAPI) doRequest(url string, params url.Values, response interf
 	}
 	//log.DefaultLogger.Debug("HTTP response", "url", req.URL.String(), "code", resp.StatusCode, "response", response)
 	return nil
+}
+
+func (api *PmseriesAPI) Ping() (GenericSuccessResponse, error) {
+	var resp GenericSuccessResponse
+	err := api.doRequest(
+		fmt.Sprintf("%s/series/ping", api.URL),
+		url.Values{},
+		&resp,
+	)
+	return resp, err
 }
 
 func (api *PmseriesAPI) Query(expr string) (QueryResponse, error) {

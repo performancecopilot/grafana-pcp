@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"net/url"
 
@@ -136,16 +135,27 @@ func (ds *redisDatasource) CallResource(ctx context.Context, req *backend.CallRe
 // datasource configuration page which allows users to verify that
 // a datasource is working as expected.
 func (ds *redisDatasource) CheckHealth(ctx context.Context, req *backend.CheckHealthRequest) (*backend.CheckHealthResult, error) {
-	var status = backend.HealthStatusOk
-	var message = "Data source is working"
+	var result *backend.CheckHealthResult
+	err := ds.im.Do(req.PluginContext, func(dsInst *redisDatasourceInstance) error {
+		pingResponse, err := dsInst.pmseriesAPI.Ping()
 
-	if rand.Int()%2 == 0 {
-		status = backend.HealthStatusError
-		message = "randomized error"
-	}
-
-	return &backend.CheckHealthResult{
-		Status:  status,
-		Message: message,
-	}, nil
+		if err != nil {
+			result = &backend.CheckHealthResult{
+				Status:  backend.HealthStatusError,
+				Message: err.Error(),
+			}
+		} else if !pingResponse.Success {
+			result = &backend.CheckHealthResult{
+				Status:  backend.HealthStatusError,
+				Message: "Datasource is not working. Please check if Redis is running and consult the pmproxy logs.",
+			}
+		} else {
+			result = &backend.CheckHealthResult{
+				Status:  backend.HealthStatusOk,
+				Message: "Data source is working",
+			}
+		}
+		return nil
+	})
+	return result, err
 }

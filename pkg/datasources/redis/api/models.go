@@ -1,5 +1,9 @@
 package api
 
+type GenericSuccessResponse struct {
+	Success bool `json:"success"`
+}
+
 type QueryResponse []string
 
 type MetricsResponseItem struct {

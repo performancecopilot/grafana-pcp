@@ -24,7 +24,7 @@ dev-frontend: deps-frontend ## Build frontend datasources (development)
 	yarn run dev
 
 watch-frontend: deps-frontend dist-dashboards ## Auto rebuilt frontend on file changes
-	$(YARN) run watch
+	yarn run watch
 
 dev-backend: deps-backend
 	go build -o ./dist/datasources/redis/pcp_redis_datasource_$$(go env GOOS)_$$(go env GOARCH) -tags netgo -ldflags -w ./pkg
