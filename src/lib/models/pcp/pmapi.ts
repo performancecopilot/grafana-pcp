@@ -8,6 +8,7 @@ export interface PmapiMetricMetadata {
     indom?: string;
     type: string;
     sem: Semantics;
+    series: string;
     units: string;
     labels: Labels;
 }

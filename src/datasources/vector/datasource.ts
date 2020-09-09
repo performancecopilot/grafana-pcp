@@ -17,12 +17,21 @@ import { VectorQuery, VectorOptions, defaultVectorQuery, VectorTargetData } from
 import { buildQueries, testDatasource, metricFindQuery } from '../lib/pmapi_datasource_utils';
 import { getRequestOptions } from '../../lib/utils/api';
 import { PmapiTarget, CompletePmapiQuery } from '../lib/models/pmapi';
+import PmSeriesApiService from '../../lib/services/PmSeriesApiService';
+import { getBackendSrv } from '@grafana/runtime';
+import {
+    SeriesValuesItemResponse,
+    SeriesInstancesItemResponse,
+    SeriesMetricsItemResponse,
+} from '../../lib/models/api/series';
 const log = getLogger('datasource');
 
 interface DataSourceState {
     defaultRequestOptions: DefaultRequestOptions;
     pmApi: PmApi;
+    pmSeriesApi: PmSeriesApiService;
     poller: Poller;
+    retentionTimeMs: number;
     derivedMetrics: Map<string, string>;
 }
 
@@ -42,7 +51,9 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
         const refreshIntervalMs = getDashboardRefreshInterval() ?? 1000;
 
         const pmApi = new PmApi(defaultRequestOptions);
-        const poller = new Poller(pmApi, refreshIntervalMs, retentionTimeMs, {
+        const pmSeriesApi = new PmSeriesApiService(getBackendSrv(), this.instanceSettings.url!, defaultRequestOptions);
+
+        const poller = new Poller(pmApi, pmSeriesApi, refreshIntervalMs, retentionTimeMs, {
             queryHasChanged: this.queryHasChanged,
             registerTarget: this.registerTarget.bind(this),
             redisBackfill: this.redisBackfill.bind(this),
@@ -50,8 +61,10 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
 
         this.state = {
             defaultRequestOptions,
-            pmApi: pmApi,
-            poller: poller,
+            pmApi,
+            pmSeriesApi,
+            poller,
+            retentionTimeMs,
             derivedMetrics: new Map<string, string>(),
         };
 
@@ -111,7 +124,62 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
     }
 
     async redisBackfill(endpoint: Endpoint, targets: Array<PmapiTarget<VectorTargetData>>) {
-        // TODO: store metric values from redis (if available) in Metric#values
+        const series = endpoint.metrics
+            .map(metric => ({
+                series: metric.metadata.series,
+                name: metric.metadata.name,
+            }))
+            .filter(metric => targets.some(target => target.metricNames.some(name => name === metric.name)))
+            .map(({ series }) => series);
+        const seekStart = this.state.retentionTimeMs / 1000;
+        const [metricsResponse, seriesResponse, instancesResponse] = await Promise.all([
+            this.state.pmSeriesApi.metrics({ series }) as Promise<SeriesMetricsItemResponse[]>,
+            this.state.pmSeriesApi.values({
+                series,
+                interval: '1s',
+                start: `-${seekStart}second`,
+                finish: 'now',
+            }),
+            this.state.pmSeriesApi.instances({ series }),
+        ]);
+        const backfills = new Map<string, [Map<number, SeriesValuesItemResponse[]>, SeriesInstancesItemResponse[]]>();
+        metricsResponse.forEach(({ series, name }) => {
+            if (backfills.has(name)) {
+                return;
+            }
+            const seriesForName = seriesResponse.filter(item => item.series === series);
+            const instancesForName = instancesResponse.filter(item => item.series === series);
+            const timedSeries = new Map<number, SeriesValuesItemResponse[]>();
+            seriesForName.forEach(seriesItem => {
+                if (timedSeries.has(seriesItem.timestamp)) {
+                    timedSeries.get(seriesItem.timestamp)!.push(seriesItem);
+                    return;
+                }
+                timedSeries.set(seriesItem.timestamp, [seriesItem]);
+            });
+            backfills.set(name, [timedSeries, instancesForName]);
+        });
+        backfills.forEach((values, key) => {
+            const metricValues = endpoint.metricValues[key];
+            if (metricValues === undefined) {
+                return;
+            }
+            const [timedSeries, instances] = values;
+            timedSeries.forEach((timedSeries, timestamp) => {
+                const values = timedSeries.reduce((acc, item) => {
+                    const instance = instances.find(instance => instance.instance === item.instance)?.id ?? null;
+                    try {
+                        const value = parseFloat(item.value);
+                        return [...acc, { instance, value }];
+                    } catch {}
+                    return acc;
+                }, []);
+                metricValues.push({
+                    timestampMs: timestamp,
+                    values,
+                });
+            });
+        });
     }
 
     async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
@@ -136,7 +204,6 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
             )
             .filter(result => result !== null) as QueryResult[];
         const data = processTargets(request, result);
-
         log.debug('query', request, queries, data);
         return { data };
     }

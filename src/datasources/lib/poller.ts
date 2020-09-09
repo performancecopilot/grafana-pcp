@@ -16,9 +16,10 @@ import { CompletePmapiQuery, PmapiTarget, PmapiTargetState } from './models/pmap
 import { MutableDataFrame, MutableField, FieldType, MISSING_VALUE } from '@grafana/data';
 import { Semantics, InstanceName } from '../../lib/models/pcp/pcp';
 import { getFieldMetadata } from './dataframe_utils';
+import PmSeriesApiService from '../../lib/services/PmSeriesApiService';
 const log = getLogger('poller');
 
-interface PmapiInstanceValuesSnapshot {
+export interface PmapiInstanceValuesSnapshot {
     timestampMs: number;
     values: PmapiInstanceValue[];
 }
@@ -57,7 +58,7 @@ interface PollerHooks {
     registerEndpoint?: (endpoint: Endpoint) => Promise<void>;
     registerTarget: (target: PmapiTarget, endpoint: Endpoint) => Promise<string[]>;
     deregisterTarget?: (target: PmapiTarget) => void;
-    redisBackfill?: (endpoint: Endpoint, targets: PmapiTarget[]) => Promise<void>;
+    redisBackfill?: (endpoint: Endpoint, pendingTargets: Array<PmapiTarget<Dict<string, any>>>) => Promise<void>;
 }
 
 interface PollerState {
@@ -71,6 +72,7 @@ export class Poller {
 
     constructor(
         private pmApi: PmApi,
+        private pmSeriesApi: PmSeriesApiService,
         private refreshIntervalMs: number,
         private retentionTimeMs: number,
         private hooks: PollerHooks
@@ -190,9 +192,9 @@ export class Poller {
         }
     }
 
-    async endpointHasRedis(endpoint: Endpoint): Promise<boolean> {
-        // TODO: check if redis is available
-        return false;
+    async endpointHasRedis(): Promise<boolean> {
+        const { success } = await this.pmSeriesApi.ping();
+        return success;
     }
 
     async initContext(endpoint: Endpoint) {
@@ -201,7 +203,7 @@ export class Poller {
             endpoint.hostspec,
             Math.round((this.refreshIntervalMs + config.gracePeriodMs) / 1000)
         );
-        endpoint.hasRedis = this.hooks.redisBackfill && (await this.endpointHasRedis(endpoint));
+        endpoint.hasRedis = this.hooks.redisBackfill && (await this.endpointHasRedis());
         endpoint.state = EndpointState.CONNECTED;
         await this.hooks.registerEndpoint?.(endpoint);
     }

@@ -25,6 +25,11 @@ export type SeriesDescResponse = SeriesDescItemResponse[];
 
 export type SeriesDescMaybeResponse = SeriesDescResponse | SeriesNoRecordResponse;
 
+// this one has no related 'maybe' response type
+export interface SeriesPingResponse {
+    success: boolean;
+}
+
 export interface SeriesQueryQueryParams {
     expr: string; // Query string in [pmseries](https://pcp.io/man/man1/pmseries.1.html) format
     client?: string; // Request identifier sent back with response
@@ -57,6 +62,8 @@ export interface SeriesInstancesItemResponse {
 }
 
 export type SeriesInstancesResponse = SeriesInstancesItemResponse[];
+
+export type SeriesInstancesMaybeResponse = SeriesInstancesResponse | SeriesNoRecordResponse;
 
 export interface SeriesLabelsQueryParams {
     series?: string[]; // Comma-separated list of series identifiers
@@ -112,8 +119,14 @@ export interface SeriesValuesItemResponse {
     value: string;
 }
 
+export type SeriesValuesResponse = SeriesValuesItemResponse[];
+
+export type SeriesValuesMaybeResponse = SeriesValuesResponse | SeriesNoRecordResponse;
+
 export type SeriesMaybeResponse =
     | SeriesDescMaybeResponse
     | SeriesQueryMaybeResponse
     | SeriesLabelsMaybeResponse
-    | SeriesMetricsMaybeResponse;
+    | SeriesMetricsMaybeResponse
+    | SeriesInstancesMaybeResponse
+    | SeriesValuesMaybeResponse;

@@ -18,6 +18,8 @@ import { buildQueries, testDatasource, metricFindQuery } from '../lib/pmapi_data
 import { Status, Script } from './script';
 import { getRequestOptions } from '../../lib/utils/api';
 import { CompletePmapiQuery, PmapiTarget, PmapiTargetState } from '../lib/models/pmapi';
+import PmSeriesApiService from '../../lib/services/PmSeriesApiService';
+import { getBackendSrv } from '@grafana/runtime';
 const log = getLogger('datasource');
 
 interface DataSourceState {
@@ -43,7 +45,9 @@ export class DataSource extends DataSourceApi<BPFtraceQuery, BPFtraceOptions> {
         const refreshIntervalMs = getDashboardRefreshInterval() ?? 1000;
 
         const pmApi = new PmApi(defaultRequestOptions);
-        const poller = new Poller(pmApi, refreshIntervalMs, retentionTimeMs, {
+        const pmSeriesApi = new PmSeriesApiService(getBackendSrv(), this.instanceSettings.url!, defaultRequestOptions);
+
+        const poller = new Poller(pmApi, pmSeriesApi, refreshIntervalMs, retentionTimeMs, {
             queryHasChanged: this.queryHasChanged,
             registerEndpoint: this.registerEndpoint.bind(this),
             registerTarget: this.registerTarget.bind(this),

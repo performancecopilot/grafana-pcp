@@ -31,3 +31,4 @@ e2e-results/
 
 # Jsonnet Bundler
 vendor_jsonnet/
+vendor/
