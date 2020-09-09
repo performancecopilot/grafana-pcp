@@ -3,6 +3,7 @@ package series
 import (
 	"fmt"
 	"math/rand"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -10,7 +11,9 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-type pmseriesAPIMock struct{}
+type pmseriesAPIMock struct {
+	metricsCalls uint32
+}
 
 func (api *pmseriesAPIMock) Ping() (pmseries.GenericSuccessResponse, error) {
 	panic("not implemented")
@@ -21,8 +24,8 @@ func (api *pmseriesAPIMock) Query(expr string) (pmseries.QueryResponse, error) {
 }
 
 func (api *pmseriesAPIMock) Metrics(series []string) ([]pmseries.MetricsResponseItem, error) {
-	fmt.Printf("sleep %d\n", time.Duration(rand.Intn(200))*time.Millisecond)
-	time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
+	atomic.AddUint32(&api.metricsCalls, 1)
+	time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
 
 	m := []pmseries.MetricsResponseItem{}
 	for _, sid := range series {
@@ -39,6 +42,8 @@ func (api *pmseriesAPIMock) MetricNameMatches(match string) (pmseries.MetricName
 }
 
 func (api *pmseriesAPIMock) Descs(series []string) ([]pmseries.DescsResponseItem, error) {
+	time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
+
 	d := []pmseries.DescsResponseItem{}
 	for _, sid := range series {
 		d = append(d, pmseries.DescsResponseItem{
@@ -85,5 +90,7 @@ func TestSeriesService(t *testing.T) {
 		}
 
 		time.Sleep(1 * time.Second)
+		metricsCalls := atomic.LoadUint32(&api.metricsCalls)
+		So(metricsCalls, ShouldEqual, 5)
 	})
 }

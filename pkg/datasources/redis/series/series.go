@@ -2,6 +2,7 @@ package series
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/api/pmseries"
 
@@ -11,6 +12,7 @@ import (
 // Service retrieves and caches series
 type Service struct {
 	pmseriesAPI pmseries.API
+	mu          sync.Mutex // guards cache map
 	cache       map[string]*Series
 }
 
@@ -23,7 +25,15 @@ func NewSeriesService(pmseriesAPI pmseries.API) *Service {
 }
 
 // GetSeries retrieves multiple series and caches them
+// this will be called from different goroutines (each QueryData call runs in a new goroutine)
+// let's keep it simple and stupid for now with a lock
+// if this isn't sufficient anymore, a solution like https://notes.shichao.io/gopl/ch9/#example-concurrent-non-blocking-cache
+// will be required - a concurrent non-blocking memoizing cache,
+// where the memoize function processes multiple keys
 func (s *Service) GetSeries(sids []string) (map[string]*Series, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	seriesMap := map[string]*Series{}
 	missingSeries := []string{}
 
@@ -112,6 +122,9 @@ func (s *Service) GetSeries(sids []string) (map[string]*Series, error) {
 
 // RefreshInstances refreshes instances of a series
 func (s *Service) RefreshInstances(series *Series) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	instances, err := s.pmseriesAPI.Instances([]string{series.Desc.Series})
 	if err != nil {
 		return err
