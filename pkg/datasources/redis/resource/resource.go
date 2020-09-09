@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/api"
+	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/api/pmseries"
 )
 
 type Service struct {
-	pmseriesAPI *api.PmseriesAPI
+	pmseriesAPI pmseries.API
 }
 
 // NewResourceService creates a new resource service
-func NewResourceService(pmseriesAPI *api.PmseriesAPI) *Service {
+func NewResourceService(pmseriesAPI pmseries.API) *Service {
 	return &Service{pmseriesAPI}
 }
 

@@ -9,8 +9,9 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
-	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/api"
+	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/api/pmseries"
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/resource"
+	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/series"
 )
 
 // NewDatasource returns datasource.ServeOpts.
@@ -42,18 +43,18 @@ type redisDatasource struct {
 }
 
 type redisDatasourceInstance struct {
-	pmseriesAPI     *api.PmseriesAPI
+	pmseriesAPI     pmseries.API
 	resourceService *resource.Service
-	seriesCache     map[string]*Series
+	seriesService   *series.Service
 }
 
 func newDataSourceInstance(setting backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
-	pmseriesAPI := api.NewPmseriesAPI(setting.URL)
+	pmseriesAPI := pmseries.NewPmseriesAPI(setting.URL)
 
 	return &redisDatasourceInstance{
 		pmseriesAPI:     pmseriesAPI,
 		resourceService: resource.NewResourceService(pmseriesAPI),
-		seriesCache:     map[string]*Series{},
+		seriesService:   series.NewSeriesService(pmseriesAPI),
 	}, nil
 }
 

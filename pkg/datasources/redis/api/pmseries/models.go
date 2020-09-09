@@ -1,4 +1,4 @@
-package api
+package pmseries
 
 type GenericSuccessResponse struct {
 	Success bool `json:"success"`

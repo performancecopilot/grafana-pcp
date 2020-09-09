@@ -1,4 +1,4 @@
-package api
+package pmseries
 
 import (
 	"encoding/json"
@@ -13,15 +13,27 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 )
 
-// PmseriesAPI contains basic API infos
-type PmseriesAPI struct {
+type API interface {
+	Ping() (GenericSuccessResponse, error)
+	Query(expr string) (QueryResponse, error)
+	Metrics(series []string) ([]MetricsResponseItem, error)
+	MetricNameMatches(match string) (MetricNameMatchesResponse, error)
+	Descs(series []string) ([]DescsResponseItem, error)
+	Instances(series []string) ([]InstancesResponseItem, error)
+	Labels(series []string) ([]LabelsResponseItem, error)
+	LabelNames() (LabelNamesResponse, error)
+	LabelValues(labelNames []string) (LabelValuesResponse, error)
+	Values(series []string, start int64, finish int64, interval int64) ([]ValuesResponseItem, error)
+}
+
+type pmseriesAPI struct {
 	URL    string
 	Client *http.Client
 }
 
 // NewPmseriesAPI constructs a new PmseriesAPI struct
-func NewPmseriesAPI(url string) *PmseriesAPI {
-	return &PmseriesAPI{
+func NewPmseriesAPI(url string) API {
+	return &pmseriesAPI{
 		URL: url,
 		Client: &http.Client{
 			Timeout: 5 * time.Second,
@@ -29,7 +41,7 @@ func NewPmseriesAPI(url string) *PmseriesAPI {
 	}
 }
 
-func (api *PmseriesAPI) doRequest(url string, params url.Values, response interface{}) error {
+func (api *pmseriesAPI) doRequest(url string, params url.Values, response interface{}) error {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return &Error{URL: url, Err: err}
@@ -72,7 +84,7 @@ func (api *PmseriesAPI) doRequest(url string, params url.Values, response interf
 	return nil
 }
 
-func (api *PmseriesAPI) Ping() (GenericSuccessResponse, error) {
+func (api *pmseriesAPI) Ping() (GenericSuccessResponse, error) {
 	var resp GenericSuccessResponse
 	err := api.doRequest(
 		fmt.Sprintf("%s/series/ping", api.URL),
@@ -82,7 +94,7 @@ func (api *PmseriesAPI) Ping() (GenericSuccessResponse, error) {
 	return resp, err
 }
 
-func (api *PmseriesAPI) Query(expr string) (QueryResponse, error) {
+func (api *pmseriesAPI) Query(expr string) (QueryResponse, error) {
 	var resp QueryResponse
 	err := api.doRequest(
 		fmt.Sprintf("%s/series/query", api.URL),
@@ -94,7 +106,7 @@ func (api *PmseriesAPI) Query(expr string) (QueryResponse, error) {
 	return resp, err
 }
 
-func (api *PmseriesAPI) Metrics(series []string) ([]MetricsResponseItem, error) {
+func (api *pmseriesAPI) Metrics(series []string) ([]MetricsResponseItem, error) {
 	var resp []MetricsResponseItem
 	err := api.doRequest(
 		fmt.Sprintf("%s/series/metrics", api.URL),
@@ -106,7 +118,7 @@ func (api *PmseriesAPI) Metrics(series []string) ([]MetricsResponseItem, error) 
 	return resp, err
 }
 
-func (api *PmseriesAPI) MetricNameMatches(match string) (MetricNameMatchesResponse, error) {
+func (api *pmseriesAPI) MetricNameMatches(match string) (MetricNameMatchesResponse, error) {
 	var resp MetricNameMatchesResponse
 	err := api.doRequest(
 		fmt.Sprintf("%s/series/metrics", api.URL),
@@ -118,7 +130,7 @@ func (api *PmseriesAPI) MetricNameMatches(match string) (MetricNameMatchesRespon
 	return resp, err
 }
 
-func (api *PmseriesAPI) Descs(series []string) ([]DescsResponseItem, error) {
+func (api *pmseriesAPI) Descs(series []string) ([]DescsResponseItem, error) {
 	var resp []DescsResponseItem
 	err := api.doRequest(
 		fmt.Sprintf("%s/series/descs", api.URL),
@@ -130,7 +142,7 @@ func (api *PmseriesAPI) Descs(series []string) ([]DescsResponseItem, error) {
 	return resp, err
 }
 
-func (api *PmseriesAPI) Instances(series []string) ([]InstancesResponseItem, error) {
+func (api *pmseriesAPI) Instances(series []string) ([]InstancesResponseItem, error) {
 	var resp []InstancesResponseItem
 	err := api.doRequest(
 		fmt.Sprintf("%s/series/instances", api.URL),
@@ -142,7 +154,7 @@ func (api *PmseriesAPI) Instances(series []string) ([]InstancesResponseItem, err
 	return resp, err
 }
 
-func (api *PmseriesAPI) Labels(series []string) ([]LabelsResponseItem, error) {
+func (api *pmseriesAPI) Labels(series []string) ([]LabelsResponseItem, error) {
 	var resp []LabelsResponseItem
 	err := api.doRequest(
 		fmt.Sprintf("%s/series/labels", api.URL),
@@ -154,7 +166,7 @@ func (api *PmseriesAPI) Labels(series []string) ([]LabelsResponseItem, error) {
 	return resp, err
 }
 
-func (api *PmseriesAPI) LabelNames() (LabelNamesResponse, error) {
+func (api *pmseriesAPI) LabelNames() (LabelNamesResponse, error) {
 	var resp LabelNamesResponse
 	err := api.doRequest(
 		fmt.Sprintf("%s/series/labels", api.URL),
@@ -164,7 +176,7 @@ func (api *PmseriesAPI) LabelNames() (LabelNamesResponse, error) {
 	return resp, err
 }
 
-func (api *PmseriesAPI) LabelValues(labelNames []string) (LabelValuesResponse, error) {
+func (api *pmseriesAPI) LabelValues(labelNames []string) (LabelValuesResponse, error) {
 	var resp LabelValuesResponse
 	err := api.doRequest(
 		fmt.Sprintf("%s/series/labels", api.URL),
@@ -176,7 +188,7 @@ func (api *PmseriesAPI) LabelValues(labelNames []string) (LabelValuesResponse, e
 	return resp, err
 }
 
-func (api *PmseriesAPI) Values(series []string, start int64, finish int64, interval int64) ([]ValuesResponseItem, error) {
+func (api *pmseriesAPI) Values(series []string, start int64, finish int64, interval int64) ([]ValuesResponseItem, error) {
 	var resp []ValuesResponseItem
 	err := api.doRequest(
 		fmt.Sprintf("%s/series/values", api.URL),

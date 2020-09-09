@@ -10,11 +10,13 @@ import (
 	"time"
 
 	"github.com/grafana/grafana-plugin-sdk-go/data"
-	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/api"
+	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/api/pmseries"
+	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/series"
+	series_ "github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/series"
 )
 
-func (series *Series) getStringLabels(instanceID string) data.Labels {
-	var labels Labels
+func getStringLabels(series *series.Series, instanceID string) data.Labels {
+	var labels series_.Labels
 	if series.Instances == nil {
 		labels = series.Labels
 	} else {
@@ -56,7 +58,7 @@ func getFieldValue(seriesType string, value string) (interface{}, error) {
 	}
 }
 
-func getFieldUnit(desc *SeriesDesc) string {
+func getFieldUnit(desc *series.Desc) string {
 	// pcp/src/libpcp/src/units.c
 	// grafana-data/src/valueFormats/categories.ts
 
@@ -110,14 +112,14 @@ func getFieldUnit(desc *SeriesDesc) string {
 	return ""
 }
 
-func (ds *redisDatasourceInstance) getFieldName(series *Series, instanceID string) (string, error) {
+func (ds *redisDatasourceInstance) getFieldName(series *series.Series, instanceID string) (string, error) {
 	if series.Instances == nil {
 		return series.MetricName, nil
 	}
 
 	instance, ok := series.Instances[instanceID]
 	if !ok {
-		err := ds.refreshInstances(series)
+		err := ds.seriesService.RefreshInstances(series)
 		if err != nil {
 			return "", err
 		}
@@ -134,7 +136,7 @@ func (ds *redisDatasourceInstance) getFieldName(series *Series, instanceID strin
 
 var legendFormatRegex = regexp.MustCompile(`\$\w+`)
 
-func getDisplayName(series *Series, instanceID string, labels data.Labels, legendFormat string) string {
+func getDisplayName(series *series.Series, instanceID string, labels data.Labels, legendFormat string) string {
 	if legendFormat == "" {
 		return ""
 	}
@@ -163,7 +165,7 @@ func getDisplayName(series *Series, instanceID string, labels data.Labels, legen
 	return string(result)
 }
 
-func (ds *redisDatasourceInstance) createField(series *Series, instanceID string, legendFormat string) (*data.Field, error) {
+func (ds *redisDatasourceInstance) createField(series *series.Series, instanceID string, legendFormat string) (*data.Field, error) {
 	fieldName, err := ds.getFieldName(series, instanceID)
 	if err != nil {
 		return nil, err
@@ -174,7 +176,7 @@ func (ds *redisDatasourceInstance) createField(series *Series, instanceID string
 		return nil, err
 	}
 
-	labels := series.getStringLabels(instanceID)
+	labels := getStringLabels(series, instanceID)
 	displayName := getDisplayName(series, instanceID, labels, legendFormat)
 	unit := getFieldUnit(&series.Desc)
 
@@ -187,7 +189,7 @@ func (ds *redisDatasourceInstance) createField(series *Series, instanceID string
 	return field, nil
 }
 
-func (ds *redisDatasourceInstance) createDataFrames(redisQuery *Query, series map[string]*Series, values []api.ValuesResponseItem) (data.Frames, error) {
+func (ds *redisDatasourceInstance) createDataFrames(redisQuery *Query, series map[string]*series.Series, values []pmseries.ValuesResponseItem) (data.Frames, error) {
 	frames := data.Frames{}
 
 	// values are in the format

@@ -27,7 +27,7 @@ watch-frontend: deps-frontend dist-dashboards ## Auto rebuilt frontend on file c
 	yarn run watch
 
 dev-backend: deps-backend
-	go build -o ./dist/datasources/redis/pcp_redis_datasource_$$(go env GOOS)_$$(go env GOARCH) -tags netgo -ldflags -w ./pkg
+	go build -race -o ./dist/datasources/redis/pcp_redis_datasource_$$(go env GOOS)_$$(go env GOARCH) -tags netgo -ldflags -w ./pkg
 
 restart-backend: ## Rebuild and restart backend datasource (as root)
 	sudo -u "$$(stat -c '%U' .)" make dev-backend
@@ -57,7 +57,7 @@ test-frontend: deps-frontend ## Run frontend tests
 	yarn run test
 
 test-backend: deps-backend ## Run backend tests
-	go test ./pkg/...
+	go test -race ./pkg/...
 
 test-backend-web: deps-backend ## Run backend tests using goconvey
 	cd pkg && goconvey

@@ -7,6 +7,7 @@ import (
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
+	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/series"
 )
 
 func fieldSetRate(field *data.Field, idx int, delta time.Duration) error {
@@ -105,7 +106,7 @@ var pcpTimeUnits = map[string]int{
 	"millisec": 1000,
 }
 
-func applyFieldTransformations(series *Series, frame *data.Frame) error {
+func applyFieldTransformations(series *series.Series, frame *data.Frame) error {
 	if series.Desc.Semantics == "counter" {
 		err := rateConversation(frame)
 		if err != nil {

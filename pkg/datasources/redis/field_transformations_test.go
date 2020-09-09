@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/grafana/grafana-plugin-sdk-go/data"
+	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/series"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -43,8 +44,8 @@ func ShouldAlmostEqualPointer(actual interface{}, expected ...interface{}) strin
 
 func TestTransformations(t *testing.T) {
 	Convey("Counter 1", t, func() {
-		series := &Series{
-			Desc: SeriesDesc{
+		series := &series.Series{
+			Desc: series.Desc{
 				Semantics: "counter",
 			},
 		}
@@ -65,8 +66,8 @@ func TestTransformations(t *testing.T) {
 	})
 
 	Convey("Counter wrap", t, func() {
-		series := &Series{
-			Desc: SeriesDesc{
+		series := &series.Series{
+			Desc: series.Desc{
 				Semantics: "counter",
 			},
 		}
@@ -91,8 +92,8 @@ func TestTransformations(t *testing.T) {
 	})
 
 	Convey("Time Utilization", t, func() {
-		series := &Series{
-			Desc: SeriesDesc{
+		series := &series.Series{
+			Desc: series.Desc{
 				Semantics: "counter",
 				Units:     "millisec",
 			},
