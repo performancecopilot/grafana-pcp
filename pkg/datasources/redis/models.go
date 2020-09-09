@@ -30,8 +30,3 @@ type Query struct {
 	Format       string `json:"format"`
 	LegendFormat string `json:"legendFormat"`
 }
-
-// MetricFindValue is the response for metricFindQuery
-type MetricFindValue struct {
-	Text string `json:"text"`
-}

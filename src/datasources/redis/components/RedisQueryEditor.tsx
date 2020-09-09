@@ -7,8 +7,6 @@ import { RedisOptions, RedisQuery, defaultRedisQuery } from '../types';
 import RedisQueryField from './RedisQueryField';
 import { isBlank } from '../../lib/utils';
 
-
-
 type Props = QueryEditorProps<DataSource, RedisQuery, RedisOptions>;
 
 interface State {

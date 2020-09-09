@@ -36,7 +36,9 @@ type LabelsResponseItem struct {
 	Labels map[string]interface{} `json:"labels"`
 }
 
-type LabelNamesResponse map[string][]string
+type LabelNamesResponse []string
+
+type LabelValuesResponse map[string][]interface{}
 
 type ValuesResponseItem struct {
 	Series    string  `json:"series"`

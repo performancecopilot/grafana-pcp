@@ -134,7 +134,7 @@ func (ds *redisDatasourceInstance) executeTimeSeriesQuery(dataQuery *backend.Dat
 		return nil, err
 	}
 	if len(seriesIds) == 0 {
-		return nil, fmt.Errorf("Cannot find any data for expression '%s'", redisQuery.Expr)
+		return data.Frames{}, nil
 	}
 
 	series, err := ds.memoizeSeries(seriesIds)

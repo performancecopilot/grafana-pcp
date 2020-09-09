@@ -3,7 +3,6 @@ package redis
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/api"
+	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/resource"
 )
 
 // NewDatasource returns datasource.ServeOpts.
@@ -42,16 +42,18 @@ type redisDatasource struct {
 }
 
 type redisDatasourceInstance struct {
-	pmseriesAPI *api.PmseriesAPI
-	seriesCache map[string]*Series
+	pmseriesAPI     *api.PmseriesAPI
+	resourceService *resource.Service
+	seriesCache     map[string]*Series
 }
 
 func newDataSourceInstance(setting backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
 	pmseriesAPI := api.NewPmseriesAPI(setting.URL)
 
 	return &redisDatasourceInstance{
-		pmseriesAPI: pmseriesAPI,
-		seriesCache: map[string]*Series{},
+		pmseriesAPI:     pmseriesAPI,
+		resourceService: resource.NewResourceService(pmseriesAPI),
+		seriesCache:     map[string]*Series{},
 	}, nil
 }
 
@@ -65,37 +67,31 @@ func (ds *redisDatasource) CallResource(ctx context.Context, req *backend.CallRe
 		return err
 	}
 
-	args, err := url.ParseQuery(u.RawQuery)
+	queryParams, err := url.ParseQuery(u.RawQuery)
 	if err != nil {
 		return err
 	}
 
 	method := u.Path
-
 	return ds.im.Do(req.PluginContext, func(dsInst *redisDatasourceInstance) error {
-		switch method {
-		case "metricFindQuery":
-			query, ok := args["query"]
-			if !ok || len(query) != 1 {
-				return fmt.Errorf("Invalid query passed to metricFindQuery: %s", u.RawQuery)
-			}
-
-			result, err := dsInst.metricFindQuery(query[0])
-			if err != nil {
-				return err
-			}
-
-			respBody, err := json.Marshal(result)
-			if err != nil {
-				return err
-			}
-
-			sender.Send(&backend.CallResourceResponse{
-				Status: http.StatusOK,
-				Body:   respBody,
-			})
+		status := http.StatusOK
+		result, err := dsInst.resourceService.CallResource(method, queryParams)
+		if err != nil {
+			status = http.StatusInternalServerError
+			result = struct {
+				Error string `json:"error"`
+			}{err.Error()}
 		}
-		return nil
+
+		respBody, err := json.Marshal(result)
+		if err != nil {
+			return err
+		}
+
+		return sender.Send(&backend.CallResourceResponse{
+			Status: status,
+			Body:   respBody,
+		})
 	})
 }
 

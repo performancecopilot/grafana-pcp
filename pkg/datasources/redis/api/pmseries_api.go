@@ -154,12 +154,22 @@ func (api *PmseriesAPI) Labels(series []string) ([]LabelsResponseItem, error) {
 	return resp, err
 }
 
-func (api *PmseriesAPI) LabelValues(names []string) (LabelNamesResponse, error) {
+func (api *PmseriesAPI) LabelNames() (LabelNamesResponse, error) {
 	var resp LabelNamesResponse
 	err := api.doRequest(
 		fmt.Sprintf("%s/series/labels", api.URL),
+		url.Values{},
+		&resp,
+	)
+	return resp, err
+}
+
+func (api *PmseriesAPI) LabelValues(labelNames []string) (LabelValuesResponse, error) {
+	var resp LabelValuesResponse
+	err := api.doRequest(
+		fmt.Sprintf("%s/series/labels", api.URL),
 		url.Values{
-			"names": []string{strings.Join(names, ",")},
+			"names": []string{strings.Join(labelNames, ",")},
 		},
 		&resp,
 	)

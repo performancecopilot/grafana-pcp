@@ -1,10 +1,6 @@
 import { DataSourceWithBackend, getTemplateSrv, getBackendSrv } from '@grafana/runtime';
 import { RedisQuery, RedisOptions } from './types';
-import {
-    DataSourceInstanceSettings,
-    ScopedVars,
-    MetricFindValue,
-} from '@grafana/data';
+import { DataSourceInstanceSettings, ScopedVars, MetricFindValue, VariableModel } from '@grafana/data';
 import { DefaultRequestOptions } from '../lib/models/pcp';
 import PmSeriesApiService from '../../lib/services/PmSeriesApiService';
 import { getRequestOptions } from '../../lib/utils/api';
@@ -32,10 +28,37 @@ export class DataSource extends DataSourceWithBackend<RedisQuery, RedisOptions> 
         };
     }
 
+    applyAdhocQualifiers(expr: string, variables: VariableModel[]) {
+        const adhocQualifiers = variables
+            .filter(v => v.type === 'adhoc')
+            .flatMap(v => (v as any).filters)
+            .map(({ key, operator, value }) => {
+                if (operator === '=') {
+                    operator = '==';
+                }
+                const isNumericValue = /^\-?\d+(\.\d+)?$/.test(value);
+                const formattedValue = isNumericValue ? value : `"${value}"`;
+                return `${key} ${operator} ${formattedValue}`;
+            })
+            .join(', ');
+        if (!adhocQualifiers) {
+            return expr;
+        }
+
+        // this regex captures metric names with optional qualifiers, and ignores empty qualifiers (whitespace)
+        // also works with functions, i.e. rate(kernel.all.sysfork{hostname=="..."})
+        const regex = /([a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z][a-zA-Z0-9_]*)+)(?:{\s*(.*?)\s*})?/g;
+        return expr.replaceAll(regex, (_substring: string, metric: string, qualifiers: string) => {
+            return qualifiers ? `${metric}{${qualifiers}, ${adhocQualifiers}}` : `${metric}{${adhocQualifiers}}`;
+        });
+    }
+
     applyTemplateVariables(query: RedisQuery, scopedVars: ScopedVars): Record<string, any> {
+        const expr = getTemplateSrv().replace(query.expr, scopedVars);
+        const exprWithAdhocQualifiers = this.applyAdhocQualifiers(expr, getTemplateSrv().getVariables());
         return {
             ...query,
-            expr: getTemplateSrv().replace(query.expr, scopedVars),
+            expr: exprWithAdhocQualifiers,
         };
     }
 
@@ -56,6 +79,14 @@ export class DataSource extends DataSourceWithBackend<RedisQuery, RedisOptions> 
     async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
         query = getTemplateSrv().replace(query.trim());
         return await this.getResource('metricFindQuery', { query });
+    }
+
+    async getTagKeys(options?: any): Promise<MetricFindValue[]> {
+        return await this.getResource('getLabelNames');
+    }
+
+    async getTagValues(options: any): Promise<MetricFindValue[]> {
+        return await this.getResource('getLabelValues', { name: options.key });
     }
 
     /*
