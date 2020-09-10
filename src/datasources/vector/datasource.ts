@@ -5,7 +5,6 @@ import {
     DataSourceInstanceSettings,
     MetricFindValue,
 } from '@grafana/data';
-import { DefaultRequestOptions, QueryResult } from '../lib/models/pcp';
 import { defaults } from 'lodash';
 import md5 from 'blueimp-md5';
 import { interval_to_ms, getDashboardRefreshInterval, getLogger } from '../lib/utils';
@@ -16,7 +15,7 @@ import * as config from './config';
 import { VectorQuery, VectorOptions, defaultVectorQuery, VectorTargetData } from './types';
 import { buildQueries, testDatasource, metricFindQuery } from '../lib/pmapi_datasource_utils';
 import { getRequestOptions } from '../../lib/utils/api';
-import { PmapiTarget, CompletePmapiQuery } from '../lib/models/pmapi';
+import { PmapiTarget, CompletePmapiQuery, DefaultRequestOptions, QueryResult } from '../lib/models/pmapi';
 import PmSeriesApiService from '../../lib/services/PmSeriesApiService';
 import { getBackendSrv } from '@grafana/runtime';
 import {
@@ -24,6 +23,7 @@ import {
     SeriesInstancesItemResponse,
     SeriesMetricsItemResponse,
 } from '../../lib/models/api/series';
+import { PmapiInstanceValue } from '../../lib/models/pcp/pmapi';
 const log = getLogger('datasource');
 
 interface DataSourceState {
@@ -173,7 +173,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
                         return [...acc, { instance, value }];
                     } catch {}
                     return acc;
-                }, []);
+                }, [] as PmapiInstanceValue[]);
                 metricValues.push({
                     timestampMs: timestamp,
                     values,
@@ -183,7 +183,7 @@ export class DataSource extends DataSourceApi<VectorQuery, VectorOptions> {
     }
 
     async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
-        return await metricFindQuery(query);
+        return await metricFindQuery(this.state.pmApi, this.instanceSettings.url!, query);
     }
 
     async query(request: DataQueryRequest<VectorQuery>): Promise<DataQueryResponse> {

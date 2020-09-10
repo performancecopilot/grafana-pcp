@@ -5,14 +5,13 @@
  * All metric related requests happen in the background, to use the same PCP Context and fetch multiple metrics at once
  */
 
-import { QueryResult } from './models/pcp';
 import { PmApi, MetricNotFoundError, PmapiContext } from './pmapi';
 import { difference, has, remove, uniq } from 'lodash';
 import * as config from '../vector/config';
 import { getLogger } from './utils';
 import { Dict } from '../../lib/models/utils';
 import { PmapiMetric, PmapiInstanceId, PmapiInstanceValue } from '../../lib/models/pcp/pmapi';
-import { CompletePmapiQuery, PmapiTarget, PmapiTargetState } from './models/pmapi';
+import { CompletePmapiQuery, PmapiTarget, PmapiTargetState, QueryResult } from './models/pmapi';
 import { MutableDataFrame, MutableField, FieldType, MISSING_VALUE } from '@grafana/data';
 import { Semantics, InstanceName } from '../../lib/models/pcp/pcp';
 import { getFieldMetadata } from './dataframe_utils';
@@ -36,7 +35,7 @@ enum EndpointState {
  * each url/hostspec has a different context
  * each url/hostspec can have different metrics (and values)
  */
-export interface Endpoint<T = Dict<string, any>> {
+export interface Endpoint<T = any> {
     state: EndpointState;
     url: string;
     hostspec: string;
@@ -58,7 +57,7 @@ interface PollerHooks {
     registerEndpoint?: (endpoint: Endpoint) => Promise<void>;
     registerTarget: (target: PmapiTarget, endpoint: Endpoint) => Promise<string[]>;
     deregisterTarget?: (target: PmapiTarget) => void;
-    redisBackfill?: (endpoint: Endpoint, pendingTargets: Array<PmapiTarget<Dict<string, any>>>) => Promise<void>;
+    redisBackfill?: (endpoint: Endpoint, pendingTargets: PmapiTarget[]) => Promise<void>;
 }
 
 interface PollerState {
@@ -68,7 +67,7 @@ interface PollerState {
 export class Poller {
     state: PollerState;
     pageIsVisible: boolean;
-    timer: NodeJS.Timeout;
+    timer?: NodeJS.Timeout;
 
     constructor(
         private pmApi: PmApi,
@@ -90,7 +89,9 @@ export class Poller {
         }
 
         log.info('setting poll refresh interval to', intervalMs);
-        clearInterval(this.timer);
+        if (this.timer) {
+            clearInterval(this.timer);
+        }
         this.refreshIntervalMs = intervalMs;
         this.timer = setInterval(this.poll.bind(this), this.refreshIntervalMs);
     }

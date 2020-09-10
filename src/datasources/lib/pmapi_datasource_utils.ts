@@ -41,9 +41,14 @@ export function buildQueries<Q extends PmapiQuery>(
         });
 }
 
-export async function metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
+export async function metricFindQuery(
+    pmApi: PmApi,
+    url: string,
+    query: string,
+    options?: any
+): Promise<MetricFindValue[]> {
     query = getTemplateSrv().replace(query.trim());
-    const metricValues = await this.state.pmApi.getMetricValues(this.instanceSettings.url!, null, [query]);
+    const metricValues = await pmApi.getMetricValues(url, null, [query]);
     return metricValues.values[0].instances.map(instance => ({ text: instance.value.toString() }));
 }
 

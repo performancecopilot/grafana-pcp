@@ -101,7 +101,7 @@ export const modalChildrenLinks = css`
     margin-left: auto;
 `;
 
-export const notUsableContainer = (width, height) => css`
+export const notUsableContainer = (width: number, height: number) => css`
     display: flex;
     justify-content: center;
     align-items: center;

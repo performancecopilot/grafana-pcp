@@ -1,5 +1,5 @@
 import { DataQueryRequest, MutableDataFrame, FieldType, MISSING_VALUE, DataFrame } from '@grafana/data';
-import { TargetFormat, QueryResult } from './models/pcp';
+import { TargetFormat, QueryResult } from './models/pmapi';
 import { mapValues, every, isString } from 'lodash';
 import { applyTransformations } from './field_transformations';
 import { getTemplateSrv } from '@grafana/runtime';

@@ -15,7 +15,7 @@ import { getLocationSrv, LocationSrv } from '@grafana/runtime';
 
 export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & Themeable> {
     locationSrv: LocationSrv;
-    constructor(props) {
+    constructor(props: PanelProps<Options> & Themeable) {
         super(props);
         this.navigateDashboard = this.navigateDashboard.bind(this);
         this.renderBreadcrumbLink = this.renderBreadcrumbLink.bind(this);

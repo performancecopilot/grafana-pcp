@@ -11,6 +11,7 @@ import {
     DEFAULT_DATE_TIME_FORMAT,
     hasMsResolution,
     TimeZone,
+    GraphSeriesValue,
 } from '@grafana/data';
 import { colors } from '@grafana/ui';
 import { Options, ThresholdOptions, ThresholdsOperator } from './types';
@@ -96,7 +97,11 @@ export function generateGraphModel(data: PanelData, timeZone: TimeZone, options:
 
 export function outsideThresholdSeries(series: GraphSeriesXY[], threshold: ThresholdOptions): GraphSeriesXY[] {
     return series.filter(seriesItem => {
-        const thresholdValidator = value => {
+        const thresholdValidator = (value: GraphSeriesValue) => {
+            if (!value) {
+                return false;
+            }
+
             // might be better to just use eval
             switch (threshold.operator) {
                 case ThresholdsOperator.GreaterThan:

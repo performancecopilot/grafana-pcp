@@ -1,5 +1,5 @@
 import { DataSourceInstanceSettings } from '@grafana/data';
-import { DefaultRequestOptions } from '../../datasources/lib/models/pcp';
+import { DefaultRequestOptions } from '../../datasources/lib/models/pmapi';
 
 export function getRequestOptions(instanceSettings: DataSourceInstanceSettings): DefaultRequestOptions {
     const defaultRequestOptions: DefaultRequestOptions = {

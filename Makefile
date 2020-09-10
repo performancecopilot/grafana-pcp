@@ -10,7 +10,6 @@ deps-dashboards: jsonnetfile.json ## Install jsonnet dependencies
 
 deps-frontend: package.json ## Install Node.js dependencies
 	yarn install
-	sed -i 's@results.push(createIgnoreResult(filePath, cwd));@// &@' node_modules/eslint/lib/cli-engine/cli-engine.js
 
 deps-backend: ## Install Go dependencies
 	go get ./pkg

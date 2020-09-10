@@ -3,8 +3,8 @@ import NotifyGraphPanel from './NotifyGraphPanel';
 import { LegendDisplayMode } from '@grafana/ui';
 import { Options } from './types';
 
-const nOpts = n => Array.from(Array(n).keys());
-const numsToPanelOpts = t => ({ value: t, label: t.toString() });
+const nOpts = (n: number) => Array.from(Array(n).keys());
+const numsToPanelOpts = (t: number) => ({ value: t, label: t.toString() });
 
 export const plugin = new PanelPlugin<Options>(NotifyGraphPanel).setPanelOptions(builder => {
     builder

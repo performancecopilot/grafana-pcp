@@ -7,6 +7,7 @@
 - **vector**: automatically configure the unit of the panel
 - **vector**: configurable hostspec (access remote PMCDs through a central pmproxy)
 - **vector**: access context, metric, instancedomain and instance labels
+- **vector**: redis backfilling
 
 ### Enhancements / Bug Fixes
 - **build**: convert dashboards to jsonnet/grafonnet

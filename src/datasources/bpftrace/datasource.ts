@@ -5,7 +5,6 @@ import {
     DataSourceInstanceSettings,
     MetricFindValue,
 } from '@grafana/data';
-import { DefaultRequestOptions, QueryResult } from '../lib/models/pcp';
 import { defaults, keyBy } from 'lodash';
 import { interval_to_ms, getDashboardRefreshInterval, getLogger } from '../lib/utils';
 import { Poller, Endpoint } from '../lib/poller';
@@ -17,7 +16,13 @@ import { ScriptManager } from './script_manager';
 import { buildQueries, testDatasource, metricFindQuery } from '../lib/pmapi_datasource_utils';
 import { Status, Script } from './script';
 import { getRequestOptions } from '../../lib/utils/api';
-import { CompletePmapiQuery, PmapiTarget, PmapiTargetState } from '../lib/models/pmapi';
+import {
+    CompletePmapiQuery,
+    PmapiTarget,
+    PmapiTargetState,
+    DefaultRequestOptions,
+    QueryResult,
+} from '../lib/models/pmapi';
 import PmSeriesApiService from '../../lib/services/PmSeriesApiService';
 import { getBackendSrv } from '@grafana/runtime';
 const log = getLogger('datasource');
@@ -114,7 +119,7 @@ export class DataSource extends DataSourceApi<BPFtraceQuery, BPFtraceOptions> {
     }
 
     async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
-        return await metricFindQuery(query);
+        return await metricFindQuery(this.state.pmApi, this.instanceSettings.url!, query);
     }
 
     async query(request: DataQueryRequest<BPFtraceQuery>): Promise<DataQueryResponse> {

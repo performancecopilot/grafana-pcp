@@ -250,7 +250,7 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
         const outsideBounds = hasThreshold ? this.outsideThresholdSeries(series, threshold!) : [];
         const hasPassedThreshold = outsideBounds.length !== 0;
 
-        const modalHeader = subtitle => (
+        const modalHeader = (subtitle: string) => (
             <div className="modal-header-title">
                 <Icon name="exclamation-triangle" size="lg" />
                 <span className="p-l-1">

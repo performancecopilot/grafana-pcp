@@ -50,7 +50,7 @@ export const breadcrumbsControl = (theme: GrafanaTheme) => css`
     min-width: 150px;
 `;
 
-export const notUsableContainer = (width, height) => css`
+export const notUsableContainer = (width: number, height: number) => css`
     display: flex;
     justify-content: center;
     align-items: center;
