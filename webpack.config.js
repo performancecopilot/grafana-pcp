@@ -9,7 +9,6 @@ function updateForkTsCheckerPluginSettings(plugins) {
 
 module.exports.getWebpackConfig = (config, options) => {
     // removes all 'data-test' attributes from React components - only 'remove-object-properties' worked, so if any lib need 'data-test', bad luck :S
-    const { production } = options;
     let patchedBabelRules = [];
     if (options.production) {
         const rulesWithBabelLoader = config.module.rules.filter(x => {
@@ -46,12 +45,6 @@ module.exports.getWebpackConfig = (config, options) => {
         module: {
             ...config.module,
             rules: [
-                // worker-loader need to be processed before ts-loader
-                {
-                    test: /\.worker\.ts$/,
-                    loader: 'worker-loader',
-                    options: { publicPath: 'public/plugins/performancecopilot-pcp-app/' },
-                },
                 ...config.module.rules,
                 ...patchedBabelRules,
             ],
