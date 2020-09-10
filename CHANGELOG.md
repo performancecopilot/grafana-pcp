@@ -3,14 +3,30 @@
 ## 3.0.0 (unreleased)
 
 ### New features
-- **vector**: set background metric poll interval according to current dashboard refresh interval
+- **redis**: support for [Grafana Alerting](https://grafana.com/docs/grafana/latest/alerting/create-alerts/)
+- **redis**: full-text search in metric names, descriptions, instances
+- **vector**: support derived metrics, which allows the usage of arithmetic operators and statistical functions inside a query, [see pmRegisterDerived(3)](https://www.mankier.com/3/pmRegisterDerived#Description)
+- **vector**: checklist dashboard: detects potential performance issues and shows possible solutions to resolve them
+- **vector**: set background metric poll interval according to current dashboard refresh interval, do not stop polling while in background
 - **vector**: automatically configure the unit of the panel
+- **vector**: if redis is available, initialize the graph with historical data
 - **vector**: configurable hostspec (access remote PMCDs through a central pmproxy)
 - **vector**: access context, metric, instancedomain and instance labels
-- **vector**: redis backfilling
+- **vector**: support for CGroups v2 for container overview dashboard
 
 ### Enhancements / Bug Fixes
 - **build**: convert dashboards to jsonnet/grafonnet
+- **all**: use latest Grafana UI components based on React (Grafana previously used Angular)
+
+### Redis datasource installation
+
+Unfortunately it is [impossible to sign community plugins at the moment](https://grafana.com/docs/grafana/latest/developers/plugins/sign-a-plugin/). Therefore the PCP Redis datasource plugin needs to be allowed explicitely in the Grafana configuration file:
+
+```
+allow_loading_unsigned_plugins = pcp-redis-datasource
+```
+
+Restart Grafana server, and check the logs if the plugin loaded successfully.
 
 ## 2.0.2 (2020-02-25)
 
