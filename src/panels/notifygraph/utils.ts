@@ -99,7 +99,7 @@ export function outsideThresholdSeries(series: GraphSeriesXY[], threshold: Thres
     return series.filter(seriesItem => {
         const thresholdValidator = (value: GraphSeriesValue) => {
             if (!value) {
-                return false;
+                return true;
             }
 
             // might be better to just use eval
