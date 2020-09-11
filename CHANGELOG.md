@@ -9,10 +9,10 @@
 - **vector**: checklist dashboard: detects potential performance issues and shows possible solutions to resolve them
 - **vector**: set background metric poll interval according to current dashboard refresh interval, do not stop polling while in background
 - **vector**: automatically configure the unit of the panel
-- **vector**: if redis is available, initialize the graph with historical data
+- **vector**: redis backfilling: if redis is available, initialize the graph with historical data
 - **vector**: configurable hostspec (access remote PMCDs through a central pmproxy)
 - **vector**: access context, metric, instancedomain and instance labels
-- **vector**: support for CGroups v2 for container overview dashboard
+- **dashboards**: container overview dashboard with CGroups v2
 
 ### Enhancements / Bug Fixes
 - **build**: convert dashboards to jsonnet/grafonnet
@@ -20,7 +20,7 @@
 
 ### Redis datasource installation
 
-Unfortunately it is [impossible to sign community plugins at the moment](https://grafana.com/docs/grafana/latest/developers/plugins/sign-a-plugin/). Therefore the PCP Redis datasource plugin needs to be allowed explicitely in the Grafana configuration file:
+Unfortunately it is [not possible to sign community plugins at the moment](https://grafana.com/docs/grafana/latest/developers/plugins/sign-a-plugin/). Therefore the PCP Redis datasource plugin needs to be allowed explicitely in the Grafana configuration file:
 
 ```
 allow_loading_unsigned_plugins = pcp-redis-datasource

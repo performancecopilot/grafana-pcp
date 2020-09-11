@@ -25,11 +25,11 @@ module.exports.getWebpackConfig = (config, options) => {
                     ...loader.options,
                     ...(loader.options.plugins
                         ? {
-                              plugins: [
-                                  ...loader.options.plugins,
-                                  ['remove-object-properties', { regexp: 'data-test' }],
-                              ],
-                          }
+                            plugins: [
+                                ...loader.options.plugins,
+                                ['remove-object-properties', { regexp: 'data-test' }],
+                            ],
+                        }
                         : {}),
                 },
             })),
