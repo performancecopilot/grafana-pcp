@@ -1,6 +1,6 @@
 # Performance Co-Pilot Grafana Plugin
 
-[![Build Status](https://dev.azure.com/performancecopilot/grafana-pcp/_apis/build/status/performancecopilot.grafana-pcp?branchName=master)](https://dev.azure.com/performancecopilot/grafana-pcp/_build/latest?definitionId=4&branchName=master)
+[![Build Status](https://github.com/performancecopilot/grafana-pcp/workflows/CI/badge.svg)](https://github.com/performancecopilot/grafana-pcp/actions?query=workflow:CI)
 [![Documentation Status](https://readthedocs.org/projects/grafana-pcp/badge/?version=latest)](https://grafana-pcp.readthedocs.io/en/latest/?badge=latest)
 
 [Performance Co-Pilot (PCP)](https://pcp.io) provides a framework and services to support system-level performance monitoring and management.
