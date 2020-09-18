@@ -5,11 +5,15 @@ JSONNET_VENDOR_DIR := vendor_jsonnet
 
 ##@ Dependencies
 
-deps-dashboards: jsonnetfile.json ## Install jsonnet dependencies
+$(JSONNET_VENDOR_DIR): jsonnetfile.json
 	jb --jsonnetpkg-home="$(JSONNET_VENDOR_DIR)" install
 
-deps-frontend: package.json ## Install Node.js dependencies
+deps-dashboards: $(JSONNET_VENDOR_DIR) ## Install jsonnet dependencies
+
+node_modules: package.json
 	yarn install
+
+deps-frontend: node_modules ## Install Node.js dependencies
 
 deps-backend: ## Install Go dependencies
 	go get ./pkg
@@ -35,11 +39,11 @@ restart-backend: ## Rebuild and restart backend datasource (as root)
 
 ##@ Build
 
-dist/dashboards/%.json: src/dashboards/%.jsonnet deps-dashboards
+dist/dashboards/%.json: src/dashboards/%.jsonnet $(JSONNET_VENDOR_DIR)
 	mkdir -p $(dir $@)
 	jsonnet -J "$(JSONNET_VENDOR_DIR)" -o $@ $<
 
-dist-dashboards: deps-dashboards $(shell find src/dashboards -name '*.jsonnet' | sed -E 's@src/(.*)\.jsonnet@dist/\1.json@g') ## Build Grafana dashboards from jsonnet
+dist-dashboards: $(shell find src/dashboards -name '*.jsonnet' | sed -E 's@src/(.*)\.jsonnet@dist/\1.json@g') ## Build Grafana dashboards from jsonnet
 
 dist-frontend: deps-frontend ## Build frontend datasources
 	yarn run build

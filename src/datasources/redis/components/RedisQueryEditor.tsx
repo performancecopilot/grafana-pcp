@@ -4,8 +4,10 @@ import { InlineFormLabel } from '@grafana/ui';
 import { QueryEditorProps } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { RedisOptions, RedisQuery, defaultRedisQuery } from '../types';
-import RedisQueryField from './RedisQueryField';
 import { isBlank } from '../../lib/utils';
+import { cx, css } from 'emotion';
+import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
+import PmseriesLanguage from './PmseriesLanguage';
 
 type Props = QueryEditorProps<DataSource, RedisQuery, RedisOptions>;
 
@@ -25,15 +27,15 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
     }
 
     onExprChange = (expr: string) => {
-        this.setState({ expr }, this.onRunQuery);
+        this.setState({ expr }, this.runQuery);
     };
 
     onLegendFormatChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
         const legendFormat = isBlank(event.currentTarget.value) ? undefined : event.currentTarget.value;
-        this.setState({ legendFormat }, this.onRunQuery);
+        this.setState({ legendFormat }, this.runQuery);
     };
 
-    onRunQuery = () => {
+    runQuery = () => {
         this.props.onChange({
             ...this.props.query,
             expr: this.state.expr,
@@ -42,12 +44,31 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
         this.props.onRunQuery();
     };
 
+    initMonaco = () => {
+        const pmseriesLang = new PmseriesLanguage();
+        pmseriesLang.register();
+    };
+
     render() {
         return (
             <div>
-                <RedisQueryField expr={this.state.expr} onChange={this.onExprChange} />
+                <MonacoEditorLazy
+                    language="pmseries"
+                    height="60px"
+                    value={this.state.expr}
+                    editorWillMount={this.initMonaco}
+                    onBlur={this.onExprChange}
+                    onSave={this.onExprChange}
+                />
 
-                <div className="gf-form-inline">
+                <div
+                    className={cx(
+                        'gf-form-inline',
+                        css`
+                            margin-top: 6px;
+                        `
+                    )}
+                >
                     <div className="gf-form">
                         <InlineFormLabel
                             width={7}
@@ -63,7 +84,7 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
                             placeholder="legend format"
                             value={this.state.legendFormat}
                             onChange={this.onLegendFormatChange}
-                            onBlur={this.onRunQuery}
+                            onBlur={this.runQuery}
                         />
                     </div>
                 </div>

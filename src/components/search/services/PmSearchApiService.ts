@@ -23,7 +23,7 @@ class PmSearchApiService {
 
     constructor(instanceSettings: DataSourceInstanceSettings, backendSrv: BackendSrv) {
         if (!instanceSettings.url) {
-            throw new Error();
+            throw new Error('Please configure an URL in the datasource settings');
         }
         this.baseUrl = instanceSettings.url;
         this.headers = {

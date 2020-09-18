@@ -80,7 +80,7 @@ export class Search extends React.Component<AppRootProps, AppRootState> {
         }
         return (
             <Provider store={store}>
-                {/* Seems like redux-persist has really buggy typings 
+                {/* Seems like redux-persist has really buggy typings
                 // @ts-ignore */}
                 <PersistGate persistor={persistor}>
                     {loaded => (
