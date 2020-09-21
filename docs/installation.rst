@@ -47,14 +47,13 @@ Replace X.Y.Z with the version of grafana-pcp you wish to install.
 From Source
 -----------
 
-The `yarn package manager <https://yarnpkg.com>`_ is required to build grafana-pcp.
+The `yarn package manager <https://yarnpkg.com>`_, `Go compiler <https://golang.org/>`_, `jsonnet <https://jsonnet.org/>`_ and `jsonnet bundler <https://github.com/jsonnet-bundler/jsonnet-bundler>`_ are required to build grafana-pcp.
 
 .. code-block:: console
 
     $ git clone https://github.com/performancecopilot/grafana-pcp.git
-    $ yarn install
-    $ yarn run build
+    $ make dist
     $ sudo ln -s $(pwd) /var/lib/grafana/plugins
     $ sudo systemctl restart grafana-server
 
-For interactive development, run ``yarn run watch``.
+To list all available Makefile targets, run ``make help``.
