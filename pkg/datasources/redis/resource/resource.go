@@ -24,14 +24,6 @@ func (rs *Service) CallResource(method string, queryParams url.Values) (interfac
 			return nil, fmt.Errorf("Invalid query passed to metricFindQuery")
 		}
 		return rs.metricFindQuery(query[0])
-	case "getLabelNames":
-		return rs.getLabelNames()
-	case "getLabelValues":
-		labelName, ok := queryParams["name"]
-		if !ok || len(labelName) != 1 {
-			return nil, fmt.Errorf("Invalid query passed to getLabelValues")
-		}
-		return rs.getLabelValues(labelName[0])
 	default:
 		return nil, fmt.Errorf("Unknown method %s", method)
 	}

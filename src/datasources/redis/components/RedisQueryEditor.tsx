@@ -7,7 +7,7 @@ import { RedisOptions, RedisQuery, defaultRedisQuery } from '../types';
 import { isBlank } from '../../lib/utils';
 import { cx, css } from 'emotion';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
-import PmseriesLanguage from './PmseriesLanguage';
+import { PmseriesLangDef } from './PmseriesLangDef';
 
 type Props = QueryEditorProps<DataSource, RedisQuery, RedisOptions>;
 
@@ -45,7 +45,7 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
     };
 
     initMonaco = () => {
-        const pmseriesLang = new PmseriesLanguage();
+        const pmseriesLang = new PmseriesLangDef(this.props.datasource);
         pmseriesLang.register();
     };
 

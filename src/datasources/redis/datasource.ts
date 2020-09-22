@@ -29,7 +29,7 @@ export class DataSource extends DataSourceWithBackend<RedisQuery, RedisOptions> 
 
         // this regex captures metric names with optional qualifiers, and ignores empty qualifiers (whitespace)
         // also works with functions, i.e. rate(kernel.all.sysfork{hostname=="..."})
-        const regex = /([a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z][a-zA-Z0-9_]*)+)(?:{\s*(.*?)\s*})?/g;
+        const regex = /([\w.]+)(?:{\s*(.*?)\s*})?/g;
         return expr.replaceAll(regex, (_substring: string, metric: string, qualifiers: string) => {
             return qualifiers ? `${metric}{${qualifiers}, ${adhocQualifiers}}` : `${metric}{${adhocQualifiers}}`;
         });
@@ -64,10 +64,10 @@ export class DataSource extends DataSourceWithBackend<RedisQuery, RedisOptions> 
     }
 
     async getTagKeys(options?: any): Promise<MetricFindValue[]> {
-        return await this.getResource('getLabelNames');
+        return await this.getResource('metricFindQuery', { query: 'label_names()' });
     }
 
     async getTagValues(options: any): Promise<MetricFindValue[]> {
-        return await this.getResource('getLabelValues', { name: options.key });
+        return await this.getResource('metricFindQuery', { query: `label_values(${options.key})` });
     }
 }

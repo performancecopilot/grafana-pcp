@@ -5,6 +5,7 @@
     "rootDir": "./src",
     "baseUrl": "./src",
     "typeRoots": ["./node_modules/@types"],
-    "lib": ["dom", "es2019", "esnext"]
+    "lib": ["dom", "es2019", "esnext"],
+    "resolveJsonModule": true
   }
 }

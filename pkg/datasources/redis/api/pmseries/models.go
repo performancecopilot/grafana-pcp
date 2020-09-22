@@ -11,7 +11,7 @@ type MetricsResponseItem struct {
 	Name   string `json:"name"`
 }
 
-type MetricNameMatchesResponse []string
+type MetricNamesResponse []string
 
 type DescsResponseItem struct {
 	Series    string `json:"series"`

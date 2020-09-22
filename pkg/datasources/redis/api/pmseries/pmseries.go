@@ -17,11 +17,11 @@ type API interface {
 	Ping() (GenericSuccessResponse, error)
 	Query(expr string) (QueryResponse, error)
 	Metrics(series []string) ([]MetricsResponseItem, error)
-	MetricNameMatches(match string) (MetricNameMatchesResponse, error)
+	MetricNames(pattern string) (MetricNamesResponse, error)
 	Descs(series []string) ([]DescsResponseItem, error)
 	Instances(series []string) ([]InstancesResponseItem, error)
 	Labels(series []string) ([]LabelsResponseItem, error)
-	LabelNames() (LabelNamesResponse, error)
+	LabelNames(pattern string) (LabelNamesResponse, error)
 	LabelValues(labelNames []string) (LabelValuesResponse, error)
 	Values(series []string, start int64, finish int64, interval int64) ([]ValuesResponseItem, error)
 }
@@ -118,12 +118,12 @@ func (api *pmseriesAPI) Metrics(series []string) ([]MetricsResponseItem, error) 
 	return resp, err
 }
 
-func (api *pmseriesAPI) MetricNameMatches(match string) (MetricNameMatchesResponse, error) {
-	var resp MetricNameMatchesResponse
+func (api *pmseriesAPI) MetricNames(pattern string) (MetricNamesResponse, error) {
+	var resp MetricNamesResponse
 	err := api.doRequest(
 		fmt.Sprintf("%s/series/metrics", api.URL),
 		url.Values{
-			"match": []string{match},
+			"match": []string{pattern},
 		},
 		&resp,
 	)
@@ -166,11 +166,13 @@ func (api *pmseriesAPI) Labels(series []string) ([]LabelsResponseItem, error) {
 	return resp, err
 }
 
-func (api *pmseriesAPI) LabelNames() (LabelNamesResponse, error) {
+func (api *pmseriesAPI) LabelNames(pattern string) (LabelNamesResponse, error) {
 	var resp LabelNamesResponse
 	err := api.doRequest(
 		fmt.Sprintf("%s/series/labels", api.URL),
-		url.Values{},
+		url.Values{
+			"match": []string{pattern},
+		},
 		&resp,
 	)
 	return resp, err

@@ -28,6 +28,9 @@ allow_loading_unsigned_plugins = pcp-redis-datasource
 
 Restart Grafana server, and check the logs if the plugin loaded successfully.
 
+### Deprecated features
+- **redis**: Using `label_values(metric, label)` in a Grafana variable query is deprecated due to performance reasons. `label_values(label)` is still supported.
+
 ## 2.0.2 (2020-02-25)
 
 - **vector, redis**: remove autocompletion cache (PCP metrics can be added and removed dynamically)

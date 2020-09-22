@@ -69,14 +69,13 @@ Query Functions
 ---------------
 The following functions are available for dashboard variables of type *Query*:
 
-=============================== ============================= =======================
-Function                        Description                   Example
-=============================== ============================= =======================
-``metrics([pattern])``          | returns all metrics         ``metrics(disk.*)``
-                                | matching a glob pattern      
-                                | (if no pattern is defined,           
-                                | all metrics are returned)	   
-``label_values(metric, label)`` | returns all label values    ``label_values(kernel.all.uptime, hostname)``
-                                | for the specified label          
-                                | of the specified metric          
-=============================== ============================= =======================
+=========================== ==================================================== ==========================
+Function                    Description                                          Example
+=========================== ==================================================== ==========================
+``metrics([pattern])``      returns all metrics matching a glob pattern          ``metrics(disk.*)``
+                            (if no pattern is defined, all metrics are returned)
+
+``label_names([pattern])``  returns all label names matching a glob pattern      ``label_names(host*)``
+                            (if no pattern is defined, all metrics are returned)
+``label_values(label)``     returns all label values for the specified label     ``label_values(hostname)``
+=========================== ==================================================== ==========================
