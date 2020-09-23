@@ -8,6 +8,8 @@ export const metricMetadataSingle: PmapiMetricMetadata = {
     series: 'series_id_0',
     units: 'bytes',
     labels: {},
+    'text-help': 'help',
+    'text-oneline': 'oneline',
 };
 
 export const metricMetadataIndom: PmapiMetricMetadata = {
@@ -18,4 +20,6 @@ export const metricMetadataIndom: PmapiMetricMetadata = {
     series: 'series_id_1',
     units: 'bytes',
     labels: {},
+    'text-help': 'help',
+    'text-oneline': 'oneline',
 };

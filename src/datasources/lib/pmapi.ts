@@ -35,11 +35,24 @@ interface StoreResponse {
 
 interface DeriveResponse extends StoreResponse {}
 
+interface ChildrenResponse {
+    leaf: string[];
+    nonleaf: string[];
+}
+
 export class MetricNotFoundError extends Error {
     constructor(readonly metric: string, message?: string) {
         super(message ?? `Cannot find metric ${metric}. Please check if the PMDA is enabled.`);
         this.metric = metric;
         Object.setPrototypeOf(this, MetricNotFoundError.prototype);
+    }
+}
+
+export class NoIndomError extends Error {
+    constructor(readonly metric: string, message?: string) {
+        super(message ?? `Metric ${metric} has no instance domain.`);
+        this.metric = metric;
+        Object.setPrototypeOf(this, NoIndomError.prototype);
     }
 }
 
@@ -105,12 +118,13 @@ export class PmApi {
         return response.data;
     }
 
-    async getMetricMetadata(url: string, ctxid: number, names: string[]): Promise<MetricsResponse> {
+    async getMetricMetadata(url: string, ctxid: number | null, names: string[]): Promise<MetricsResponse> {
         // if multiple metrics are requested and one is missing, pmproxy returns the valid metrics
         // if a single metric is requested which is missing, pmproxy returns 400
+        const ctxPath = ctxid == null ? '' : `/${ctxid}`;
         try {
             const response = await this.datasourceRequest({
-                url: `${url}/pmapi/${ctxid}/metric`,
+                url: `${url}/pmapi${ctxPath}/metric`,
                 params: { names: names.join(',') },
             });
 
@@ -129,15 +143,22 @@ export class PmApi {
 
     async getMetricInstances(url: string, ctxid: number | null, name: string): Promise<InstanceDomain> {
         const ctxPath = ctxid == null ? '' : `/${ctxid}`;
-        const response = await this.datasourceRequest({
-            url: `${url}/pmapi${ctxPath}/indom`,
-            params: { name },
-        });
-
-        if (!has(response.data, 'instances')) {
-            throw new NetworkError('Received malformed response');
+        try {
+            const response = await this.datasourceRequest({
+                url: `${url}/pmapi${ctxPath}/indom`,
+                params: { name },
+            });
+            if (!has(response.data, 'instances')) {
+                throw new NetworkError('Received malformed response');
+            }
+            return response.data;
+        } catch (error) {
+            if (has(error, 'data.message') && error.data.message.includes('metric has null indom')) {
+                throw new NoIndomError(name);
+            } else {
+                throw error;
+            }
         }
-        return response.data;
     }
 
     async getMetricValues(url: string, ctxid: number | null, names: string[]): Promise<FetchResponse> {
@@ -196,5 +217,14 @@ export class PmApi {
                 throw error;
             }
         }
+    }
+
+    async children(url: string, ctxid: number | null, prefix: string): Promise<ChildrenResponse> {
+        const ctxPath = ctxid == null ? '' : `/${ctxid}`;
+        const response = await this.datasourceRequest({
+            url: `${url}/pmapi${ctxPath}/children`,
+            params: { prefix },
+        });
+        return response.data;
     }
 }

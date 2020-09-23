@@ -11,6 +11,8 @@ export interface PmapiMetricMetadata {
     series: string;
     units: string;
     labels: Labels;
+    'text-help': string;
+    'text-oneline': string;
 }
 
 export interface PmapiInstance {

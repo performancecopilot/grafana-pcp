@@ -4,9 +4,11 @@ import { InlineFormLabel, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { VectorOptions, VectorQuery, defaultVectorQuery } from '../types';
-import VectorQueryField from './VectorQueryField';
 import { isBlank } from '../../lib/utils';
 import { TargetFormat } from '../../lib/models/pmapi';
+import { MonacoEditorLazy } from 'components/monaco/MonacoEditorLazy';
+import { css, cx } from 'emotion';
+import { PmapiLangDef } from './PmapiLangDef';
 
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },
@@ -25,6 +27,23 @@ interface State {
 }
 
 export class VectorQueryEditor extends PureComponent<Props, State> {
+    monacoServiceOverrides = {
+        // always show documentation texts
+        storageService: {
+            get() {},
+            getBoolean(key: string) {
+                if (key === 'expandSuggestionDocs') {
+                    return true;
+                }
+
+                return false;
+            },
+            store() {},
+            onWillSaveState() {},
+            onDidChangeStorage() {},
+        },
+    };
+
     constructor(props: Props) {
         super(props);
         const query = defaults(this.props.query, defaultVectorQuery);
@@ -38,29 +57,29 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
     }
 
     onExprChange = (expr: string) => {
-        this.setState({ expr }, this.onRunQuery);
+        this.setState({ expr }, this.runQuery);
     };
 
     onLegendFormatChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
         const legendFormat = isBlank(event.currentTarget.value) ? undefined : event.currentTarget.value;
-        this.setState({ legendFormat }, this.onRunQuery);
+        this.setState({ legendFormat }, this.runQuery);
     };
 
     onFormatChange = (format: SelectableValue<string>) => {
-        this.setState({ format }, this.onRunQuery);
+        this.setState({ format }, this.runQuery);
     };
 
     onURLChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
         const url = isBlank(event.currentTarget.value) ? undefined : event.currentTarget.value;
-        this.setState({ url }, this.onRunQuery);
+        this.setState({ url }, this.runQuery);
     };
 
     onHostspecChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
         const hostspec = isBlank(event.currentTarget.value) ? undefined : event.currentTarget.value;
-        this.setState({ hostspec }, this.onRunQuery);
+        this.setState({ hostspec }, this.runQuery);
     };
 
-    onRunQuery = () => {
+    runQuery = () => {
         this.props.onChange({
             ...this.props.query,
             expr: this.state.expr,
@@ -72,12 +91,33 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         this.props.onRunQuery();
     };
 
+    initMonaco = () => {
+        // TODO: url from query editor
+        const pmseriesLang = new PmapiLangDef(this.props.datasource, this.props.datasource.instanceSettings.url!);
+        pmseriesLang.register();
+    };
+
     render() {
         return (
             <div>
-                <VectorQueryField expr={this.state.expr} onChange={this.onExprChange} />
+                <MonacoEditorLazy
+                    language="pmapi"
+                    height="60px"
+                    value={this.state.expr}
+                    overrideServices={this.monacoServiceOverrides}
+                    editorWillMount={this.initMonaco}
+                    onBlur={this.onExprChange}
+                    onSave={this.onExprChange}
+                />
 
-                <div className="gf-form-inline">
+                <div
+                    className={cx(
+                        'gf-form-inline',
+                        css`
+                            margin-top: 6px;
+                        `
+                    )}
+                >
                     <div className="gf-form">
                         <InlineFormLabel
                             width={7}
@@ -93,7 +133,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
                             placeholder="legend format"
                             value={this.state.legendFormat}
                             onChange={this.onLegendFormatChange}
-                            onBlur={this.onRunQuery}
+                            onBlur={this.runQuery}
                         />
                     </div>
 
@@ -121,14 +161,14 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
                             placeholder="override URL"
                             value={this.state.url}
                             onChange={this.onURLChange}
-                            onBlur={this.onRunQuery}
+                            onBlur={this.runQuery}
                         />
                     </div>
 
                     <div className="gf-form">
                         <InlineFormLabel
                             width={9}
-                            tooltip="Override the host specification for this panel. Useful for monitoring remote hosts."
+                            tooltip="Override the host specification for this panel. Useful for monitoring remote hosts through a central pmproxy."
                         >
                             Host specification
                         </InlineFormLabel>
@@ -138,7 +178,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
                             placeholder="override host specification"
                             value={this.state.hostspec}
                             onChange={this.onHostspecChange}
-                            onBlur={this.onRunQuery}
+                            onBlur={this.runQuery}
                         />
                     </div>
                 </div>
