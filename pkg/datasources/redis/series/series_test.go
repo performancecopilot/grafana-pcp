@@ -37,7 +37,7 @@ func (api *pmseriesAPIMock) Metrics(series []string) ([]pmseries.MetricsResponse
 	return m, nil
 }
 
-func (api *pmseriesAPIMock) MetricNameMatches(match string) (pmseries.MetricNameMatchesResponse, error) {
+func (api *pmseriesAPIMock) MetricNames(match string) (pmseries.MetricNamesResponse, error) {
 	panic("not implemented")
 }
 
@@ -61,7 +61,7 @@ func (api *pmseriesAPIMock) Labels(series []string) ([]pmseries.LabelsResponseIt
 	panic("not implemented")
 }
 
-func (api *pmseriesAPIMock) LabelNames() (pmseries.LabelNamesResponse, error) {
+func (api *pmseriesAPIMock) LabelNames(pattern string) (pmseries.LabelNamesResponse, error) {
 	panic("not implemented")
 }
 

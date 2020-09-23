@@ -12,6 +12,7 @@
 - **vector**: redis backfilling: if redis is available, initialize the graph with historical data
 - **vector**: configurable hostspec (access remote PMCDs through a central pmproxy)
 - **vector**: access context, metric, instancedomain and instance labels
+- **dashboards**: eBPF/BCC dashboard
 - **dashboards**: container overview dashboard with CGroups v2
 
 ### Enhancements / Bug Fixes
