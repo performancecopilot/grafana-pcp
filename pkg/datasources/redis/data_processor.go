@@ -136,7 +136,7 @@ func (ds *redisDatasourceInstance) getFieldName(series *series.Series, instanceI
 
 var legendFormatRegex = regexp.MustCompile(`\$\w+`)
 
-func getDisplayName(series *series.Series, instanceID string, labels data.Labels, legendFormat string) string {
+func getFieldDisplayName(series *series.Series, instanceID string, labels data.Labels, legendFormat string) string {
 	if legendFormat == "" {
 		return ""
 	}
@@ -177,7 +177,7 @@ func (ds *redisDatasourceInstance) createField(series *series.Series, instanceID
 	}
 
 	labels := getStringLabels(series, instanceID)
-	displayName := getDisplayName(series, instanceID, labels, legendFormat)
+	displayName := getFieldDisplayName(series, instanceID, labels, legendFormat)
 	unit := getFieldUnit(&series.Desc)
 
 	field := data.NewField(fieldName, labels, fieldVector)

@@ -3,7 +3,7 @@ import { DataSourceHttpSettings, EventsWithValidation, regexValidation, LegacyFo
 const { Input, FormField } = LegacyForms;
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { BPFtraceOptions } from '../types';
-import * as config from '../config';
+import { Config } from '../config';
 
 export type Props = DataSourcePluginOptionsEditorProps<BPFtraceOptions>;
 
@@ -47,7 +47,7 @@ export const BPFtraceConfigEditor = (props: Props) => {
                                     className="width-18"
                                     value={options.jsonData.hostspec}
                                     spellCheck={false}
-                                    placeholder={config.defaults.hostspec}
+                                    placeholder={Config.defaults.hostspec}
                                     onChange={onOptionsChangeHandler('hostspec')}
                                 />
                             }
@@ -65,7 +65,7 @@ export const BPFtraceConfigEditor = (props: Props) => {
                                     className="width-6"
                                     value={options.jsonData.retentionTime}
                                     spellCheck={false}
-                                    placeholder={config.defaults.retentionTime}
+                                    placeholder={Config.defaults.retentionTime}
                                     onChange={onOptionsChangeHandler('retentionTime')}
                                     validationEvents={timeSettingsValidationEvents}
                                 />

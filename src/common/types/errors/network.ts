@@ -17,6 +17,6 @@ export class NetworkError extends Error {
         super(message);
 
         this.data = error.data; // other layers may inspect the data and throw a custom error message (e.g. insufficient permissions)
-        Object.setPrototypeOf(this, NetworkError.prototype);
+        Object.setPrototypeOf(this, new.target.prototype);
     }
 }

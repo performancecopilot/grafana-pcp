@@ -1,10 +1,10 @@
 import PmSearchApiService from './PmSearchApiService';
-import PmSeriesApiService from '../../../lib/services/PmSeriesApiService';
 import _ from 'lodash';
-import { SeriesLabelsItemResponse, SeriesDescResponse } from '../../../lib/models/api/series';
 import { MetricEntity, MetricEntitySeries } from '../models/entities/metric';
 import { SearchEntity, TextItemResponseField, TextItemResponse } from '../models/endpoints/search';
 import { IndomEntity } from '../models/entities/indom';
+import { PmSeriesApiService } from 'common/services/pmseries/PmSeriesApiService';
+import { SeriesDescResponse, SeriesLabelsItemResponse } from 'common/services/pmseries/types';
 
 type LabelsAndMeta = SeriesLabelsItemResponse[] & SeriesDescResponse;
 

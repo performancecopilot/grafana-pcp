@@ -1,6 +1,15 @@
-import { Semantics, Labels, InstanceName } from '../pcp/pcp';
-import { SeriesId, SeriesInstanceId } from '../pcp/pmseries';
-import { PmapiInstanceId } from '../pcp/pmapi';
+import { DataSourceInstanceSettings } from '@grafana/data';
+import { InstanceName, Labels, Semantics } from 'common/types/pcp';
+
+export interface PmSeriesApiConfig {
+    dsInstanceSettings: DataSourceInstanceSettings;
+    isDatasourceRequest: boolean;
+    baseUrl: string;
+    timeoutMs: number;
+}
+
+export type SeriesId = string;
+export type SeriesInstanceId = string;
 
 export interface SeriesNoRecordResponse {
     success: boolean;
@@ -57,7 +66,7 @@ export interface SeriesInstancesItemResponse {
     series: SeriesId;
     source: string;
     instance: SeriesInstanceId;
-    id: PmapiInstanceId;
+    id: number;
     name: InstanceName;
 }
 

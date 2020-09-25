@@ -1,6 +1,6 @@
+import { Metric } from 'datasources/lib/pmapi/poller/types';
+import { TargetState } from 'datasources/lib/pmapi/types';
 import { metricMetadataIndom } from './pmapi';
-import { Metric } from '../../../../../lib/models/pcp/pcp';
-import { PmapiTargetState } from '../../../models/pmapi';
 
 export const endpoint = {
     context: {
@@ -15,7 +15,7 @@ export const query = {};
 export const queryResult = {
     endpoint: endpoint as any,
     target: {
-        state: PmapiTargetState.METRICS_AVAILABLE,
+        state: TargetState.METRICS_AVAILABLE,
         query: query as any,
         metricNames: [],
         errors: [],
@@ -42,7 +42,7 @@ export const metricIndom: Metric = {
             indomlabelkey: 'indomlabelvalue',
         },
     },
-    /*values: [
+    values: [
         {
             timestampMs: 0,
             values: [
@@ -73,5 +73,5 @@ export const metricIndom: Metric = {
                 { instance: 2, value: 3002 },
             ],
         },
-    ],*/
+    ],
 };

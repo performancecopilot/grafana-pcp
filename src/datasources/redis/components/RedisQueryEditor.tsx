@@ -4,10 +4,10 @@ import { InlineFormLabel } from '@grafana/ui';
 import { QueryEditorProps } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { RedisOptions, RedisQuery, defaultRedisQuery } from '../types';
-import { isBlank } from '../../lib/utils';
 import { cx, css } from 'emotion';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
 import { PmseriesLangDef } from './PmseriesLangDef';
+import { isBlank } from 'common/utils';
 
 type Props = QueryEditorProps<DataSource, RedisQuery, RedisOptions>;
 

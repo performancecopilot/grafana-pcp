@@ -5,8 +5,8 @@ import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { BPFtraceOptions, BPFtraceQuery, defaultBPFtraceQuery } from '../types';
 import BPFtraceQueryField from './BPFtraceQueryField';
-import { isBlank } from '../../lib/utils';
-import { TargetFormat } from 'datasources/lib/models/pmapi';
+import { TargetFormat } from 'datasources/lib/pmapi/types';
+import { isBlank } from 'common/utils';
 
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },

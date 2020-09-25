@@ -1,11 +1,12 @@
-import { PmApi, PermissionError } from '../lib/pmapi';
-import { getLogger } from '../lib/utils';
+import { PmApiService } from 'common/services/pmapi/PmApiService';
+import { PermissionError } from 'common/services/pmapi/types';
+import { getLogger } from 'common/utils';
+import { TargetFormat } from 'datasources/lib/pmapi/types';
 import { Script, MetricType } from './script';
-import { TargetFormat } from 'datasources/lib/models/pmapi';
 const log = getLogger('script_manager');
 
 export class ScriptManager {
-    constructor(private pmApi: PmApi) {}
+    constructor(private pmApiService: PmApiService) {}
 
     getMetric(script: Script, varName: string) {
         const scriptIdOrName = script.metadata.name || script.script_id;
@@ -54,9 +55,9 @@ export class ScriptManager {
     async storeControlMetric(url: string, hostspec: string, metric: string, value: string): Promise<any> {
         // create temporary context, required so that the PMDA can identify
         // the client who sent the pmStore message
-        const context = await this.pmApi.createContext(url, hostspec);
+        const context = await this.pmApiService.createContext(url, hostspec);
         try {
-            await this.pmApi.storeMetricValue(url, context.context, metric, value);
+            await this.pmApiService.store(url, context.context, metric, value);
         } catch (error) {
             if (error instanceof PermissionError) {
                 throw new Error(
@@ -68,7 +69,7 @@ export class ScriptManager {
             }
         }
 
-        const response = await this.pmApi.getMetricValues(url, context.context, [metric]);
+        const response = await this.pmApiService.fetch(url, context.context, [metric]);
         return JSON.parse(response.values[0].instances[0].value as string);
     }
 

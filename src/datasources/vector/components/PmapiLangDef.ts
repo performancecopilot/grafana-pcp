@@ -2,10 +2,10 @@ import { DataSource } from '../datasource';
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import PmapiLang from './PmapiLang.json';
 import { findToken, getTokenValues, TokenValue } from 'datasources/lib/language';
-import { NoIndomError, PmApi } from 'datasources/lib/pmapi';
-import { PmapiMetricMetadata } from 'lib/models/pcp/pmapi';
 import { keyBy } from 'lodash';
-import { Dict } from 'lib/models/utils';
+import { PmApiService } from 'common/services/pmapi/PmApiService';
+import { Metadata, NoIndomError } from 'common/services/pmapi/types';
+import { Dict } from 'common/types/utils';
 
 // this prevents monaco from being included in the redis datasource
 // (it it already in its own chunk in vendors~monaco-editor.js)
@@ -13,10 +13,10 @@ declare const monaco: typeof Monaco;
 
 export class PmapiLangDef {
     private functionCompletions: Monaco.languages.CompletionItem[];
-    private pmApi: PmApi;
+    private pmApiService: PmApiService;
 
     constructor(datasource: DataSource, private url: string) {
-        this.pmApi = datasource.state.pmApi;
+        this.pmApiService = datasource.pmApiService;
 
         this.functionCompletions = PmapiLang.functions.map(f => ({
             kind: monaco.languages.CompletionItemKind.Function,
@@ -81,7 +81,7 @@ export class PmapiLangDef {
         });
     }
 
-    getHelpText(metadata?: PmapiMetricMetadata) {
+    getHelpText(metadata?: Metadata) {
         if (!metadata) {
             return '';
         }
@@ -102,11 +102,11 @@ export class PmapiLangDef {
             searchPrefix = token.value.substring(0, token.value.lastIndexOf('.'));
         }
 
-        const suggestions = await this.pmApi.children(this.url, null, searchPrefix);
+        const suggestions = await this.pmApiService.children(this.url, null, searchPrefix);
         const prefixWithDot = searchPrefix === '' ? '' : `${searchPrefix}.`;
-        let metadataByMetric: Dict<string, PmapiMetricMetadata> = {};
+        let metadataByMetric: Dict<string, Metadata> = {};
         if (suggestions.leaf.length > 0) {
-            const metadatas = await this.pmApi.getMetricMetadata(
+            const metadatas = await this.pmApiService.metric(
                 this.url,
                 null,
                 suggestions.leaf.map(leaf => `${prefixWithDot}${leaf}`)
@@ -143,7 +143,7 @@ export class PmapiLangDef {
         }
 
         try {
-            const instancesResponse = await this.pmApi.getMetricInstances(this.url, null, metric.value);
+            const instancesResponse = await this.pmApiService.indom(this.url, null, metric.value);
             return instancesResponse.instances.map(instance => ({
                 kind: monaco.languages.CompletionItemKind.EnumMember,
                 label: instance.name,

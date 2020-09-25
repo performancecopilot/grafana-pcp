@@ -1,11 +1,7 @@
-import { DataSourceJsonData } from '@grafana/data';
+import { PmapiOptions, PmapiQuery, TargetFormat } from 'datasources/lib/pmapi/types';
 import { Script } from './script';
-import { PmapiQuery, TargetFormat } from '../lib/models/pmapi';
 
-export interface BPFtraceOptions extends DataSourceJsonData {
-    hostspec?: string;
-    retentionTime?: string;
-}
+export interface BPFtraceOptions extends PmapiOptions {}
 
 export interface BPFtraceQuery extends PmapiQuery {}
 

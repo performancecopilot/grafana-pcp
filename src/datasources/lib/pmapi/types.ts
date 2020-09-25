@@ -1,10 +1,15 @@
-import { RequiredField } from '../../../lib/models/utils';
-import { BackendSrvRequest } from '@grafana/runtime';
-import { DataQuery, MutableDataFrame } from '@grafana/data';
-import { Endpoint } from '../poller';
-import { Metric } from '../../../lib/models/pcp/pcp';
+import { DataQuery, DataSourceJsonData } from '@grafana/data';
+import { RequiredField } from 'common/types/utils';
 
-export type DefaultRequestOptions = Omit<BackendSrvRequest, 'url'>;
+export interface PmapiOptions extends DataSourceJsonData {
+    hostspec?: string;
+    retentionTime?: string;
+}
+
+export interface PmapiDefaultOptions {
+    hostspec: string;
+    retentionTime: string;
+}
 
 export enum TargetFormat {
     TimeSeries = 'time_series',
@@ -24,18 +29,11 @@ export interface PmapiQuery extends DataQuery {
 
     url?: string;
     hostspec?: string;
-    targetId?: string;
 }
 
-export type CompletePmapiQuery = RequiredField<PmapiQuery, 'url' | 'hostspec' | 'targetId'>;
+export type TemplatedPmapiQuery = RequiredField<PmapiQuery, 'url' | 'hostspec'>;
 
-export interface QueryResult {
-    endpoint: Endpoint;
-    target: PmapiTarget;
-    targetResult: Array<{ metric: Metric; dataFrame: MutableDataFrame }>;
-}
-
-export enum PmapiTargetState {
+export enum TargetState {
     /** newly entered target or target with error (trying again) */
     PENDING,
     /** metrics exists and metadata available */
@@ -46,15 +44,16 @@ export enum PmapiTargetState {
 
 /**
  * Represents a target of a Grafana panel, which will be polled in the background
- * extends the Query (as provided by Grafana) by additional information:
+ * extends the Query (as provided by Grafana) with additional information:
  * - vector+bpftrace: errors occured while polling in the background, lastActive, ...
  * - vector: isDerivedMetric
  * - bpftrace: script
  * is persisted during multiple queries (key = targetId)
  */
-export interface PmapiTarget<T = any> {
-    state: PmapiTargetState;
-    query: CompletePmapiQuery;
+export interface Target<T = any> {
+    targetId: string;
+    state: TargetState;
+    query: TemplatedPmapiQuery;
     /** valid PCP metric names (can be a derived metric, e.g. derived_xxx) */
     metricNames: string[];
     errors: any[];

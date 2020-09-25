@@ -4,11 +4,11 @@ import { InlineFormLabel, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { VectorOptions, VectorQuery, defaultVectorQuery } from '../types';
-import { isBlank } from '../../lib/utils';
-import { TargetFormat } from '../../lib/models/pmapi';
 import { MonacoEditorLazy } from 'components/monaco/MonacoEditorLazy';
 import { css, cx } from 'emotion';
 import { PmapiLangDef } from './PmapiLangDef';
+import { TargetFormat } from 'datasources/lib/pmapi/types';
+import { isBlank } from 'common/utils';
 
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },

@@ -21,28 +21,27 @@ import {
     SeriesInstancesMaybeResponse,
     SeriesValuesResponse,
     SeriesValuesMaybeResponse,
-} from '../models/api/series';
-import { timeout } from '../utils/timeout';
-import Config from '../../components/search/config/config';
+    PmSeriesApiConfig,
+} from './types';
 import { defaults } from 'lodash';
-import { NetworkError } from '../models/errors/network';
-import { DefaultRequestOptions } from 'datasources/lib/models/pmapi';
+import { DefaultRequestOptions, getRequestOptions, timeout } from 'common/utils';
+import { NetworkError } from 'common/types/errors/network';
 
-class PmSeriesApiService {
-    constructor(
-        private backendSrv: BackendSrv,
-        private baseUrl: string,
-        private defaultRequestOptions: DefaultRequestOptions,
-        private isDatasourceRequest = true
-    ) {}
+export class PmSeriesApiService {
+    defaultRequestOptions: DefaultRequestOptions;
+
+    constructor(private backendSrv: BackendSrv, private apiConfig: PmSeriesApiConfig) {
+        this.defaultRequestOptions = getRequestOptions(apiConfig.dsInstanceSettings);
+    }
 
     async request(options: BackendSrvRequest) {
         options = defaults(options, this.defaultRequestOptions);
         try {
-            if (this.isDatasourceRequest) {
-                return (await this.backendSrv.datasourceRequest(options)).data;
+            if (this.apiConfig.isDatasourceRequest) {
+                const response = await timeout(this.backendSrv.datasourceRequest(options), this.apiConfig.timeoutMs);
+                return response.data;
             } else {
-                return await this.backendSrv.request(options);
+                return await timeout(this.backendSrv.request(options), this.apiConfig.timeoutMs);
             }
         } catch (error) {
             throw new NetworkError(error);
@@ -62,9 +61,9 @@ class PmSeriesApiService {
 
     async ping(): Promise<SeriesPingResponse> {
         const options = {
-            url: `${this.baseUrl}/series/ping`,
+            url: `${this.apiConfig.baseUrl}/series/ping`,
         };
-        return await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        return await this.request(options);
     }
 
     async descs(params: SeriesDescQueryParams): Promise<SeriesDescResponse> {
@@ -78,9 +77,9 @@ class PmSeriesApiService {
         }
 
         const options = {
-            url: `${this.baseUrl}/series/descs?${getParams.toString()}`,
+            url: `${this.apiConfig.baseUrl}/series/descs?${getParams.toString()}`,
         };
-        const response: SeriesDescMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        const response: SeriesDescMaybeResponse = await this.request(options);
         if (PmSeriesApiService.isNoRecordResponse(response)) {
             return [];
         }
@@ -94,10 +93,10 @@ class PmSeriesApiService {
             getParams.append('client', params.toString());
         }
         const options = {
-            url: `${this.baseUrl}/series/query?${getParams.toString()}`,
+            url: `${this.apiConfig.baseUrl}/series/query?${getParams.toString()}`,
         };
 
-        const response: SeriesQueryMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        const response: SeriesQueryMaybeResponse = await this.request(options);
         if (PmSeriesApiService.isNoRecordResponse(response)) {
             return [];
         }
@@ -117,9 +116,9 @@ class PmSeriesApiService {
         }
 
         const options = {
-            url: `${this.baseUrl}/series/metrics?${getParams.toString()}`,
+            url: `${this.apiConfig.baseUrl}/series/metrics?${getParams.toString()}`,
         };
-        const response: SeriesMetricsMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        const response: SeriesMetricsMaybeResponse = await this.request(options);
         if (PmSeriesApiService.isNoRecordResponse(response)) {
             return [];
         }
@@ -136,9 +135,9 @@ class PmSeriesApiService {
         }
 
         const options = {
-            url: `${this.baseUrl}/series/instances?${getParams.toString()}`,
+            url: `${this.apiConfig.baseUrl}/series/instances?${getParams.toString()}`,
         };
-        const response: SeriesInstancesMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        const response: SeriesInstancesMaybeResponse = await this.request(options);
         if (PmSeriesApiService.isNoRecordResponse(response)) {
             return [];
         }
@@ -164,9 +163,9 @@ class PmSeriesApiService {
         }
 
         const options = {
-            url: `${this.baseUrl}/series/labels?${getParams.toString()}`,
+            url: `${this.apiConfig.baseUrl}/series/labels?${getParams.toString()}`,
         };
-        const response: SeriesLabelsMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        const response: SeriesLabelsMaybeResponse = await this.request(options);
         if (PmSeriesApiService.isNoRecordResponse(response)) {
             return {};
         }
@@ -201,14 +200,12 @@ class PmSeriesApiService {
         }
 
         const options = {
-            url: `${this.baseUrl}/series/values?${getParams.toString()}`,
+            url: `${this.apiConfig.baseUrl}/series/values?${getParams.toString()}`,
         };
-        const response: SeriesValuesMaybeResponse = await timeout(this.request(options), Config.REQUEST_TIMEOUT);
+        const response: SeriesValuesMaybeResponse = await this.request(options);
         if (PmSeriesApiService.isNoRecordResponse(response)) {
             return [];
         }
         return response as Exclude<SeriesValuesMaybeResponse, SeriesNoRecordResponse>;
     }
 }
-
-export default PmSeriesApiService;

@@ -1,10 +1,6 @@
-import { DataSourceJsonData } from '@grafana/data';
-import { PmapiQuery, TargetFormat } from '../lib/models/pmapi';
+import { PmapiOptions, PmapiQuery, TargetFormat } from 'datasources/lib/pmapi/types';
 
-export interface VectorOptions extends DataSourceJsonData {
-    hostspec?: string;
-    retentionTime?: string;
-}
+export interface VectorOptions extends PmapiOptions {}
 
 export interface VectorQuery extends PmapiQuery {}
 

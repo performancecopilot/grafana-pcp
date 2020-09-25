@@ -1,8 +1,8 @@
 import { DataSourceWithBackend, getTemplateSrv } from '@grafana/runtime';
 import { RedisQuery, RedisOptions } from './types';
 import { DataSourceInstanceSettings, ScopedVars, MetricFindValue, VariableModel } from '@grafana/data';
-import { isBlank } from '../lib/utils';
 import 'core-js/features/instance/replace-all';
+import { isBlank } from 'common/utils';
 //const log = getLogger('datasource');
 
 export class DataSource extends DataSourceWithBackend<RedisQuery, RedisOptions> {
@@ -36,7 +36,7 @@ export class DataSource extends DataSourceWithBackend<RedisQuery, RedisOptions> 
     }
 
     applyTemplateVariables(query: RedisQuery, scopedVars: ScopedVars): Record<string, any> {
-        const expr = getTemplateSrv().replace(query.expr, scopedVars);
+        const expr = getTemplateSrv().replace(query.expr.trim(), scopedVars);
         const exprWithAdhocQualifiers = this.applyAdhocQualifiers(expr, getTemplateSrv().getVariables());
         return {
             ...query,
@@ -58,12 +58,12 @@ export class DataSource extends DataSourceWithBackend<RedisQuery, RedisOptions> 
         return data;
     }*/
 
-    async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
+    async metricFindQuery(query: string): Promise<MetricFindValue[]> {
         query = getTemplateSrv().replace(query.trim());
         return await this.getResource('metricFindQuery', { query });
     }
 
-    async getTagKeys(options?: any): Promise<MetricFindValue[]> {
+    async getTagKeys(): Promise<MetricFindValue[]> {
         return await this.getResource('metricFindQuery', { query: 'label_names()' });
     }
 

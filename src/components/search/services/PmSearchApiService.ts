@@ -11,8 +11,8 @@ import {
     IndomQueryParams,
 } from '../models/endpoints/search';
 import Config from '../config/config';
-import { timeout } from '../../../lib/utils/timeout';
 import { SearchEntityUtil } from '../utils/SearchEntityUtil';
+import { timeout } from 'common/utils';
 
 class PmSearchApiService {
     baseUrl: string;
