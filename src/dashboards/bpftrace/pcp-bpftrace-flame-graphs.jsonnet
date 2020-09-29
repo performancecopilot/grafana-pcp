@@ -26,6 +26,7 @@ grafana.dashboard.new(
   timepicker=grafana.timepicker.new(
     refresh_intervals=['1s', '2s', '5s', '10s'],
   ),
+  editable=true,
 )
 .addTemplate(
   grafana.template.datasource(
@@ -70,7 +71,7 @@ grafana.dashboard.new(
     datasource='$bpftrace_datasource',
   )
   .addTargets([
-    { expr: importstr 'bpftrace/kstacks.bt', format: 'flamegraph' },
+    { expr: importstr 'tools/kstacks.bt', format: 'flamegraph' },
   ]), gridPos={
     x: 0,
     y: 4,
@@ -84,7 +85,7 @@ grafana.dashboard.new(
     datasource='$bpftrace_datasource',
   )
   .addTargets([
-    { expr: importstr 'bpftrace/ustacks.bt', format: 'flamegraph' },
+    { expr: importstr 'tools/ustacks.bt', format: 'flamegraph' },
   ]), gridPos={
     x: 0,
     y: 13,

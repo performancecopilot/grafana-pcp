@@ -9,6 +9,7 @@ grafana.dashboard.new(
   timepicker=grafana.timepicker.new(
     refresh_intervals=['1s', '2s', '5s', '10s'],
   ),
+  editable=true,
 )
 .addTemplate(
   grafana.template.datasource(
@@ -38,7 +39,7 @@ grafana.dashboard.new(
     cards_cardPadding=0,
   )
   .addTargets([
-    { expr: importstr 'bpftrace/cpuwalk.bt', format: 'heatmap' },
+    { expr: importstr 'tools/cpuwalk.bt', format: 'heatmap' },
   ]), gridPos={
     x: 0,
     y: 1,
@@ -55,7 +56,7 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-    { expr: importstr 'bpftrace/syscall_count.bt', legendFormat: '$metric0', format: 'time_series' },
+    { expr: importstr 'tools/syscall_count.bt', legendFormat: '$metric0', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 1,
@@ -84,7 +85,7 @@ grafana.dashboard.new(
     cards_cardPadding=0,
   )
   .addTargets([
-    { expr: importstr 'bpftrace/runqlat.bt', format: 'heatmap' },
+    { expr: importstr 'tools/runqlat.bt', format: 'heatmap' },
   ]), gridPos={
     x: 0,
     y: 10,
@@ -101,7 +102,7 @@ grafana.dashboard.new(
     cards_cardPadding=0,
   )
   .addTargets([
-    { expr: importstr 'bpftrace/runqlen.bt', format: 'heatmap' },
+    { expr: importstr 'tools/runqlen.bt', format: 'heatmap' },
   ]), gridPos={
     x: 12,
     y: 10,
@@ -130,7 +131,7 @@ grafana.dashboard.new(
     cards_cardPadding=0,
   )
   .addTargets([
-    { expr: importstr 'bpftrace/biolatency.bt', format: 'heatmap' },
+    { expr: importstr 'tools/biolatency.bt', format: 'heatmap' },
   ]), gridPos={
     x: 0,
     y: 19,
@@ -158,7 +159,7 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-    { expr: importstr 'bpftrace/vfscount.bt', format: 'time_series' },
+    { expr: importstr 'tools/vfscount.bt', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 28,
@@ -184,7 +185,7 @@ grafana.dashboard.new(
     styles=null,
   )
   .addTargets([
-      { expr: importstr 'bpftrace/tcplife.bt', format: 'csv_table' },
+      { expr: importstr 'tools/tcplife.bt', format: 'csv_table' },
   ]), gridPos={
     x: 0,
     y: 37,
@@ -199,7 +200,7 @@ grafana.dashboard.new(
     styles=null,
   )
   .addTargets([
-      { expr: importstr 'bpftrace/tcpaccept.bt', format: 'csv_table' },
+      { expr: importstr 'tools/tcpaccept.bt', format: 'csv_table' },
   ]) + {
     "options": {
       "sortBy": [{
@@ -221,7 +222,7 @@ grafana.dashboard.new(
     styles=null,
   )
   .addTargets([
-      { expr: importstr 'bpftrace/tcpconnect.bt', format: 'csv_table' },
+      { expr: importstr 'tools/tcpconnect.bt', format: 'csv_table' },
   ]) + {
     "options": {
       "sortBy": [{
@@ -243,7 +244,7 @@ grafana.dashboard.new(
     styles=null,
   )
   .addTargets([
-      { expr: importstr 'bpftrace/tcpdrop.bt', format: 'csv_table' },
+      { expr: importstr 'tools/tcpdrop.bt', format: 'csv_table' },
   ]) + {
     "options": {
       "sortBy": [{
@@ -265,7 +266,7 @@ grafana.dashboard.new(
     styles=null,
   )
   .addTargets([
-      { expr: importstr 'bpftrace/tcpretrans.bt', format: 'csv_table' },
+      { expr: importstr 'tools/tcpretrans.bt', format: 'csv_table' },
   ]) + {
     "options": {
       "sortBy": [{

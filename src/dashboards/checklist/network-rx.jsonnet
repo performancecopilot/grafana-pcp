@@ -3,13 +3,13 @@ local dashboard = grafana.dashboard;
 local template = grafana.template;
 local graphPanel = grafana.graphPanel;
 
-local notifyGraph = import '../notifygraphpanel/notifygraphpanel.libsonnet';
+local notifyGraph = import '_notifygraphpanel.libsonnet';
 local notifyPanel = notifyGraph.panel;
 local notifyThreshold = notifyGraph.threshold;
 local notifyMeta = notifyGraph.meta;
 local notifyMetric = notifyGraph.metric;
 
-local breadcrumbsPanel = import '../breadcrumbspanel/breadcrumbspanel.libsonnet';
+local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
 
 local overview = import 'shared.libsonnet';
 local dashboardNode = overview.getNodeByUid('pcp-network-rx-overview');
@@ -35,7 +35,7 @@ dashboard.new(
     'vector_datasource',
     'pcp-vector-datasource',
     'PCP Vector',
-    hide='value',    
+    hide='value',
   )
 )
 .addPanel(
@@ -118,7 +118,7 @@ dashboard.new(
     title='Network RX - Errors',
     datasource='$vector_datasource',
     threshold=notifyThreshold.new(
-      metric='network_rx_errors', 
+      metric='network_rx_errors',
       operator='>',
       value=0.01,
     ),

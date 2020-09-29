@@ -123,47 +123,47 @@
         {
             "type": "dashboard",
             "name": "PCP Redis Host Overview",
-            "path": "dashboards/pcp-redis-host-overview.json"
+            "path": "dashboards/redis/pcp-redis-host-overview.json"
         },
         {
             "type": "dashboard",
             "name": "PCP Vector Host Overview",
-            "path": "dashboards/pcp-vector-host-overview.json"
+            "path": "dashboards/vector/pcp-vector-host-overview.json"
         },
         {
             "type": "dashboard",
             "name": "PCP Vector Container Overview (CGroups v1)",
-            "path": "dashboards/pcp-vector-container-overview-cgroups1.json"
+            "path": "dashboards/vector/pcp-vector-container-overview-cgroups1.json"
         },
         {
             "type": "dashboard",
             "name": "PCP Vector Container Overview (CGroups v2)",
-            "path": "dashboards/pcp-vector-container-overview-cgroups2.json"
+            "path": "dashboards/vector/pcp-vector-container-overview-cgroups2.json"
         },
         {
             "type": "dashboard",
             "name": "PCP Vector eBPF/BCC Overview",
-            "path": "dashboards/pcp-vector-bcc-overview.json"
+            "path": "dashboards/vector/pcp-vector-bcc-overview.json"
         },
         {
             "type": "dashboard",
             "name": "PCP bpftrace System Analysis",
-            "path": "dashboards/pcp-bpftrace-system-analysis.json"
+            "path": "dashboards/bpftrace/pcp-bpftrace-system-analysis.json"
         },
         {
             "type": "dashboard",
             "name": "PCP bpftrace Flame Graphs",
-            "path": "dashboards/pcp-bpftrace-flame-graphs.json"
+            "path": "dashboards/bpftrace/pcp-bpftrace-flame-graphs.json"
         },
         {
             "type": "dashboard",
             "name": "Graph Entity Preview",
-            "path": "dashboards/fulltext-graph-preview.json"
+            "path": "dashboards/search/search-graph-preview.json"
         },
         {
             "type": "dashboard",
             "name": "Table Entity Preview",
-            "path": "dashboards/fulltext-table-preview.json"
+            "path": "dashboards/search/search-table-preview.json"
         }
     ],
     "dependencies": {
