@@ -52,7 +52,7 @@ export function generateFlameGraphModel(panelData: PanelData, options: Options):
     model.maxDate = timeField.values.get(timeField.values.length - 1);
 
     for (const field of dataFrame.fields) {
-        if (field.type !== FieldType.number || !field.config.custom?.instanceName) {
+        if (field.type !== FieldType.number || !field.config.custom?.instance?.name) {
             continue;
         }
 
@@ -66,7 +66,7 @@ export function generateFlameGraphModel(panelData: PanelData, options: Options):
             continue;
         }
 
-        readStacks(model.root, options, field.config.custom?.instanceName, count);
+        readStacks(model.root, options, field.config.custom?.instance?.name, count);
     }
 
     return model;

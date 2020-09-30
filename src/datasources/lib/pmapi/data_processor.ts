@@ -426,7 +426,6 @@ export function processQueries(
         return [toCsvTable(frames)];
     } else if (format === TargetFormat.FlameGraph) {
         return frames;
-        //return flatQueryResults.map(({ dataFrame }) => dataFrame);
     } else {
         throw { message: `Invalid target format '${format}'.` };
     }
