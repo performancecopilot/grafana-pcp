@@ -44,7 +44,7 @@ export class PmSeriesApiService {
                 return await timeout(this.backendSrv.request(options), this.apiConfig.timeoutMs);
             }
         } catch (error) {
-            throw new NetworkError(error);
+            throw new NetworkError(error, options);
         }
     }
 
