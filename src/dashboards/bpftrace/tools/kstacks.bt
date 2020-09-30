@@ -2,11 +2,12 @@
  * sample kernel stacks every 99 Hz, and clear map every 5 seconds
  *
  * 30-Oct-2019  Andreas Gerstmayr  Created this.
+ *  7-Aug-2020  Andreas Gerstmayr  Added process name and PID.
  */
 // include: @stacks
 // custom-output-block
 
-profile:hz:99 { @stacks[kstack] = count(); }
+profile:hz:99 { @stacks[comm,pid,kstack] = count(); }
 
 interval:s:1 {
   print(@stacks);
