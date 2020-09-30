@@ -1,4 +1,3 @@
-import { DataSource } from '../datasource';
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import PmapiLang from './PmapiLang.json';
 import { findToken, getTokenValues, TokenValue } from 'datasources/lib/language';
@@ -6,18 +5,22 @@ import { keyBy } from 'lodash';
 import { PmApiService } from 'common/services/pmapi/PmApiService';
 import { Metadata, NoIndomError } from 'common/services/pmapi/types';
 import { Dict } from 'common/types/utils';
+import { DataSource } from '../datasource';
+import { VectorQuery } from '../types';
+import { getLogger } from 'common/utils';
 
 // this prevents monaco from being included in the redis datasource
 // (it it already in its own chunk in vendors~monaco-editor.js)
 declare const monaco: typeof Monaco;
 
+const log = getLogger('PmapiLangDef');
+
 export class PmapiLangDef {
-    private functionCompletions: Monaco.languages.CompletionItem[];
     private pmApiService: PmApiService;
+    private functionCompletions: Monaco.languages.CompletionItem[];
 
-    constructor(datasource: DataSource, private url: string) {
+    constructor(private datasource: DataSource, private getQuery: () => VectorQuery) {
         this.pmApiService = datasource.pmApiService;
-
         this.functionCompletions = PmapiLang.functions.map(f => ({
             kind: monaco.languages.CompletionItemKind.Function,
             label: f.name,
@@ -76,7 +79,12 @@ export class PmapiLangDef {
         monaco.languages.registerCompletionItemProvider('pmapi', {
             triggerCharacters: ['(', '.', '['],
             provideCompletionItems: async (model, position) => {
-                return await this.findCompletions(getTokenValues(model, position));
+                try {
+                    return await this.findCompletions(getTokenValues(model, position));
+                } catch (error) {
+                    log.error(error, error?.data);
+                    return;
+                }
             },
         });
     }
@@ -97,17 +105,18 @@ export class PmapiLangDef {
     }
 
     async findMetricCompletions(token: TokenValue): Promise<Monaco.languages.CompletionItem[]> {
+        const url = this.datasource.getUrlAndHostspec(this.getQuery()).url;
         let searchPrefix = '';
         if (token.value.includes('.')) {
             searchPrefix = token.value.substring(0, token.value.lastIndexOf('.'));
         }
 
-        const suggestions = await this.pmApiService.children(this.url, null, searchPrefix);
+        const suggestions = await this.pmApiService.children(url, null, searchPrefix);
         const prefixWithDot = searchPrefix === '' ? '' : `${searchPrefix}.`;
         let metadataByMetric: Dict<string, Metadata> = {};
         if (suggestions.leaf.length > 0) {
             const metadatas = await this.pmApiService.metric(
-                this.url,
+                url,
                 null,
                 suggestions.leaf.map(leaf => `${prefixWithDot}${leaf}`)
             );
@@ -137,13 +146,14 @@ export class PmapiLangDef {
     }
 
     async findInstanceCompletions(tokens: TokenValue[]) {
+        const url = this.datasource.getUrlAndHostspec(this.getQuery()).url;
         const metric = findToken(tokens, 'identifier.pmapi');
         if (!metric) {
             return [];
         }
 
         try {
-            const instancesResponse = await this.pmApiService.indom(this.url, null, metric.value);
+            const instancesResponse = await this.pmApiService.indom(url, null, metric.value);
             return instancesResponse.instances.map(instance => ({
                 kind: monaco.languages.CompletionItemKind.EnumMember,
                 label: instance.name,

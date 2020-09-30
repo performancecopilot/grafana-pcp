@@ -79,21 +79,24 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         this.setState({ hostspec }, this.runQuery);
     };
 
-    runQuery = () => {
-        this.props.onChange({
+    getQuery = () => {
+        return {
             ...this.props.query,
             expr: this.state.expr,
             format: this.state.format.value as TargetFormat,
             legendFormat: this.state.legendFormat,
             url: this.state.url,
             hostspec: this.state.hostspec,
-        });
+        };
+    };
+
+    runQuery = () => {
+        this.props.onChange(this.getQuery());
         this.props.onRunQuery();
     };
 
     initMonaco = () => {
-        // TODO: url from query editor
-        const pmseriesLang = new PmapiLangDef(this.props.datasource, this.props.datasource.instanceSettings.url!);
+        const pmseriesLang = new PmapiLangDef(this.props.datasource, this.getQuery);
         pmseriesLang.register();
     };
 

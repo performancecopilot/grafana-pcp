@@ -52,18 +52,25 @@ export abstract class DatasourceBase<Q extends PmapiQuery, O extends PmapiOption
         return !(query.hide === true || isBlank(query.expr) || /container=(&|$)/.test(query.hostspec ?? ''));
     }
 
-    applyTemplateVariables(query: Q, scopedVars: ScopedVars): TemplatedPmapiQuery {
-        const expr = getTemplateSrv().replace(query.expr.trim(), scopedVars);
-        const url = getTemplateSrv().replace(query.url ?? this.url ?? '', scopedVars);
-        const hostspec = getTemplateSrv().replace(query.hostspec ?? this.hostspec, scopedVars);
+    getUrlAndHostspec(query?: Q, scopedVars = {}): { url: string; hostspec: string } {
+        const url = getTemplateSrv().replace(query?.url ?? this.url ?? '', scopedVars);
+        const orInTheQueryErrorText = query ? ' or in the query editor' : '';
 
         if (isBlank(url)) {
-            throw new Error('Please specify a connection URL in the datasource settings or in the query editor.');
-        }
-        if (isBlank(hostspec)) {
-            throw new Error('Please specify a host specification in the datasource settings or in the query editor.');
+            throw new Error(`Please specify a connection URL in the datasource settings${orInTheQueryErrorText}.`);
         }
 
+        const hostspec = getTemplateSrv().replace(query?.hostspec ?? this.hostspec, scopedVars);
+        if (isBlank(hostspec)) {
+            throw new Error(`Please specify a host specification in the datasource settings${orInTheQueryErrorText}.`);
+        }
+
+        return { url, hostspec };
+    }
+
+    applyTemplateVariables(query: Q, scopedVars: ScopedVars): TemplatedPmapiQuery {
+        const expr = getTemplateSrv().replace(query.expr.trim(), scopedVars);
+        const { url, hostspec } = this.getUrlAndHostspec(query, scopedVars);
         return {
             ...query,
             expr,
@@ -72,31 +79,17 @@ export abstract class DatasourceBase<Q extends PmapiQuery, O extends PmapiOption
         };
     }
 
-    getDashboardRefreshInterval() {
-        const interval = new URLSearchParams(window.location.search).get('refresh');
-        return interval ? interval_to_ms(interval) : undefined;
-    }
-
-    getUrlAndHostspec() {
-        const url = this.url;
-        if (isBlank(url)) {
-            throw new Error('Please specify a connection URL in the datasource settings.');
-        }
-
-        const hostspec = this.hostspec;
-        if (isBlank(hostspec)) {
-            throw new Error('Please specify a host specification in the datasource settings or in the query editor.');
-        }
-
-        return [url!, hostspec!];
-    }
-
     async metricFindQuery(query: string): Promise<MetricFindValue[]> {
         query = getTemplateSrv().replace(query.trim());
-        const [url, hostspec] = this.getUrlAndHostspec();
+        const { url, hostspec } = this.getUrlAndHostspec();
         const context = await this.pmApiService.createContext(url, hostspec);
         const metricValues = await this.pmApiService.fetch(url, context.context, [query]);
         return metricValues.values[0].instances.map(instance => ({ text: instance.value.toString() }));
+    }
+
+    getDashboardRefreshInterval() {
+        const interval = new URLSearchParams(window.location.search).get('refresh');
+        return interval ? interval_to_ms(interval) : undefined;
     }
 
     async query(request: DataQueryRequest<Q>): Promise<DataQueryResponse> {
@@ -122,7 +115,7 @@ export abstract class DatasourceBase<Q extends PmapiQuery, O extends PmapiOption
 
     async testDatasource() {
         try {
-            const [url, hostspec] = this.getUrlAndHostspec();
+            const { url, hostspec } = this.getUrlAndHostspec();
             const context = await this.pmApiService.createContext(url, hostspec);
             const pmcdVersionMetric = await this.pmApiService.fetch(url, context.context, ['pmcd.version']);
             return {

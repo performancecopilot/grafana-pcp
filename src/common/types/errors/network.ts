@@ -20,24 +20,24 @@ export class NetworkError extends Error {
         let message = 'Network error';
         if (isString(error)) {
             message = error;
-        }
-        else if ("message" in error) {
+        } else if ('message' in error) {
             // Browser mode, Fetch() failed
             message = `${error.message} Please check the datasource and pmproxy settings.`;
-        } else if ("statusText" in error) {
+        } else if ('statusText' in error) {
             // Proxy mode, Fetch() succeed (if the Grafana proxy is used, it always succeeds)
             message = `HTTP Error ${error.status}: ${error.statusText}, please check the datasource and pmproxy settings.`;
         }
 
         if (request) {
-            const params = request.params ? '?' + new URLSearchParams(request.params) : "";
+            const params = request.params ? '?' + new URLSearchParams(request.params) : '';
             message += ` Request: ${request.url}${params}`;
         }
         super(message);
 
         this.error = error;
-        if (!isString(error) && "data" in error)
+        if (!isString(error) && 'data' in error) {
             this.data = error.data;
+        }
         Object.setPrototypeOf(this, new.target.prototype);
     }
 }

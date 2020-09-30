@@ -176,6 +176,9 @@ export class Poller {
     }
 
     async pollEndpoint(endpoint: Endpoint) {
+        if (endpoint.targets.length === 0) {
+            return;
+        }
         if (endpoint.state === EndpointState.PENDING) {
             await this.initContext(endpoint);
         }
@@ -255,7 +258,10 @@ export class Poller {
         this.cleanInactiveTargets();
         this.cleanHistoryData();
 
-        log.trace('polling endpoints', this.state.endpoints);
+        log.debug(
+            'polling endpoints: start',
+            this.state.endpoints.filter(endpoint => endpoint.targets.length > 0)
+        );
         await Promise.all(
             this.state.endpoints.map(endpoint =>
                 this.pollEndpointAndHandleContextTimeout(endpoint).catch(error => {
@@ -264,6 +270,7 @@ export class Poller {
                 })
             )
         );
+        log.debug('polling endpoints: finish');
     }
 
     deregisterTarget(endpoint: Endpoint, target: Target) {
@@ -297,7 +304,7 @@ export class Poller {
 
     throwBackgroundError(obj: { errors: any[] }) {
         if (obj.errors.length > 0) {
-            obj.errors.forEach(error => log.error(error));
+            obj.errors.forEach(error => log.error('background error', error, error?.data));
             throw Error(obj.errors.map(error => error.message).join('\n'));
         }
     }
@@ -328,11 +335,15 @@ export class Poller {
 
         if (target && !this.config.hooks.queryHasChanged(target.query, query)) {
             // unchanged target
+            log.debug('unchanged target', target);
             target.lastActiveMs = nowMs;
         } else {
             if (target) {
                 // target exists but has changed -> remove from list & create a new target
+                log.debug('changed target', target);
                 this.deregisterTarget(endpoint, target);
+            } else {
+                log.debug('new target', targetId, query);
             }
 
             target = {
