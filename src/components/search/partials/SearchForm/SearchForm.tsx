@@ -176,6 +176,7 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
     }
 
     onSuggestionsFetchRequested(request: SuggestionsFetchRequestedParams): void {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.props.services.searchService.autocomplete({ query: request.value }).then(result => {
             this.setState({
                 suggestions: result,

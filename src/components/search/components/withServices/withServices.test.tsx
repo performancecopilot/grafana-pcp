@@ -33,7 +33,7 @@ describe('withServices HOC', () => {
         EntityServiceMock.mockClear();
     });
 
-    test('extends wrapped component with Services and leaves other props', () => {
+    test('extends wrapped component with Services and leaves other props', async () => {
         const TestComponent = (props: TestComponentProps) => {
             return <p>Component</p>;
         };
@@ -53,18 +53,18 @@ describe('withServices HOC', () => {
         // Provided services have callable methods
         // Search methods are callable
         const searchServiceProp: jest.Mocked<PmSearchApiService> = props.services.searchService as any;
-        searchServiceProp.text(null!);
-        searchServiceProp.autocomplete(null!);
+        await searchServiceProp.text(null!);
+        await searchServiceProp.autocomplete(null!);
         // Series methods are callable
         const seriesServiceProp: jest.Mocked<PmSeriesApiService> = props.services.seriesService as any;
-        seriesServiceProp.descs(null!);
-        seriesServiceProp.labels(null!);
-        seriesServiceProp.metrics(null!);
-        seriesServiceProp.query(null!);
+        await seriesServiceProp.descs(null!);
+        await seriesServiceProp.labels(null!);
+        await seriesServiceProp.metrics(null!);
+        await seriesServiceProp.query(null!);
         // Entity methods are callable
         const entityServiceProp: jest.Mocked<EntityService> = props.services.entityService as any;
-        entityServiceProp.indom(null!);
-        entityServiceProp.metric(null!);
+        await entityServiceProp.indom(null!);
+        await entityServiceProp.metric(null!);
 
         // Check that all of above has been called
         expect(searchService.text).toHaveBeenCalled();

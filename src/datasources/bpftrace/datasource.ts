@@ -75,6 +75,7 @@ export class DataSource extends DatasourceBase<BPFtraceQuery, BPFtraceOptions> {
 
     deregisterTarget(target: Target<BPFtraceTargetData>) {
         if (target.custom?.script) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.scriptManager.deregister(target.query.url, target.query.hostspec, target.custom.script);
         }
     }

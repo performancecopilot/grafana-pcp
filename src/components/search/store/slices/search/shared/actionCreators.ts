@@ -115,20 +115,19 @@ export const openDetail: OpenDetailActionCreator = (id, type) => async (
     dispatch: ThunkDispatch<{}, Services, OpenDetailAction>,
     {}
 ): Promise<void> => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     dispatch({
         type: SET_VIEW,
         payload: ViewState.Detail,
     });
     switch (type) {
         case EntityType.Metric: {
-            dispatch(loadMetric(id)).then(metricName => {
-                dispatch(loadMetricSiblings(metricName));
+            return dispatch(loadMetric(id)).then(metricName => {
+                return dispatch(loadMetricSiblings(metricName));
             });
-            return;
         }
         case EntityType.InstanceDomain: {
-            dispatch(loadIndom(id));
-            return;
+            return dispatch(loadIndom(id));
         }
     }
 };

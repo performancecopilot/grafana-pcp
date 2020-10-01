@@ -29,7 +29,7 @@ export function getRequestOptions(instanceSettings: DataSourceInstanceSettings):
     return defaultRequestOptions;
 }
 
-export async function timeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+export function timeout<T>(promise: Promise<T>, ms: number): Promise<T> {
     return new Promise<T>(async (resolve, reject) => {
         setTimeout(() => {
             reject(new TimeoutError());

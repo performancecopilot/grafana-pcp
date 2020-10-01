@@ -1,0 +1,11 @@
+{
+    "extends": [
+        "@grafana/eslint-config"
+    ],
+    "parserOptions": {
+        "project": "./tsconfig.json"
+    },
+    "rules": {
+        "@typescript-eslint/no-floating-promises": "error"
+    }
+}
