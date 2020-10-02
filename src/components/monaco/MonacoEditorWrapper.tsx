@@ -46,8 +46,8 @@ class MonacoEditorWrapper extends PureComponent<Props> {
                 minimap: {
                     enabled: false,
                 },
-                folding: false, // left space
-                lineDecorationsWidth: 5, // left margin when not showing line numbers
+                folding: false, // space between line number and code
+                lineDecorationsWidth: 5, // space between line number and code
                 overviewRulerBorder: false, // right border
                 ...this.props.options,
             },

@@ -1,18 +1,22 @@
 import { DataSource } from '../datasource';
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import PmseriesLang from './PmseriesLang.json';
 import { MetricFindValue } from '@grafana/data';
 import { findToken, getTokenValues, TokenValue } from '../../lib/language';
+import * as PmseriesLanguage from './PmseriesLanguage.json';
+import { cloneDeep } from 'lodash';
+import { getLogger } from 'common/utils';
 
 // this prevents monaco from being included in the redis datasource
 // (it it already in its own chunk in vendors~monaco-editor.js)
 declare const monaco: typeof Monaco;
 
-export class PmseriesLangDef {
+const log = getLogger('PmseriesLanguageDefiniton');
+
+export class PmseriesLanguageDefiniton {
     private functionCompletions: Monaco.languages.CompletionItem[];
 
     constructor(private datasource: DataSource) {
-        this.functionCompletions = PmseriesLang.functions.map(f => ({
+        this.functionCompletions = PmseriesLanguage.functions.map(f => ({
             kind: monaco.languages.CompletionItemKind.Function,
             label: f.name,
             insertText: f.name,
@@ -29,9 +33,13 @@ export class PmseriesLangDef {
                 { open: '{', close: '}' },
                 { open: '"', close: '"' },
             ],
+
+            // autocompletions replace the current "word"
+            // the default separators except `.`
+            wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\@\#\%\^\&\*\(\)\=\$\-\+\[\{\]\}\\\|\;\:\'\"\,\<\>\/\?\s]+)/g,
         });
         monaco.languages.setMonarchTokensProvider('pmseries', {
-            functions: PmseriesLang.functions.map(f => f.name),
+            functions: PmseriesLanguage.functions.map(f => f.name),
 
             comparisonOperators: ['==', '!=', '~~', '=~', '!~', ':', '<', '>', '<=', '>='],
             logicalOperators: ['&&', '||', ','],
@@ -74,7 +82,13 @@ export class PmseriesLangDef {
         monaco.languages.registerCompletionItemProvider('pmseries', {
             triggerCharacters: ['(', '{', '"', '&', '|', ','],
             provideCompletionItems: async (model, position) => {
-                return await this.findCompletions(getTokenValues(model, position));
+                try {
+                    // the 'range' property gets modified by monaco, therefore return a clone instead of the real object
+                    return cloneDeep(await this.findCompletions(getTokenValues(model, position)));
+                } catch (error) {
+                    log.error(error, error?.data);
+                    return;
+                }
             },
         });
     }

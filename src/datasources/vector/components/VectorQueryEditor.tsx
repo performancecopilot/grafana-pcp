@@ -6,7 +6,7 @@ import { DataSource } from '../datasource';
 import { VectorOptions, VectorQuery, defaultVectorQuery } from '../types';
 import { MonacoEditorLazy } from 'components/monaco/MonacoEditorLazy';
 import { css, cx } from 'emotion';
-import { PmapiLangDef } from './PmapiLangDef';
+import { PmapiLanguageDefinition } from './PmapiLanguageDefiniton';
 import { TargetFormat } from 'datasources/lib/pmapi/types';
 import { isBlank } from 'common/utils';
 
@@ -96,7 +96,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
     };
 
     initMonaco = () => {
-        const pmseriesLang = new PmapiLangDef(this.props.datasource, this.getQuery);
+        const pmseriesLang = new PmapiLanguageDefinition(this.props.datasource, this.getQuery);
         pmseriesLang.register();
     };
 

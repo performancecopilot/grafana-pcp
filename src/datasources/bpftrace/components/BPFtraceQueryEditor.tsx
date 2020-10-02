@@ -4,9 +4,11 @@ import { InlineFormLabel, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { BPFtraceOptions, BPFtraceQuery, defaultBPFtraceQuery } from '../types';
-import BPFtraceQueryField from './BPFtraceQueryField';
 import { TargetFormat } from 'datasources/lib/pmapi/types';
 import { isBlank } from 'common/utils';
+import { MonacoEditorLazy } from 'components/monaco/MonacoEditorLazy';
+import { css, cx } from 'emotion';
+import { BPFtraceLanguageDefinition } from './BPFtraceLanguageDefinition';
 
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },
@@ -26,6 +28,23 @@ interface State {
 }
 
 export class BPFtraceQueryEditor extends PureComponent<Props, State> {
+    monacoServiceOverrides = {
+        // always show documentation texts
+        storageService: {
+            get() {},
+            getBoolean(key: string) {
+                if (key === 'expandSuggestionDocs') {
+                    return true;
+                }
+
+                return false;
+            },
+            store() {},
+            onWillSaveState() {},
+            onDidChangeStorage() {},
+        },
+    };
+
     constructor(props: Props) {
         super(props);
         const query = defaults(this.props.query, defaultBPFtraceQuery);
@@ -39,46 +58,71 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
     }
 
     onExprChange = (expr: string) => {
-        this.setState({ expr }, this.onRunQuery);
+        this.setState({ expr }, this.runQuery);
     };
 
     onLegendFormatChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
         const legendFormat = isBlank(event.currentTarget.value) ? undefined : event.currentTarget.value;
-        this.setState({ legendFormat }, this.onRunQuery);
+        this.setState({ legendFormat }, this.runQuery);
     };
 
     onFormatChange = (format: SelectableValue<string>) => {
-        this.setState({ format }, this.onRunQuery);
+        this.setState({ format }, this.runQuery);
     };
 
     onURLChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
         const url = isBlank(event.currentTarget.value) ? undefined : event.currentTarget.value;
-        this.setState({ url }, this.onRunQuery);
+        this.setState({ url }, this.runQuery);
     };
 
     onHostspecChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
         const hostspec = isBlank(event.currentTarget.value) ? undefined : event.currentTarget.value;
-        this.setState({ hostspec }, this.onRunQuery);
+        this.setState({ hostspec }, this.runQuery);
     };
 
-    onRunQuery = () => {
-        this.props.onChange({
+    getQuery = () => {
+        return {
             ...this.props.query,
             expr: this.state.expr,
             format: this.state.format.value as TargetFormat,
             legendFormat: this.state.legendFormat,
             url: this.state.url,
             hostspec: this.state.hostspec,
-        });
+        };
+    };
+
+    runQuery = () => {
+        this.props.onChange(this.getQuery());
         this.props.onRunQuery();
+    };
+
+    initMonaco = () => {
+        const pmseriesLang = new BPFtraceLanguageDefinition(this.props.datasource, this.getQuery);
+        pmseriesLang.register();
     };
 
     render() {
         return (
             <div>
-                <BPFtraceQueryField expr={this.state.expr} onChange={this.onExprChange} />
+                <MonacoEditorLazy
+                    language="bpftrace"
+                    height="300px"
+                    options={{ lineNumbers: 'on', folding: true }}
+                    value={this.state.expr}
+                    overrideServices={this.monacoServiceOverrides}
+                    editorWillMount={this.initMonaco}
+                    onBlur={this.onExprChange}
+                    onSave={this.onExprChange}
+                />
 
-                <div className="gf-form-inline">
+                <div
+                    className={cx(
+                        'gf-form-inline',
+                        css`
+                            margin-top: 6px;
+                        `
+                    )}
+                >
                     <div className="gf-form">
                         <InlineFormLabel
                             width={7}
@@ -94,7 +138,7 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
                             placeholder="legend format"
                             value={this.state.legendFormat}
                             onChange={this.onLegendFormatChange}
-                            onBlur={this.onRunQuery}
+                            onBlur={this.runQuery}
                         />
                     </div>
 
@@ -122,7 +166,7 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
                             placeholder="override URL"
                             value={this.state.url}
                             onChange={this.onURLChange}
-                            onBlur={this.onRunQuery}
+                            onBlur={this.runQuery}
                         />
                     </div>
 
@@ -139,7 +183,7 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
                             placeholder="override host specification"
                             value={this.state.hostspec}
                             onChange={this.onHostspecChange}
-                            onBlur={this.onRunQuery}
+                            onBlur={this.runQuery}
                         />
                     </div>
                 </div>

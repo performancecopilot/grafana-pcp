@@ -1,0 +1,265 @@
+{
+    "metadata": [
+        {
+            "name": "name",
+            "insertText": "name: ",
+            "doc": "script name (must contain only alphanumeric characters and start with a letter)"
+        },
+        {
+            "name": "include",
+            "insertText": "include: ",
+            "doc": "include only the specified bpftrace variables (comma-separated list)\n\nexample: ```// include: @usecs,@bytes```"
+        },
+        {
+            "name": "table-retain-lines",
+            "insertText": "table-retain-lines: ",
+            "doc": "retain only the specified number of lines, keeping the header line\n\nexample: ```// table-retain-lines: 10```"
+        },
+        {
+            "name": "custom-output-block",
+            "insertText": "custom-output-block",
+            "doc": "script is using a custom output block\n\nexample: ```// custom-output-block\ninterval:s:1 { print(@bytes); }```"
+        }
+    ],
+    "probes": [
+        {
+            "name": "BEGIN"
+        },
+        {
+            "name": "END"
+        },
+        {
+            "name": "uprobe"
+        },
+        {
+            "name": "uretprobe"
+        },
+        {
+            "name": "usdt"
+        },
+        {
+            "name": "profile"
+        },
+        {
+            "name": "interval"
+        },
+        {
+            "name": "watchpoint"
+        }
+    ],
+    "variables": [
+        {
+            "name": "pid",
+            "doc": "Process ID (kernel tgid)"
+        },
+        {
+            "name": "tid",
+            "doc": "Thread ID (kernel pid)"
+        },
+        {
+            "name": "uid",
+            "doc": "User ID"
+        },
+        {
+            "name": "gid",
+            "doc": "Group ID"
+        },
+        {
+            "name": "nsecs",
+            "doc": "Nanosecond timestamp"
+        },
+        {
+            "name": "elapsed",
+            "doc": "Nanosecond timestamp since bpftrace initialization"
+        },
+        {
+            "name": "cpu",
+            "doc": "Processor ID"
+        },
+        {
+            "name": "comm",
+            "doc": "Process name"
+        },
+        {
+            "name": "kstack",
+            "doc": "Kernel stack trace"
+        },
+        {
+            "name": "ustack",
+            "doc": "User stack trace"
+        },
+        {
+            "name": "argN",
+            "insertText": "arg0",
+            "doc": "Arguments to the traced function; assumed to be 64 bits wide (`arg0`, `arg1`, etc.)"
+        },
+        {
+            "name": "sargN",
+            "insertText": "sarg0",
+            "doc": "Arguments to the traced function (for programs that store arguments on the stack); assumed to be 64 bits wide (`sarg0`, `sarg1`, etc.)"
+        },
+        {
+            "name": "retval",
+            "doc": "Return value from function being traced"
+        },
+        {
+            "name": "func",
+            "doc": "Name of the function currently being traced"
+        },
+        {
+            "name": "probe",
+            "doc": "Full name of the probe"
+        },
+        {
+            "name": "curtask",
+            "doc": "Current task_struct as a u64"
+        },
+        {
+            "name": "rand",
+            "doc": "Random number of type u32"
+        },
+        {
+            "name": "cgroup",
+            "doc": "Cgroup ID of the current process"
+        }
+    ],
+    "functions": [
+        {
+            "def": "printf(char *fmt, ...)",
+            "doc": "Print formatted to stdout"
+        },
+        {
+            "def": "time(char *fmt)",
+            "doc": "Print the current time"
+        },
+        {
+            "def": "join(char *arr[] [, char *delim])",
+            "doc": "Prints the string array"
+        },
+        {
+            "def": "str(char *s [, int length])",
+            "doc": "Returns the string pointed to by `s`"
+        },
+        {
+            "def": "buf(void *d [, int length])",
+            "doc": "Returns a hex-formatted string of the data pointed to by `d`"
+        },
+        {
+            "def": "ksym(void *p)",
+            "doc": "Resolve kernel address"
+        },
+        {
+            "def": "usym(void *p)",
+            "doc": "Resolve user space address"
+        },
+        {
+            "def": "kaddr(char *name)",
+            "doc": "Resolve kernel symbol name"
+        },
+        {
+            "def": "uaddr(char *name)",
+            "doc": "Resolve user space symbol name"
+        },
+        {
+            "def": "reg(char *name)",
+            "doc": "Returns the value stored in the named register"
+        },
+        {
+            "def": "system(char *fmt)",
+            "doc": "Execute shell command"
+        },
+        {
+            "def": "exit()",
+            "doc": "Quit bpftrace"
+        },
+        {
+            "def": "cgroupid(char *path)",
+            "doc": "Resolve cgroup ID"
+        },
+        {
+            "def": "kstack([StackMode mode, ][int level])",
+            "doc": "Kernel stack trace"
+        },
+        {
+            "def": "ustack([StackMode mode, ][int level])",
+            "doc": "User stack trace"
+        },
+        {
+            "def": "ntop([int af, ]int|char[4|16] addr)",
+            "doc": "Resolve ip address"
+        },
+        {
+            "def": "cat(char *filename)",
+            "doc": "Print file content"
+        },
+        {
+            "def": "signal(char[] signal | u32 signal)",
+            "doc": "Send a signal to the current task"
+        },
+        {
+            "def": "strncmp(char *s1, char *s2, int length)",
+            "doc": "Compare first n characters of two strings"
+        },
+        {
+            "def": "override(u64 rc)",
+            "doc": "Override return value"
+        },
+        {
+            "def": "sizeof(TYPE|EXPRESSION)",
+            "doc": "Size of type or expression"
+        },
+        {
+            "def": "print(@x[, int top [, int div]])",
+            "doc": "Print a map, with optional top entry count and divisor"
+        },
+        {
+            "def": "strftime(const char *format, int nsecs)",
+            "doc": "This returns a formatted timestamp that is printable with `printf`. The format string must be supported by `strftime(3)`. nsecs is nanoseconds since boot, typically derived from `nsecs`."
+        },
+        {
+            "def": "count()",
+            "doc": "Count the number of times this function is called"
+        },
+        {
+            "def": "sum(int n)",
+            "doc": "Sum this value"
+        },
+        {
+            "def": "avg(int n)",
+            "doc": "Average this value"
+        },
+        {
+            "def": "min(int n)",
+            "doc": "Record the minimum value seen"
+        },
+        {
+            "def": "max(int n)",
+            "doc": "Record the maximum value seen"
+        },
+
+        {
+            "def": "stats(int n)",
+            "doc": "Return the count, average, and total for this value"
+        },
+        {
+            "def": "hist(int n)",
+            "doc": "Produce a log2 histogram of values of `n`"
+        },
+        {
+            "def": "lhist(int n, int min, int max, int step)",
+            "doc": "Produce a linear histogram of values of `n`"
+        },
+        {
+            "def": "delete(@x)",
+            "doc": "Delete the map element passed in as an argument"
+        },
+        {
+            "def": "clear(@x)",
+            "doc": "Delete all key/values from a map"
+        },
+        {
+            "def": "zero(@x)",
+            "doc": "Set all map values to zero"
+        }
+    ]
+}

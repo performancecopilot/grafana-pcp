@@ -1,7 +1,7 @@
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import PmapiLang from './PmapiLang.json';
+import PmapiLanguage from './PmapiLanguage.json';
 import { findToken, getTokenValues, TokenValue } from 'datasources/lib/language';
-import { keyBy } from 'lodash';
+import { cloneDeep, keyBy } from 'lodash';
 import { PmApiService } from 'common/services/pmapi/PmApiService';
 import { Metadata, NoIndomError } from 'common/services/pmapi/types';
 import { Dict } from 'common/types/utils';
@@ -13,19 +13,22 @@ import { getLogger } from 'common/utils';
 // (it it already in its own chunk in vendors~monaco-editor.js)
 declare const monaco: typeof Monaco;
 
-const log = getLogger('PmapiLangDef');
+const log = getLogger('PmapiLanguageDefinition');
 
-export class PmapiLangDef {
+export class PmapiLanguageDefinition {
     private pmApiService: PmApiService;
     private functionCompletions: Monaco.languages.CompletionItem[];
 
     constructor(private datasource: DataSource, private getQuery: () => VectorQuery) {
         this.pmApiService = datasource.pmApiService;
-        this.functionCompletions = PmapiLang.functions.map(f => ({
+        this.functionCompletions = PmapiLanguage.functions.map(f => ({
             kind: monaco.languages.CompletionItemKind.Function,
             label: f.name,
             insertText: f.name,
-            detail: f.doc,
+            documentation: {
+                value: f.doc,
+                isTrusted: true,
+            },
             range: undefined as any,
         }));
     }
@@ -37,9 +40,13 @@ export class PmapiLangDef {
                 { open: '(', close: ')' },
                 { open: '[', close: ']' },
             ],
+
+            // autocompletions replace the current "word"
+            // the default separators except `.`
+            wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\@\#\%\^\&\*\(\)\=\$\-\+\[\{\]\}\\\|\;\:\'\"\,\<\>\/\?\s]+)/g,
         });
         monaco.languages.setMonarchTokensProvider('pmapi', {
-            functions: PmapiLang.functions.map(f => f.name),
+            functions: PmapiLanguage.functions.map(f => f.name),
 
             operators: ['<', '<=', '==', '>=', '>', '!=', '!', '&&', '||', '?', ':'],
 
@@ -80,7 +87,8 @@ export class PmapiLangDef {
             triggerCharacters: ['(', '.', '['],
             provideCompletionItems: async (model, position) => {
                 try {
-                    return await this.findCompletions(getTokenValues(model, position));
+                    // the 'range' property gets modified by monaco, therefore return a clone instead of the real object
+                    return cloneDeep(await this.findCompletions(getTokenValues(model, position)));
                 } catch (error) {
                     log.error(error, error?.data);
                     return;
@@ -96,7 +104,7 @@ export class PmapiLangDef {
 
         // two spaces before the newline render it as a <br>, see https://daringfireball.net/projects/markdown/syntax#block
         return (
-            `##### ${metadata.name}\n\n` +
+            `${metadata.name}\n\n` +
             `Type: *${metadata.type}*  \n` +
             `Semantics: *${metadata.sem}*  \n` +
             `Units: *${metadata.units}*\n\n` +
