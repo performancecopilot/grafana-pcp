@@ -28,22 +28,9 @@ interface State {
 }
 
 export class BPFtraceQueryEditor extends PureComponent<Props, State> {
-    monacoServiceOverrides = {
-        // always show documentation texts
-        storageService: {
-            get() {},
-            getBoolean(key: string) {
-                if (key === 'expandSuggestionDocs') {
-                    return true;
-                }
-
-                return false;
-            },
-            store() {},
-            onWillSaveState() {},
-            onDidChangeStorage() {},
-        },
-    };
+    languageDefinition: BPFtraceLanguageDefinition;
+    // don't create this object in the render method, otherwise it causes a componentDidUpdate() everytime
+    editorOptions: { lineNumbers: 'on'; folding: boolean };
 
     constructor(props: Props) {
         super(props);
@@ -54,6 +41,11 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
             legendFormat: query.legendFormat,
             url: query.url,
             hostspec: query.hostspec,
+        };
+        this.languageDefinition = new BPFtraceLanguageDefinition(this.props.datasource, this.getQuery);
+        this.editorOptions = {
+            lineNumbers: 'on',
+            folding: true,
         };
     }
 
@@ -96,21 +88,15 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
         this.props.onRunQuery();
     };
 
-    initMonaco = () => {
-        const pmseriesLang = new BPFtraceLanguageDefinition(this.props.datasource, this.getQuery);
-        pmseriesLang.register();
-    };
-
     render() {
         return (
             <div>
                 <MonacoEditorLazy
-                    language="bpftrace"
+                    languageDefinition={this.languageDefinition}
+                    alwaysShowHelpText={true}
                     height="300px"
-                    options={{ lineNumbers: 'on', folding: true }}
+                    options={this.editorOptions}
                     value={this.state.expr}
-                    overrideServices={this.monacoServiceOverrides}
-                    editorWillMount={this.initMonaco}
                     onBlur={this.onExprChange}
                     onSave={this.onExprChange}
                 />

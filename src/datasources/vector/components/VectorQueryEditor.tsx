@@ -27,22 +27,7 @@ interface State {
 }
 
 export class VectorQueryEditor extends PureComponent<Props, State> {
-    monacoServiceOverrides = {
-        // always show documentation texts
-        storageService: {
-            get() {},
-            getBoolean(key: string) {
-                if (key === 'expandSuggestionDocs') {
-                    return true;
-                }
-
-                return false;
-            },
-            store() {},
-            onWillSaveState() {},
-            onDidChangeStorage() {},
-        },
-    };
+    languageDefinition: PmapiLanguageDefinition;
 
     constructor(props: Props) {
         super(props);
@@ -54,6 +39,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
             url: query.url,
             hostspec: query.hostspec,
         };
+        this.languageDefinition = new PmapiLanguageDefinition(this.props.datasource, this.getQuery);
     }
 
     onExprChange = (expr: string) => {
@@ -95,20 +81,14 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         this.props.onRunQuery();
     };
 
-    initMonaco = () => {
-        const pmseriesLang = new PmapiLanguageDefinition(this.props.datasource, this.getQuery);
-        pmseriesLang.register();
-    };
-
     render() {
         return (
             <div>
                 <MonacoEditorLazy
-                    language="pmapi"
+                    languageDefinition={this.languageDefinition}
+                    alwaysShowHelpText={true}
                     height="60px"
                     value={this.state.expr}
-                    overrideServices={this.monacoServiceOverrides}
-                    editorWillMount={this.initMonaco}
                     onBlur={this.onExprChange}
                     onSave={this.onExprChange}
                 />

@@ -3,7 +3,20 @@ import MonacoEditor, { MonacoEditorProps } from 'react-monaco-editor';
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { Themeable, withTheme } from '@grafana/ui';
 
+export interface MonacoLanguageDefinition {
+    /** unique language ID.
+     * Note: there can be multiple Monaco Editors on the same page
+     * where each of them needs a different auto-completion
+     * (each query can use a different datasource or overriden URL)
+     * so we need to make every language definition ID unique */
+    languageId: string;
+    register: () => void;
+    deregister: () => void;
+}
+
 export interface MonacoEditorWrapperProps extends Omit<MonacoEditorProps, 'theme'> {
+    languageDefinition: MonacoLanguageDefinition;
+    alwaysShowHelpText?: boolean;
     initMonaco?: (monaco: typeof Monaco) => void;
     onBlur?: (value: string) => void;
     onSave?: (value: string) => void;
@@ -26,6 +39,11 @@ class MonacoEditorWrapper extends PureComponent<Props> {
         this.props.onBlur?.(this.editor?.getValue() || '');
     };
 
+    editorWillMount = (monaco: typeof Monaco) => {
+        this.props.languageDefinition.register();
+        this.props.editorWillMount?.(monaco);
+    };
+
     editorDidMount = (editor: Monaco.editor.IStandaloneCodeEditor, monaco: typeof Monaco) => {
         this.editor = editor;
 
@@ -34,11 +52,18 @@ class MonacoEditorWrapper extends PureComponent<Props> {
                 this.props.onSave?.(editor.getValue());
             });
         }
+
+        this.props.editorDidMount?.(editor, monaco);
     };
+
+    componentWillUnmount() {
+        this.props.languageDefinition.deregister();
+    }
 
     render() {
         const props: MonacoEditorProps = {
             ...this.props,
+            language: this.props.languageDefinition.languageId,
             theme: this.props.theme.isDark ? 'vs-dark' : 'vs-light',
             options: {
                 wordWrap: 'on',
@@ -52,9 +77,29 @@ class MonacoEditorWrapper extends PureComponent<Props> {
                 ...this.props.options,
             },
         };
+
+        if (this.props.alwaysShowHelpText) {
+            props.overrideServices = {
+                ...props.overrideServices,
+                storageService: {
+                    get() {},
+                    getBoolean(key: string) {
+                        if (key === 'expandSuggestionDocs') {
+                            return true;
+                        }
+
+                        return false;
+                    },
+                    store() {},
+                    onWillSaveState() {},
+                    onDidChangeStorage() {},
+                },
+            };
+        }
+
         return (
             <div onBlur={this.onBlur}>
-                <MonacoEditor editorDidMount={this.editorDidMount} {...props} />
+                <MonacoEditor editorWillMount={this.editorWillMount} editorDidMount={this.editorDidMount} {...props} />
             </div>
         );
     }

@@ -17,6 +17,8 @@ interface State {
 }
 
 export class RedisQueryEditor extends PureComponent<Props, State> {
+    languageDefinition: PmseriesLanguageDefiniton;
+
     constructor(props: Props) {
         super(props);
         const query = defaults(this.props.query, defaultRedisQuery);
@@ -24,6 +26,7 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
             expr: query.expr,
             legendFormat: query.legendFormat,
         };
+        this.languageDefinition = new PmseriesLanguageDefiniton(this.props.datasource);
     }
 
     onExprChange = (expr: string) => {
@@ -44,19 +47,13 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
         this.props.onRunQuery();
     };
 
-    initMonaco = () => {
-        const pmseriesLang = new PmseriesLanguageDefiniton(this.props.datasource);
-        pmseriesLang.register();
-    };
-
     render() {
         return (
             <div>
                 <MonacoEditorLazy
-                    language="pmseries"
+                    languageDefinition={this.languageDefinition}
                     height="60px"
                     value={this.state.expr}
-                    editorWillMount={this.initMonaco}
                     onBlur={this.onExprChange}
                     onSave={this.onExprChange}
                 />

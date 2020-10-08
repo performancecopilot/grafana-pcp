@@ -6,7 +6,8 @@ import { getLogger } from 'common/utils';
 import { BPFtraceQuery } from '../types';
 import * as BPFtraceLanguage from './BPFtraceLanguage.json';
 import { Dict } from 'common/types/utils';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, uniqueId } from 'lodash';
+import { MonacoLanguageDefinition } from 'components/monaco/MonacoEditorWrapper';
 
 // this prevents monaco from being included in the redis datasource
 // (it it already in its own chunk in vendors~monaco-editor.js)
@@ -14,20 +15,25 @@ declare const monaco: typeof Monaco;
 
 const log = getLogger('BPFtraceLanguageDefinition');
 
-export class BPFtraceLanguageDefinition {
+export class BPFtraceLanguageDefinition implements MonacoLanguageDefinition {
+    languageId: string;
     private pmApiService: PmApiService;
-    private dynamicProbeCompletions: Dict<string, Monaco.languages.CompletionItem[]>; // kprobes based on current running kernel
-    private staticProbeCompletions: Monaco.languages.CompletionItem[]; // probes which are not in `bpftrace -l` (BEGIN, END, interval, ...)
-    private variableCompletions: Monaco.languages.CompletionItem[];
-    private functionCompletions: Monaco.languages.CompletionItem[];
+    private dynamicProbeCompletions: Dict<string, Monaco.languages.CompletionItem[]> = {}; // kprobes based on current running kernel
+    private staticProbeCompletions: Monaco.languages.CompletionItem[] = []; // probes which are not in `bpftrace -l` (BEGIN, END, interval, ...)
+    private variableCompletions: Monaco.languages.CompletionItem[] = [];
+    private functionCompletions: Monaco.languages.CompletionItem[] = [];
+    private disposeCompletionProvider?: Monaco.IDisposable;
 
     getHelpText(title: string, doc: string) {
         return `${title}\n\n${doc}`;
     }
 
     constructor(private datasource: DataSource, private getQuery: () => BPFtraceQuery) {
+        this.languageId = uniqueId('bpftrace');
         this.pmApiService = datasource.pmApiService;
-        this.dynamicProbeCompletions = {};
+    }
+
+    register() {
         this.staticProbeCompletions = BPFtraceLanguage.probes.map(f => ({
             kind: monaco.languages.CompletionItemKind.Event,
             label: f.name,
@@ -57,11 +63,9 @@ export class BPFtraceLanguageDefinition {
                 range: undefined as any,
             };
         });
-    }
 
-    register() {
-        monaco.languages.register({ id: 'bpftrace' });
-        monaco.languages.setLanguageConfiguration('bpftrace', {
+        monaco.languages.register({ id: this.languageId });
+        monaco.languages.setLanguageConfiguration(this.languageId, {
             autoClosingPairs: [
                 { open: '(', close: ')' },
                 { open: '"', close: '"' },
@@ -71,7 +75,9 @@ export class BPFtraceLanguageDefinition {
             // the default separators except `@$:`
             wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\#\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\'\"\,\.\<\>\/\?\s]+)/g,
         });
-        monaco.languages.setMonarchTokensProvider('bpftrace', {
+        monaco.languages.setMonarchTokensProvider(this.languageId, {
+            tokenPostfix: '.bpftrace', // do not append languageId (which is random)
+
             probes:
                 'BEGIN|END|' +
                 [
@@ -197,7 +203,7 @@ export class BPFtraceLanguageDefinition {
                 ],
             },
         } as Monaco.languages.IMonarchLanguage);
-        monaco.languages.registerCompletionItemProvider('bpftrace', {
+        this.disposeCompletionProvider = monaco.languages.registerCompletionItemProvider(this.languageId, {
             triggerCharacters: [':'],
             provideCompletionItems: async (model, position) => {
                 try {
@@ -209,6 +215,10 @@ export class BPFtraceLanguageDefinition {
                 }
             },
         });
+    }
+
+    deregister() {
+        this.disposeCompletionProvider?.dispose();
     }
 
     async findProbeCompletions(token: TokenValue): Promise<Monaco.languages.CompletionList> {

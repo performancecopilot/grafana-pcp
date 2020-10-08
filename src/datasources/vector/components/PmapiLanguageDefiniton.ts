@@ -1,13 +1,14 @@
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import PmapiLanguage from './PmapiLanguage.json';
 import { findToken, getTokenValues, TokenValue } from 'datasources/lib/language';
-import { cloneDeep, keyBy } from 'lodash';
+import { cloneDeep, keyBy, uniqueId } from 'lodash';
 import { PmApiService } from 'common/services/pmapi/PmApiService';
 import { Metadata, NoIndomError } from 'common/services/pmapi/types';
 import { Dict } from 'common/types/utils';
 import { DataSource } from '../datasource';
 import { VectorQuery } from '../types';
 import { getLogger } from 'common/utils';
+import { MonacoLanguageDefinition } from 'components/monaco/MonacoEditorWrapper';
 
 // this prevents monaco from being included in the redis datasource
 // (it it already in its own chunk in vendors~monaco-editor.js)
@@ -15,12 +16,18 @@ declare const monaco: typeof Monaco;
 
 const log = getLogger('PmapiLanguageDefinition');
 
-export class PmapiLanguageDefinition {
+export class PmapiLanguageDefinition implements MonacoLanguageDefinition {
+    languageId: string;
     private pmApiService: PmApiService;
-    private functionCompletions: Monaco.languages.CompletionItem[];
+    private functionCompletions: Monaco.languages.CompletionItem[] = [];
+    private disposeCompletionProvider?: Monaco.IDisposable;
 
     constructor(private datasource: DataSource, private getQuery: () => VectorQuery) {
+        this.languageId = uniqueId('pmapi');
         this.pmApiService = datasource.pmApiService;
+    }
+
+    register() {
         this.functionCompletions = PmapiLanguage.functions.map(f => ({
             kind: monaco.languages.CompletionItemKind.Function,
             label: f.name,
@@ -31,11 +38,9 @@ export class PmapiLanguageDefinition {
             },
             range: undefined as any,
         }));
-    }
 
-    register() {
-        monaco.languages.register({ id: 'pmapi' });
-        monaco.languages.setLanguageConfiguration('pmapi', {
+        monaco.languages.register({ id: this.languageId });
+        monaco.languages.setLanguageConfiguration(this.languageId, {
             autoClosingPairs: [
                 { open: '(', close: ')' },
                 { open: '[', close: ']' },
@@ -45,7 +50,9 @@ export class PmapiLanguageDefinition {
             // the default separators except `.`
             wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\@\#\%\^\&\*\(\)\=\$\-\+\[\{\]\}\\\|\;\:\'\"\,\<\>\/\?\s]+)/g,
         });
-        monaco.languages.setMonarchTokensProvider('pmapi', {
+        monaco.languages.setMonarchTokensProvider(this.languageId, {
+            tokenPostfix: '.pmapi', // do not append languageId (which is random)
+
             functions: PmapiLanguage.functions.map(f => f.name),
 
             operators: ['<', '<=', '==', '>=', '>', '!=', '!', '&&', '||', '?', ':'],
@@ -83,7 +90,7 @@ export class PmapiLanguageDefinition {
                 ],
             },
         } as Monaco.languages.IMonarchLanguage);
-        monaco.languages.registerCompletionItemProvider('pmapi', {
+        this.disposeCompletionProvider = monaco.languages.registerCompletionItemProvider(this.languageId, {
             triggerCharacters: ['(', '.', '['],
             provideCompletionItems: async (model, position) => {
                 try {
@@ -95,6 +102,10 @@ export class PmapiLanguageDefinition {
                 }
             },
         });
+    }
+
+    deregister() {
+        this.disposeCompletionProvider?.dispose();
     }
 
     getHelpText(metadata?: Metadata) {
@@ -136,18 +147,18 @@ export class PmapiLanguageDefinition {
         return [
             ...suggestions.nonleaf.map(nonleaf => ({
                 kind: monaco.languages.CompletionItemKind.Folder,
-                label: nonleaf,
-                insertText: nonleaf,
+                label: `${prefixWithDot}${nonleaf}`,
+                insertText: `${prefixWithDot}${nonleaf}`,
                 range: undefined as any,
             })),
             ...suggestions.leaf.map(leaf => ({
                 kind: monaco.languages.CompletionItemKind.Event,
-                label: leaf,
+                label: `${prefixWithDot}${leaf}`,
                 documentation: {
                     value: this.getHelpText(metadataByMetric[`${prefixWithDot}${leaf}`]),
                     isTrusted: true,
                 },
-                insertText: leaf,
+                insertText: `${prefixWithDot}${leaf}`,
                 range: undefined as any,
             })),
         ];

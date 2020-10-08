@@ -3,8 +3,9 @@ import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { MetricFindValue } from '@grafana/data';
 import { findToken, getTokenValues, TokenValue } from '../../lib/language';
 import * as PmseriesLanguage from './PmseriesLanguage.json';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, uniqueId } from 'lodash';
 import { getLogger } from 'common/utils';
+import { MonacoLanguageDefinition } from 'components/monaco/MonacoEditorWrapper';
 
 // this prevents monaco from being included in the redis datasource
 // (it it already in its own chunk in vendors~monaco-editor.js)
@@ -12,10 +13,13 @@ declare const monaco: typeof Monaco;
 
 const log = getLogger('PmseriesLanguageDefiniton');
 
-export class PmseriesLanguageDefiniton {
+export class PmseriesLanguageDefiniton implements MonacoLanguageDefinition {
+    languageId: string;
     private functionCompletions: Monaco.languages.CompletionItem[];
+    private disposeCompletionProvider?: Monaco.IDisposable;
 
     constructor(private datasource: DataSource) {
+        this.languageId = uniqueId('pmseries');
         this.functionCompletions = PmseriesLanguage.functions.map(f => ({
             kind: monaco.languages.CompletionItemKind.Function,
             label: f.name,
@@ -26,8 +30,8 @@ export class PmseriesLanguageDefiniton {
     }
 
     register() {
-        monaco.languages.register({ id: 'pmseries' });
-        monaco.languages.setLanguageConfiguration('pmseries', {
+        monaco.languages.register({ id: this.languageId });
+        monaco.languages.setLanguageConfiguration(this.languageId, {
             autoClosingPairs: [
                 { open: '(', close: ')' },
                 { open: '{', close: '}' },
@@ -38,7 +42,9 @@ export class PmseriesLanguageDefiniton {
             // the default separators except `.`
             wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\@\#\%\^\&\*\(\)\=\$\-\+\[\{\]\}\\\|\;\:\'\"\,\<\>\/\?\s]+)/g,
         });
-        monaco.languages.setMonarchTokensProvider('pmseries', {
+        monaco.languages.setMonarchTokensProvider(this.languageId, {
+            tokenPostfix: '.pmseries', // do not append languageId (which is random)
+
             functions: PmseriesLanguage.functions.map(f => f.name),
 
             comparisonOperators: ['==', '!=', '~~', '=~', '!~', ':', '<', '>', '<=', '>='],
@@ -79,7 +85,7 @@ export class PmseriesLanguageDefiniton {
                 ],
             },
         } as Monaco.languages.IMonarchLanguage);
-        monaco.languages.registerCompletionItemProvider('pmseries', {
+        this.disposeCompletionProvider = monaco.languages.registerCompletionItemProvider(this.languageId, {
             triggerCharacters: ['(', '{', '"', '&', '|', ','],
             provideCompletionItems: async (model, position) => {
                 try {
@@ -91,6 +97,10 @@ export class PmseriesLanguageDefiniton {
                 }
             },
         });
+    }
+
+    deregister() {
+        this.disposeCompletionProvider?.dispose();
     }
 
     async findMetricCompletions(token: TokenValue) {
