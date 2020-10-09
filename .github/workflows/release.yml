@@ -1,15 +1,12 @@
-name: CI
+name: Release
 on:
   push:
-    branches:
-      - '**'
-    tags-ignore:
+    tags:
       - 'v**'
-  pull_request:
 
 jobs:
-  build:
-    name: Build and Test
+  release:
+    name: Publish Release
     runs-on: ubuntu-latest
     steps:
     - name: Checkout sources
@@ -29,14 +26,10 @@ jobs:
     - name: Install dependencies
       run: make deps
 
-    - name: Test
-      run: make test-frontend-coverage test-backend-coverage
-
     - name: Build
       run: make dist
 
-    - name: Publish build artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: grafana-pcp
-        path: dist
+    - name: Create GitHub release
+      run: scripts/github-release.sh
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

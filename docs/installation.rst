@@ -37,11 +37,11 @@ Replace X.Y.Z with the version of grafana-pcp you wish to install.
 
 .. code-block:: console
 
-    $ podman run -e GF_INSTALL_PLUGINS="https://github.com/performancecopilot/grafana-pcp/archive/vX.Y.Z.zip;grafana-pcp" -p 3000:3000 grafana/grafana
+    $ podman run -e GF_INSTALL_PLUGINS="https://github.com/andreasgerstmayr/grafana-pcp/releases/download/vX.Y.Z/grafana-pcp.zip;grafana-pcp" -p 3000:3000 grafana/grafana
 
 .. code-block:: console
 
-    $ docker run -e GF_INSTALL_PLUGINS="https://github.com/performancecopilot/grafana-pcp/archive/vX.Y.Z.zip;grafana-pcp" -p 3000:3000 grafana/grafana
+    $ docker run -e GF_INSTALL_PLUGINS="https://github.com/andreasgerstmayr/grafana-pcp/releases/download/vX.Y.Z/grafana-pcp.zip;grafana-pcp" -p 3000:3000 grafana/grafana
 
 
 From Source

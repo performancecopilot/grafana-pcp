@@ -59,8 +59,14 @@ dist: dist-dashboards dist-frontend dist-backend ## Build everything
 test-frontend: deps-frontend ## Run frontend tests
 	yarn run test
 
+test-frontend-coverage: deps-frontend ## Run frontend tests with coverage
+	yarn run test --coverage
+
 test-backend: deps-backend ## Run backend tests
 	go test -race ./pkg/...
+
+test-backend-coverage: deps-backend ## Run backend tests with coverage
+	go test -race -cover ./pkg/...
 
 test-backend-web: deps-backend ## Run backend tests using goconvey
 	cd pkg && goconvey
