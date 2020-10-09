@@ -39,8 +39,8 @@ grafana.dashboard.new(
     stack=true,
   )
   .addTargets([
-    { expr: 'kernel.cpu.util.user', format: 'time_series' },
-    { expr: 'kernel.cpu.util.sys', format: 'time_series' },
+    { expr: 'kernel.cpu.util.user', format: 'time_series', legendFormat: '$metric' },
+    { expr: 'kernel.cpu.util.sys', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 0,
     y: 1,
@@ -60,7 +60,7 @@ grafana.dashboard.new(
     legend_values=true,
   )
   .addTargets([
-    { expr: 'kernel.all.load', format: 'time_series' },
+    { expr: 'kernel.all.load', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 1,
@@ -77,9 +77,9 @@ grafana.dashboard.new(
     stack=true,
   )
   .addTargets([
-    { expr: 'mem.util.free', format: 'time_series' },
-    { expr: 'mem.util.cached', format: 'time_series' },
-    { expr: 'mem.physmem', format: 'time_series' },
+    { expr: 'mem.util.free', format: 'time_series', legendFormat: '$metric' },
+    { expr: 'mem.util.cached', format: 'time_series', legendFormat: '$metric' },
+    { expr: 'mem.physmem', format: 'time_series', legendFormat: '$metric' },
   ])
   .addSeriesOverride({
     "alias": "/physmem/",
@@ -101,7 +101,7 @@ grafana.dashboard.new(
     min=0,
   )
   .addTargets([
-    { expr: 'disk.dev.util', format: 'time_series' },
+    { expr: 'disk.dev.util', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 8,
@@ -129,7 +129,7 @@ grafana.dashboard.new(
     max=1,
   )
   .addTargets([
-      { expr: 'kernel.percpu.cpu.user', format: 'time_series' },
+      { expr: 'kernel.percpu.cpu.user', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 16,
@@ -146,7 +146,7 @@ grafana.dashboard.new(
     max=1,
   )
   .addTargets([
-      { expr: 'kernel.percpu.cpu.sys', format: 'time_series' },
+      { expr: 'kernel.percpu.cpu.sys', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 16,
@@ -163,7 +163,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'kernel.cpu.util.user', format: 'time_series' },
+      { expr: 'kernel.cpu.util.user', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 0,
     y: 23,
@@ -180,7 +180,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'kernel.cpu.util.sys', format: 'time_series' },
+      { expr: 'kernel.cpu.util.sys', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 6,
     y: 23,
@@ -197,7 +197,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'kernel.cpu.util.intr', format: 'time_series' },
+      { expr: 'kernel.cpu.util.intr', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 12,
     y: 23,
@@ -214,7 +214,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'kernel.cpu.util.wait', format: 'time_series' },
+      { expr: 'kernel.cpu.util.wait', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 18,
     y: 23,
@@ -242,7 +242,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'kernel.all.pswitch', format: 'time_series' },
+      { expr: 'kernel.all.pswitch', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 0,
     y: 31,
@@ -260,7 +260,7 @@ grafana.dashboard.new(
     staircase=true,
   )
   .addTargets([
-      { expr: 'kernel.all.runnable', format: 'time_series' },
+      { expr: 'kernel.all.runnable', format: 'time_series' , legendFormat: '$metric'},
   ]), gridPos={
     x: 12,
     y: 31,
@@ -288,7 +288,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.util.used', format: 'time_series' },
+      { expr: 'mem.util.used', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 0,
     y: 39,
@@ -305,7 +305,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.util.cached', format: 'time_series' },
+      { expr: 'mem.util.cached', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 8,
     y: 39,
@@ -322,7 +322,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.util.free', format: 'time_series' },
+      { expr: 'mem.util.free', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 16,
     y: 39,
@@ -339,7 +339,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.vmstat.pgfault', format: 'time_series' },
+      { expr: 'mem.vmstat.pgfault', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 0,
     y: 46,
@@ -356,7 +356,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.vmstat.pgmajfault', format: 'time_series' },
+      { expr: 'mem.vmstat.pgmajfault', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 12,
     y: 46,
@@ -382,7 +382,7 @@ grafana.dashboard.new(
     format='Bps',
   )
   .addTargets([
-      { expr: 'network.interface.in.bytes', format: 'time_series' },
+      { expr: 'network.interface.in.bytes', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 54,
@@ -397,7 +397,7 @@ grafana.dashboard.new(
     format='Bps',
   )
   .addTargets([
-      { expr: 'network.interface.out.bytes', format: 'time_series' },
+      { expr: 'network.interface.out.bytes', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 54,
@@ -414,7 +414,7 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.interface.in.drops', format: 'time_series' },
+      { expr: 'network.interface.in.drops', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 61,
@@ -431,7 +431,7 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.interface.out.drops', format: 'time_series' },
+      { expr: 'network.interface.out.drops', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 61,
@@ -448,7 +448,7 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.interface.in.packets', format: 'time_series' },
+      { expr: 'network.interface.in.packets', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 68,
@@ -465,7 +465,7 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.interface.out.packets', format: 'time_series' },
+      { expr: 'network.interface.out.packets', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 68,
@@ -493,9 +493,9 @@ grafana.dashboard.new(
     stack=true,
   )
   .addTargets([
-      { expr: 'network.tcpconn.time_wait', format: 'time_series' },
-      { expr: 'network.tcpconn.established', format: 'time_series' },
-      { expr: 'network.tcpconn.close_wait', format: 'time_series' },
+      { expr: 'network.tcpconn.time_wait', format: 'time_series', legendFormat: '$metric' },
+      { expr: 'network.tcpconn.established', format: 'time_series', legendFormat: '$metric' },
+      { expr: 'network.tcpconn.close_wait', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 0,
     y: 76,
@@ -512,7 +512,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'network.tcp.timeouts', format: 'time_series' },
+      { expr: 'network.tcp.timeouts', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 0,
     y: 83,
@@ -529,7 +529,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'network.tcpconn.close_wait', format: 'time_series' },
+      { expr: 'network.tcpconn.close_wait', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 6,
     y: 83,
@@ -546,7 +546,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'network.tcpconn.time_wait', format: 'time_series' },
+      { expr: 'network.tcpconn.time_wait', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 12,
     y: 83,
@@ -563,7 +563,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'network.tcpconn.established', format: 'time_series' },
+      { expr: 'network.tcpconn.established', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 18,
     y: 83,
@@ -580,8 +580,8 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.tcp.listendrops', format: 'time_series' },
-      { expr: 'network.tcp.listenoverflows', format: 'time_series' },
+      { expr: 'network.tcp.listendrops', format: 'time_series', legendFormat: '$metric' },
+      { expr: 'network.tcp.listenoverflows', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 0,
     y: 90,
@@ -598,10 +598,10 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.tcp.retranssegs', format: 'time_series' },
-      { expr: 'network.tcp.fastretrans', format: 'time_series' },
-      { expr: 'network.tcp.slowstartretrans', format: 'time_series' },
-      { expr: 'network.tcp.synretrans', format: 'time_series' },
+      { expr: 'network.tcp.retranssegs', format: 'time_series', legendFormat: '$metric0' },
+      { expr: 'network.tcp.fastretrans', format: 'time_series', legendFormat: '$metric0' },
+      { expr: 'network.tcp.slowstartretrans', format: 'time_series', legendFormat: '$metric0' },
+      { expr: 'network.tcp.synretrans', format: 'time_series', legendFormat: '$metric0' },
   ]), gridPos={
     x: 12,
     y: 90,
@@ -678,7 +678,7 @@ grafana.dashboard.new(
     max=1,
   )
   .addTargets([
-      { expr: 'disk.dev.avactive', format: 'time_series' },
+      { expr: 'disk.dev.avactive', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 105,
