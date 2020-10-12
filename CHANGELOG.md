@@ -1,6 +1,6 @@
 # Change Log
 
-## 3.0.0-beta1 (2020-10-09)
+## 3.0.0-beta1 (2020-10-12)
 
 ### New features
 - **redis**: support for [Grafana Alerting](https://grafana.com/docs/grafana/latest/alerting/create-alerts/)
