@@ -1,8 +1,0 @@
-pool:
-  vmImage: "ubuntu-latest"
-
-jobs:
-  - job: qa
-    displayName: QA
-    steps:
-      - template: qa-steps.yml
