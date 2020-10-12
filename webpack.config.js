@@ -75,7 +75,7 @@ module.exports.getWebpackConfig = (config, options) => {
         entry: fixEntrypoint(config.entry),
         output: {
             ...config.output,
-            // required for dynamic loading of chunks
+            // required for dynamic imports
             publicPath: 'public/plugins/performancecopilot-pcp-app/',
         },
         module: {
@@ -131,5 +131,9 @@ module.exports.getWebpackConfig = (config, options) => {
                 ],
             }),
         ],
+        optimization: {
+            ...config.optimization,
+            chunkIds: 'named', // required for dynamic imports in production build
+        }
     };
 };
