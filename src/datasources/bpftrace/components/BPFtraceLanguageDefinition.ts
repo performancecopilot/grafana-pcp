@@ -24,10 +24,6 @@ export class BPFtraceLanguageDefinition implements MonacoLanguageDefinition {
     private functionCompletions: Monaco.languages.CompletionItem[] = [];
     private disposeCompletionProvider?: Monaco.IDisposable;
 
-    getHelpText(title: string, doc: string) {
-        return `${title}\n\n${doc}`;
-    }
-
     constructor(private datasource: DataSource, private getQuery: () => BPFtraceQuery) {
         this.languageId = uniqueId('bpftrace');
         this.pmApiService = datasource.pmApiService;
@@ -45,7 +41,7 @@ export class BPFtraceLanguageDefinition implements MonacoLanguageDefinition {
             label: f.name,
             insertText: f.insertText ?? f.name,
             documentation: {
-                value: this.getHelpText(f.name, f.doc),
+                value: `${f.name}\n\n${f.doc}`,
                 isTrusted: true,
             },
             range: undefined as any,
@@ -57,7 +53,7 @@ export class BPFtraceLanguageDefinition implements MonacoLanguageDefinition {
                 label: name,
                 insertText: name,
                 documentation: {
-                    value: this.getHelpText(f.def, f.doc),
+                    value: `${f.def}\n\n${f.doc}`,
                     isTrusted: true,
                 },
                 range: undefined as any,

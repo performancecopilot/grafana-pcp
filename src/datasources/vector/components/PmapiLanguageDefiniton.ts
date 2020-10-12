@@ -28,16 +28,19 @@ export class PmapiLanguageDefinition implements MonacoLanguageDefinition {
     }
 
     register() {
-        this.functionCompletions = PmapiLanguage.functions.map(f => ({
-            kind: monaco.languages.CompletionItemKind.Function,
-            label: f.name,
-            insertText: f.name,
-            documentation: {
-                value: f.doc,
-                isTrusted: true,
-            },
-            range: undefined as any,
-        }));
+        this.functionCompletions = PmapiLanguage.functions.map(f => {
+            const name = f.def.substring(0, f.def.indexOf('('));
+            return {
+                kind: monaco.languages.CompletionItemKind.Function,
+                label: name,
+                insertText: name,
+                documentation: {
+                    value: `${f.def}\n\n${f.doc}`,
+                    isTrusted: true,
+                },
+                range: undefined as any,
+            };
+        });
 
         monaco.languages.register({ id: this.languageId });
         monaco.languages.setLanguageConfiguration(this.languageId, {
@@ -53,7 +56,7 @@ export class PmapiLanguageDefinition implements MonacoLanguageDefinition {
         monaco.languages.setMonarchTokensProvider(this.languageId, {
             tokenPostfix: '.pmapi', // do not append languageId (which is random)
 
-            functions: PmapiLanguage.functions.map(f => f.name),
+            functions: PmapiLanguage.functions.map(f => f.def.substring(0, f.def.indexOf('('))),
 
             operators: ['<', '<=', '==', '>=', '>', '!=', '!', '&&', '||', '?', ':'],
 

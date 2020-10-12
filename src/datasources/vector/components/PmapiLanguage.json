@@ -1,14 +1,40 @@
 {
     "functions": [
         {
-            "name": "rate",
-            "doc": "calculates the rate",
-            "version": "5.2.2"
+            "def": "avg(x)",
+            "doc": "A singular instance being the average value across all instances for the metric x."
         },
         {
-            "name": "max",
-            "doc": "calculates the maximum",
-            "version": "5.2.2"
+            "def": "count(x)",
+            "doc": "A singular instance being the count of the number of instances for the metric x. As a special case, if fetching the metric x returns an error, then count(x) will be 0."
+        },
+        {
+            "def": "defined(x)",
+            "doc": "A boolean value that is true (`1`) if the metric x is defined in the PMNS, else false (`0`). The function is evaluated when a new PMAPI context is created with pmNewContext(3) or re-established with pmReconnectContext(3). So any subsequent changes to the PMNS after the PMAPI context has been established will not change the value of this function in the expression evaluation."
+        },
+        {
+            "def": "delta(x)",
+            "doc": "Returns the difference in values for the metric x between one call to pmFetch(3) and the next. There is one value in the result for each instance that appears in both the current and the previous sample."
+        },
+        {
+            "def": "rate(x)",
+            "doc": "Returns the difference in values for the metric x between one call to pmFetch(3) and the next divided by the elapsed time between the calls to pmFetch(3). The semantics of the derived metric are based on the semantics of the operand (x) with the dimension in the **time** domain decreased by one and scaling if required in the time utilization case where the operand is in units of time, and the derived metric is unitless. This mimics the rate conversion applied to counter metrics by tools such as pmval(1), pmie(1) and pmchart(1). There is one value in the result for each instance that appears in both the current and the previous sample."
+        },
+        {
+            "def": "instant(x)",
+            "doc": "Returns the current value of the metric x, even it has the semantics of a counter, i.e. PM_SEM_COUNTER. The semantics of the derived metric are based on the semantics of the operand (x); if x has semantics PM_SEM_COUNTER, the semantics of instant(x) is PM_SEM_INSTANT, otherwise the semantics of the derived metric is the same as the semantics of the metric x."
+        },
+        {
+            "def": "max(x)",
+            "doc": "A singular instance being the maximum value across all instances for the metric x."
+        },
+        {
+            "def": "min(x)",
+            "doc": "A singular instance being the minimum value across all instances for the metric x."
+        },
+        {
+            "def": "sum(x)",
+            "doc": "A singular instance being the sum of the values across all instances for the metric x."
         }
     ]
 }

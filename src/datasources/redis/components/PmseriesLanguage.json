@@ -1,14 +1,4 @@
 {
     "functions": [
-        {
-            "name": "rate",
-            "doc": "calculates the rate",
-            "version": "5.2.2"
-        },
-        {
-            "name": "max",
-            "doc": "calculates the maximum",
-            "version": "5.2.2"
-        }
     ]
 }

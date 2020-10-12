@@ -2,7 +2,7 @@ import { DataSource } from '../datasource';
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { MetricFindValue } from '@grafana/data';
 import { findToken, getTokenValues, TokenValue } from '../../lib/language';
-import * as PmseriesLanguage from './PmseriesLanguage.json';
+//import * as PmseriesLanguage from './PmseriesLanguage.json';
 import { cloneDeep, uniqueId } from 'lodash';
 import { getLogger } from 'common/utils';
 import { MonacoLanguageDefinition } from 'components/monaco/MonacoEditorWrapper';
@@ -15,21 +15,22 @@ const log = getLogger('PmseriesLanguageDefiniton');
 
 export class PmseriesLanguageDefiniton implements MonacoLanguageDefinition {
     languageId: string;
-    private functionCompletions: Monaco.languages.CompletionItem[];
+    private functionCompletions: Monaco.languages.CompletionItem[] = [];
     private disposeCompletionProvider?: Monaco.IDisposable;
 
     constructor(private datasource: DataSource) {
         this.languageId = uniqueId('pmseries');
-        this.functionCompletions = PmseriesLanguage.functions.map(f => ({
+    }
+
+    register() {
+        /*this.functionCompletions = PmseriesLanguage.functions.map(f => ({
             kind: monaco.languages.CompletionItemKind.Function,
             label: f.name,
             insertText: f.name,
             detail: f.doc,
             range: undefined as any,
-        }));
-    }
+        }));*/
 
-    register() {
         monaco.languages.register({ id: this.languageId });
         monaco.languages.setLanguageConfiguration(this.languageId, {
             autoClosingPairs: [
@@ -45,7 +46,7 @@ export class PmseriesLanguageDefiniton implements MonacoLanguageDefinition {
         monaco.languages.setMonarchTokensProvider(this.languageId, {
             tokenPostfix: '.pmseries', // do not append languageId (which is random)
 
-            functions: PmseriesLanguage.functions.map(f => f.name),
+            functions: [], //PmseriesLanguage.functions.map(f => f.name),
 
             comparisonOperators: ['==', '!=', '~~', '=~', '!~', ':', '<', '>', '<=', '>='],
             logicalOperators: ['&&', '||', ','],
