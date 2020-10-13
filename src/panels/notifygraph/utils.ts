@@ -7,11 +7,10 @@ import {
     getSeriesTimeStep,
     FieldColorMode,
     getDisplayProcessor,
-    MS_DATE_TIME_FORMAT,
-    DEFAULT_DATE_TIME_FORMAT,
     hasMsResolution,
     TimeZone,
     GraphSeriesValue,
+    systemDateFormats,
 } from '@grafana/data';
 import { colors } from '@grafana/ui';
 import { Options, ThresholdOptions, ThresholdsOperator } from './types';
@@ -58,9 +57,7 @@ export function generateGraphModel(data: PanelData, timeZone: TimeZone, options:
                             ...timeField,
                             type: timeField.type,
                             config: {
-                                unit: `time:${
-                                    hasMsResolution(timeField) ? MS_DATE_TIME_FORMAT : DEFAULT_DATE_TIME_FORMAT
-                                }`,
+                                unit: systemDateFormats.getTimeFieldUnit(hasMsResolution(timeField)),
                             },
                         },
                     });

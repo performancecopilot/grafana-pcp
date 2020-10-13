@@ -4,6 +4,7 @@ import { TimeoutError } from './types/errors/timeout';
 import rootLogger from 'loglevel';
 import logPrefixer from 'loglevel-plugin-prefix';
 import { isString } from 'lodash';
+import { RequiredField } from './types/utils';
 
 export function getLogger(name: string) {
     rootLogger.setDefaultLevel('ERROR');
@@ -14,7 +15,7 @@ export function getLogger(name: string) {
 
 export type DefaultRequestOptions = Omit<BackendSrvRequest, 'url'>;
 export function getRequestOptions(instanceSettings: DataSourceInstanceSettings): DefaultRequestOptions {
-    const defaultRequestOptions: DefaultRequestOptions = {
+    const defaultRequestOptions: RequiredField<DefaultRequestOptions, 'headers'> = {
         headers: {
             'Content-Type': 'application/json',
         },

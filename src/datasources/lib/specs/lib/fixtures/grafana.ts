@@ -7,6 +7,7 @@ export const dataFrameRequest: DataQueryRequest = {
     requestId: '3',
     timezone: '',
     interval: '20s',
+    intervalMs: 20000,
     startTime: 0,
     range: {
         from: dateTimeParse(0),

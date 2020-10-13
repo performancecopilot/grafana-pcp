@@ -16,10 +16,10 @@
     "url": "git+https://github.com/performancecopilot/grafana-pcp.git"
   },
   "devDependencies": {
-    "@grafana/data": "^7.1.5",
-    "@grafana/runtime": "^7.1.5",
-    "@grafana/toolkit": "^7.1.5",
-    "@grafana/ui": "^7.1.5",
+    "@grafana/data": "^7.2.1",
+    "@grafana/runtime": "^7.2.1",
+    "@grafana/toolkit": "^7.2.1",
+    "@grafana/ui": "^7.2.1",
     "@types/blueimp-md5": "^2.7.0",
     "@types/d3-selection": "^1.4.2",
     "@types/enzyme": "^3.10.5",
@@ -35,7 +35,9 @@
     "benchmark": "^2.1.4",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
+    "eslint-plugin-prettier": "*",
     "jest-date-mock": "^1.0.8",
+    "monaco-editor-webpack-plugin": "^2.0.0",
     "prettier": "^2.0.5"
   },
   "engines": {
@@ -51,9 +53,9 @@
     "lodash": "^4.17.19",
     "loglevel": "^1.6.8",
     "loglevel-plugin-prefix": "^0.8.4",
-    "monaco-editor-webpack-plugin": "^1.9.0",
+    "monaco-editor": "^0.21.2",
     "react-autosuggest": "^10.0.2",
-    "react-monaco-editor": "^0.40.0",
+    "react-monaco-editor": "0.36.0",
     "react-redux": "^7.2.0",
     "react-use": "^15.3.4",
     "redux": "^4.0.5",

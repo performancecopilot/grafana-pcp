@@ -118,7 +118,7 @@ export class SearchPage extends React.Component<SearchPageProps, {}> {
         switch (status) {
             case FetchStatus.INIT: {
                 if (!data) {
-                    <p>Enter query.</p>;
+                    return <p>Enter query.</p>;
                 }
             }
             case FetchStatus.PENDING:

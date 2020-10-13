@@ -35,11 +35,7 @@ export class FlameGraphChart extends PureComponent<Props, State> {
 
     disableAutoRefresh() {
         try {
-            angular
-                .element(document)
-                .injector()
-                .get('timeSrv')
-                .setAutoRefresh('');
+            angular.element(document).injector().get('timeSrv').setAutoRefresh('');
         } catch (error) {
             // this API may be removed in a future version of Grafana
         }
@@ -112,9 +108,7 @@ export class FlameGraphChart extends PureComponent<Props, State> {
         this.flamegraph.destroy();
 
         this.flamegraph = this.createFlameGraph();
-        select(this.container.current)
-            .datum(this.props.stacks)
-            .call(this.flamegraph);
+        select(this.container.current).datum(this.props.stacks).call(this.flamegraph);
     }
 
     drawFlameGraphDebounced = _.debounce(this.drawFlameGraph, 100);
