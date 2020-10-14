@@ -173,7 +173,7 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
                             <ul>
                                 {meta.urls.map(url => (
                                     <li>
-                                        <a href={url} target="_blank">
+                                        <a href={url} target="_blank" rel="noreferrer">
                                             {url}
                                         </a>
                                     </li>
@@ -229,7 +229,7 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
                             <ul>
                                 {meta.urls.map(url => (
                                     <li>
-                                        <a href={url} target="_blank">
+                                        <a href={url} target="_blank" rel="noreferrer">
                                             {url}
                                         </a>
                                     </li>
