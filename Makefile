@@ -74,6 +74,17 @@ test-backend-web: deps-backend ## Run backend tests using goconvey
 test: test-frontend test-backend ## Run all tests
 
 
+##@ E2E tests
+
+test-e2e-container:
+	podman build -t grafana-pcp-e2e .
+	-podman rm -f grafana-pcp-e2e
+	podman run -d -p 3001:3000 --name grafana-pcp-e2e grafana-pcp-e2e
+
+test-e2e: test-e2e-container ## Run End-to-End tests
+	GRAFANA_URL="http://127.0.0.1:3001" node_modules/jest/bin/jest.js --config jest.config.e2e.js --runInBand
+
+
 ##@ Helpers
 
 clean: ## Clean all artifacts

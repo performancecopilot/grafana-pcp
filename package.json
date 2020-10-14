@@ -24,7 +24,9 @@
     "@types/d3-selection": "^1.4.2",
     "@types/enzyme": "^3.10.5",
     "@types/enzyme-adapter-react-16": "^1.0.6",
+    "@types/expect-puppeteer": "^4.4.3",
     "@types/jest": "^26.0.5",
+    "@types/jest-environment-puppeteer": "^4.4.0",
     "@types/lodash": "^4.14.157",
     "@types/react-autosuggest": "^9.3.14",
     "@types/react-redux": "^7.1.9",
@@ -37,8 +39,10 @@
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint-plugin-prettier": "*",
     "jest-date-mock": "^1.0.8",
+    "jest-puppeteer": "^4.4.0",
     "monaco-editor-webpack-plugin": "^2.0.0",
-    "prettier": "^2.0.5"
+    "prettier": "^2.0.5",
+    "puppeteer": "^5.3.1"
   },
   "engines": {
     "node": ">=12 <13"
