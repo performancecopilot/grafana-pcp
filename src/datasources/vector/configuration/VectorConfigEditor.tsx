@@ -29,7 +29,7 @@ export const VectorConfigEditor = (props: Props) => {
     return (
         <>
             <DataSourceHttpSettings
-                defaultUrl="http://localhost:44323"
+                defaultUrl="http://localhost:44322"
                 dataSourceConfig={options}
                 showAccessOptions={true}
                 onChange={onOptionsChange}
