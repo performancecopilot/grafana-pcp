@@ -1,99 +1,26 @@
 local grafana = import 'grafonnet/grafana.libsonnet';
-local dashboard = grafana.dashboard;
-local template = grafana.template;
-local graphPanel = grafana.graphPanel;
-
 local notifyGraph = import '_notifygraphpanel.libsonnet';
-local notifyPanel = notifyGraph.panel;
-local notifyThreshold = notifyGraph.threshold;
-local notifyMeta = notifyGraph.meta;
-local notifyMetric = notifyGraph.metric;
-
 local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
 
-local overview = import 'shared.libsonnet';
-local dashboardNode = overview.getNodeByUid('pcp-network-rx-overview');
+local checklist = import 'checklist.libsonnet';
+local node = checklist.getNodeByUid('pcp-vector-checklist-network-rx');
+local parents = checklist.getParentNodes(node);
 
-local navigation = overview.getNavigation(dashboardNode);
-local parents = overview.getParentNodes(dashboardNode);
-
-dashboard.new(
-  title=dashboardNode.title,
-  uid=dashboardNode.uid,
-  description=dashboardNode.name,
-  editable=false,
-  tags=[overview.tag],
-  time_from='now-5m',
-  time_to='now',
-  refresh='1s',
-  timepicker=grafana.timepicker.new(
-    refresh_intervals=['1s', '2s', '5s', '10s'],
-  )
-)
-.addTemplate(
-  grafana.template.datasource(
-    'vector_datasource',
-    'pcp-vector-datasource',
-    'PCP Vector',
-    hide='value',
-  )
-)
+checklist.dashboard.new(node)
 .addPanel(
-  breadcrumbsPanel.new()
-  .addItems(navigation), gridPos={
-    x: 0,
-    y: 0,
-    w: 24,
-    h: 2,
-  },
-)
-.addPanel(
-  notifyPanel.new(
-    title='Network TX - Saturation',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
-      metric='network_tx_drops',
-      operator='>',
-      value=0.01,
-    ),
-    meta=notifyMeta.new(
-      name='Network TX - Saturation',
-      warning='Network packets are being dropped.',
-      metrics=[
-        notifyMetric.new(
-          'network.interface.out.drops',
-          'network send drops from /proc/net/dev per network interface',
-        ),
-      ],
-      derived=['network_tx_drops = rate(network.interface.out.drops)'],
-      urls=['https://access.redhat.com/solutions/21301'],
-      details='Packets may be dropped if there is not enough room in the ring buffers',
-      issues=['The URL mentions comparing the current ring buffer size to the max allowed and increase the ring buffer size, but PCP doesn\'t have metrics to provide ring buffer info, a 1% packet drop threshold might be too high.'],
-      parents=parents,
-    ),
-  ).addTargets([
-    { name: 'network_tx_drops', expr: 'rate(network.interface.out.drops)', format: 'time_series' },
-  ]), gridPos={
-    x: 0,
-    y: 3,
-    w: 12,
-    h: 9
-  },
-)
-.addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='Network RX - Saturation',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
+    datasource='$datasource',
+    threshold=notifyGraph.threshold.new(
       metric='network_rx_drops',
       operator='>',
       value=0.01,
     ),
-    meta=notifyMeta.new(
+    meta=notifyGraph.meta.new(
       name='Network RX - Saturation',
       warning='Network errors are present.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'network.interface.in.drops',
           'network recv read drops from /proc/net/dev per network interface',
         ),
@@ -114,19 +41,19 @@ dashboard.new(
   },
 )
 .addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='Network RX - Errors',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
+    datasource='$datasource',
+    threshold=notifyGraph.threshold.new(
       metric='network_rx_errors',
       operator='>',
       value=0.01,
     ),
-    meta=notifyMeta.new(
+    meta=notifyGraph.meta.new(
       name='Network RX - Errors',
       warning='Networks rrrors are present.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'network.interface.in.errors',
           'network recv read errors from /proc/net/dev per network interface',
         ),
@@ -146,19 +73,19 @@ dashboard.new(
   },
 )
 .addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='Network RX - Queue too small',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
+    datasource='$datasource',
+    threshold=notifyGraph.threshold.new(
       metric='rxcpuqdropped',
       operator='>',
       value=0.01,
     ),
-    meta=notifyMeta.new(
+    meta=notifyGraph.meta.new(
       name='Network RX - Queue too small',
       warning='Per-cpu RX queue are filled to capacity and some RX packet are being dropped as a result.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'network.softnet.dropped',
           'number of packets that were dropped because netdev_max_backlog was exceeded',
         ),
@@ -178,19 +105,19 @@ dashboard.new(
   },
 )
 .addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='Network RX - RX packet processing exceeding time quota',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
+    datasource='$datasource',
+    threshold=notifyGraph.threshold.new(
       metric='time_squeeze',
       operator='>',
       value=0.01,
     ),
-    meta=notifyMeta.new(
+    meta=notifyGraph.meta.new(
       name='Network RX - RX packet processing exceeding time quota',
       warning='The RX packet processing function had more work remaining when it ran out of time.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'network.softnet.time_squeeze',
           'number of times ksoftirq ran out of netdev_budget or time slice with work remaining',
         ),

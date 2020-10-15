@@ -40,13 +40,6 @@
             "defaultNav": true
         },
         {
-            "type": "page",
-            "name": "Checklist Overview",
-            "path": "/d/pcp-overview",
-            "addToNav": true,
-            "defaultNav": false
-        },
-        {
             "type": "datasource",
             "name": "PCP Redis"
         },
@@ -69,56 +62,6 @@
         {
             "type": "panel",
             "name": "Breadcrumbs panel"
-        },
-        {
-            "type": "dashboard",
-            "name": "Overview",
-            "path": "dashboards/checklist/root.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "CPU Overview",
-            "path": "dashboards/checklist/cpu.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "CPU System Overview",
-            "path": "dashboards/checklist/cpu-sys.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "CPU User Overview",
-            "path": "dashboards/checklist/cpu-user.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "Storage Overview",
-            "path": "dashboards/checklist/storage.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "Memory Overview",
-            "path": "dashboards/checklist/memory.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "Memory Swap Overview",
-            "path": "dashboards/checklist/memory-swap.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "Network Overview",
-            "path": "dashboards/checklist/network.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "Network RX Overview",
-            "path": "dashboards/checklist/network-rx.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "Network TX Overview",
-            "path": "dashboards/checklist/network-tx.json"
         },
         {
             "type": "dashboard",
@@ -157,6 +100,57 @@
         },
         {
             "type": "dashboard",
+            "name": "PCP Vector Checklist",
+            "path": "dashboards/vector/checklist/pcp-vector-checklist.json",
+            "addToNav": true
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector Checklist: CPU",
+            "path": "dashboards/vector/checklist/pcp-vector-checklist-cpu.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector Checklist: CPU System",
+            "path": "dashboards/vector/checklist/pcp-vector-checklist-cpu-sys.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector Checklist: CPU User",
+            "path": "dashboards/vector/checklist/pcp-vector-checklist-cpu-user.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector Checklist: Storage",
+            "path": "dashboards/vector/checklist/pcp-vector-checklist-storage.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector Checklist: Memory",
+            "path": "dashboards/vector/checklist/pcp-vector-checklist-memory.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector Checklist: Memory Swap",
+            "path": "dashboards/vector/checklist/pcp-vector-checklist-memory-swap.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector Checklist: Network",
+            "path": "dashboards/vector/checklist/pcp-vector-checklist-network.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector Checklist: Network RX",
+            "path": "dashboards/vector/checklist/pcp-vector-checklist-network-rx.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector Checklist: Network TX",
+            "path": "dashboards/vector/checklist/pcp-vector-checklist-network-tx.json"
+        },
+        {
+            "type": "dashboard",
             "name": "Graph Entity Preview",
             "path": "dashboards/search/search-graph-preview.json"
         },
@@ -167,7 +161,7 @@
         }
     ],
     "dependencies": {
-        "grafanaVersion": "7.0.x",
+        "grafanaDependency": ">=7.2.0",
         "plugins": []
     }
 }

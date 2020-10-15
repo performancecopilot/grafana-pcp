@@ -1,66 +1,26 @@
 local grafana = import 'grafonnet/grafana.libsonnet';
-local dashboard = grafana.dashboard;
-local template = grafana.template;
-local graphPanel = grafana.graphPanel;
-
 local notifyGraph = import '_notifygraphpanel.libsonnet';
-local notifyPanel = notifyGraph.panel;
-local notifyThreshold = notifyGraph.threshold;
-local notifyMeta = notifyGraph.meta;
-local notifyMetric = notifyGraph.metric;
-
 local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
 
-local overview = import 'shared.libsonnet';
-local dashboardNode = overview.getNodeByUid('pcp-network-tx-overview');
+local checklist = import 'checklist.libsonnet';
+local node = checklist.getNodeByUid('pcp-vector-checklist-network-tx');
+local parents = checklist.getParentNodes(node);
 
-local navigation = overview.getNavigation(dashboardNode);
-local parents = overview.getParentNodes(dashboardNode);
-
-dashboard.new(
-  title=dashboardNode.title,
-  uid=dashboardNode.uid,
-  description=dashboardNode.name,
-  editable=false,
-  tags=[overview.tag],
-  time_from='now-5m',
-  time_to='now',
-  refresh='1s',
-  timepicker=grafana.timepicker.new(
-    refresh_intervals=['1s', '2s', '5s', '10s'],
-  )
-)
-.addTemplate(
-  grafana.template.datasource(
-    'vector_datasource',
-    'pcp-vector-datasource',
-    'PCP Vector',
-    hide='value',
-  )
-)
+checklist.dashboard.new(node)
 .addPanel(
-  breadcrumbsPanel.new()
-  .addItems(navigation), gridPos={
-    x: 0,
-    y: 0,
-    w: 24,
-    h: 2,
-  },
-)
-.addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='Network TX - Saturation',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
+    datasource='$datasource',
+    threshold=notifyGraph.threshold.new(
       metric='network_tx_drops',
       operator='>',
       value=0.01
     ),
-    meta=notifyMeta.new(
+    meta=notifyGraph.meta.new(
       name='Network TX - Saturation',
       warning='Network packets are being dropped.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'network.interface.out.drops',
           'network send drops from /proc/net/dev per network interface',
         ),
@@ -81,19 +41,19 @@ dashboard.new(
   },
 )
 .addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='Network TX - errors',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
+    datasource='$datasource',
+    threshold=notifyGraph.threshold.new(
       metric='network_tx_errors',
       operator='>',
       value=0.01,
     ),
-    meta=notifyMeta.new(
+    meta=notifyGraph.meta.new(
       name='Network TX - errors',
       warning='Network errors are present.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'network.interface.out.errors',
           'network send errors from /proc/net/dev per network interface',
         ),

@@ -1,66 +1,26 @@
 local grafana = import 'grafonnet/grafana.libsonnet';
-local dashboard = grafana.dashboard;
-local template = grafana.template;
-local graphPanel = grafana.graphPanel;
-
 local notifyGraph = import '_notifygraphpanel.libsonnet';
-local notifyPanel = notifyGraph.panel;
-local notifyThreshold = notifyGraph.threshold;
-local notifyMeta = notifyGraph.meta;
-local notifyMetric = notifyGraph.metric;
-
 local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
 
-local overview = import 'shared.libsonnet';
-local dashboardNode = overview.getNodeByUid('pcp-storage-overview');
+local checklist = import 'checklist.libsonnet';
+local node = checklist.getNodeByUid('pcp-vector-checklist-storage');
+local parents = checklist.getParentNodes(node);
 
-local navigation = overview.getNavigation(dashboardNode);
-local parents = overview.getParentNodes(dashboardNode);
-
-dashboard.new(
-  title=dashboardNode.title,
-  uid=dashboardNode.uid,
-  description=dashboardNode.name,
-  editable=false,
-  tags=[overview.tag],
-  time_from='now-5m',
-  time_to='now',
-  refresh='1s',
-  timepicker=grafana.timepicker.new(
-    refresh_intervals=['1s', '2s', '5s', '10s'],
-  )
-)
-.addTemplate(
-  grafana.template.datasource(
-    'vector_datasource',
-    'pcp-vector-datasource',
-    'PCP Vector',
-    hide='value',
-  )
-)
+checklist.dashboard.new(node)
 .addPanel(
-  breadcrumbsPanel.new()
-  .addItems(navigation), gridPos={
-    x: 0,
-    y: 0,
-    w: 24,
-    h: 2,
-  },
-)
-.addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='Storage - bandwidth',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
+    datasource='$datasource',
+    threshold=notifyGraph.threshold.new(
       metric='disk.dm.bw',
       operator='>',
       value=2500,
     ),
-    meta=notifyMeta.new(
+    meta=notifyGraph.meta.new(
       name='Storage - bandwidth',
       warning='Overly high data saturation rate.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'disk.dm.total',
           'per-device-mapper device total (read+write) operations',
         ),
@@ -79,23 +39,23 @@ dashboard.new(
   },
 )
 .addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='Storage - small blocks',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
+    datasource='$datasource',
+    threshold=notifyGraph.threshold.new(
       metric='disk.dm.avgsz',
       operator='<',
       value=0.5,
     ),
-    meta=notifyMeta.new(
+    meta=notifyGraph.meta.new(
       name='Storage - small blocks',
       warning='Excessively small sized operations for storage.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'disk.dm.total_bytes',
           'per-device-mapper device count of total bytes read and written'
         ),
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'disk.dm.total',
           'per-device-mapper device total (read+write) operations',
         ),

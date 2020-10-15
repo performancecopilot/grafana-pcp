@@ -1,78 +1,37 @@
 local grafana = import 'grafonnet/grafana.libsonnet';
-local dashboard = grafana.dashboard;
-local template = grafana.template;
-local graphPanel = grafana.graphPanel;
-
 local notifyGraph = import '_notifygraphpanel.libsonnet';
-local notifyPanel = notifyGraph.panel;
-local notifyThreshold = notifyGraph.threshold;
-local notifyMeta = notifyGraph.meta;
-local notifyMetric = notifyGraph.metric;
-
 local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
 
-local overview = import 'shared.libsonnet';
-local dashboardNode = overview.getNodeByUid('pcp-network-overview');
+local checklist = import 'checklist.libsonnet';
+local node = checklist.getNodeByUid('pcp-vector-checklist-network');
+local parents = checklist.getParentNodes(node);
 
-local navigation = overview.getNavigation(dashboardNode);
-local parents = overview.getParentNodes(dashboardNode);
-local children = overview.getChildrenNodes(dashboardNode);
-
-dashboard.new(
-  title=dashboardNode.title,
-  uid=dashboardNode.uid,
-  description=dashboardNode.name,
-  editable=false,
-  tags=[overview.tag],
-  time_from='now-5m',
-  time_to='now',
-  refresh='1s',
-  timepicker=grafana.timepicker.new(
-    refresh_intervals=['1s', '2s', '5s', '10s'],
-  )
-)
-.addTemplate(
-  grafana.template.datasource(
-    'vector_datasource',
-    'pcp-vector-datasource',
-    'PCP Vector',
-    hide='value',
-  )
-)
+checklist.dashboard.new(node)
 .addPanel(
-  breadcrumbsPanel.new()
-  .addItems(navigation), gridPos={
-    x: 0,
-    y: 0,
-    w: 24,
-    h: 2,
-  },
-)
-.addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='Network TX',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
+    datasource='$datasource',
+    threshold=notifyGraph.threshold.new(
       metric='network_tx_bandwidth',
       operator='>',
       value=0.85
     ),
-    meta=notifyMeta.new(
+    meta=notifyGraph.meta.new(
       name='Network TX',
       warning='Overly high ammount of network trafic sent.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'network.interface.out.bytes',
           'network send bytes from /proc/net/dev per network interface',
         ),
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'network.interface.baudrate',
           'interface speed in bytes per second',
         ),
       ],
       derived=['network_tx_bandwidth = rate(network.interface.out.bytes) / network.interface.baudrate'],
-      children=[overview.getNodeByUid('pcp-network-tx-overview', children)],
       parents=parents,
+      children=[checklist.getNodeByUid('pcp-vector-checklist-network-tx')],
     ),
   ).addTargets([
     { name: 'network_tx_bandwidth', expr: 'rate(network.interface.out.bytes) / network.interface.baudrate', format: 'time_series' },
@@ -84,30 +43,30 @@ dashboard.new(
   },
 )
 .addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='Network RX',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
+    datasource='$datasource',
+    threshold=notifyGraph.threshold.new(
       metric='network_rx_bandwidth',
       operator='>',
       value=0.85,
     ),
-    meta=notifyMeta.new(
+    meta=notifyGraph.meta.new(
       name='Network RX',
       warning='Overly high ammount of network trafic received.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'network.interface.in.bytes',
           'network recv read bytes from /proc/net/dev per network interface',
         ),
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'network.interface.baudrate',
           'interface speed in bytes per second',
         ),
       ],
       derived=['network_rx_bandwidth = rate(network.interface.in.bytes) / network.interface.baudrate'],
-      children=[overview.getNodeByUid('pcp-network-rx-overview', children)],
       parents=parents,
+      children=[checklist.getNodeByUid('pcp-vector-checklist-network-rx')],
     ),
   ).addTargets([
     { name: 'network_rx_bandwidth', expr: 'rate(network.interface.in.bytes) / network.interface.baudrate', format: 'time_series' },

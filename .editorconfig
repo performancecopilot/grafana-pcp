@@ -12,5 +12,5 @@ max_line_length = 120
 [*.{js,ts,tsx,scss}]
 quote_type = single
 
-[*.jsonnet]
+[*.{jsonnet,libsonnet}]
 indent_size = 2

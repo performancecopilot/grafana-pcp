@@ -1,75 +1,34 @@
 local grafana = import 'grafonnet/grafana.libsonnet';
-local dashboard = grafana.dashboard;
-local template = grafana.template;
-local graphPanel = grafana.graphPanel;
-
 local notifyGraph = import '_notifygraphpanel.libsonnet';
-local notifyPanel = notifyGraph.panel;
-local notifyThreshold = notifyGraph.threshold;
-local notifyMeta = notifyGraph.meta;
-local notifyMetric = notifyGraph.metric;
-
 local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
 
-local overview = import 'shared.libsonnet';
-local dashboardNode = overview.getNodeByUid('pcp-cpu-overview');
+local checklist = import 'checklist.libsonnet';
+local node = checklist.getNodeByUid('pcp-vector-checklist-cpu');
+local parents = checklist.getParentNodes(node);
 
-local navigation = overview.getNavigation(dashboardNode);
-local parents = overview.getParentNodes(dashboardNode);
-local children = overview.getChildrenNodes(dashboardNode);
-
-dashboard.new(
-  title=dashboardNode.title,
-  uid=dashboardNode.uid,
-  description=dashboardNode.name,
-  editable=false,
-  tags=[overview.tag],
-  time_from='now-5m',
-  time_to='now',
-  refresh='1s',
-  timepicker=grafana.timepicker.new(
-    refresh_intervals=['1s', '2s', '5s', '10s'],
-  )
-)
-.addTemplate(
-  grafana.template.datasource(
-    'vector_datasource',
-    'pcp-vector-datasource',
-    'PCP Vector',
-    hide='value',
-  )
-)
+checklist.dashboard.new(node)
 .addPanel(
-  breadcrumbsPanel.new()
-  .addItems(navigation), gridPos={
-    x: 0,
-    y: 0,
-    w: 24,
-    h: 2,
-  },
-)
-.addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='CPU - User Time',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
+    datasource='$datasource',
+    threshold=notifyGraph.threshold.new(
       metric='kernel.percpu.cpu.util.user',
       operator='>',
       value=0.8,
     ),
-    meta=notifyMeta.new(
+    meta=notifyGraph.meta.new(
       name='CPU - User Time',
       warning='The CPU is executing application code.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'kernel.percpu.cpu.user',
           'percpu user CPU time metric from /proc/stat, including guest CPU time',
         ),
       ],
       derived=['kernel.percpu.cpu.util.user = rate(kernel.percpu.cpu.user)'],
       urls=['https://access.redhat.com/articles/767563#cpu'],
-      children=[overview.getNodeByUid('pcp-cpu-user-overview', children)],
       parents=parents,
+      children=[checklist.getNodeByUid('pcp-vector-checklist-cpu-user')],
     ),
   ).addTargets([
     { name: 'kernel.percpu.cpu.util.user', expr: 'rate(kernel.percpu.cpu.user)', format: 'time_series' },
@@ -81,27 +40,27 @@ dashboard.new(
   },
 )
 .addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='CPU - System Time',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
+    datasource='$datasource',
+    threshold=notifyGraph.threshold.new(
       metric='kernel.percpu.cpu.util.sys',
       operator='>',
       value=0.2,
     ),
-    meta=notifyMeta.new(
+    meta=notifyGraph.meta.new(
       name='CPU - System Time',
       warning='The CPU is executing system code.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'kernel.percpu.cpu.sys',
           'percpu sys CPU time metric from /proc/stat',
         ),
       ],
       derived=['kernel.percpu.cpu.util.sys = rate(kernel.percpu.cpu.sys)'],
       urls=['https://access.redhat.com/articles/767563#cpu'],
-      children=[overview.getNodeByUid('pcp-cpu-sys-overview', children)],
       parents=parents,
+      children=[checklist.getNodeByUid('pcp-vector-checklist-cpu-sys')],
     ),
   ).addTargets([
     { name: 'kernel.percpu.cpu.util.sys', expr: 'rate(kernel.percpu.cpu.sys)', format: 'time_series' },
@@ -113,18 +72,18 @@ dashboard.new(
   },
 )
 .addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='CPU - Kernel SamePage Merging Daemon (ksmd)',
-    datasource='$vector_datasource',
-    meta=notifyMeta.new(
+    datasource='$datasource',
+    meta=notifyGraph.meta.new(
       name='CPU - Kernel SamePage Merging Daemon (ksmd)',
       warning='Kernel SamePage Merging Daemon (ksmd) using too much time.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'hotproc.psinfo.utime',
           'time (in ms) spent executing user code since process started',
         ),
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'hotproc.psinfo.stime',
           'time (in ms) spent executing system code (calls) since process started',
         ),

@@ -1,67 +1,26 @@
 local grafana = import 'grafonnet/grafana.libsonnet';
-local dashboard = grafana.dashboard;
-local template = grafana.template;
-local graphPanel = grafana.graphPanel;
-
 local notifyGraph = import '_notifygraphpanel.libsonnet';
-local notifyPanel = notifyGraph.panel;
-local notifyThreshold = notifyGraph.threshold;
-local notifyMeta = notifyGraph.meta;
-local notifyMetric = notifyGraph.metric;
-
 local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
 
-local overview = import 'shared.libsonnet';
-local dashboardNode = overview.getNodeByUid('pcp-memory-overview');
+local checklist = import 'checklist.libsonnet';
+local node = checklist.getNodeByUid('pcp-vector-checklist-memory');
+local parents = checklist.getParentNodes(node);
 
-local navigation = overview.getNavigation(dashboardNode);
-local parents = overview.getParentNodes(dashboardNode);
-local children = overview.getChildrenNodes(dashboardNode);
-
-dashboard.new(
-  title=dashboardNode.title,
-  uid=dashboardNode.uid,
-  description=dashboardNode.name,
-  editable=false,
-  tags=[overview.tag],
-  time_from='now-5m',
-  time_to='now',
-  refresh='1s',
-  timepicker=grafana.timepicker.new(
-    refresh_intervals=['1s', '2s', '5s', '10s'],
-  )
-)
-.addTemplate(
-  grafana.template.datasource(
-    'vector_datasource',
-    'pcp-vector-datasource',
-    'PCP Vector',
-    hide='value',
-  )
-)
+checklist.dashboard.new(node)
 .addPanel(
-  breadcrumbsPanel.new()
-  .addItems(navigation), gridPos={
-    x: 0,
-    y: 0,
-    w: 24,
-    h: 2,
-  },
-)
-.addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='Memory - Swapping',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
+    datasource='$datasource',
+    threshold=notifyGraph.threshold.new(
       metric='swaps',
       operator='>',
       value=1,
     ),
-    meta=notifyMeta.new(
+    meta=notifyGraph.meta.new(
       name='Memory - Swapping',
       warning='Not enough physical memory and data being moved out to swap space.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'swap.pagesout',
           'pages written to swap devices due to demand for physical memory',
         ),
@@ -69,8 +28,8 @@ dashboard.new(
       derived=['swaps = rate(swap.pagesout)'],
       urls=['https://access.redhat.com/articles/767563#cpu'],
       details='When the memory pressure is excessive the operating system will move data in memory to swap space on storage devices so that the memory can be use to store other data.  Data in swap will be moved back into memory as needed.  However, there is a cost for scanning memory for candidate data to move to swap and the cost of moving data between memory and swap space is high.',
-      children=[overview.getNodeByUid('pcp-memory-swap-overview', children)],
       parents=parents,
+      children=[checklist.getNodeByUid('pcp-vector-checklist-swap')],
     ),
   ).addTargets([
     { name: 'swaps', expr: 'rate(swap.pagesout)', format: 'time_series' },
@@ -82,31 +41,31 @@ dashboard.new(
   },
 )
 .addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='Memory - Low mm reclaim efficiency',
-    datasource='$vector_datasource',
-    threshold=notifyThreshold.new(
+    datasource='$datasource',
+    threshold=notifyGraph.threshold.new(
       metric='vmeff',
       operator='>',
       value=0.5,
     ),
-    meta=notifyMeta.new(
+    meta=notifyGraph.meta.new(
       name='Memory - Low mm reclaim efficiency',
       warning='The memory management system spending too much effort relaiming memory pages.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'mem.vmstat.pgsteal_direct',
           'mem pages directly reclaimed',
         ),
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'mem.vmstat.pgsteal_kswapd',
           'mem pages reclaimed by kswapd',
         ),
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'mem.vmstat.pgscan_direct',
           'directly scanned mem pages',
         ),
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'mem.vmstat.pgscan_kswapd',
           'mem pages scanned by kswapd',
         ),
@@ -127,22 +86,22 @@ dashboard.new(
   },
 )
 .addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='Memory - Huge defragmentation',
-    datasource='$vector_datasource',
-    meta=notifyMeta.new(
+    datasource='$datasource',
+    meta=notifyGraph.meta.new(
       name='Memory - huge page defragmentation',
       warning='The system is spending large amounts of time grouping small pages of memory together into contigious physical regions of memory.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'mem.vmstat.thp_collapse_alloc',
           'transparent huge page collapse allocations',
         ),
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'mem.vmstat.thp_fault_alloc',
           'transparent huge page fault allocations',
         ),
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'mem.vmstat.thp_fault_fallback',
           'transparent huge page fault fallbacks',
         ),
@@ -162,14 +121,14 @@ dashboard.new(
   },
 )
 .addPanel(
-  notifyPanel.new(
+  notifyGraph.panel.new(
     title='Memory - Huge fragmentation',
-    datasource='$vector_datasource',
-    meta=notifyMeta.new(
+    datasource='$datasource',
+    meta=notifyGraph.meta.new(
       name='Memory - huge page fragmentation',
       warning='The system is splitting large regions of memory (Huge pages) into small pages.',
       metrics=[
-        notifyMetric.new(
+        notifyGraph.metric.new(
           'mem.vmstat.thp_split',
           'count of transparent huge page splits',
         ),

@@ -4,4 +4,6 @@ import { PCPAppConfigCtrl } from './components/appconfig/config';
 
 export { PCPAppConfigCtrl as ConfigCtrl };
 
-export const plugin = new AppPlugin().setRootPage(Search);
+class CustomApp extends AppPlugin<{}> {}
+
+export const plugin = new CustomApp().setRootPage(Search);

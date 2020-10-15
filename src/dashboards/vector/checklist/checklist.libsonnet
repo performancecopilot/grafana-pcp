@@ -1,8 +1,12 @@
+local grafana = import 'grafonnet/grafana.libsonnet';
+local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
+
 {
   /**
    * Tag that is shared across all checklist dashboards
    */
-  tag: 'pcp-checklist',
+  tags: ['pcp-vector', 'pcp-checklist'],
+
   /**
    * Nodes representing checklist dashboard tree - linking related dashboards (which contain related panels) together.
    * This tree is a main source of truth for all dashboard related information
@@ -19,66 +23,67 @@
    */
   nodes: [
     {
-      title: 'PCP Vector Checklist: Overview',
+      uid: 'pcp-vector-checklist',
+      title: 'PCP Vector Checklist',
       name: 'Overview',
-      uid: 'pcp-overview',
       parents: [],
     },
     {
+      uid: 'pcp-vector-checklist-cpu',
       title: 'PCP Vector Checklist: CPU',
       name: 'CPU',
-      uid: 'pcp-cpu-overview',
-      parents: ['pcp-overview'],
+      parents: ['pcp-vector-checklist'],
     },
     {
+      uid: 'pcp-vector-checklist-cpu-sys',
       title: 'PCP Vector Checklist: System CPU',
       name: 'System CPU',
-      uid: 'pcp-cpu-sys-overview',
-      parents: ['pcp-cpu-overview'],
+      parents: ['pcp-vector-checklist-cpu'],
     },
     {
+      uid: 'pcp-vector-checklist-cpu-user',
       title: 'PCP Vector Checklist: User CPU',
       name: 'User CPU',
-      uid: 'pcp-cpu-user-overview',
-      parents: ['pcp-cpu-overview'],
+      parents: ['pcp-vector-checklist-cpu'],
     },
     {
       title: 'PCP Vector Checklist: Memory',
       name: 'Memory',
-      uid: 'pcp-memory-overview',
-      parents: ['pcp-overview'],
+      uid: 'pcp-vector-checklist-memory',
+      parents: ['pcp-vector-checklist'],
     },
     {
+      uid: 'pcp-vector-checklist-memory-swap',
       title: 'PCP Vector Checklist: Swap Memory',
       name: 'Swap Memory',
-      uid: 'pcp-memory-swap-overview',
-      parents: ['pcp-memory-overview'],
+      parents: ['pcp-vector-checklist-memory'],
     },
     {
+      uid: 'pcp-vector-checklist-storage',
       title: 'PCP Vector Checklist: Storage',
       name: 'Storage',
-      uid: 'pcp-storage-overview',
-      parents: ['pcp-overview'],
+      parents: ['pcp-vector-checklist'],
     },
     {
+      uid: 'pcp-vector-checklist-network',
       title: 'PCP Vector Checklist: Network',
       name: 'Network',
-      uid: 'pcp-network-overview',
-      parents: ['pcp-overview'],
+      parents: ['pcp-vector-checklist'],
     },
     {
+      uid: 'pcp-vector-checklist-network-rx',
       title: 'PCP Vector Checklist: Network RX',
       name: 'Network RX',
-      uid: 'pcp-network-rx-overview',
-      parents: ['pcp-network-overview'],
+      parents: ['pcp-vector-checklist-network'],
     },
     {
+      uid: 'pcp-vector-checklist-network-tx',
       title: 'PCP Vector Checklist: Network TX',
       name: 'Network TX',
-      uid: 'pcp-network-tx-overview',
-      parents: ['pcp-network-overview'],
+      parents: ['pcp-vector-checklist-network'],
     },
   ],
+
   /**
    * Gets a node by given *uid* from a *nodeCollection* with default being a tree represented in 'nodes' field
    *
@@ -88,6 +93,7 @@
   getNodeByUid(uid, nodeCollection=self.nodes)::
     local result = std.filter(function(x) x.uid == uid, nodeCollection);
     if std.length(result) == 0 then {} else result[0],
+
   /**
    * Plucks 'parents' field from given node
    *
@@ -101,9 +107,10 @@
       [if std.objectHas(node, 'active') then 'active']: node.active,
       [if std.objectHas(node, 'current') then 'current']: node.current,
     },
+
   /**
    * Returns all nodes from 'nodes' field with same parent as given *node*
-   * 
+   *
    * @param node
    * @param includeNode Include passed node
    */
@@ -114,9 +121,10 @@
         x.uid != node.uid,
       self.nodes
     ) + if includeNode then [node] else [],
+
   /**
    * Returns all parent nodes from 'nodes' field which have given *node* as a child
-   * 
+   *
    * @param node
    * @param deep Recurse up to a parent-less (root) node
    */
@@ -132,7 +140,7 @@
     if std.length(parents) == 0 then
       []
     else
-      if deep then 
+      if deep then
         std.flatMap(
           function(x)
             self.getParentNodes(x, deep=true),
@@ -140,6 +148,7 @@
         ) + [parents]
       else
         parents,
+
   /**
    * Returns all direct children nodes from 'nodes' field of a given *node*
    *
@@ -147,17 +156,13 @@
    */
   getChildrenNodes(node)::
     std.map(
-      function (child)
-        self.pluckParents(child),
+      self.pluckParents,
       std.filter(
-        function(x)
-          std.member(
-            x.parents,
-            node.uid
-          ),
-          self.nodes
-        )
+        function(x) std.member(x.parents, node.uid),
+        self.nodes
+      )
     ),
+
   /**
    * Returns all nodes (including self) on the way up to a root of nodes from 'nodes' field beginning with *node*
    *
@@ -186,11 +191,12 @@
               node_list
             )
         else
-          function(node_list) 
+          function(node_list)
             [node_list],
         self.getParentNodes(node, deep=true) + [[node]],
       )
     ),
+
   /**
    * Returns all possible navigation items for a given node. That is:
    * - all parents (and their siblings) of *node* (up to the root), with traversed path marked
@@ -208,4 +214,36 @@
       pathToRoot
     else
       pathToRoot + [children],
+
+  dashboard: {
+    new (node)::
+      grafana.dashboard.new(
+        node.title,
+        tags=$.tags,
+        uid=node.uid,
+        time_from='now-5m',
+        time_to='now',
+        refresh='1s',
+        timepicker=grafana.timepicker.new(
+          refresh_intervals=['1s', '2s', '5s', '10s'],
+        )
+      )
+      .addTemplate(
+        grafana.template.datasource(
+          'datasource',
+          'pcp-vector-datasource',
+          'PCP Vector',
+          hide='value',
+        )
+      )
+      .addPanel(
+        breadcrumbsPanel.new()
+        .addItems($.getNavigation(node)), gridPos={
+          x: 0,
+          y: 0,
+          w: 24,
+          h: 2,
+        },
+      )
+  }
 }
