@@ -192,9 +192,9 @@ describe('<DetailPage/>', () => {
             type: 'graph',
         });
         expect(locationSrvMock.update.mock.calls[0][0]).toEqual({
-            path: '/d/grafana-pcp-app-graph-preview/graph-preview',
+            path: '/d/pcp-redis-metric-preview-graph/pcp-redis-metric-preview-graph',
             query: {
-                'var-entity': id,
+                'var-metric': id,
                 refresh: '5s',
             },
         });
@@ -212,9 +212,9 @@ describe('<DetailPage/>', () => {
             type: 'table',
         });
         expect(locationSrvMock.update.mock.calls[0][0]).toEqual({
-            path: '/d/grafana-pcp-app-table-preview/table-preview',
+            path: '/d/pcp-redis-metric-preview-table/pcp-redis-metric-preview-table',
             query: {
-                'var-entity': id,
+                'var-metric': id,
                 refresh: '5s',
             },
         });

@@ -100,6 +100,16 @@
         },
         {
             "type": "dashboard",
+            "name": "PCP Redis Metric Preview (Graph)",
+            "path": "dashboards/redis/preview/pcp-redis-metric-preview-graph.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Redis Metric Preview (Table)",
+            "path": "dashboards/redis/preview/pcp-redis-metric-preview-table.json"
+        },
+        {
+            "type": "dashboard",
             "name": "PCP Vector Checklist",
             "path": "dashboards/vector/checklist/pcp-vector-checklist.json",
             "addToNav": true
@@ -148,16 +158,6 @@
             "type": "dashboard",
             "name": "PCP Vector Checklist: Network TX",
             "path": "dashboards/vector/checklist/pcp-vector-checklist-network-tx.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "Graph Entity Preview",
-            "path": "dashboards/search/search-graph-preview.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "Table Entity Preview",
-            "path": "dashboards/search/search-table-preview.json"
         }
     ],
     "dependencies": {

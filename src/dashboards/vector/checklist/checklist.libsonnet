@@ -219,8 +219,8 @@ local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
     new (node)::
       grafana.dashboard.new(
         node.title,
-        tags=$.tags,
         uid=node.uid,
+        tags=$.tags,
         time_from='now-5m',
         time_to='now',
         refresh='1s',

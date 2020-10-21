@@ -60,25 +60,22 @@ export class DetailPage extends React.Component<DetailPageProps, DetailPageState
     }
 
     onMetricPreview(item: MetricDetailPreview) {
-        let dashboardName = '';
-        let dashboardUid = '';
+        let path = '';
         switch (item.type) {
             case 'graph':
-                dashboardName = 'graph-preview';
-                dashboardUid = 'grafana-pcp-app-graph-preview';
+                path = '/d/pcp-redis-metric-preview-graph/pcp-redis-metric-preview-graph';
                 break;
             case 'table':
-                dashboardName = 'table-preview';
-                dashboardUid = 'grafana-pcp-app-table-preview';
+                path = '/d/pcp-redis-metric-preview-table/pcp-redis-metric-preview-table';
                 break;
             default:
                 return;
         }
-        const path = `/d/${dashboardUid}/${dashboardName}`;
+
         this.locationSrv.update({
             path,
             query: {
-                'var-entity': item.id,
+                'var-metric': item.id,
                 refresh: '5s',
             },
         });

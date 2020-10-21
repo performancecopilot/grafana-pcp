@@ -2,7 +2,7 @@ local grafana = import 'grafonnet/grafana.libsonnet';
 
 grafana.dashboard.new(
   'PCP bpftrace System Analysis',
-  tags=['pcp-bpftrace'],
+  tags=['pcp-bpftrace', 'eBPF'],
   time_from='now-2m',
   time_to='now+2s',
   refresh='1s',

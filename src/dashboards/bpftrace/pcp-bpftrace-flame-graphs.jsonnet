@@ -19,7 +19,7 @@ local flameGraph(
 
 grafana.dashboard.new(
   'PCP bpftrace Flame Graphs',
-  tags=['pcp-bpftrace'],
+  tags=['pcp-bpftrace', 'eBPF'],
   time_from='now-5s',
   time_to='now',
   refresh='1s',
