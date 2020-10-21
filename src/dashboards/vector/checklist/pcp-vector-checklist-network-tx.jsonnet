@@ -32,7 +32,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { name: 'network_tx_drops', expr: 'rate(network.interface.out.drops)', format: 'time_series' },
+    { name: 'network_tx_drops', expr: 'rate(network.interface.out.drops)', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -64,7 +64,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { name: 'network_tx_errors', expr: 'rate(network.interface.out.errors)', format: 'time_series' },
+    { name: 'network_tx_errors', expr: 'rate(network.interface.out.errors)', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 3,

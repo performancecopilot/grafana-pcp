@@ -28,7 +28,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { name: 'mem.ratio.free', expr: 'mem.util.free / mem.physmem', format: 'time_series' },
+    { name: 'mem.ratio.free', expr: 'mem.util.free / mem.physmem', format: 'time_series', legendFormat: '$expr' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -57,7 +57,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { name: 'mem.numa.ratio.free', expr: 'mem.numa.util.free / mem.numa.util.total', format: 'time_series' },
+    { name: 'mem.numa.ratio.free', expr: 'mem.numa.util.free / mem.numa.util.total', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 3,

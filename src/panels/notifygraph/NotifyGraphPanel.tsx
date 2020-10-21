@@ -31,8 +31,8 @@ type NotifyGraphPanelProps = PanelProps<Options> & Themeable;
 
 export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps, NotifyGraphPanelState> {
     locationSrv: LocationSrv;
-    computeModel: typeof generateGraphModel = memoizeOne(generateGraphModel);
-    outsideThresholdSeries: typeof outsideThresholdSeries = memoizeOne(outsideThresholdSeries);
+    computeModel = memoizeOne(generateGraphModel);
+    outsideThresholdSeries = memoizeOne(outsideThresholdSeries);
     state: NotifyGraphPanelState = {
         showInfoModal: false,
         showIssueModal: false,

@@ -24,7 +24,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: 'hotproc.psinfo.utime', format: 'time_series' },
+    { expr: 'hotproc.psinfo.utime', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 3,

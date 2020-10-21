@@ -56,14 +56,15 @@ Legend Format Templating
 ------------------------
 The following variables can be used in the legend format box:
 
-=============== ======================== =================
+=============== ======================== ==========================
 Variable        Description              Example
-=============== ======================== =================
+=============== ======================== ==========================
+``$expr``       query expression         ``rate(disk.dm.avactive)``
 ``$metric``     metric name              ``disk.dev.read``
 ``$metric0``    last part of metric name ``read``
 ``$instance``   instance name            ``sda``
 ``$some_label`` label value              anything
-=============== ======================== =================
+=============== ======================== ==========================
 
 Query Functions
 ---------------

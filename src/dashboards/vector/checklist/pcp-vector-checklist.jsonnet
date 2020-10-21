@@ -30,7 +30,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-cpu')],
     ),
   ).addTargets([
-    { name: 'kernel.percpu.cpu.util.all', expr: '1 - rate(kernel.percpu.cpu.idle)', format: 'time_series' },
+    { name: 'kernel.percpu.cpu.util.all', expr: '1 - rate(kernel.percpu.cpu.idle)', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -62,7 +62,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-storage')],
     ),
   ).addTargets([
-    { name: 'diskbusy', expr: 'rate(disk.dm.avactive)', format: 'time_series' },
+    { name: 'diskbusy', expr: 'rate(disk.dm.avactive)', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 3,
@@ -99,11 +99,11 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-memory')],
     ),
   ).addTargets([
-    { name: 'mem.ratio.available', expr: 'mem.util.available / mem.physmem', format: 'time_series' },
+    { name: 'mem.ratio.available', expr: 'mem.util.available / mem.physmem', format: 'time_series', legendFormat: '$expr' },
   ]), gridPos={
     x: 0,
     y: 13,
-    w: 12,
+    w: 24,
     h: 9
   },
 )
@@ -134,10 +134,10 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-network')],
     ),
   ).addTargets([
-    { name: 'network_tx_bandwidth', expr: 'rate(network.interface.out.bytes) / network.interface.baudrate', format: 'time_series' },
+    { name: 'network_tx_bandwidth', expr: 'rate(network.interface.out.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
-    y: 13,
+    y: 23,
     w: 12,
     h: 9
   },
@@ -169,7 +169,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-network')],
     ),
   ).addTargets([
-    { name: 'network_rx_bandwidth', expr: 'rate(network.interface.in.bytes) / network.interface.baudrate', format: 'time_series' }
+    { name: 'network_rx_bandwidth', expr: 'rate(network.interface.in.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance' }
   ]), gridPos={
     x: 0,
     y: 23,

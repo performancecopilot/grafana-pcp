@@ -126,6 +126,7 @@ function getFieldDisplayName(
 
     const vars = getLabels(context, metric, instanceId);
     const spl = metric.metadata.name.split('.');
+    vars['expr'] = query.expr;
     vars['metric'] = metric.metadata.name;
     vars['metric0'] = spl[spl.length - 1];
 

@@ -11,6 +11,7 @@ import {
     TimeZone,
     GraphSeriesValue,
     systemDateFormats,
+    getFieldDisplayName,
 } from '@grafana/data';
 import { colors } from '@grafana/ui';
 import { Options, ThresholdOptions, ThresholdsOperator } from './types';
@@ -45,6 +46,7 @@ export function generateGraphModel(data: PanelData, timeZone: TimeZone, options:
                         return;
                     }
                     field.config = {
+                        ...field.config,
                         color: {
                             mode: FieldColorMode.Thresholds,
                             fixedColor: colors[series.length % colors.length],
@@ -61,19 +63,7 @@ export function generateGraphModel(data: PanelData, timeZone: TimeZone, options:
                             },
                         },
                     });
-                    // attempt to replace derived metric expression with provided derived metric name
-                    let label = field.name;
-                    const hasInstanceIdentifier = field.state?.scopedVars?.__field.value.name !== field.name;
-                    if (hasInstanceIdentifier) {
-                        const instanceBracketIndex = field.name.lastIndexOf('[');
-                        if (instanceBracketIndex !== -1) {
-                            const metric = field.name.substr(0, instanceBracketIndex);
-                            const instance = field.name.substring(instanceBracketIndex, field.name.length);
-                            label = `${exprName.get(metric) ?? metric}${instance}`;
-                        }
-                    } else {
-                        label = `${exprName.get(label) ?? label}`;
-                    }
+                    let label = getFieldDisplayName(field);
                     series.push({
                         label,
                         data: points,

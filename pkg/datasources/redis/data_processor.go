@@ -136,14 +136,16 @@ func (ds *redisDatasourceInstance) getFieldName(series *series.Series, instanceI
 
 var legendFormatRegex = regexp.MustCompile(`\$\w+`)
 
-func getFieldDisplayName(series *series.Series, instanceID string, labels data.Labels, legendFormat string) string {
-	if legendFormat == "" {
+func getFieldDisplayName(redisQuery *Query, series *series.Series, instanceID string, labels data.Labels) string {
+	if redisQuery.LegendFormat == "" {
 		return ""
 	}
 
-	result := legendFormatRegex.ReplaceAllStringFunc(legendFormat, func(match string) string {
+	result := legendFormatRegex.ReplaceAllStringFunc(redisQuery.LegendFormat, func(match string) string {
 		varName := match[1:]
 		switch varName {
+		case "expr":
+			return redisQuery.Expr
 		case "metric":
 			return series.MetricName
 		case "metric0":
@@ -165,7 +167,7 @@ func getFieldDisplayName(series *series.Series, instanceID string, labels data.L
 	return string(result)
 }
 
-func (ds *redisDatasourceInstance) createField(series *series.Series, instanceID string, legendFormat string) (*data.Field, error) {
+func (ds *redisDatasourceInstance) createField(redisQuery *Query, series *series.Series, instanceID string) (*data.Field, error) {
 	fieldName, err := ds.getFieldName(series, instanceID)
 	if err != nil {
 		return nil, err
@@ -177,7 +179,7 @@ func (ds *redisDatasourceInstance) createField(series *series.Series, instanceID
 	}
 
 	labels := getStringLabels(series, instanceID)
-	displayName := getFieldDisplayName(series, instanceID, labels, legendFormat)
+	displayName := getFieldDisplayName(redisQuery, series, instanceID, labels)
 	unit := getFieldUnit(&series.Desc)
 
 	field := data.NewField(fieldName, labels, fieldVector)
@@ -228,7 +230,7 @@ func (ds *redisDatasourceInstance) createDataFrames(redisQuery *Query, series ma
 				field := curInstanceToField[values[i].Instance]
 				if field == nil {
 					var err error
-					field, err = ds.createField(series[curSeriesID], values[i].Instance, redisQuery.LegendFormat)
+					field, err = ds.createField(redisQuery, series[curSeriesID], values[i].Instance)
 					if err != nil {
 						return nil, err
 					}

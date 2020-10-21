@@ -77,6 +77,7 @@
                 expr: target.expr,
                 format: target.format,
                 [if std.objectHas(target, 'name') then 'name']: target.name,
+                [if std.objectHas(target, 'legendFormat') then 'legendFormat']: target.legendFormat,
                 refId: std.char(std.codepoint('A') + nextTarget)
             }],
       },
@@ -121,7 +122,7 @@
     },
   },
   /**
-   * Returns a new notify graph meta that can be used within notify graph's object (produced by notifyGraph.panel.new), this object specifies various information rendered in either 'Warning' or 'Information' modal, with 'Warning' being available once threshold has been passed 
+   * Returns a new notify graph meta that can be used within notify graph's object (produced by notifyGraph.panel.new), this object specifies various information rendered in either 'Warning' or 'Information' modal, with 'Warning' being available once threshold has been passed
    *
    * @name notifyGraph.meta.new
    *
@@ -130,7 +131,7 @@
    * @param metrics List of metrics that are related to given notifyGraph.panel within which this meta resides. notifyGraph.meta[]
    * @param derived List of derived metric expressions that are related to given notifyGraph.panel within which this meta resides. string[],
    * @param urls List of urls that are offered as further reading on the topic related to metrics or for troubleshooting
-   * @param issues List of helpful texts (may contain HTML) that offer hints that are always made available to the user 
+   * @param issues List of helpful texts (may contain HTML) that offer hints that are always made available to the user
    * @param details Detailed description of state that system may be in when threshold in notifyGraph.panel is failing
    * @param children List of tree nodes from 'nodes' field, located in DASHBOARD_DIR/overview/shared.libsonnet (preferably retrieved by *getNodeByUid* function from same file), representing dashboards, that are offered to the user for further inspection of metrics related to this meta, below logical hierarchy
    * @param parents List of tree nodes from 'nodes' field, located in DASHBOARD_DIR/overview/shared.libsonnet (preferably retrieved by *getNodeByUid* function from same file), representing dashboards, that are offered to the user for further inspection of metrics related to this meta, above logical hierarchy

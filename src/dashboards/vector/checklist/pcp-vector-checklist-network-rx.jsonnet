@@ -32,7 +32,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { name: 'network_rx_drops', expr: 'rate(network.interface.in.drops)', format: 'time_series' },
+    { name: 'network_rx_drops', expr: 'rate(network.interface.in.drops)', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 3,
@@ -64,7 +64,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { name: 'network_rx_errors', expr: 'rate(network.interface.in.errors)', format: 'time_series' },
+    { name: 'network_rx_errors', expr: 'rate(network.interface.in.errors)', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 13,
@@ -96,7 +96,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { name: 'rxcpudropped', expr: 'rate(network.softnet.dropped)', format: 'time_series' },
+    { name: 'rxcpudropped', expr: 'rate(network.softnet.dropped)', format: 'time_series', legendFormat: '$expr' },
   ]), gridPos={
     x: 12,
     y: 13,
@@ -128,7 +128,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { name: 'time_squeeze', expr: 'rate(network.softnet.time_squeeze)', format: 'time_series' },
+    { name: 'time_squeeze', expr: 'rate(network.softnet.time_squeeze)', format: 'time_series', legendFormat: '$expr' },
   ]), gridPos={
     x: 0,
     y: 23,

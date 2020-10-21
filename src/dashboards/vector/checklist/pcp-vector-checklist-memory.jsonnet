@@ -32,7 +32,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-swap')],
     ),
   ).addTargets([
-    { name: 'swaps', expr: 'rate(swap.pagesout)', format: 'time_series' },
+    { name: 'swaps', expr: 'rate(swap.pagesout)', format: 'time_series', legendFormat: '$expr' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -77,7 +77,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { name: 'vmeff', expr: '(rate(mem.vmstat.pgsteal_direct) + rate(mem.vmstat.pgsteal_kswapd)) / (rate(mem.vmstat.pgscan_direct) + rate(mem.vmstat.pgscan_kswapd))', format: 'time_series' },
+    { name: 'vmeff', expr: '(rate(mem.vmstat.pgsteal_direct) + rate(mem.vmstat.pgsteal_kswapd)) / (rate(mem.vmstat.pgscan_direct) + rate(mem.vmstat.pgscan_kswapd))', format: 'time_series', legendFormat: '$expr' },
   ]), gridPos={
     x: 12,
     y: 3,
@@ -110,9 +110,9 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: 'mem.vmstat.thp_collapse_alloc', format: 'time_series' },
-    { expr: 'mem.vmstat.thp_fault_alloc', format: 'time_series' },
-    { expr: 'mem.vmstat.thp_fault_fallback', format: 'time_series' },
+    { expr: 'mem.vmstat.thp_collapse_alloc', format: 'time_series', legendFormat: '$metric' },
+    { expr: 'mem.vmstat.thp_fault_alloc', format: 'time_series', legendFormat: '$metric' },
+    { expr: 'mem.vmstat.thp_fault_fallback', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 0,
     y: 13,
@@ -139,7 +139,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: 'mem.vmstat.thp_split', format: 'time_series' },
+    { expr: 'mem.vmstat.thp_split', format: 'time_series', legendFormat: '$metric' },
   ]), gridPos={
     x: 12,
     y: 13,

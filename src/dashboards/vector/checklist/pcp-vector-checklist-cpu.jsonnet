@@ -31,7 +31,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-cpu-user')],
     ),
   ).addTargets([
-    { name: 'kernel.percpu.cpu.util.user', expr: 'rate(kernel.percpu.cpu.user)', format: 'time_series' },
+    { name: 'kernel.percpu.cpu.util.user', expr: 'rate(kernel.percpu.cpu.user)', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -63,7 +63,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-cpu-sys')],
     ),
   ).addTargets([
-    { name: 'kernel.percpu.cpu.util.sys', expr: 'rate(kernel.percpu.cpu.sys)', format: 'time_series' },
+    { name: 'kernel.percpu.cpu.util.sys', expr: 'rate(kernel.percpu.cpu.sys)', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 3,
@@ -95,7 +95,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { name: 'hotproc.psinfo.ksmd.util', expr: 'rate(hotproc.psinfo.utime) + rate(hotproc.psinfo.stime)', format: 'time_series' },
+    { name: 'hotproc.psinfo.ksmd.util', expr: 'rate(hotproc.psinfo.utime) + rate(hotproc.psinfo.stime)', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 13,
