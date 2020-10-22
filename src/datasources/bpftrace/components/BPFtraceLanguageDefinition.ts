@@ -222,7 +222,11 @@ export class BPFtraceLanguageDefinition implements MonacoLanguageDefinition {
         const endpointId = `${url}::${hostspec}`;
 
         if (!(endpointId in this.dynamicProbeCompletions)) {
-            const fetchResponse = await this.pmApiService.fetch(url, null, ['bpftrace.info.tracepoints']);
+            const fetchResponse = await this.pmApiService.fetch({
+                url,
+                hostspec,
+                names: ['bpftrace.info.tracepoints'],
+            });
 
             const probes = (fetchResponse.values[0].instances[0].value as string)
                 .split(',')

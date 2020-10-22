@@ -65,8 +65,13 @@ export class DataSource extends DatasourceBase<VectorQuery, VectorOptions> {
 
     async registerDerivedMetric(target: Target<VectorTargetData>, endpoint: Endpoint): Promise<string[]> {
         const name = this.derivedMetricName(target.query.expr);
-        const ctx = endpoint.context?.context ?? null;
-        const result = await this.pmApiService.derive(target.query.url!, ctx, target.query.expr, name);
+        const context = endpoint.context?.context;
+        const result = await this.pmApiService.derive({
+            url: target.query.url!,
+            context,
+            expr: target.query.expr,
+            name,
+        });
         if (result.success) {
             this.derivedMetrics.set(target.query.expr, name);
             return [name];

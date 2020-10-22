@@ -127,21 +127,21 @@ export class PmapiLanguageDefinition implements MonacoLanguageDefinition {
     }
 
     async findMetricCompletions(token: TokenValue): Promise<Monaco.languages.CompletionItem[]> {
-        const url = this.datasource.getUrlAndHostspec(this.getQuery()).url;
+        const { url, hostspec } = this.datasource.getUrlAndHostspec(this.getQuery());
         let searchPrefix = '';
         if (token.value.includes('.')) {
             searchPrefix = token.value.substring(0, token.value.lastIndexOf('.'));
         }
 
-        const suggestions = await this.pmApiService.children(url, null, searchPrefix);
+        const suggestions = await this.pmApiService.children({ url, hostspec, prefix: searchPrefix });
         const prefixWithDot = searchPrefix === '' ? '' : `${searchPrefix}.`;
         let metadataByMetric: Dict<string, Metadata> = {};
         if (suggestions.leaf.length > 0) {
-            const metadatas = await this.pmApiService.metric(
+            const metadatas = await this.pmApiService.metric({
                 url,
-                null,
-                suggestions.leaf.map(leaf => `${prefixWithDot}${leaf}`)
-            );
+                hostspec,
+                names: suggestions.leaf.map(leaf => `${prefixWithDot}${leaf}`),
+            });
             metadataByMetric = keyBy(metadatas.metrics, 'name');
         }
 
@@ -168,14 +168,14 @@ export class PmapiLanguageDefinition implements MonacoLanguageDefinition {
     }
 
     async findInstanceCompletions(tokens: TokenValue[]) {
-        const url = this.datasource.getUrlAndHostspec(this.getQuery()).url;
+        const { url, hostspec } = this.datasource.getUrlAndHostspec(this.getQuery());
         const metric = findToken(tokens, 'identifier.pmapi');
         if (!metric) {
             return [];
         }
 
         try {
-            const instancesResponse = await this.pmApiService.indom(url, null, metric.value);
+            const instancesResponse = await this.pmApiService.indom({ url, hostspec, name: metric.value });
             return instancesResponse.instances.map(instance => ({
                 kind: monaco.languages.CompletionItemKind.EnumMember,
                 label: instance.name,

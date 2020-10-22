@@ -13,10 +13,6 @@ export interface Context {
     labels: Labels;
 }
 
-export interface MetricResponse {
-    metrics: Metadata[];
-}
-
 export interface Metadata {
     name: MetricName;
     indom?: string;
@@ -29,20 +25,10 @@ export interface Metadata {
     'text-oneline': string;
 }
 
-export interface IndomResponse {
-    instances: Indom[];
-    labels: Labels;
-}
-
 export interface Indom {
     name: InstanceName;
     instance: InstanceId;
     labels: Labels;
-}
-
-export interface FetchResponse {
-    timestamp: number;
-    values: MetricInstanceValues[];
 }
 
 export interface MetricInstanceValues {
@@ -55,14 +41,60 @@ export interface InstanceValue {
     value: number | string;
 }
 
+export interface PmapiRequest {
+    url: string;
+    hostspec?: string;
+    context?: number;
+}
+
+export interface ContextRequest extends PmapiRequest {
+    /** context timeout in seconds */
+    polltimeout?: number;
+}
+export type ContextResponse = Context;
+
+export interface MetricRequest extends PmapiRequest {
+    names: string[];
+}
+export interface MetricResponse {
+    metrics: Metadata[];
+}
+
+export interface IndomRequest extends PmapiRequest {
+    name: string;
+}
+export interface IndomResponse {
+    instances: Indom[];
+    labels: Labels;
+}
+
+export interface FetchRequest extends PmapiRequest {
+    names: string[];
+}
+export interface FetchResponse {
+    timestamp: number;
+    values: MetricInstanceValues[];
+}
+
+export interface StoreRequest extends PmapiRequest {
+    name: string;
+    value: string;
+}
 export interface StoreResponse {
     success: boolean;
 }
 
+export interface DeriveRequest extends PmapiRequest {
+    name: string;
+    expr: string;
+}
 export interface DeriveResponse {
     success: boolean;
 }
 
+export interface ChildrenRequest extends PmapiRequest {
+    prefix: string;
+}
 export interface ChildrenResponse {
     leaf: string[];
     nonleaf: string[];

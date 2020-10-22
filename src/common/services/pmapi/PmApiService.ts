@@ -3,18 +3,25 @@ import { NetworkError } from 'common/types/errors/network';
 import { DefaultRequestOptions, getRequestOptions, timeout } from 'common/utils';
 import { has, defaults } from 'lodash';
 import {
+    ChildrenRequest,
     ChildrenResponse,
-    Context,
+    ContextRequest,
+    ContextResponse,
+    DeriveRequest,
     DeriveResponse,
+    FetchRequest,
     FetchResponse,
+    IndomRequest,
     IndomResponse,
     MetricNotFoundError,
+    MetricRequest,
     MetricResponse,
     MetricSemanticError,
     MetricSyntaxError,
     NoIndomError,
     PermissionError,
     PmApiConfig,
+    StoreRequest,
     StoreResponse,
 } from './types';
 
@@ -36,14 +43,14 @@ export class PmApiService {
 
     /**
      * creates a new context
-     * @param url
-     * @param hostspec
-     * @param polltimeout context timeout in seconds
      */
-    async createContext(url: string, hostspec: string, polltimeout = 30): Promise<Context> {
+    async createContext(params: ContextRequest): Promise<ContextResponse> {
         const request = {
-            url: `${url}/pmapi/context`,
-            params: { hostspec, polltimeout },
+            url: `${params.url}/pmapi/context`,
+            params: {
+                hostspec: params.hostspec,
+                polltimeout: params.polltimeout ?? 30,
+            },
         };
         const response = await this.datasourceRequest(request);
 
@@ -53,14 +60,17 @@ export class PmApiService {
         return response.data;
     }
 
-    async metric(url: string, ctxid: number | null, names: string[]): Promise<MetricResponse> {
+    async metric(params: MetricRequest): Promise<MetricResponse> {
         // if multiple metrics are requested and one is missing, pmproxy returns the valid metrics
         // if a single metric is requested which is missing, pmproxy returns 400
-        const ctxPath = ctxid == null ? '' : `/${ctxid}`;
         try {
             const request = {
-                url: `${url}/pmapi${ctxPath}/metric`,
-                params: { names: names.join(',') },
+                url: `${params.url}/pmapi/metric`,
+                params: {
+                    hostspec: params.hostspec,
+                    context: params.context,
+                    names: params.names.join(','),
+                },
             };
             const response = await this.datasourceRequest(request);
 
@@ -77,12 +87,15 @@ export class PmApiService {
         }
     }
 
-    async indom(url: string, ctxid: number | null, name: string): Promise<IndomResponse> {
-        const ctxPath = ctxid == null ? '' : `/${ctxid}`;
+    async indom(params: IndomRequest): Promise<IndomResponse> {
         try {
             const request = {
-                url: `${url}/pmapi${ctxPath}/indom`,
-                params: { name },
+                url: `${params.url}/pmapi/indom`,
+                params: {
+                    hostspec: params.hostspec,
+                    context: params.context,
+                    name: params.name,
+                },
             };
             const response = await this.datasourceRequest(request);
 
@@ -99,11 +112,14 @@ export class PmApiService {
         }
     }
 
-    async fetch(url: string, ctxid: number | null, names: string[]): Promise<FetchResponse> {
-        const ctxPath = ctxid == null ? '' : `/${ctxid}`;
+    async fetch(params: FetchRequest): Promise<FetchResponse> {
         const request = {
-            url: `${url}/pmapi${ctxPath}/fetch`,
-            params: { names: names.join(',') },
+            url: `${params.url}/pmapi/fetch`,
+            params: {
+                hostspec: params.hostspec,
+                context: params.context,
+                names: params.names.join(','),
+            },
         };
         const response = await this.datasourceRequest(request);
 
@@ -113,12 +129,16 @@ export class PmApiService {
         return response.data;
     }
 
-    async store(url: string, ctxid: number | null, name: string, value: string): Promise<StoreResponse> {
-        const ctxPath = ctxid == null ? '' : `/${ctxid}`;
+    async store(params: StoreRequest): Promise<StoreResponse> {
         try {
             const request = {
-                url: `${url}/pmapi${ctxPath}/store`,
-                params: { name, value },
+                url: `${params.url}/pmapi/store`,
+                params: {
+                    hostspec: params.hostspec,
+                    context: params.context,
+                    name: params.name,
+                    value: params.value,
+                },
             };
             const response = await this.datasourceRequest(request);
             return response.data;
@@ -138,12 +158,16 @@ export class PmApiService {
         }
     }
 
-    async derive(url: string, ctxid: number | null, expr: string, name: string): Promise<DeriveResponse> {
-        const ctxPath = ctxid == null ? '' : `/${ctxid}`;
+    async derive(params: DeriveRequest): Promise<DeriveResponse> {
         try {
             const request = {
-                url: `${url}/pmapi${ctxPath}/derive`,
-                params: { name, expr },
+                url: `${params.url}/pmapi/derive`,
+                params: {
+                    hostspec: params.hostspec,
+                    context: params.context,
+                    name: params.name,
+                    expr: params.expr,
+                },
             };
             const response = await this.datasourceRequest(request);
             return response.data;
@@ -151,20 +175,23 @@ export class PmApiService {
             if (has(error, 'data.message') && error.data.message.includes('Duplicate derived metric name')) {
                 return { success: true };
             } else if (has(error, 'data.message') && error.data.message.includes('Semantic Error')) {
-                throw new MetricSemanticError(expr);
+                throw new MetricSemanticError(params.expr);
             } else if (has(error, 'data.message') && error.data.message.includes('Syntax Error')) {
-                throw new MetricSyntaxError(expr);
+                throw new MetricSyntaxError(params.expr);
             } else {
                 throw error;
             }
         }
     }
 
-    async children(url: string, ctxid: number | null, prefix: string): Promise<ChildrenResponse> {
-        const ctxPath = ctxid == null ? '' : `/${ctxid}`;
+    async children(params: ChildrenRequest): Promise<ChildrenResponse> {
         const request = {
-            url: `${url}/pmapi${ctxPath}/children`,
-            params: { prefix },
+            url: `${params.url}/pmapi/children`,
+            params: {
+                context: params.context,
+                hostspec: params.hostspec,
+                prefix: params.prefix,
+            },
         };
         const response = await this.datasourceRequest(request);
         return response.data;

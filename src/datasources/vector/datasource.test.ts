@@ -74,7 +74,7 @@ describe('PCP Vector datasource', () => {
         const endpointMock: jest.Mocked<Endpoint> = { context: { context: 0 } } as any;
         await instance.registerDerivedMetric(targetMock, endpointMock);
         expect(spy).toBeCalledTimes(1);
-        expect(spy.mock.calls[0][3]).toBe(instance.derivedMetricName(expr));
+        expect(spy.mock.calls[0][0]).toMatchObject({ name: instance.derivedMetricName(expr) });
         expect(instance.derivedMetrics.has(expr)).toBe(true);
     });
 

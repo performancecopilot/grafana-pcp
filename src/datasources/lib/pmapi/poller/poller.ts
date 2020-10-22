@@ -69,11 +69,11 @@ export class Poller {
     }
 
     async refreshInstanceNames(endpoint: EndpointWithCtx, metric: Metric) {
-        const instancesResponse = await this.pmApiService.indom(
-            endpoint.url,
-            endpoint.context.context,
-            metric.metadata.name
-        );
+        const instancesResponse = await this.pmApiService.indom({
+            url: endpoint.url,
+            context: endpoint.context.context,
+            name: metric.metadata.name,
+        });
         metric.instanceDomain!.labels = instancesResponse.labels;
         for (const instance of instancesResponse.instances) {
             metric.instanceDomain!.instances[instance.instance] = instance;
@@ -94,7 +94,11 @@ export class Poller {
     }
 
     async loadMetricsMetadata(endpoint: EndpointWithCtx, metricNames: string[]) {
-        const metadataResponse = await this.pmApiService.metric(endpoint.url, endpoint.context.context, metricNames);
+        const metadataResponse = await this.pmApiService.metric({
+            url: endpoint.url,
+            context: endpoint.context.context,
+            names: metricNames,
+        });
         for (const metadata of metadataResponse.metrics) {
             let metric: Metric = {
                 metadata,
@@ -165,11 +169,11 @@ export class Poller {
     }
 
     async initContext(endpoint: Endpoint) {
-        endpoint.context = await this.pmApiService.createContext(
-            endpoint.url,
-            endpoint.hostspec,
-            Math.round((this.state.refreshIntervalMs + this.config.gracePeriodMs) / 1000)
-        );
+        endpoint.context = await this.pmApiService.createContext({
+            url: endpoint.url,
+            hostspec: endpoint.hostspec,
+            polltimeout: Math.round((this.state.refreshIntervalMs + this.config.gracePeriodMs) / 1000),
+        });
         endpoint.hasRedis = this.config.hooks.redisBackfill && (await this.endpointHasRedis());
         endpoint.state = EndpointState.CONNECTED;
         await this.config.hooks.registerEndpoint?.(endpoint);
@@ -198,7 +202,11 @@ export class Poller {
         const additionalMetricNamesToPoll = uniq(endpoint.additionalMetricsToPoll.map(amp => amp.name));
         metricsToPoll.push(...additionalMetricNamesToPoll);
 
-        const valuesResponse = await this.pmApiService.fetch(endpoint.url, endpoint.context!.context, metricsToPoll);
+        const valuesResponse = await this.pmApiService.fetch({
+            url: endpoint.url,
+            context: endpoint.context!.context,
+            names: metricsToPoll,
+        });
         for (const metricInstanceValues of valuesResponse.values) {
             if (additionalMetricNamesToPoll.includes(metricInstanceValues.name)) {
                 endpoint.additionalMetricsToPoll
@@ -242,11 +250,11 @@ export class Poller {
         } catch (error) {
             if (has(error, 'data.message') && error.data.message.includes('unknown context identifier')) {
                 log.debug('context expired. requesting a new context');
-                endpoint.context = await this.pmApiService.createContext(
-                    endpoint.url,
-                    endpoint.hostspec,
-                    Math.round((this.state.refreshIntervalMs + this.config.gracePeriodMs) / 1000)
-                );
+                endpoint.context = await this.pmApiService.createContext({
+                    url: endpoint.url,
+                    hostspec: endpoint.hostspec,
+                    polltimeout: Math.round((this.state.refreshIntervalMs + this.config.gracePeriodMs) / 1000),
+                });
                 await this.pollEndpoint(endpoint);
             } else {
                 throw error;
