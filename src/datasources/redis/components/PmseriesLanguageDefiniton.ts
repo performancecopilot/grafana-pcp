@@ -6,6 +6,7 @@ import { findToken, getTokenValues, TokenValue } from '../../lib/language';
 import { cloneDeep, uniqueId } from 'lodash';
 import { getLogger } from 'common/utils';
 import { MonacoLanguageDefinition } from 'components/monaco/MonacoEditorWrapper';
+import { getTemplateSrv } from '@grafana/runtime';
 
 // this prevents monaco from being included in the redis datasource
 // (it it already in its own chunk in vendors~monaco-editor.js)
@@ -112,6 +113,7 @@ export class PmseriesLanguageDefiniton implements MonacoLanguageDefinition {
             kind: monaco.languages.CompletionItemKind.Event,
             label: metric.text,
             insertText: metric.text,
+            detail: 'metric',
             range: undefined as any,
         }));
     }
@@ -120,12 +122,23 @@ export class PmseriesLanguageDefiniton implements MonacoLanguageDefinition {
         const labelNames = (await this.datasource.getResource('metricFindQuery', {
             query: 'label_names()',
         })) as MetricFindValue[];
-        return labelNames.map(labelName => ({
-            kind: monaco.languages.CompletionItemKind.Enum,
-            label: labelName.text,
-            insertText: labelName.text,
-            range: undefined as any,
-        }));
+
+        return [
+            {
+                kind: monaco.languages.CompletionItemKind.Enum,
+                label: 'instance.name',
+                insertText: 'instance.name',
+                detail: 'instance name',
+                range: undefined as any,
+            },
+            ...labelNames.map(labelName => ({
+                kind: monaco.languages.CompletionItemKind.Enum,
+                label: labelName.text,
+                insertText: labelName.text,
+                detail: 'label name',
+                range: undefined as any,
+            })),
+        ];
     }
 
     async findQualifierValuesCompletions(tokens: TokenValue[]) {
@@ -134,15 +147,33 @@ export class PmseriesLanguageDefiniton implements MonacoLanguageDefinition {
             return [];
         }
 
-        const labelValues = (await this.datasource.getResource('metricFindQuery', {
-            query: `label_values(${qualifierKeyToken.value})`,
-        })) as MetricFindValue[];
-        return labelValues.map(labelValue => ({
-            kind: monaco.languages.CompletionItemKind.EnumMember,
-            label: labelValue.text,
-            insertText: labelValue.text,
-            range: undefined as any,
-        }));
+        const variableNames = getTemplateSrv()
+            .getVariables()
+            .map(v => v.name);
+
+        let labelValues: MetricFindValue[] = [];
+        if (qualifierKeyToken.value !== 'instance.name') {
+            labelValues = await this.datasource.getResource('metricFindQuery', {
+                query: `label_values(${qualifierKeyToken.value})`,
+            });
+        }
+
+        return [
+            ...variableNames.map(variableName => ({
+                kind: monaco.languages.CompletionItemKind.EnumMember,
+                label: '$' + variableName,
+                insertText: '$' + variableName,
+                detail: 'dashboard variable',
+                range: undefined as any,
+            })),
+            ...labelValues.map(labelValue => ({
+                kind: monaco.languages.CompletionItemKind.EnumMember,
+                label: labelValue.text,
+                insertText: labelValue.text,
+                detail: 'label value',
+                range: undefined as any,
+            })),
+        ];
     }
 
     async findCompletions(tokens: TokenValue[]) {
