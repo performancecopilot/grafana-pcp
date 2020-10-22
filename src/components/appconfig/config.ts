@@ -12,15 +12,19 @@ export class PCPAppConfigCtrl {
         this.appEditCtrl.setPostUpdateHook(this.postUpdate.bind(this));
     }
 
+    async getPcpFolder() {
+        return await getBackendSrv()
+            .fetch<any>({
+                method: 'GET',
+                url: '/api/folders/performancecopilot-pcp-app',
+                showErrorAlert: false,
+            })
+            .toPromise();
+    }
+
     async createPcpFolder(): Promise<number> {
         try {
-            const folder = await getBackendSrv()
-                .fetch<any>({
-                    method: 'GET',
-                    url: '/api/folders/performancecopilot-pcp-app',
-                    showErrorAlert: false,
-                })
-                .toPromise();
+            const folder = await this.getPcpFolder();
             return folder.data.id;
         } catch (error) {
             // folder does not exist
@@ -55,13 +59,13 @@ export class PCPAppConfigCtrl {
     async deletePcpFolderIfEmpty() {
         let folder;
         try {
-            folder = await getBackendSrv().get('/api/folders/performancecopilot-pcp-app');
+            folder = await this.getPcpFolder();
         } catch (error) {
             // folder does not exist
             return;
         }
 
-        const searchResponse = await getBackendSrv().get('/api/search', { folderIds: folder.id });
+        const searchResponse = await getBackendSrv().get('/api/search', { folderIds: folder.data.id });
         if (searchResponse.length === 0) {
             // delete folder only if empty
             await getBackendSrv().delete('/api/folders/performancecopilot-pcp-app');
