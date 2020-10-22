@@ -2,7 +2,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v**'
+      - 'src/v**'
 
 jobs:
   release:
@@ -30,6 +30,9 @@ jobs:
       run: make dist
 
     - name: Create GitHub release
-      run: scripts/github-release.sh
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "action@github.com"
+        scripts/github-release.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
