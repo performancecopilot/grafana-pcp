@@ -3,6 +3,7 @@
 ## 3.0.0-beta2 (unreleased)
 
 - **dashboards**: moved dashboards to the datasource level: dashboards of interest can be imported using the dashboards tab of each datasource settings page
+- **dashboards**: added MS SQL server dashboard for Vector (Louis Imershein)
 
 ## 3.0.0-beta1 (2020-10-12)
 
