@@ -27,7 +27,20 @@
                 "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/NOTICE"
             }
         ],
-        "screenshots": [],
+        "screenshots": [
+            {
+                "name": "Vector Overview",
+                "path": "img/screenshots/vector-overview.png"
+            },
+            {
+                "name": "bpftrace CPU",
+                "path": "img/screenshots/bpftrace-cpu.png"
+            },
+            {
+                "name": "bpftrace Flame Graph",
+                "path": "img/screenshots/bpftrace-flame-graph.png"
+            }
+        ],
         "version": "%VERSION%",
         "updated": "%TODAY%"
     },

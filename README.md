@@ -6,11 +6,11 @@
 [Performance Co-Pilot (PCP)](https://pcp.io) provides a framework and services to support system-level performance monitoring and management.
 It presents a unifying abstraction for all of the performance data in a system, and many tools for interrogating, retrieving and processing that data.
 
-[![Vector Overview](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/docs/img/vector-overview.png)](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/docs/img/vector-overview.png)
-[![bpftrace Flame Graph](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/docs/img/bpftrace-flame-graph.png)](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/docs/img/bpftrace-flame-graph.png)
-[![Vector metrics autocompletion](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/docs/img/vector-metric-autocompletion.png)](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/docs/img/vector-metric-autocompletion.png)
-[![bpftrace probe autocompletion](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/docs/img/bpftrace-probe-autocompletion.png)](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/docs/img/bpftrace-probe-autocompletion.png)
-[more screenshots](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/docs/img)
+[![Vector Overview](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/vector-overview.png)](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/vector-overview.png)
+[![bpftrace Flame Graph](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/bpftrace-flame-graph.png)](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/bpftrace-flame-graph.png)
+[![Vector metrics autocompletion](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/vector-metric-autocompletion.png)](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/vector-metric-autocompletion.png)
+[![bpftrace probe autocompletion](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/bpftrace-probe-autocompletion.png)](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/bpftrace-probe-autocompletion.png)
+[more screenshots](https://github.com/performancecopilot/grafana-pcp/tree/master/src/img/screenshots)
 
 ## Features
 * analysis of historical PCP metrics using [pmseries](https://www.mankier.com/1/pmseries) query language

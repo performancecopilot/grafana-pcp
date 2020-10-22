@@ -4,33 +4,33 @@ Screenshots
 PCP Vector
 ----------
 
-.. image:: img/vector-overview.png
+.. image:: ../src/img/screenshots/vector-overview.png
   :width: 700
-.. image:: img/vector-metric-autocompletion.png
+.. image:: ../src/img/screenshots/vector-metric-autocompletion.png
   :width: 700
 
 PCP bpftrace
 ------------
 
-.. image:: img/bpftrace-cpu.png
+.. image:: ../src/img/screenshots/bpftrace-cpu.png
   :width: 700
-.. image:: img/bpftrace-disk.png
+.. image:: ../src/img/screenshots/bpftrace-disk.png
   :width: 700
-.. image:: img/bpftrace-tcp.png
+.. image:: ../src/img/screenshots/bpftrace-tcp.png
   :width: 700
 
 bpftrace code editor
 ~~~~~~~~~~~~~~~~~~~~
 
-.. image:: img/bpftrace-probe-autocompletion.png
+.. image:: ../src/img/screenshots/bpftrace-probe-autocompletion.png
   :width: 700
-.. image:: img/bpftrace-variable-autocompletion.png
+.. image:: ../src/img/screenshots/bpftrace-variable-autocompletion.png
   :width: 700
-.. image:: img/bpftrace-function-autocompletion.png
+.. image:: ../src/img/screenshots/bpftrace-function-autocompletion.png
   :width: 700
 
 bpftrace flame graphs
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: img/bpftrace-flame-graph.png
+.. image:: ../src/img/screenshots/bpftrace-flame-graph.png
   :width: 700
