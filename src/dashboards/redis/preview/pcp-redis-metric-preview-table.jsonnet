@@ -1,7 +1,7 @@
 local grafana = import 'grafonnet/grafana.libsonnet';
 
 grafana.dashboard.new(
-  'PCP Redis Metric Preview (Table)', // Gets converted to slug URL => /d/pcp-redis-metric-preview-table/pcp-redis-metric-preview-table
+  'PCP Redis: Metric Preview (Table)', // Gets converted to slug URL => /d/pcp-redis-metric-preview-table/pcp-redis-metric-preview-table
   uid='pcp-redis-metric-preview-table',
   tags=['pcp-redis'],
   time_from='now-6h',

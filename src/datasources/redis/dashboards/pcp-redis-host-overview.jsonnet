@@ -1,7 +1,7 @@
 local grafana = import 'grafonnet/grafana.libsonnet';
 
 grafana.dashboard.new(
-  'PCP Redis Host Overview',
+  'PCP Redis: Host Overview',
   tags=['pcp-redis'],
   time_from='now-6h',
   time_to='now',

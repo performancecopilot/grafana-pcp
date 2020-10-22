@@ -1,7 +1,7 @@
 local grafana = import 'grafonnet/grafana.libsonnet';
 
 grafana.dashboard.new(
-  'PCP Vector Host Overview',
+  'PCP Vector: Host Overview',
   tags=['pcp-vector'],
   time_from='now-2m',
   time_to='now+2s',
@@ -642,6 +642,7 @@ grafana.dashboard.new(
     'Disk IOPS',
     datasource='$datasource',
     format='iops',
+    min=0,
   )
   .addTargets([
       { expr: 'disk.dev.read', legendFormat: 'read $instance', format: 'time_series' },
@@ -658,6 +659,7 @@ grafana.dashboard.new(
     'Disk Throughput',
     datasource='$datasource',
     format='KBs',
+    min=0,
   )
   .addTargets([
       { expr: 'disk.dev.read_bytes', legendFormat: 'read $instance', format: 'time_series' },

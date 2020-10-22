@@ -1,7 +1,7 @@
 local grafana = import 'grafonnet/grafana.libsonnet';
 
 grafana.dashboard.new(
-  'PCP Vector Container Overview (CGroups v2)',
+  'PCP Vector: Container Overview (CGroups v2)',
   tags=['pcp-vector', 'container'],
   time_from='now-2m',
   time_to='now+2s',

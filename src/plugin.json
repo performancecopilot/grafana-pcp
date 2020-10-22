@@ -46,7 +46,7 @@
         },
         {
             "type": "page",
-            "name": "Full-Text Search",
+            "name": "Metric Search",
             "path": "/a/performancecopilot-pcp-app",
             "addToNav": true,
             "defaultNav": true
@@ -65,12 +65,12 @@
         },
         {
             "type": "dashboard",
-            "name": "PCP Redis Metric Preview (Graph)",
+            "name": "PCP Redis: Metric Preview (Graph)",
             "path": "dashboards/redis/preview/pcp-redis-metric-preview-graph.json"
         },
         {
             "type": "dashboard",
-            "name": "PCP Redis Metric Preview (Table)",
+            "name": "PCP Redis: Metric Preview (Table)",
             "path": "dashboards/redis/preview/pcp-redis-metric-preview-table.json"
         },
         {

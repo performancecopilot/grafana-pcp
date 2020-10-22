@@ -23,23 +23,28 @@
     "includes": [
         {
             "type": "dashboard",
-            "name": "PCP Vector Host Overview",
+            "name": "PCP Vector: Host Overview",
             "path": "dashboards/pcp-vector-host-overview.json"
         },
         {
             "type": "dashboard",
-            "name": "PCP Vector Container Overview (CGroups v1)",
+            "name": "PCP Vector: Container Overview (CGroups v1)",
             "path": "dashboards/pcp-vector-container-overview-cgroups1.json"
         },
         {
             "type": "dashboard",
-            "name": "PCP Vector Container Overview (CGroups v2)",
+            "name": "PCP Vector: Container Overview (CGroups v2)",
             "path": "dashboards/pcp-vector-container-overview-cgroups2.json"
         },
         {
             "type": "dashboard",
-            "name": "PCP Vector eBPF/BCC Overview",
+            "name": "PCP Vector: eBPF/BCC Overview",
             "path": "dashboards/pcp-vector-bcc-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector: Microsoft SQL Server",
+            "path": "dashboards/pcp-vector-mssql-server.json"
         }
     ]
 }

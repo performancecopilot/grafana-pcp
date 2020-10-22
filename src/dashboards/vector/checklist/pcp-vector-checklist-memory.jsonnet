@@ -29,7 +29,7 @@ checklist.dashboard.new(node)
       urls=['https://access.redhat.com/articles/767563#cpu'],
       details='When the memory pressure is excessive the operating system will move data in memory to swap space on storage devices so that the memory can be use to store other data.  Data in swap will be moved back into memory as needed.  However, there is a cost for scanning memory for candidate data to move to swap and the cost of moving data between memory and swap space is high.',
       parents=parents,
-      children=[checklist.getNodeByUid('pcp-vector-checklist-swap')],
+      children=[checklist.getNodeByUid('pcp-vector-checklist-memory-swap')],
     ),
   ).addTargets([
     { name: 'swaps', expr: 'rate(swap.pagesout)', format: 'time_series', legendFormat: '$expr' },

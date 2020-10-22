@@ -60,7 +60,7 @@ export class Search extends React.Component<AppRootProps, AppRootState> {
         const node = {
             text: 'Performance Co-Pilot',
             img: meta.info.logos.large,
-            subTitle: 'Full-Text Search',
+            subTitle: 'Full-Text Metric Search',
             url: path,
         };
         onNavChanged({
