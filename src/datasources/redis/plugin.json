@@ -21,5 +21,12 @@
                 "url": "https://github.com/performancecopilot/grafana-pcp"
             }
         ]
-    }
+    },
+    "includes": [
+        {
+            "type": "dashboard",
+            "name": "PCP Redis Host Overview",
+            "path": "dashboards/pcp-redis-host-overview.json"
+        }
+    ]
 }

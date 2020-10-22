@@ -39,11 +39,11 @@ restart-backend: ## Rebuild and restart backend datasource (as root)
 
 ##@ Build
 
-dist/dashboards/%.json: src/dashboards/%.jsonnet $(JSONNET_VENDOR_DIR)
+dist/%.json: src/%.jsonnet $(JSONNET_VENDOR_DIR)
 	mkdir -p $(dir $@)
 	jsonnet -J "$(JSONNET_VENDOR_DIR)" -o $@ $<
 
-dist-dashboards: $(shell find src/dashboards -name '*.jsonnet' | sed -E 's@src/(.*)\.jsonnet@dist/\1.json@g') ## Build Grafana dashboards from jsonnet
+dist-dashboards: $(shell find src -name '*.jsonnet' | sed -E 's@src/(.*)\.jsonnet@dist/\1.json@g') ## Build Grafana dashboards from jsonnet
 
 dist-frontend: deps-frontend ## Build frontend datasources
 	yarn run build
@@ -91,4 +91,4 @@ clean: ## Clean all artifacts
 	rm -rf node_modules "$(JSONNET_VENDOR_DIR)" dist
 
 help:  ## Display this help
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m\033[0m\n"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)

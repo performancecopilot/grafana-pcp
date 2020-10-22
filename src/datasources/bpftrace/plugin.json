@@ -19,5 +19,17 @@
                 "url": "https://github.com/performancecopilot/grafana-pcp"
             }
         ]
-    }
+    },
+    "includes": [
+        {
+            "type": "dashboard",
+            "name": "PCP bpftrace System Analysis",
+            "path": "dashboards/pcp-bpftrace-system-analysis.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP bpftrace Flame Graphs",
+            "path": "dashboards/pcp-bpftrace-flame-graphs.json"
+        }
+    ]
 }

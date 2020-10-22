@@ -33,13 +33,6 @@
     },
     "includes": [
         {
-            "type": "page",
-            "name": "Full-Text Search",
-            "path": "/a/performancecopilot-pcp-app",
-            "addToNav": true,
-            "defaultNav": true
-        },
-        {
             "type": "datasource",
             "name": "PCP Redis"
         },
@@ -52,6 +45,13 @@
             "name": "PCP bpftrace"
         },
         {
+            "type": "page",
+            "name": "Full-Text Search",
+            "path": "/a/performancecopilot-pcp-app",
+            "addToNav": true,
+            "defaultNav": true
+        },
+        {
             "type": "panel",
             "name": "Flame Graph"
         },
@@ -62,41 +62,6 @@
         {
             "type": "panel",
             "name": "Breadcrumbs panel"
-        },
-        {
-            "type": "dashboard",
-            "name": "PCP Redis Host Overview",
-            "path": "dashboards/redis/pcp-redis-host-overview.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "PCP Vector Host Overview",
-            "path": "dashboards/vector/pcp-vector-host-overview.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "PCP Vector Container Overview (CGroups v1)",
-            "path": "dashboards/vector/pcp-vector-container-overview-cgroups1.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "PCP Vector Container Overview (CGroups v2)",
-            "path": "dashboards/vector/pcp-vector-container-overview-cgroups2.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "PCP Vector eBPF/BCC Overview",
-            "path": "dashboards/vector/pcp-vector-bcc-overview.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "PCP bpftrace System Analysis",
-            "path": "dashboards/bpftrace/pcp-bpftrace-system-analysis.json"
-        },
-        {
-            "type": "dashboard",
-            "name": "PCP bpftrace Flame Graphs",
-            "path": "dashboards/bpftrace/pcp-bpftrace-flame-graphs.json"
         },
         {
             "type": "dashboard",
@@ -161,6 +126,7 @@
         }
     ],
     "dependencies": {
+        "grafanaVersion": "7.x.x",
         "grafanaDependency": ">=7.2.0",
         "plugins": []
     }
