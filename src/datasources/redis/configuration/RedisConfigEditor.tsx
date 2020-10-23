@@ -13,7 +13,7 @@ export const RedisConfigEditor = (props: Props) => {
             <DataSourceHttpSettings
                 defaultUrl="http://localhost:44322"
                 dataSourceConfig={options}
-                showAccessOptions={true}
+                showAccessOptions={false}
                 onChange={onOptionsChange}
             />
         </>
