@@ -11,6 +11,10 @@ import (
 )
 
 func (ds *redisDatasourceInstance) executeTimeSeriesQuery(dataQuery *backend.DataQuery, redisQuery *Query) (data.Frames, error) {
+	if redisQuery.Expr == "" {
+		return data.Frames{}, nil
+	}
+
 	seriesIds, err := ds.pmseriesAPI.Query(redisQuery.Expr)
 	if err != nil {
 		return nil, err
@@ -52,7 +56,7 @@ func (ds *redisDatasourceInstance) handleTimeSeriesQuery(ctx context.Context, da
 		return response
 	}
 
-	log.DefaultLogger.Info("Query", "query", &redisQuery)
+	log.DefaultLogger.Debug("Query", "query", &redisQuery)
 	frames, err := ds.executeTimeSeriesQuery(dataQuery, &redisQuery)
 	if err != nil {
 		response.Error = err

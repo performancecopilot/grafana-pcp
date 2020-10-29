@@ -49,7 +49,7 @@ func (s *Service) GetSeries(sids []string) (map[string]*Series, error) {
 	if len(missingSeries) == 0 {
 		return seriesMap, nil
 	}
-	log.DefaultLogger.Info("Series metadata not in cache, requesting...", "series", missingSeries)
+	log.DefaultLogger.Debug("Series metadata not in cache, requesting...", "series", missingSeries)
 
 	namesResponse, err := s.pmseriesAPI.Metrics(missingSeries)
 	if err != nil {
