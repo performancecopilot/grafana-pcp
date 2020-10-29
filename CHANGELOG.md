@@ -10,7 +10,7 @@
 ### New features
 - **redis**: support for [Grafana Alerting](https://grafana.com/docs/grafana/latest/alerting/create-alerts/)
 - **redis**: full-text search in metric names, descriptions, instances
-- **vector**: support derived metrics, which allows the usage of arithmetic operators and statistical functions inside a query, [see pmRegisterDerived(3)](https://www.mankier.com/3/pmRegisterDerived#Description)
+- **vector**: support derived metrics, which allows the usage of arithmetic operators and statistical functions inside a query, [see pmRegisterDerived(3)](https://man7.org/linux/man-pages/man3/pmregisterderived.3.html#DESCRIPTION)
 - **vector**: checklist dashboard: detects potential performance issues and shows possible solutions to resolve them
 - **vector**: set background metric poll interval according to current dashboard refresh interval, do not stop polling while in background
 - **vector**: automatically configure the unit of the panel

@@ -13,9 +13,9 @@ It presents a unifying abstraction for all of the performance data in a system, 
 [more screenshots](https://github.com/performancecopilot/grafana-pcp/tree/master/src/img/screenshots)
 
 ## Features
-* analysis of historical PCP metrics using [pmseries](https://www.mankier.com/1/pmseries) query language
-* analysis of real-time PCP metrics using [pmwebapi](https://www.mankier.com/3/PMWEBAPI) live services
-* enhanced Berkeley Packet Filter (eBPF) tracing using [bpftrace](https://www.mankier.com/8/bpftrace) scripts
+* analysis of historical PCP metrics using [pmseries](https://man7.org/linux/man-pages/man1/pmseries.1.html) query language
+* analysis of real-time PCP metrics using [pmwebapi](https://man7.org/linux/man-pages/man3/pmwebapi.3.html) live services
+* enhanced Berkeley Packet Filter (eBPF) tracing using [bpftrace](https://github.com/iovisor/bpftrace/blob/master/README.md) scripts
 * automatic rate conversation for counter metrics
 * heatmap, table and flame graph [3] support
 * auto completion of metric names [1,2], qualifier keys and values [1], and bpftrace probes, builtin variables and functions [3]

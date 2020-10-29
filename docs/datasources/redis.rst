@@ -33,7 +33,7 @@ Examples:
     kernel.all.load{hostname == "web01"}
     network.interface.in.bytes{agent == "linux"}
 
-Documentation of the pmseries query language can be found in the `man page of pmseries <https://www.mankier.com/1/pmseries#Timeseries_Queries>`_.
+Documentation of the pmseries query language can be found in the `man page of pmseries <https://man7.org/linux/man-pages/man1/pmseries.1.html#TIMESERIES_QUERIES>`_.
 
 
 Query Formats

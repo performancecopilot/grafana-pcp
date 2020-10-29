@@ -1,4 +1,4 @@
-.. _pmproxy: https://www.mankier.com/1/pmproxy
-.. _pmseries: https://www.mankier.com/1/pmseries
-.. _pmwebapi: https://www.mankier.com/3/pmwebapi
-.. _bpftrace: https://www.mankier.com/8/bpftrace
+.. _pmproxy: https://man7.org/linux/man-pages/man1/pmproxy.1.html
+.. _pmseries: https://man7.org/linux/man-pages/man1/pmseries.1.html
+.. _pmwebapi: https://man7.org/linux/man-pages/man3/pmwebapi.3.html
+.. _bpftrace: https://github.com/iovisor/bpftrace/blob/master/README.md
