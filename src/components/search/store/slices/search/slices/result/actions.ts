@@ -16,6 +16,7 @@ export interface LoadResultSuccessAction {
 
 export interface LoadResultErrorAction {
     type: typeof LOAD_RESULT_ERROR;
+    error: any;
 }
 
 export type LoadResultAction =

@@ -57,12 +57,7 @@ class PmSearchApiService {
             showSuccessAlert: false,
             headers,
         };
-        try {
-            const response: AutocompleteResponse = await timeout(backendSrv.request(options), Config.REQUEST_TIMEOUT);
-            return response;
-        } catch {
-            return [];
-        }
+        return await timeout(backendSrv.request(options), Config.REQUEST_TIMEOUT);
     }
 
     async indom(params: IndomQueryParams): Promise<TextResponse | null> {
@@ -81,26 +76,24 @@ class PmSearchApiService {
             showSuccessAlert: false,
             headers,
         };
-        try {
-            const response: TextMaybeResponse = await timeout(backendSrv.request(options), Config.REQUEST_TIMEOUT);
-            if (PmSearchApiService.isNoRecordResponse(response)) {
-                // monkey patch
-                return {
-                    elapsed: 0,
-                    total: 0,
-                    results: [],
-                    limit: params.limit ?? 0,
-                    offset: params.offset ?? 0,
-                };
-            }
+
+        const response: TextMaybeResponse = await timeout(backendSrv.request(options), Config.REQUEST_TIMEOUT);
+        if (PmSearchApiService.isNoRecordResponse(response)) {
+            // monkey patch
             return {
-                ...(response as Exclude<TextResponse, SearchNoRecordResponse>),
+                elapsed: 0,
+                total: 0,
+                results: [],
                 limit: params.limit ?? 0,
                 offset: params.offset ?? 0,
             };
-        } catch {
-            return null;
         }
+        return {
+            ...(response as Exclude<TextResponse, SearchNoRecordResponse>),
+            limit: params.limit ?? 0,
+            offset: params.offset ?? 0,
+        };
+
     }
 
     async text(params: TextQueryParams): Promise<TextResponse | null> {
@@ -132,28 +125,24 @@ class PmSearchApiService {
             showSuccessAlert: false,
             headers,
         };
-        try {
-            // TODO: replace monkey patched limit/offset
-            const response: TextMaybeResponse = await timeout(backendSrv.request(options), Config.REQUEST_TIMEOUT);
-            if (PmSearchApiService.isNoRecordResponse(response)) {
-                // monkey patch
-                return {
-                    elapsed: 0,
-                    total: 0,
-                    results: [],
-                    limit: params.limit ?? 0,
-                    offset: params.offset ?? 0,
-                };
-            }
+
+        // TODO: replace monkey patched limit/offset
+        const response: TextMaybeResponse = await timeout(backendSrv.request(options), Config.REQUEST_TIMEOUT);
+        if (PmSearchApiService.isNoRecordResponse(response)) {
+            // monkey patch
             return {
-                ...(response as Exclude<TextResponse, SearchNoRecordResponse>),
+                elapsed: 0,
+                total: 0,
+                results: [],
                 limit: params.limit ?? 0,
                 offset: params.offset ?? 0,
             };
-        } catch {
-            // monkey patch since API just returns { success: "true" }
-            return null;
         }
+        return {
+            ...(response as Exclude<TextResponse, SearchNoRecordResponse>),
+            limit: params.limit ?? 0,
+            offset: params.offset ?? 0,
+        };
     }
 }
 

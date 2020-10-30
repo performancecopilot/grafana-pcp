@@ -32,13 +32,15 @@ export function getRequestOptions(instanceSettings: DataSourceInstanceSettings):
 
 export function timeout<T>(promise: Promise<T>, ms: number): Promise<T> {
     return new Promise<T>(async (resolve, reject) => {
-        setTimeout(() => {
+        const timeout = setTimeout(() => {
             reject(new TimeoutError());
         }, ms);
         try {
             const result = await promise;
+            clearTimeout(timeout);
             resolve(result);
         } catch (e) {
+            clearTimeout(timeout);
             reject(e);
         }
     });

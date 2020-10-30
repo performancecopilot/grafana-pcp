@@ -11,6 +11,8 @@ import { FetchStatus } from '../../store/slices/search/shared/state';
 import SearchResult from '../../components/SearchResult/SearchResult';
 import Loader from '../../components/Loader/Loader';
 import { querySearch, openDetail } from '../../store/slices/search/shared/actionCreators';
+import { getLogger } from 'common/utils';
+const log = getLogger('search/SearchPage');
 
 const mapStateToProps = (state: RootState) => ({
     result: state.search.result,
@@ -167,7 +169,8 @@ export class SearchPage extends React.Component<SearchPageProps, {}> {
                 );
             }
             case FetchStatus.ERROR: {
-                return <p>Error fetching values.</p>;
+                log.error("Error fetching search results:", result.error);
+                return <p>{result.error.toString()}</p>;
             }
         }
         return;

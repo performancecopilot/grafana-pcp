@@ -63,9 +63,10 @@ export const querySearch: QuerySearchActionCreator = query => async (
             type: LOAD_RESULT_SUCCESS,
             payload: result,
         });
-    } catch {
+    } catch (error) {
         dispatch({
             type: LOAD_RESULT_ERROR,
+            error
         });
         return;
     }

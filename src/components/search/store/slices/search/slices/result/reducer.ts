@@ -36,6 +36,7 @@ const resultReducer: Reducer<ResultState, ResultAction> = (state, action) => {
                 return {
                     status: FetchStatus.ERROR,
                     data: null,
+                    error: action.error,
                 };
             }
             break;

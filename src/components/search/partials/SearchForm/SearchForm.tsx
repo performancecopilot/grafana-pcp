@@ -37,6 +37,8 @@ import withServices, { WithServicesProps } from '../../components/withServices/w
 import { SearchEntity, AutocompleteSuggestion } from '../../models/endpoints/search';
 import { querySearch } from '../../store/slices/search/shared/actionCreators';
 import Config from '../../config/config';
+import { getLogger } from 'common/utils';
+const log = getLogger('search/SearchFrom');
 
 const mapStateToProps = (state: RootState) => ({
     query: state.search.query,
@@ -175,13 +177,13 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
         );
     }
 
-    onSuggestionsFetchRequested(request: SuggestionsFetchRequestedParams): void {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.props.services.searchService.autocomplete({ query: request.value }).then(result => {
-            this.setState({
-                suggestions: result,
-            });
-        });
+    async onSuggestionsFetchRequested(request: SuggestionsFetchRequestedParams) {
+        try {
+            const suggestions = await this.props.services.searchService.autocomplete({ query: request.value });
+            this.setState({ suggestions });
+        } catch (error) {
+            log.error("Error fetching autocomplete results:", error);
+        }
     }
 
     onSuggestionsClearRequested(): void {
