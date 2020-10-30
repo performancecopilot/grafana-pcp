@@ -93,7 +93,6 @@ class PmSearchApiService {
             limit: params.limit ?? 0,
             offset: params.offset ?? 0,
         };
-
     }
 
     async text(params: TextQueryParams): Promise<TextResponse | null> {

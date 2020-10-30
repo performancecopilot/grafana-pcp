@@ -182,7 +182,7 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
             const suggestions = await this.props.services.searchService.autocomplete({ query: request.value });
             this.setState({ suggestions });
         } catch (error) {
-            log.error("Error fetching autocomplete results:", error);
+            log.error('Error fetching autocomplete results:', error);
         }
     }
 

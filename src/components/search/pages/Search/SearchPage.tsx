@@ -169,7 +169,7 @@ export class SearchPage extends React.Component<SearchPageProps, {}> {
                 );
             }
             case FetchStatus.ERROR: {
-                log.error("Error fetching search results:", result.error);
+                log.error('Error fetching search results:', result.error);
                 return <p>{result.error.toString()}</p>;
             }
         }
