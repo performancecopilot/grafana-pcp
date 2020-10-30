@@ -49,7 +49,15 @@ type redisDatasourceInstance struct {
 }
 
 func newDataSourceInstance(setting backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
-	pmseriesAPI := pmseries.NewPmseriesAPI(setting.URL)
+	var basicAuthSettings *pmseries.BasicAuthSettings
+	// enable once pmproxy /series supports authentication
+	/*if setting.BasicAuthEnabled {
+		basicAuthSettings = &pmseries.BasicAuthSettings{
+			Username: "",
+			Password: "",
+		}
+	}*/
+	pmseriesAPI := pmseries.NewPmseriesAPI(setting.URL, basicAuthSettings)
 
 	return &redisDatasourceInstance{
 		pmseriesAPI:     pmseriesAPI,
