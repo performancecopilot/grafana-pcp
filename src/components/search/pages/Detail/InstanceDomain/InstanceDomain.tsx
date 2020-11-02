@@ -14,11 +14,11 @@ import {
 import { RootState } from '../../../store/reducer';
 import { IndomDataState } from '../../../store/slices/search/slices/entity/state';
 import { BookmarkItem } from '../../../store/slices/search/slices/bookmarks/state';
-import { EntityType } from '../../../models/endpoints/search';
 import { FetchStatus } from '../../../store/slices/search/shared/state';
 import Card from '../../../components/Card/Card';
 import Loader from '../../../components/Loader/Loader';
 import Instances from './Instances/Instances';
+import { EntityType } from 'common/services/pmsearch/types';
 
 const mapStateToProps = (state: RootState) => ({
     bookmarks: state.search.bookmarks,

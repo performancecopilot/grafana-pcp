@@ -1,5 +1,5 @@
+import { SearchEntity } from 'common/services/pmsearch/types';
 import { SearchQuery } from '../../shared/state';
-import { SearchEntity } from '../../../../../models/endpoints/search';
 
 export type QueryState = SearchQuery;
 

@@ -1,3 +1,11 @@
+import { DataSourceInstanceSettings } from '@grafana/data';
+
+export interface PmSearchApiConfig {
+    dsInstanceSettings: DataSourceInstanceSettings;
+    timeoutMs: number;
+    baseUrl: string;
+}
+
 export enum SearchEntity {
     None = 0,
     Metrics = 1 << 0,
@@ -10,10 +18,6 @@ export enum EntityType {
     Metric = 'metric',
     Instance = 'instance',
     InstanceDomain = 'indom',
-}
-
-export interface SearchNoRecordResponse {
-    success: boolean;
 }
 
 export interface AutocompleteQueryParams {
@@ -66,6 +70,11 @@ export interface IndomQueryParams {
     offset?: number;
 }
 
-export type TextMaybeResponse = TextResponse | SearchNoRecordResponse;
-
-export type SearchMaybeResponse = TextMaybeResponse;
+export class SearchNotAvailableError extends Error {
+    constructor(message?: string) {
+        super(
+            message ?? `Metric Search not available. Please install the RediSearch Redis module and restart pmproxy.`
+        );
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
+}

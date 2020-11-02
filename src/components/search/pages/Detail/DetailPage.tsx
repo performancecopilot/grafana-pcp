@@ -8,8 +8,8 @@ import MetricDetailPage, { MetricDetailPreview } from './Metric/Metric';
 import InstanceDomainDetailPage from './InstanceDomain/InstanceDomain';
 import { RootState } from '../../store/reducer';
 import { BookmarkItem } from '../../store/slices/search/slices/bookmarks/state';
-import { EntityType } from '../../models/endpoints/search';
 import { addBookmark, removeBookmark } from '../../store/slices/search/slices/bookmarks/actionCreators';
+import { EntityType } from 'common/services/pmsearch/types';
 
 const mapStateToProps = (state: RootState) => ({
     entity: state.search.entity,

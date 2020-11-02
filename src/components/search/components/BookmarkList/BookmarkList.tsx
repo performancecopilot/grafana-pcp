@@ -3,7 +3,7 @@ import { VerticalGroup, withTheme, Themeable, Button } from '@grafana/ui';
 import { bookmarkListBtnWithNoSpacing, bookmarkListContainer, bookmarkListContainerMultiCol } from './styles';
 import { cx } from 'emotion';
 import { BookmarkItem } from '../../store/slices/search/slices/bookmarks/state';
-import { EntityType } from '../../models/endpoints/search';
+import { EntityType } from 'common/services/pmsearch/types';
 
 export interface BookmarkListBasicProps {
     showClearBtn?: boolean;

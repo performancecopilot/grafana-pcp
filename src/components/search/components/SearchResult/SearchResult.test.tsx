@@ -3,7 +3,7 @@ import { SearchResult } from './SearchResult';
 import React from 'react';
 import { GrafanaThemeType } from '@grafana/data';
 import { getTheme } from '@grafana/ui';
-import { TextItemResponse, EntityType } from '../../models/endpoints/search';
+import { TextItemResponse, EntityType } from 'common/services/pmsearch/types';
 
 describe('<SearchResult/>', () => {
     const openDetailMock = jest.fn<void, TextItemResponse[]>(() => void 0);

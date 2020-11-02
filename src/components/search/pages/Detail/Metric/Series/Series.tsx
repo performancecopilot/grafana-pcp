@@ -10,7 +10,7 @@ import { ThunkDispatch } from 'redux-thunk';
 import { RootState } from '../../../../store/reducer';
 import { AnyAction, bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { EntityType } from '../../../../models/endpoints/search';
+import { EntityType } from 'common/services/pmsearch/types';
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, AnyAction>) =>
     bindActionCreators({ openDetail }, dispatch);

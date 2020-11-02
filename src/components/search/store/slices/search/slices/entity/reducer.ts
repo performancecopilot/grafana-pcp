@@ -16,7 +16,7 @@ import {
     LOAD_METRIC_SIBLINGS_ERROR,
 } from './types';
 import { FetchStatus } from '../../shared/state';
-import { EntityType } from '../../../../../models/endpoints/search';
+import { EntityType } from 'common/services/pmsearch/types';
 
 const entityReducer: Reducer<EntityState, EntityAction> = (state, action) => {
     if (state === undefined) {

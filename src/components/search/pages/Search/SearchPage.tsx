@@ -5,13 +5,13 @@ import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
 import { paginationContainer, searchPageElapsed, searchPageMatchesDesc } from './styles';
 import { RootState } from '../../store/reducer';
-import { TextItemResponse, EntityType } from '../../models/endpoints/search';
 import { stripHtml } from '../../utils/utils';
 import { FetchStatus } from '../../store/slices/search/shared/state';
 import SearchResult from '../../components/SearchResult/SearchResult';
 import Loader from '../../components/Loader/Loader';
 import { querySearch, openDetail } from '../../store/slices/search/shared/actionCreators';
 import { getLogger } from 'common/utils';
+import { TextItemResponse, EntityType } from 'common/services/pmsearch/types';
 const log = getLogger('search/SearchPage');
 
 const mapStateToProps = (state: RootState) => ({

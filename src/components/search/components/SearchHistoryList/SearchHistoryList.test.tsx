@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import SearchHistoryList from './SearchHistoryList';
 import { SearchQuery } from '../../store/slices/search/shared/state';
-import { SearchEntity } from '../../models/endpoints/search';
+import { SearchEntity } from 'common/services/pmsearch/types';
 
 describe('<SearchHistoryList/>', () => {
     const placeholderCallbacks = {

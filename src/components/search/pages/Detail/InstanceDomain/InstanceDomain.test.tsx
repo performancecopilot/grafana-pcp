@@ -8,11 +8,11 @@ import { getTheme } from '@grafana/ui';
 import { GrafanaThemeType } from '@grafana/data';
 import { shallow } from 'enzyme';
 import React from 'react';
-import { EntityType } from '../../../models/endpoints/search';
 import { FetchStatus } from '../../../store/slices/search/shared/state';
 import { IndomEntity } from '../../../models/entities/indom';
 import { LoaderBasicProps } from '../../../components/Loader/Loader';
 import { InstancesProps } from './Instances/Instances';
+import { EntityType } from 'common/services/pmsearch/types';
 
 describe('Detail Page <InstanceDomainPage/>', () => {
     let mockReduxProps: InstanceDomainDetailPageReduxProps;

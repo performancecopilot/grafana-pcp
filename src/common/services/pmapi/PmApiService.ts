@@ -1,28 +1,28 @@
-import { BackendSrv, BackendSrvRequest } from '@grafana/runtime';
+import { BackendSrv, BackendSrvRequest, FetchResponse } from '@grafana/runtime';
 import { NetworkError } from 'common/types/errors/network';
 import { DefaultRequestOptions, getRequestOptions, timeout } from 'common/utils';
 import { has, defaults } from 'lodash';
 import {
-    ChildrenRequest,
-    ChildrenResponse,
-    ContextRequest,
-    ContextResponse,
-    DeriveRequest,
-    DeriveResponse,
-    FetchRequest,
-    FetchResponse,
-    IndomRequest,
-    IndomResponse,
+    PmApiConfig,
+    PmapiContextRequest,
+    PmapiContextResponse,
+    PmapiMetricRequest,
+    PmapiMetricResponse,
+    PmapiIndomRequest,
+    PmapiIndomResponse,
+    NoIndomError,
+    PmapiFetchRequest,
+    PmapiFetchResponse,
+    PmapiStoreRequest,
+    PmapiStoreResponse,
     MetricNotFoundError,
-    MetricRequest,
-    MetricResponse,
+    PermissionError,
+    PmapiDeriveRequest,
+    PmapiDeriveResponse,
     MetricSemanticError,
     MetricSyntaxError,
-    NoIndomError,
-    PermissionError,
-    PmApiConfig,
-    StoreRequest,
-    StoreResponse,
+    PmapiChildrenRequest,
+    PmapiChildrenResponse,
 } from './types';
 
 export class PmApiService {
@@ -32,10 +32,10 @@ export class PmApiService {
         this.defaultRequestOptions = getRequestOptions(apiConfig.dsInstanceSettings);
     }
 
-    async datasourceRequest(options: BackendSrvRequest) {
+    async request<T>(options: BackendSrvRequest): Promise<FetchResponse<T>> {
         options = defaults(options, this.defaultRequestOptions);
         try {
-            return await timeout(this.backendSrv.datasourceRequest(options), this.apiConfig.timeoutMs);
+            return await timeout(this.backendSrv.fetch<T>(options).toPromise(), this.apiConfig.timeoutMs);
         } catch (error) {
             throw new NetworkError(error, options);
         }
@@ -44,36 +44,34 @@ export class PmApiService {
     /**
      * creates a new context
      */
-    async createContext(params: ContextRequest): Promise<ContextResponse> {
+    async createContext(url: string, params: PmapiContextRequest): Promise<PmapiContextResponse> {
         const request = {
-            url: `${params.url}/pmapi/context`,
+            url: `${url}/pmapi/context`,
             params: {
-                hostspec: params.hostspec,
+                ...params,
                 polltimeout: params.polltimeout ?? 30,
             },
         };
-        const response = await this.datasourceRequest(request);
-
+        const response = await this.request<PmapiContextResponse>(request);
         if (!has(response.data, 'context')) {
             throw new NetworkError('Received malformed response.', request);
         }
         return response.data;
     }
 
-    async metric(params: MetricRequest): Promise<MetricResponse> {
+    async metric(url: string, params: PmapiMetricRequest): Promise<PmapiMetricResponse> {
+        const request = {
+            url: `${url}/pmapi/metric`,
+            params: {
+                ...params,
+                names: params.names.join(','),
+            },
+        };
+
         // if multiple metrics are requested and one is missing, pmproxy returns the valid metrics
         // if a single metric is requested which is missing, pmproxy returns 400
         try {
-            const request = {
-                url: `${params.url}/pmapi/metric`,
-                params: {
-                    hostspec: params.hostspec,
-                    context: params.context,
-                    names: params.names.join(','),
-                },
-            };
-            const response = await this.datasourceRequest(request);
-
+            const response = await this.request<PmapiMetricResponse>(request);
             if (!has(response.data, 'metrics')) {
                 throw new NetworkError('Received malformed response.', request);
             }
@@ -87,18 +85,14 @@ export class PmApiService {
         }
     }
 
-    async indom(params: IndomRequest): Promise<IndomResponse> {
-        try {
-            const request = {
-                url: `${params.url}/pmapi/indom`,
-                params: {
-                    hostspec: params.hostspec,
-                    context: params.context,
-                    name: params.name,
-                },
-            };
-            const response = await this.datasourceRequest(request);
+    async indom(url: string, params: PmapiIndomRequest): Promise<PmapiIndomResponse> {
+        const request = {
+            url: `${url}/pmapi/indom`,
+            params,
+        };
 
+        try {
+            const response = await this.request<PmapiIndomResponse>(request);
             if (!has(response.data, 'instances')) {
                 throw new NetworkError('Received malformed response.', request);
             }
@@ -112,35 +106,29 @@ export class PmApiService {
         }
     }
 
-    async fetch(params: FetchRequest): Promise<FetchResponse> {
+    async fetch(url: string, params: PmapiFetchRequest): Promise<PmapiFetchResponse> {
         const request = {
-            url: `${params.url}/pmapi/fetch`,
+            url: `${url}/pmapi/fetch`,
             params: {
-                hostspec: params.hostspec,
-                context: params.context,
+                ...params,
                 names: params.names.join(','),
             },
         };
-        const response = await this.datasourceRequest(request);
-
+        const response = await this.request<PmapiFetchResponse>(request);
         if (!has(response.data, 'timestamp')) {
             throw new NetworkError('Received malformed response.', request);
         }
         return response.data;
     }
 
-    async store(params: StoreRequest): Promise<StoreResponse> {
+    async store(url: string, params: PmapiStoreRequest): Promise<PmapiStoreResponse> {
+        const request = {
+            url: `${url}/pmapi/store`,
+            params,
+        };
+
         try {
-            const request = {
-                url: `${params.url}/pmapi/store`,
-                params: {
-                    hostspec: params.hostspec,
-                    context: params.context,
-                    name: params.name,
-                    value: params.value,
-                },
-            };
-            const response = await this.datasourceRequest(request);
+            const response = await this.request<PmapiStoreResponse>(request);
             return response.data;
         } catch (error) {
             if (has(error, 'data.message') && error.data.message.includes('failed to lookup metric')) {
@@ -158,18 +146,14 @@ export class PmApiService {
         }
     }
 
-    async derive(params: DeriveRequest): Promise<DeriveResponse> {
+    async derive(url: string, params: PmapiDeriveRequest): Promise<PmapiDeriveResponse> {
+        const request = {
+            url: `${url}/pmapi/derive`,
+            params,
+        };
+
         try {
-            const request = {
-                url: `${params.url}/pmapi/derive`,
-                params: {
-                    hostspec: params.hostspec,
-                    context: params.context,
-                    name: params.name,
-                    expr: params.expr,
-                },
-            };
-            const response = await this.datasourceRequest(request);
+            const response = await this.request<PmapiDeriveResponse>(request);
             return response.data;
         } catch (error) {
             if (has(error, 'data.message') && error.data.message.includes('Duplicate derived metric name')) {
@@ -184,16 +168,12 @@ export class PmApiService {
         }
     }
 
-    async children(params: ChildrenRequest): Promise<ChildrenResponse> {
+    async children(url: string, params: PmapiChildrenRequest): Promise<PmapiChildrenResponse> {
         const request = {
-            url: `${params.url}/pmapi/children`,
-            params: {
-                context: params.context,
-                hostspec: params.hostspec,
-                prefix: params.prefix,
-            },
+            url: `${url}/pmapi/children`,
+            params,
         };
-        const response = await this.datasourceRequest(request);
+        const response = await this.request<PmapiChildrenResponse>(request);
         return response.data;
     }
 }

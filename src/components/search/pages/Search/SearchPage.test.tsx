@@ -9,7 +9,6 @@ import { getTheme } from '@grafana/ui';
 import { GrafanaThemeType } from '@grafana/data';
 import { shallow } from 'enzyme';
 import React from 'react';
-import { EntityType, TextResponse } from '../../models/endpoints/search';
 import { ResultDataState } from '../../store/slices/search/slices/result/state';
 import { SearchResultProps } from '../../components/SearchResult/SearchResult';
 import { OpenDetailActionCreator, QuerySearchActionCreator } from '../../store/slices/search/shared/actionCreators';
@@ -17,6 +16,7 @@ import { QueryState } from '../../store/slices/search/slices/query/state';
 import { FetchStatus } from '../../store/slices/search/shared/state';
 import { LoaderBasicProps } from '../../components/Loader/Loader';
 import { stripHtml } from '../../utils/utils';
+import { EntityType, TextResponse } from 'common/services/pmsearch/types';
 
 describe('<SearchPage/>', () => {
     let mockReduxStateProps: SearchPageReduxStateProps;

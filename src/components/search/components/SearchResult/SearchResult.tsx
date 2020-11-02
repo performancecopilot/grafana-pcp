@@ -11,8 +11,8 @@ import {
     searchResultTitleLink,
     searchResultEntityType,
 } from './styles';
-import { TextItemResponse } from '../../models/endpoints/search';
 import Card from '../Card/Card';
+import { TextItemResponse } from 'common/services/pmsearch/types';
 
 export type SearchResultProps = Themeable & {
     item: TextItemResponse;

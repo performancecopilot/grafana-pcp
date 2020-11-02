@@ -39,7 +39,6 @@ export abstract class DatasourceBase<Q extends PmapiQuery, O extends PmapiOption
         });
         this.pmSeriesApiService = new PmSeriesApiService(getBackendSrv(), {
             dsInstanceSettings: instanceSettings,
-            isDatasourceRequest: true,
             baseUrl: this.url!,
             timeoutMs: apiTimeoutMs,
         });
@@ -82,8 +81,8 @@ export abstract class DatasourceBase<Q extends PmapiQuery, O extends PmapiOption
     async metricFindQuery(query: string): Promise<MetricFindValue[]> {
         query = getTemplateSrv().replace(query.trim());
         const { url, hostspec } = this.getUrlAndHostspec();
-        const context = await this.pmApiService.createContext({ url, hostspec });
-        const metricValues = await this.pmApiService.fetch({ url, context: context.context, names: [query] });
+        const context = await this.pmApiService.createContext(url, { hostspec });
+        const metricValues = await this.pmApiService.fetch(url, { context: context.context, names: [query] });
         return metricValues.values[0].instances.map(instance => ({ text: instance.value.toString() }));
     }
 
@@ -116,9 +115,8 @@ export abstract class DatasourceBase<Q extends PmapiQuery, O extends PmapiOption
     async testDatasource() {
         try {
             const { url, hostspec } = this.getUrlAndHostspec();
-            const context = await this.pmApiService.createContext({ url, hostspec });
-            const pmcdVersionMetric = await this.pmApiService.fetch({
-                url,
+            const context = await this.pmApiService.createContext(url, { hostspec });
+            const pmcdVersionMetric = await this.pmApiService.fetch(url, {
                 context: context.context,
                 names: ['pmcd.version'],
             });

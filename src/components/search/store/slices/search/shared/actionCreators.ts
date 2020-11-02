@@ -15,7 +15,7 @@ import { ViewAction, SetViewAction } from '../slices/view/actions';
 import { RootState } from '../../../reducer';
 import { Services } from '../../../../services/services';
 import Config from '../../../../config/config';
-import { TextItemResponseField, EntityType } from '../../../../models/endpoints/search';
+import { TextItemResponseField, EntityType } from 'common/services/pmsearch/types';
 
 type QuerySearchAction = LoadResultAction | SetViewAction | HistoryAction | SetQueryAction;
 

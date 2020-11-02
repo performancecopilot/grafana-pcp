@@ -1,4 +1,4 @@
-import { SearchEntity } from '../../../../models/endpoints/search';
+import { SearchEntity } from 'common/services/pmsearch/types';
 
 export enum FetchStatus {
     INIT,

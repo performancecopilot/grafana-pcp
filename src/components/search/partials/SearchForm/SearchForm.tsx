@@ -34,10 +34,10 @@ import {
 } from './styles';
 import { RootState } from '../../store/reducer';
 import withServices, { WithServicesProps } from '../../components/withServices/withServices';
-import { SearchEntity, AutocompleteSuggestion } from '../../models/endpoints/search';
 import { querySearch } from '../../store/slices/search/shared/actionCreators';
 import Config from '../../config/config';
 import { getLogger } from 'common/utils';
+import { SearchEntity, AutocompleteSuggestion } from 'common/services/pmsearch/types';
 const log = getLogger('search/SearchFrom');
 
 const mapStateToProps = (state: RootState) => ({

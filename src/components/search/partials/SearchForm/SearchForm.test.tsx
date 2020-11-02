@@ -1,4 +1,4 @@
-jest.mock('../../services/PmSearchApiService');
+jest.mock('common/services/pmsearch/PmSearchApiService');
 jest.mock('common/services/pmseries/PmSeriesApiService');
 jest.mock('../../services/EntityDetailService');
 import { SearchForm, SearchFormReduxProps, SearchFormProps, SearchFormState } from './SearchForm';
@@ -7,12 +7,12 @@ import { getTheme } from '@grafana/ui';
 import { shallow } from 'enzyme';
 import React from 'react';
 import { AutosuggestPropsSingleSection } from 'react-autosuggest';
-import PmSearchApiService from '../../services/PmSearchApiService';
 import EntityService from '../../services/EntityDetailService';
 import { Services } from '../../services/services';
-import { SearchEntity, AutocompleteSuggestion } from '../../models/endpoints/search';
 import { QuerySearchActionCreator } from '../../store/slices/search/shared/actionCreators';
 import { PmSeriesApiService } from 'common/services/pmseries/PmSeriesApiService';
+import { PmSearchApiService } from 'common/services/pmsearch/PmSearchApiService';
+import { SearchEntity, AutocompleteSuggestion } from 'common/services/pmsearch/types';
 
 describe('<SearchForm/>', () => {
     let mockReduxProps: SearchFormReduxProps;

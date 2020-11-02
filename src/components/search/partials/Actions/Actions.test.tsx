@@ -5,7 +5,7 @@ import { QueryState, initialQuery } from '../../store/slices/search/slices/query
 import { ViewState, initialView } from '../../store/slices/search/slices/view/state';
 import { QuerySearchActionCreator } from '../../store/slices/search/shared/actionCreators';
 import { SetViewActionCreator } from '../../store/slices/search/slices/view/actionCreators';
-import { SearchEntity } from '../../models/endpoints/search';
+import { SearchEntity } from 'common/services/pmsearch/types';
 
 interface ActionsReduxStatePropsMock {
     query: QueryState;

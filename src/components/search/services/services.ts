@@ -1,9 +1,9 @@
 import { getBackendSrv } from '@grafana/runtime';
-import PmSearchApiService from './PmSearchApiService';
 import EntityService from './EntityDetailService';
 import { PmSeriesApiService } from 'common/services/pmseries/PmSeriesApiService';
 import Config from '../config/config';
 import redisPluginConfig from '../../../datasources/redis/plugin.json';
+import { PmSearchApiService } from 'common/services/pmsearch/PmSearchApiService';
 
 export interface Services {
     searchService: PmSearchApiService;
@@ -24,10 +24,13 @@ async function getDatasourceSettings() {
 
 export const initServices = async (): Promise<Services> => {
     const settings = await getDatasourceSettings();
-    const searchService = new PmSearchApiService(settings, getBackendSrv());
+    const searchService = new PmSearchApiService(getBackendSrv(), {
+        dsInstanceSettings: settings,
+        baseUrl: settings.url!,
+        timeoutMs: Config.REQUEST_TIMEOUT,
+    });
     const seriesService = new PmSeriesApiService(getBackendSrv(), {
         dsInstanceSettings: settings,
-        isDatasourceRequest: false,
         baseUrl: settings.url!,
         timeoutMs: Config.REQUEST_TIMEOUT,
     });

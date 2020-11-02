@@ -4,7 +4,7 @@ import { BookmarkList } from './BookmarkList';
 import { GrafanaThemeType } from '@grafana/data';
 import { getTheme } from '@grafana/ui';
 import { BookmarkItem } from '../../store/slices/search/slices/bookmarks/state';
-import { EntityType } from '../../models/endpoints/search';
+import { EntityType } from 'common/services/pmsearch/types';
 
 describe('<BookmarkList/>', () => {
     const placeholderCallbacks = {

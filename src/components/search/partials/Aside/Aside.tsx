@@ -7,7 +7,6 @@ import { cx } from 'emotion';
 import { RootState } from '../../store/reducer';
 import { ThunkDispatch } from 'redux-thunk';
 import { AnyAction, bindActionCreators } from 'redux';
-import { EntityType } from '../../models/endpoints/search';
 import { MetricDetailState, InstanceDomainDetailState } from '../../store/slices/search/slices/entity/state';
 import { FetchStatus } from '../../store/slices/search/shared/state';
 import Loader from '../../components/Loader/Loader';
@@ -17,6 +16,7 @@ import SearchHistoryList from '../../components/SearchHistoryList/SearchHistoryL
 import { openDetail, querySearch } from '../../store/slices/search/shared/actionCreators';
 import { clearBookmarks } from '../../store/slices/search/slices/bookmarks/actionCreators';
 import { clearSearchHistory } from '../../store/slices/search/slices/history/actionCreators';
+import { EntityType } from 'common/services/pmsearch/types';
 
 const mapStateToProps = (state: RootState) => ({
     view: state.search.view,

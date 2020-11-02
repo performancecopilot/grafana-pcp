@@ -133,12 +133,11 @@ export class PmapiLanguageDefinition implements MonacoLanguageDefinition {
             searchPrefix = token.value.substring(0, token.value.lastIndexOf('.'));
         }
 
-        const suggestions = await this.pmApiService.children({ url, hostspec, prefix: searchPrefix });
+        const suggestions = await this.pmApiService.children(url, { hostspec, prefix: searchPrefix });
         const prefixWithDot = searchPrefix === '' ? '' : `${searchPrefix}.`;
         let metadataByMetric: Dict<string, Metadata> = {};
         if (suggestions.leaf.length > 0) {
-            const metadatas = await this.pmApiService.metric({
-                url,
+            const metadatas = await this.pmApiService.metric(url, {
                 hostspec,
                 names: suggestions.leaf.map(leaf => `${prefixWithDot}${leaf}`),
             });
@@ -175,7 +174,7 @@ export class PmapiLanguageDefinition implements MonacoLanguageDefinition {
         }
 
         try {
-            const instancesResponse = await this.pmApiService.indom({ url, hostspec, name: metric.value });
+            const instancesResponse = await this.pmApiService.indom(url, { hostspec, name: metric.value });
             return instancesResponse.instances.map(instance => ({
                 kind: monaco.languages.CompletionItemKind.EnumMember,
                 label: instance.name,

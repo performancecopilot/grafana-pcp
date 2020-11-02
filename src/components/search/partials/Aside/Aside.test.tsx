@@ -8,9 +8,9 @@ import { initialView, ViewState } from '../../store/slices/search/slices/view/st
 import { initialHistory } from '../../store/slices/search/slices/history/state';
 import { initialBookmarks, BookmarkItem } from '../../store/slices/search/slices/bookmarks/state';
 import { shallow } from 'enzyme';
-import { EntityType, SearchEntity } from '../../models/endpoints/search';
 import { OpenDetailActionCreator } from '../../store/slices/search/shared/actionCreators';
 import { ClearBookmarksActionCreator } from '../../store/slices/search/slices/bookmarks/actionCreators';
+import { EntityType, SearchEntity } from 'common/services/pmsearch/types';
 
 describe('<Aside/>', () => {
     let mockReduxStateProps: AsideReduxStateProps;

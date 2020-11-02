@@ -55,9 +55,9 @@ export class ScriptManager {
     async storeControlMetric(url: string, hostspec: string, metric: string, value: string): Promise<any> {
         // create temporary context, required so that the PMDA can identify
         // the client who sent the pmStore message
-        const context = await this.pmApiService.createContext({ url, hostspec });
+        const context = await this.pmApiService.createContext(url, { hostspec });
         try {
-            await this.pmApiService.store({ url, context: context.context, name: metric, value });
+            await this.pmApiService.store(url, { context: context.context, name: metric, value });
         } catch (error) {
             if (error instanceof PermissionError) {
                 throw new Error(
@@ -69,7 +69,7 @@ export class ScriptManager {
             }
         }
 
-        const response = await this.pmApiService.fetch({ url, context: context.context, names: [metric] });
+        const response = await this.pmApiService.fetch(url, { context: context.context, names: [metric] });
         return JSON.parse(response.values[0].instances[0].value as string);
     }
 

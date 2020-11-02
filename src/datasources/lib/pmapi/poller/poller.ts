@@ -69,8 +69,7 @@ export class Poller {
     }
 
     async refreshInstanceNames(endpoint: EndpointWithCtx, metric: Metric) {
-        const instancesResponse = await this.pmApiService.indom({
-            url: endpoint.url,
+        const instancesResponse = await this.pmApiService.indom(endpoint.url, {
             context: endpoint.context.context,
             name: metric.metadata.name,
         });
@@ -94,8 +93,7 @@ export class Poller {
     }
 
     async loadMetricsMetadata(endpoint: EndpointWithCtx, metricNames: string[]) {
-        const metadataResponse = await this.pmApiService.metric({
-            url: endpoint.url,
+        const metadataResponse = await this.pmApiService.metric(endpoint.url, {
             context: endpoint.context.context,
             names: metricNames,
         });
@@ -169,8 +167,7 @@ export class Poller {
     }
 
     async initContext(endpoint: Endpoint) {
-        endpoint.context = await this.pmApiService.createContext({
-            url: endpoint.url,
+        endpoint.context = await this.pmApiService.createContext(endpoint.url, {
             hostspec: endpoint.hostspec,
             polltimeout: Math.round((this.state.refreshIntervalMs + this.config.gracePeriodMs) / 1000),
         });
@@ -202,8 +199,7 @@ export class Poller {
         const additionalMetricNamesToPoll = uniq(endpoint.additionalMetricsToPoll.map(amp => amp.name));
         metricsToPoll.push(...additionalMetricNamesToPoll);
 
-        const valuesResponse = await this.pmApiService.fetch({
-            url: endpoint.url,
+        const valuesResponse = await this.pmApiService.fetch(endpoint.url, {
             context: endpoint.context!.context,
             names: metricsToPoll,
         });
@@ -250,8 +246,7 @@ export class Poller {
         } catch (error) {
             if (has(error, 'data.message') && error.data.message.includes('unknown context identifier')) {
                 log.debug('context expired. requesting a new context');
-                endpoint.context = await this.pmApiService.createContext({
-                    url: endpoint.url,
+                endpoint.context = await this.pmApiService.createContext(endpoint.url, {
                     hostspec: endpoint.hostspec,
                     polltimeout: Math.round((this.state.refreshIntervalMs + this.config.gracePeriodMs) / 1000),
                 });
