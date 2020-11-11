@@ -5,7 +5,7 @@
     "info": {
         "description": "Performance Co-Pilot Grafana Plugin",
         "author": {
-            "name": "Performance Co-Pilot and Netflix",
+            "name": "Performance Co-Pilot",
             "url": "https://pcp.io"
         },
         "keywords": ["performancecopilot", "pcp", "ebpf", "bpftrace", "containers"],
