@@ -1,8 +1,6 @@
 name: Release
 on:
-  push:
-    tags:
-      - 'src/v**'
+  workflow_dispatch:
 
 jobs:
   release:

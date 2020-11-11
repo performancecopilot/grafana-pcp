@@ -4,7 +4,6 @@ on:
     branches:
       - '**'
     tags-ignore:
-      - 'src/v**'
       - 'v**'
   pull_request:
 
@@ -32,9 +31,6 @@ jobs:
 
     - name: Test
       run: make test-frontend-coverage test-backend-coverage
-
-    - name: End-to-End tests
-      run: make test-e2e
 
     - name: Build
       run: make dist
