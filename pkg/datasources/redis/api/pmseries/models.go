@@ -42,8 +42,8 @@ type LabelValuesResponse map[string][]interface{}
 
 type ValuesResponseItem struct {
 	Series    string  `json:"series"`
-	Timestamp float64 `json:"timestamp"`
-	Instance  string  `json:"instance"`
+	Timestamp float64 `json:"timestamp"` // milliseconds
+	Instance  string  `json:"instance"`  // can be empty
 	Value     string  `json:"value"`
 }
 

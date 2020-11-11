@@ -168,12 +168,12 @@ func getFieldDisplayName(redisQuery *Query, series *series.Series, instanceID st
 }
 
 func (ds *redisDatasourceInstance) createField(redisQuery *Query, series *series.Series, instanceID string) (*data.Field, error) {
-	fieldName, err := ds.getFieldName(series, instanceID)
+	name, err := ds.getFieldName(series, instanceID)
 	if err != nil {
 		return nil, err
 	}
 
-	fieldVector, err := getFieldVector(series.Desc.Type)
+	vector, err := getFieldVector(series.Desc.Type)
 	if err != nil {
 		return nil, err
 	}
@@ -182,10 +182,19 @@ func (ds *redisDatasourceInstance) createField(redisQuery *Query, series *series
 	displayName := getFieldDisplayName(redisQuery, series, instanceID, labels)
 	unit := getFieldUnit(&series.Desc)
 
-	field := data.NewField(fieldName, labels, fieldVector)
+	var instance series_.Instance
+	if series.Instances != nil {
+		instance = series.Instances[instanceID]
+	}
+
+	field := data.NewField(name, labels, vector)
 	field.SetConfig(&data.FieldConfig{
 		DisplayName: displayName,
 		Unit:        unit,
+		Custom: map[string]interface{}{
+			"InstanceId": instanceID,
+			"Instance":   instance,
+		},
 	})
 
 	return field, nil
@@ -215,18 +224,18 @@ func (ds *redisDatasourceInstance) createDataFrames(redisQuery *Query, series ma
 
 	for i := 0; i < len(values); {
 		curSeriesID := values[i].Series
-		curTimestamp := 0.0
+		curTimestampMs := 0.0
 		curFrame := data.NewFrame("")
 		curTimeField := data.NewField("time", nil, []time.Time{})
 		curFrame.Fields = append(curFrame.Fields, curTimeField)
 		curInstanceToField := map[string]*data.Field{}
 
 		for i < len(values) && values[i].Series == curSeriesID {
-			curTimestamp = values[i].Timestamp
-			curTimeField.Append(time.Unix(int64(curTimestamp/1000), int64(curTimestamp*1000*1000)%1000000000))
+			curTimestampMs = values[i].Timestamp
+			curTimeField.Append(time.Unix(int64(curTimestampMs/1000), int64(curTimestampMs*1000*1000)%1000000000))
 
 			// if the timestamp significantly changed from the previous read one, consider it a new measurement
-			for ; i < len(values) && values[i].Series == curSeriesID && math.Abs(values[i].Timestamp-curTimestamp) < 0.1; i++ {
+			for ; i < len(values) && values[i].Series == curSeriesID && math.Abs(values[i].Timestamp-curTimestampMs) < 0.1; i++ {
 				field := curInstanceToField[values[i].Instance]
 				if field == nil {
 					var err error
@@ -259,4 +268,63 @@ func (ds *redisDatasourceInstance) createDataFrames(redisQuery *Query, series ma
 	}
 
 	return frames, nil
+}
+
+var heatmapInstanceRegex = regexp.MustCompile(`^(.+?)\-(.+?)$`)
+
+func getHeatMapDisplayName(field *data.Field) string {
+	instance, ok := field.Config.Custom["Instance"]
+	if ok {
+		instanceName := instance.(series.Instance).Name
+		// instance name can be -1024--512, -512-0, 512-1024, ...
+		match := heatmapInstanceRegex.FindStringSubmatch(instanceName)
+		if len(match) == 3 {
+			return match[2]
+		}
+	}
+	return "0-0"
+}
+
+func (ds *redisDatasourceInstance) toHeatMap(frame *data.Frame) error {
+	var timeField *data.Field
+	for _, field := range frame.Fields {
+		if field.Type() == data.FieldTypeTime {
+			timeField = field
+			continue
+		}
+		field.Config.DisplayName = getHeatMapDisplayName(field)
+	}
+	if timeField == nil {
+		return nil
+	}
+
+	for i := 0; i < timeField.Len(); i++ {
+		// round timestamps to one second, the heatmap panel calculates the x-axis size accordingly
+		curTime := timeField.At(i).(time.Time)
+		rounded := time.Unix(int64(math.Floor(float64(curTime.UnixNano())/1000000000.0)), 0)
+		timeField.Set(i, rounded)
+	}
+	return nil
+}
+
+func (ds *redisDatasourceInstance) processQuery(redisQuery *Query, series map[string]*series.Series, values []pmseries.ValuesResponseItem) (data.Frames, error) {
+	frames, err := ds.createDataFrames(redisQuery, series, values)
+	if err != nil {
+		return nil, err
+	}
+
+	switch redisQuery.Format {
+	case TimeSeries:
+		return frames, nil
+	case Heatmap:
+		for _, frame := range frames {
+			err = ds.toHeatMap(frame)
+			if err != nil {
+				return nil, err
+			}
+		}
+		return frames, nil
+	default:
+		return nil, fmt.Errorf("Invalid target format %s", redisQuery.Format)
+	}
 }

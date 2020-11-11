@@ -149,7 +149,7 @@ function createField(
     instanceId: InstanceId | null
 ): FieldDTO & { config: { custom: FieldCustom } } {
     let instance;
-    if (instanceId !== null && metric.instanceDomain) {
+    if (metric.instanceDomain && instanceId !== null) {
         instance = metric.instanceDomain.instances[instanceId];
     }
 
@@ -238,6 +238,7 @@ function getHeatMapDisplayName(field: Field) {
     // target name is the upper bound
     const instanceName = (field.config.custom as FieldCustom).instance?.name;
     if (instanceName) {
+        // instance name can be -1024--512, -512-0, 512-1024, ...
         const match = instanceName.match(/^(.+?)\-(.+?)$/);
         if (match) {
             return match[2];
@@ -417,18 +418,18 @@ export function processQueries(
                 .filter(frame => frame !== null) as MutableDataFrame[]
     );
 
-    if (format === TargetFormat.TimeSeries) {
-        return frames;
-    } else if (format === TargetFormat.Heatmap) {
-        frames.forEach(toHeatMap);
-        return frames;
-    } else if (format === TargetFormat.MetricsTable) {
-        return [toMetricsTable(request.scopedVars, frames)];
-    } else if (format === TargetFormat.CsvTable) {
-        return [toCsvTable(frames)];
-    } else if (format === TargetFormat.FlameGraph) {
-        return frames;
-    } else {
-        throw { message: `Invalid target format '${format}'.` };
+    switch (format) {
+        case TargetFormat.TimeSeries:
+        case TargetFormat.FlameGraph:
+            return frames;
+        case TargetFormat.Heatmap:
+            frames.forEach(toHeatMap);
+            return frames;
+        case TargetFormat.MetricsTable:
+            return [toMetricsTable(request.scopedVars, frames)];
+        case TargetFormat.CsvTable:
+            return [toCsvTable(frames)];
+        default:
+            throw { message: `Invalid target format '${format}'.` };
     }
 }

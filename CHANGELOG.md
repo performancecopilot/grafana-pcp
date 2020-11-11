@@ -3,7 +3,13 @@
 ## 3.0.0-beta2 (unreleased)
 
 - **dashboards**: moved dashboards to the datasource level: dashboards of interest can be imported using the dashboards tab of each datasource settings page
+- **dashboards**: updated PCP Redis Metric Preview dashboards: added metric drop-down
 - **dashboards**: added MS SQL server dashboard for Vector (Louis Imershein)
+- **redis**: added instance.name and dashboard variables support in query editor
+- **redis**: improved error messages
+- **redis**: heatmap support
+- **search**: fix datasource detection
+- **search**: propagate error messages to the user
 
 ## 3.0.0-beta1 (2020-10-12)
 

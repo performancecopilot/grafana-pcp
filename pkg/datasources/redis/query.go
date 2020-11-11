@@ -39,7 +39,7 @@ func (ds *redisDatasourceInstance) executeTimeSeriesQuery(dataQuery *backend.Dat
 		return nil, err
 	}
 
-	frames, err := ds.createDataFrames(redisQuery, series, values)
+	frames, err := ds.processQuery(redisQuery, series, values)
 	if err != nil {
 		return nil, err
 	}
