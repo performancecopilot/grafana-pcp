@@ -1,18 +1,25 @@
 import defaults from 'lodash/defaults';
 import React, { PureComponent } from 'react';
-import { InlineFormLabel } from '@grafana/ui';
-import { QueryEditorProps } from '@grafana/data';
+import { InlineFormLabel, Select } from '@grafana/ui';
+import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { RedisOptions, RedisQuery, defaultRedisQuery } from '../types';
 import { cx, css } from 'emotion';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
 import { PmseriesLanguageDefiniton } from './PmseriesLanguageDefiniton';
 import { isBlank } from 'common/utils';
+import { TargetFormat } from 'datasources/lib/types';
 
 type Props = QueryEditorProps<DataSource, RedisQuery, RedisOptions>;
 
+const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
+    { label: 'Time series', value: TargetFormat.TimeSeries },
+    { label: 'Heatmap', value: TargetFormat.Heatmap },
+];
+
 interface State {
     expr: string;
+    format: SelectableValue<string>;
     legendFormat?: string;
 }
 
@@ -24,6 +31,7 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
         const query = defaults(this.props.query, defaultRedisQuery);
         this.state = {
             expr: query.expr,
+            format: FORMAT_OPTIONS.find(option => option.value === query.format) ?? FORMAT_OPTIONS[0],
             legendFormat: query.legendFormat,
         };
         this.languageDefinition = new PmseriesLanguageDefiniton(this.props.datasource);
@@ -38,10 +46,15 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
         this.setState({ legendFormat }, this.runQuery);
     };
 
+    onFormatChange = (format: SelectableValue<string>) => {
+        this.setState({ format }, this.runQuery);
+    };
+
     runQuery = () => {
         this.props.onChange({
             ...this.props.query,
             expr: this.state.expr,
+            format: this.state.format.value as TargetFormat,
             legendFormat: this.state.legendFormat,
         });
         this.props.onRunQuery();
@@ -82,6 +95,17 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
                             value={this.state.legendFormat}
                             onChange={this.onLegendFormatChange}
                             onBlur={this.runQuery}
+                        />
+                    </div>
+
+                    <div className="gf-form">
+                        <div className="gf-form-label">Format</div>
+                        <Select
+                            className="width-9"
+                            isSearchable={false}
+                            options={FORMAT_OPTIONS}
+                            value={this.state.format}
+                            onChange={this.onFormatChange}
                         />
                     </div>
                 </div>

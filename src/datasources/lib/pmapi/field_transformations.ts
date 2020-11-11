@@ -2,7 +2,7 @@ import { MutableDataFrame, MISSING_VALUE, FieldType, MutableField } from '@grafa
 import { Semantics } from 'common/types/pcp';
 import { Dict } from 'common/types/utils';
 import { Metadata } from 'common/services/pmapi/types';
-import { TargetFormat } from './types';
+import { TargetFormat } from '../types';
 
 function fieldSetRate(field: MutableField, idx: number, deltaSec: number, discreteValues: boolean) {
     const curVal = field.values.get(idx);

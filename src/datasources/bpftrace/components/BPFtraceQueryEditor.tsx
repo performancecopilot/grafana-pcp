@@ -4,11 +4,13 @@ import { InlineFormLabel, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { BPFtraceOptions, BPFtraceQuery, defaultBPFtraceQuery } from '../types';
-import { TargetFormat } from 'datasources/lib/pmapi/types';
 import { isBlank } from 'common/utils';
 import { MonacoEditorLazy } from 'components/monaco/MonacoEditorLazy';
 import { css, cx } from 'emotion';
 import { BPFtraceLanguageDefinition } from './BPFtraceLanguageDefinition';
+import { TargetFormat } from 'datasources/lib/types';
+
+type Props = QueryEditorProps<DataSource, BPFtraceQuery, BPFtraceOptions>;
 
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },
@@ -16,8 +18,6 @@ const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Table', value: TargetFormat.CsvTable },
     { label: 'Flame Graph', value: TargetFormat.FlameGraph },
 ];
-
-type Props = QueryEditorProps<DataSource, BPFtraceQuery, BPFtraceOptions>;
 
 interface State {
     expr: string;

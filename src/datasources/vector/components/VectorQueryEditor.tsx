@@ -7,16 +7,16 @@ import { VectorOptions, VectorQuery, defaultVectorQuery } from '../types';
 import { MonacoEditorLazy } from 'components/monaco/MonacoEditorLazy';
 import { css, cx } from 'emotion';
 import { PmapiLanguageDefinition } from './PmapiLanguageDefiniton';
-import { TargetFormat } from 'datasources/lib/pmapi/types';
 import { isBlank } from 'common/utils';
+import { TargetFormat } from 'datasources/lib/types';
+
+type Props = QueryEditorProps<DataSource, VectorQuery, VectorOptions>;
 
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },
     { label: 'Heatmap', value: TargetFormat.Heatmap },
     { label: 'Table', value: TargetFormat.MetricsTable },
 ];
-
-type Props = QueryEditorProps<DataSource, VectorQuery, VectorOptions>;
 
 interface State {
     expr: string;

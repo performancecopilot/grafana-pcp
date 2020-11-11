@@ -15,7 +15,8 @@ import { Context, Indom, InstanceId, Metadata } from 'common/services/pmapi/type
 import { every, isString, mapValues } from 'lodash';
 import { applyFieldTransformations } from './field_transformations';
 import { Metric, QueryResult } from './poller/types';
-import { PmapiQuery, TargetFormat } from './types';
+import { PmapiQuery } from './types';
+import { TargetFormat } from '../types';
 
 interface FrameCustom {
     context: Context;

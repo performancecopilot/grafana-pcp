@@ -1,5 +1,6 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 import { RequiredField } from 'common/types/utils';
+import { TargetFormat } from '../types';
 
 export interface PmapiOptions extends DataSourceJsonData {
     hostspec?: string;
@@ -9,17 +10,6 @@ export interface PmapiOptions extends DataSourceJsonData {
 export interface PmapiDefaultOptions {
     hostspec: string;
     retentionTime: string;
-}
-
-export enum TargetFormat {
-    TimeSeries = 'time_series',
-    Heatmap = 'heatmap',
-    /** vector only */
-    MetricsTable = 'metrics_table',
-    /** bpftrace only */
-    CsvTable = 'csv_table',
-    /** bpftrace only */
-    FlameGraph = 'flamegraph',
 }
 
 export interface PmapiQuery extends DataQuery {
