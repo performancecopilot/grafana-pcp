@@ -1,0 +1,181 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PCP Vector should poll disk.dev.read, perform rate conversation and return the result 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "fields": Array [
+        Object {
+          "config": Object {},
+          "labels": undefined,
+          "name": "Time",
+          "type": "time",
+          "values": Array [
+            0,
+            1000,
+          ],
+        },
+        Object {
+          "config": Object {
+            "custom": Object {
+              "instance": Object {
+                "instance": 0,
+                "labels": Object {
+                  "domainname": "localdomain",
+                  "hostname": "dev",
+                  "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                },
+                "name": "nvme0n1",
+              },
+              "instanceId": 0,
+            },
+            "displayName": "",
+            "unit": undefined,
+          },
+          "labels": Object {
+            "agent": "linux",
+            "device_type": "block",
+            "domainname": "localdomain",
+            "hostname": "dev",
+            "indom_name": "per disk",
+            "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+          },
+          "name": "disk.dev.read[nvme0n1]",
+          "type": "number",
+          "values": Array [
+            null,
+            100,
+          ],
+        },
+        Object {
+          "config": Object {
+            "custom": Object {
+              "instance": Object {
+                "instance": 1,
+                "labels": Object {
+                  "domainname": "localdomain",
+                  "hostname": "dev",
+                  "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                },
+                "name": "sda",
+              },
+              "instanceId": 1,
+            },
+            "displayName": "",
+            "unit": undefined,
+          },
+          "labels": Object {
+            "agent": "linux",
+            "device_type": "block",
+            "domainname": "localdomain",
+            "hostname": "dev",
+            "indom_name": "per disk",
+            "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+          },
+          "name": "disk.dev.read[sda]",
+          "type": "number",
+          "values": Array [
+            null,
+            0,
+          ],
+        },
+      ],
+      "meta": Object {
+        "custom": Object {
+          "context": Object {
+            "context": 123,
+            "labels": Object {},
+          },
+          "metric": Object {
+            "instanceDomain": Object {
+              "instances": Object {
+                "0": Object {
+                  "instance": 0,
+                  "labels": Object {
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                  },
+                  "name": "nvme0n1",
+                },
+                "1": Object {
+                  "instance": 1,
+                  "labels": Object {
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                  },
+                  "name": "sda",
+                },
+              },
+              "labels": Object {
+                "device_type": "block",
+                "domainname": "localdomain",
+                "hostname": "dev",
+                "indom_name": "per disk",
+                "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+              },
+            },
+            "metadata": Object {
+              "indom": "60.1",
+              "labels": Object {
+                "agent": "linux",
+                "device_type": "block",
+                "domainname": "localdomain",
+                "hostname": "dev",
+                "indom_name": "per disk",
+                "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+              },
+              "name": "disk.dev.read",
+              "sem": "counter",
+              "series": "f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9",
+              "text-help": "Cumulative number of disk read operations since system boot time (subject
+to counter wrap).",
+              "text-oneline": "per-disk read operations",
+              "type": "u64",
+              "units": "count",
+            },
+            "values": Array [
+              Object {
+                "timestampMs": 0,
+                "values": Array [
+                  Object {
+                    "instance": 0,
+                    "value": 100,
+                  },
+                  Object {
+                    "instance": 1,
+                    "value": 0,
+                  },
+                ],
+              },
+              Object {
+                "timestampMs": 1000,
+                "values": Array [
+                  Object {
+                    "instance": 0,
+                    "value": 200,
+                  },
+                  Object {
+                    "instance": 1,
+                    "value": 0,
+                  },
+                ],
+              },
+            ],
+          },
+          "query": Object {
+            "expr": "disk.dev.read",
+            "format": "time_series",
+            "hostspec": "127.0.0.1",
+            "refId": "A",
+            "url": "http://localhost:1234",
+          },
+        },
+      },
+      "name": undefined,
+      "refId": undefined,
+    },
+  ],
+}
+`;

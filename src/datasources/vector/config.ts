@@ -1,4 +1,7 @@
 export const Config = {
+    /** default refresh interval if not specified in the URL query params */
+    defaultRefreshIntervalMs: 1000,
+
     apiTimeoutMs: 2000,
 
     /**

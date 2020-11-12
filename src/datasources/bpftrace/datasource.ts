@@ -4,7 +4,7 @@ import { BPFtraceQuery, BPFtraceOptions, BPFtraceTargetData } from './types';
 import { ScriptManager } from './script_manager';
 import { Status, Script } from './script';
 
-import { DatasourceBase } from 'datasources/lib/pmapi/datasource_base';
+import { DataSourceBase } from 'datasources/lib/pmapi/datasource_base';
 import { Poller } from 'datasources/lib/pmapi/poller/poller';
 import { PmapiQuery, Target, TargetState } from 'datasources/lib/pmapi/types';
 import { Endpoint } from 'datasources/lib/pmapi/poller/types';
@@ -12,7 +12,7 @@ import { getLogger } from 'common/utils';
 import { Config } from './config';
 const log = getLogger('datasource');
 
-export class DataSource extends DatasourceBase<BPFtraceQuery, BPFtraceOptions> {
+export class BPFtraceDataSource extends DataSourceBase<BPFtraceQuery, BPFtraceOptions> {
     poller: Poller;
     scriptManager: ScriptManager;
 
@@ -21,7 +21,7 @@ export class DataSource extends DatasourceBase<BPFtraceQuery, BPFtraceOptions> {
         log.debug('initializate bpftrace datasource');
         this.poller = new Poller(this.pmApiService, this.pmSeriesApiService, {
             retentionTimeMs: this.retentionTimeMs,
-            refreshIntervalMs: this.getDashboardRefreshInterval() ?? 1000,
+            refreshIntervalMs: this.getDashboardRefreshInterval() ?? Config.defaultRefreshIntervalMs,
             gracePeriodMs: Config.gracePeriodMs,
             hooks: {
                 queryHasChanged: this.queryHasChanged,

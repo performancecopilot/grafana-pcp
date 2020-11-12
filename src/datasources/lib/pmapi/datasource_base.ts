@@ -16,7 +16,7 @@ import { QueryResult } from './poller/types';
 import { Poller } from './poller/poller';
 const log = getLogger('datasource_base');
 
-export abstract class DatasourceBase<Q extends PmapiQuery, O extends PmapiOptions> extends DataSourceApi<Q, O> {
+export abstract class DataSourceBase<Q extends PmapiQuery, O extends PmapiOptions> extends DataSourceApi<Q, O> {
     url?: string;
     hostspec: string;
     retentionTimeMs: number;

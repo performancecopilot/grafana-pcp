@@ -297,11 +297,22 @@ export class Poller {
     }
 
     cleanHistoryData() {
+        if (this.config.retentionTimeMs === 0) {
+            return;
+        }
+
+        let cleanedSnapshots = 0;
         const keepExpiry = new Date().getTime() - this.config.retentionTimeMs;
         for (const endpoint of this.state.endpoints) {
             for (const metric of endpoint.metrics) {
+                const snapshotCount = metric.values.length;
                 metric.values = metric.values.filter(snapshot => snapshot.timestampMs > keepExpiry);
+                cleanedSnapshots += snapshotCount - metric.values.length;
             }
+        }
+
+        if (cleanedSnapshots > 0) {
+            log.debug(`cleaned ${cleanedSnapshots} historical metric values`);
         }
     }
 

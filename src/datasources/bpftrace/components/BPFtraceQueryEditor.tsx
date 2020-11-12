@@ -2,7 +2,7 @@ import defaults from 'lodash/defaults';
 import React, { PureComponent } from 'react';
 import { InlineFormLabel, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { DataSource } from '../datasource';
+import { BPFtraceDataSource } from '../datasource';
 import { BPFtraceOptions, BPFtraceQuery, defaultBPFtraceQuery } from '../types';
 import { isBlank } from 'common/utils';
 import { MonacoEditorLazy } from 'components/monaco/MonacoEditorLazy';
@@ -10,7 +10,7 @@ import { css, cx } from 'emotion';
 import { BPFtraceLanguageDefinition } from './BPFtraceLanguageDefinition';
 import { TargetFormat } from 'datasources/lib/types';
 
-type Props = QueryEditorProps<DataSource, BPFtraceQuery, BPFtraceOptions>;
+type Props = QueryEditorProps<BPFtraceDataSource, BPFtraceQuery, BPFtraceOptions>;
 
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },

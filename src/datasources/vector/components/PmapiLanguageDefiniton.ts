@@ -5,7 +5,7 @@ import { cloneDeep, keyBy, uniqueId } from 'lodash';
 import { PmApiService } from 'common/services/pmapi/PmApiService';
 import { Metadata, NoIndomError } from 'common/services/pmapi/types';
 import { Dict } from 'common/types/utils';
-import { DataSource } from '../datasource';
+import { PCPVectorDataSource } from '../datasource';
 import { VectorQuery } from '../types';
 import { getLogger } from 'common/utils';
 import { MonacoLanguageDefinition } from 'components/monaco/MonacoEditorWrapper';
@@ -22,7 +22,7 @@ export class PmapiLanguageDefinition implements MonacoLanguageDefinition {
     private functionCompletions: Monaco.languages.CompletionItem[] = [];
     private disposeCompletionProvider?: Monaco.IDisposable;
 
-    constructor(private datasource: DataSource, private getQuery: () => VectorQuery) {
+    constructor(private datasource: PCPVectorDataSource, private getQuery: () => VectorQuery) {
         this.languageId = uniqueId('pmapi');
         this.pmApiService = datasource.pmApiService;
     }

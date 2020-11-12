@@ -1,7 +1,7 @@
 import { DataSourceInstanceSettings } from '@grafana/data';
 import md5 from 'blueimp-md5';
 import { VectorQuery, VectorOptions, VectorTargetData } from './types';
-import { DatasourceBase } from 'datasources/lib/pmapi/datasource_base';
+import { DataSourceBase } from 'datasources/lib/pmapi/datasource_base';
 import { Poller } from 'datasources/lib/pmapi/poller/poller';
 import { PmapiQuery, Target } from 'datasources/lib/pmapi/types';
 import { Endpoint } from 'datasources/lib/pmapi/poller/types';
@@ -15,7 +15,7 @@ import { getLogger } from 'common/utils';
 import { Config } from './config';
 const log = getLogger('datasource');
 
-export class DataSource extends DatasourceBase<VectorQuery, VectorOptions> {
+export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptions> {
     poller: Poller;
     derivedMetrics: Map<string, string>;
 
@@ -24,7 +24,7 @@ export class DataSource extends DatasourceBase<VectorQuery, VectorOptions> {
         log.debug('initializate Vector datasource');
         this.poller = new Poller(this.pmApiService, this.pmSeriesApiService, {
             retentionTimeMs: this.retentionTimeMs,
-            refreshIntervalMs: this.getDashboardRefreshInterval() ?? 1000,
+            refreshIntervalMs: this.getDashboardRefreshInterval() ?? Config.defaultRefreshIntervalMs,
             gracePeriodMs: Config.gracePeriodMs,
             hooks: {
                 queryHasChanged: this.queryHasChanged,

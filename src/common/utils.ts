@@ -7,7 +7,6 @@ import { isString } from 'lodash';
 import { RequiredField } from './types/utils';
 
 export function getLogger(name: string) {
-    rootLogger.setDefaultLevel('ERROR');
     logPrefixer.reg(rootLogger);
     logPrefixer.apply(rootLogger, { template: '[%t] %l %n:' });
     return rootLogger.getLogger(name);

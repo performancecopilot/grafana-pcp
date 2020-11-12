@@ -1,9 +1,9 @@
 import { DataSourcePlugin } from '@grafana/data';
-import { DataSource } from './datasource';
+import { PCPVectorDataSource } from './datasource';
 import { VectorConfigEditor } from './configuration/VectorConfigEditor';
 import { VectorQueryEditor } from './components/VectorQueryEditor';
 import { VectorQuery, VectorOptions } from './types';
 
-export const plugin = new DataSourcePlugin<DataSource, VectorQuery, VectorOptions>(DataSource)
+export const plugin = new DataSourcePlugin<PCPVectorDataSource, VectorQuery, VectorOptions>(PCPVectorDataSource)
     .setConfigEditor(VectorConfigEditor)
     .setQueryEditor(VectorQueryEditor);

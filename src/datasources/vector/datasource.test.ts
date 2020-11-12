@@ -1,6 +1,5 @@
-import { DataSource } from './datasource';
-import { VectorOptions, VectorTargetData } from './types';
-import { DataSourceInstanceSettings } from '@grafana/data';
+import { PCPVectorDataSource } from './datasource';
+import { VectorTargetData } from './types';
 import { Target } from 'datasources/lib/pmapi/types';
 import { Endpoint, InstanceValuesSnapshot } from 'datasources/lib/pmapi/poller/types';
 import {
@@ -9,29 +8,67 @@ import {
     SeriesValuesResponse,
 } from 'common/services/pmseries/types';
 import { Dict } from 'common/types/utils';
+import { backendSrvMock, mockNextResponses } from 'datasources/lib/specs/mocks/backend_srv';
+import { TargetFormat } from 'datasources/lib/types';
+import { grafana, pmapi, pmseries } from 'datasources/lib/specs/fixtures';
 
-jest.mock('../lib/pmapi/poller/poller');
-//jest.mock('../lib/pmapi');
+jest.mock('@grafana/runtime', () => ({
+    ...jest.requireActual<object>('@grafana/runtime'),
+    getBackendSrv: () => backendSrvMock,
+    getTemplateSrv: () => ({
+        replace: (x: string) => x,
+    }),
+}));
+jest.mock('./config', () => ({
+    Config: {
+        ...jest.requireActual<any>('./config').Config,
+        defaultRefreshIntervalMs: 999999999, // never run timers in unit tests
+    },
+}));
 
-describe('PCP Vector datasource', () => {
-    let instanceSettingsMock: jest.Mocked<DataSourceInstanceSettings<VectorOptions>>;
-    let instance: DataSource;
+describe('PCP Vector', () => {
+    let datasource: PCPVectorDataSource;
+
     beforeEach(() => {
-        // mocking only relevant properties
-        instanceSettingsMock = {
-            url: '/api/datasources/proxy/2',
+        jest.clearAllMocks();
+
+        //Object.values(rootLogger.getLoggers()).forEach(logger => logger.setLevel('DEBUG'));
+        const instanceSettings = {
+            url: 'http://localhost:1234',
             jsonData: {
-                hostspec: '127.0.0.1',
-                retentionTime: '10m',
+                retentionTime: '0',
             },
-        } as any;
-        instance = new DataSource(instanceSettingsMock);
+        };
+        datasource = new PCPVectorDataSource(instanceSettings as any);
+    });
+
+    it('should poll disk.dev.read, perform rate conversation and return the result', async () => {
+        const targets = [{ refId: 'A', expr: 'disk.dev.read', format: TargetFormat.TimeSeries }];
+
+        let response = await datasource.query(grafana.dataQueryRequest(targets));
+        expect(response).toEqual({ data: [] });
+
+        mockNextResponses([
+            pmapi.context(),
+            pmseries.ping(false),
+            pmapi.metricIndom(),
+            pmapi.fetch(0, 100, 0),
+            pmapi.indom(),
+        ]);
+        await datasource.poller.poll();
+
+        mockNextResponses([pmapi.fetch(1, 200, 0)]);
+        await datasource.poller.poll();
+
+        response = await datasource.query(grafana.dataQueryRequest(targets));
+        expect(response).toMatchSnapshot();
     });
 
     // anything thats not a metric name
-    it('shouble be able to detect derived metric formulas', () => {
+    it('should be able to detect derived metric formulas', () => {
         const metrics = ['statsd.pmda.received', 'statsd.pmda', 'statsd', 'statsd_pmda', 'statsd_pmda_received'];
-        metrics.forEach(metric => expect(instance.isDerivedMetric(metric)).toBe(false));
+        metrics.forEach(metric => expect(datasource.isDerivedMetric(metric)).toBe(false));
+
         const formulas = [
             'disk.all.blktotal/disk.all.total',
             'disk.all.blktotal+disk.all.total',
@@ -44,13 +81,10 @@ describe('PCP Vector datasource', () => {
             'disk.all.blktotal.2',
             'avg(network.interface.speed)',
         ];
-        formulas.forEach(formula => expect(instance.isDerivedMetric(formula)).toBe(true));
-        // empty string, should it ever be passed, is going to be interpreted as derived metric
-        const edgeCase = '';
-        expect(instance.isDerivedMetric(edgeCase)).toBe(true);
+        formulas.forEach(formula => expect(datasource.isDerivedMetric(formula)).toBe(true));
     });
 
-    it('should be able to build derived metric name', () => {
+    it('should be able to build a derived metric name', () => {
         const formulas = [
             'disk.all.blktotal/disk.all.total',
             'network.interface.in.bytes[eth1]',
@@ -58,48 +92,54 @@ describe('PCP Vector datasource', () => {
             'disk.all.blktotal+2',
         ];
         const names = formulas.map(formula => {
-            const name = instance.derivedMetricName(formula);
+            const name = datasource.derivedMetricName(formula);
             expect(name).toContain('derived_');
             return name;
         });
+
+        // check that all derived metric names are different
         expect(new Set(names).size).toBe(names.length);
     });
 
     it('should be able to create derived metric and store information about it', async () => {
         const spy = jest
-            .spyOn(instance.pmApiService, 'derive')
+            .spyOn(datasource.pmApiService, 'derive')
             .mockImplementation(() => Promise.resolve({ success: true }));
+
         const expr = 'disk.all.blktotal/2';
         const targetMock: jest.Mocked<Target<VectorTargetData>> = { query: { expr } } as any;
         const endpointMock: jest.Mocked<Endpoint> = { context: { context: 0 } } as any;
-        await instance.registerDerivedMetric(targetMock, endpointMock);
+        await datasource.registerDerivedMetric(targetMock, endpointMock);
+
         expect(spy).toBeCalledTimes(1);
-        expect(spy.mock.calls[0][1]).toMatchObject({ name: instance.derivedMetricName(expr) });
-        expect(instance.derivedMetrics.has(expr)).toBe(true);
+        expect(spy.mock.calls[0][1]).toMatchObject({ name: datasource.derivedMetricName(expr) });
+        expect(datasource.derivedMetrics.has(expr)).toBe(true);
     });
 
     it('should request registration of derived metric', async () => {
         const expr = 'disk.all.blktotal/2';
-        const metricName = instance.derivedMetricName(expr);
+        const metricName = datasource.derivedMetricName(expr);
         const createDerivedSpy = jest
-            .spyOn(instance.pmApiService, 'derive')
+            .spyOn(datasource.pmApiService, 'derive')
             .mockImplementation(() => Promise.resolve({ success: true }));
-        const registerDeriverMetricSpy = jest.spyOn(instance, 'registerDerivedMetric');
+        const registerDeriverMetricSpy = jest.spyOn(datasource, 'registerDerivedMetric');
         const targetMock: jest.Mocked<Target<VectorTargetData>> = { query: { expr } } as any;
         const endpointMock: jest.Mocked<Endpoint> = { context: { context: 0 } } as any;
-        const resultRegistered = await instance.registerTarget(targetMock, endpointMock);
+        const resultRegistered = await datasource.registerTarget(targetMock, endpointMock);
+
         expect(resultRegistered).toEqual([metricName]);
         expect(createDerivedSpy).toBeCalledTimes(1);
         expect(registerDeriverMetricSpy).toBeCalledTimes(1);
-        expect(instance.derivedMetrics.size).toBe(1);
-        expect(instance.derivedMetrics.has(expr)).toBe(true);
+        expect(datasource.derivedMetrics.size).toBe(1);
+        expect(datasource.derivedMetrics.has(expr)).toBe(true);
+
         // will skip registering derived metric, since we already did so
-        const resultRegistrationSkipped = await instance.registerTarget(targetMock, endpointMock);
+        const resultRegistrationSkipped = await datasource.registerTarget(targetMock, endpointMock);
         expect(resultRegistrationSkipped).toEqual([metricName]);
         expect(createDerivedSpy).toBeCalledTimes(1);
         expect(registerDeriverMetricSpy).toBeCalledTimes(1);
-        expect(instance.derivedMetrics.size).toBe(1);
-        expect(instance.derivedMetrics.has(expr)).toBe(true);
+        expect(datasource.derivedMetrics.size).toBe(1);
+        expect(datasource.derivedMetrics.has(expr)).toBe(true);
     });
 
     it('redisBackfill hook should request series api for backfilling and populate metricValues with returned stuff', async () => {
@@ -171,15 +211,15 @@ describe('PCP Vector datasource', () => {
             },
         ];
         const seriesApiValuesSpy = jest
-            .spyOn(instance.pmSeriesApiService, 'values')
+            .spyOn(datasource.pmSeriesApiService, 'values')
             .mockImplementation(() => Promise.resolve(seriesValuesMockResponse));
         const seriesApiInstancesSpy = jest
-            .spyOn(instance.pmSeriesApiService, 'instances')
+            .spyOn(datasource.pmSeriesApiService, 'instances')
             .mockImplementation(() => Promise.resolve(seriesInstancesMockResponse));
         const seriesApiMetricsSpy = jest
-            .spyOn(instance.pmSeriesApiService, 'metrics')
+            .spyOn(datasource.pmSeriesApiService, 'metrics')
             .mockImplementation(() => Promise.resolve(seriesMetricsMockResponse));
-        await instance.redisBackfill(endpointMock, pendingTargetsMock);
+        await datasource.redisBackfill(endpointMock, pendingTargetsMock);
         // check that only pending targets' series have been queried for
         const requestedSeriesIdentifiers = ['series_0', 'series_1'];
         expect(seriesApiValuesSpy).toBeCalledTimes(1);
