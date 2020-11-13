@@ -8,8 +8,8 @@ import { DataSourceBase } from 'datasources/lib/pmapi/datasource_base';
 import { Poller } from 'datasources/lib/pmapi/poller/poller';
 import { PmapiQuery, Target, TargetState } from 'datasources/lib/pmapi/types';
 import { Endpoint } from 'datasources/lib/pmapi/poller/types';
-import { getLogger } from 'common/utils';
 import { Config } from './config';
+import { getLogger } from 'loglevel';
 const log = getLogger('datasource');
 
 export class PCPBPFtraceDataSource extends DataSourceBase<BPFtraceQuery, BPFtraceOptions> {

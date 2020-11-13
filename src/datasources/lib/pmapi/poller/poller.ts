@@ -12,7 +12,7 @@ import { PmApiService } from 'common/services/pmapi/PmApiService';
 import { PmSeriesApiService } from 'common/services/pmseries/PmSeriesApiService';
 import { MetricNotFoundError } from 'common/services/pmapi/types';
 import { DataQueryRequest } from '@grafana/data';
-import { getLogger } from 'common/utils';
+import { getLogger } from 'loglevel';
 const log = getLogger('poller');
 
 interface PollerHooks {

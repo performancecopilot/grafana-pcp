@@ -4,9 +4,9 @@ import { MetricFindValue } from '@grafana/data';
 import { findToken, getTokenValues, TokenValue } from '../../lib/language';
 //import * as PmseriesLanguage from './PmseriesLanguage.json';
 import { cloneDeep, uniqueId } from 'lodash';
-import { getLogger } from 'common/utils';
 import { MonacoLanguageDefinition } from 'components/monaco/MonacoEditorWrapper';
 import { getTemplateSrv } from '@grafana/runtime';
+import { getLogger } from 'loglevel';
 
 // this prevents monaco from being included in the redis datasource
 // (it it already in its own chunk in vendors~monaco-editor.js)

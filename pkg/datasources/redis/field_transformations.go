@@ -11,26 +11,25 @@ import (
 )
 
 func fieldSetRate(field *data.Field, idx int, delta time.Duration) error {
-	switch field.Type() {
-	case data.FieldTypeNullableFloat64:
-		curVal, prevVal := field.At(idx).(*float64), field.At(idx-1).(*float64)
-		if curVal != nil && prevVal != nil {
-			diff := *curVal - *prevVal
-			if diff >= 0 /*&& delta.Seconds() >= 1*/ {
-				rate := diff / delta.Seconds()
-				field.Set(idx, &rate)
-				return nil
-			}
-		}
-
-		// either one value is nil or counter wrapped
-		// we don't know if the counter wrapped multiple times,
-		// so let's set the field to nil
-		field.Set(idx, nil)
-		return nil
-	default:
+	if field.Type() != data.FieldTypeNullableFloat64 {
 		return fmt.Errorf("fieldSetRate: invalid field type %s", field.Type())
 	}
+
+	curVal, prevVal := field.At(idx).(*float64), field.At(idx-1).(*float64)
+	if curVal != nil && prevVal != nil {
+		diff := *curVal - *prevVal
+		if diff >= 0 /*&& delta.Seconds() >= 1*/ {
+			rate := diff / delta.Seconds()
+			field.Set(idx, &rate)
+			return nil
+		}
+	}
+
+	// either one value is nil or counter wrapped
+	// we don't know if the counter wrapped multiple times,
+	// so let's set the field to nil
+	field.Set(idx, nil)
+	return nil
 }
 
 func rateConversation(frame *data.Frame) error {
@@ -69,17 +68,16 @@ func rateConversation(frame *data.Frame) error {
 }
 
 func fieldDivideBy(field *data.Field, idx int, divisor int) error {
-	switch field.Type() {
-	case data.FieldTypeNullableFloat64:
-		val := field.At(idx).(*float64)
-		if val != nil {
-			quotient := *val / float64(divisor)
-			field.Set(idx, &quotient)
-		}
-		return nil
-	default:
+	if field.Type() != data.FieldTypeNullableFloat64 {
 		return fmt.Errorf("fieldDivideBy: invalid field type %s", field.Type())
 	}
+
+	val := field.At(idx).(*float64)
+	if val != nil {
+		quotient := *val / float64(divisor)
+		field.Set(idx, &quotient)
+	}
+	return nil
 }
 
 func timeUtilizationConversation(frame *data.Frame, divisor int) error {

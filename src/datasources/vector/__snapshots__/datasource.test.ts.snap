@@ -124,6 +124,50 @@ to counter wrap).",
 ]
 `;
 
+exports[`PCP Vector redisBackfill hook should request series api for backfilling and populate metric values 2`] = `
+Array [
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "finish": "now",
+        "interval": "1s",
+        "series": "73d93ee9efa086923d0c9eabc96f98f2b583b8f2,f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9",
+        "start": "-1800second",
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/series/values",
+    },
+  ],
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "series": "f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9",
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/series/instances",
+    },
+  ],
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "series": "0aeab8b239522ab0640577ed788cc601fc640266,7f3afb6f41e53792b18e52bcec26fdfa2899fa58",
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/series/labels",
+    },
+  ],
+]
+`;
+
 exports[`PCP Vector should poll disk.dev.read, perform rate conversation and return the result 1`] = `
 Object {
   "data": Array [
@@ -135,8 +179,8 @@ Object {
           "name": "Time",
           "type": "time",
           "values": Array [
-            0,
-            1000,
+            10000,
+            11000,
           ],
         },
         Object {
@@ -261,7 +305,7 @@ to counter wrap).",
             },
             "values": Array [
               Object {
-                "timestampMs": 0,
+                "timestampMs": 10000,
                 "values": Array [
                   Object {
                     "instance": 0,
@@ -274,7 +318,7 @@ to counter wrap).",
                 ],
               },
               Object {
-                "timestampMs": 1000,
+                "timestampMs": 11000,
                 "values": Array [
                   Object {
                     "instance": 0,
@@ -302,4 +346,83 @@ to counter wrap).",
     },
   ],
 }
+`;
+
+exports[`PCP Vector should poll disk.dev.read, perform rate conversation and return the result 2`] = `
+Array [
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "hostspec": "127.0.0.1",
+        "polltimeout": 11,
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/pmapi/context",
+    },
+  ],
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/series/ping",
+    },
+  ],
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "context": 123,
+        "names": "disk.dev.read",
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/pmapi/metric",
+    },
+  ],
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "context": 123,
+        "names": "disk.dev.read",
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/pmapi/fetch",
+    },
+  ],
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "context": 123,
+        "name": "disk.dev.read",
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/pmapi/indom",
+    },
+  ],
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "context": 123,
+        "names": "disk.dev.read",
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/pmapi/fetch",
+    },
+  ],
+]
 `;

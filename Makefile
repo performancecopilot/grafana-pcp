@@ -59,6 +59,9 @@ dist: dist-dashboards dist-frontend dist-backend ## Build everything
 test-frontend: deps-frontend ## Run frontend tests
 	yarn run test
 
+test-frontend-watch: deps-frontend ## Run frontend tests (watch mode)
+	yarn run test --watch
+
 test-frontend-coverage: deps-frontend ## Run frontend tests with coverage
 	yarn run test --coverage
 

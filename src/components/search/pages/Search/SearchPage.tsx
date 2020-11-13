@@ -10,8 +10,8 @@ import { FetchStatus } from '../../store/slices/search/shared/state';
 import SearchResult from '../../components/SearchResult/SearchResult';
 import Loader from '../../components/Loader/Loader';
 import { querySearch, openDetail } from '../../store/slices/search/shared/actionCreators';
-import { getLogger } from 'common/utils';
 import { TextItemResponse, EntityType } from 'common/services/pmsearch/types';
+import { getLogger } from 'loglevel';
 const log = getLogger('search/SearchPage');
 
 const mapStateToProps = (state: RootState) => ({

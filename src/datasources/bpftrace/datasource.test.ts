@@ -1,9 +1,10 @@
-import rootLogger from 'loglevel';
 import { PCPBPFtraceDataSource } from './datasource';
 import { backendSrvMock, mockNextResponses } from 'datasources/lib/specs/mocks/backend_srv';
 import { TargetFormat } from 'datasources/lib/types';
 import { grafana, pmapi } from 'datasources/lib/specs/fixtures';
 import { Semantics } from 'common/types/pcp';
+import { advanceTo } from 'jest-date-mock';
+import { setGlobalLogLevel } from 'common/utils';
 
 jest.mock('@grafana/runtime', () => ({
     ...jest.requireActual<object>('@grafana/runtime'),
@@ -19,14 +20,12 @@ describe('PCP BPFtrace', () => {
     beforeEach(() => {
         jest.resetAllMocks();
         jest.useFakeTimers();
-
-        Object.values(rootLogger.getLoggers()).forEach(logger => logger.setLevel('DEBUG'));
+        advanceTo(20000);
+        setGlobalLogLevel('DEBUG');
 
         const instanceSettings = {
             url: 'http://localhost:1234',
-            jsonData: {
-                retentionTime: '0',
-            },
+            jsonData: {},
         };
         datasource = new PCPBPFtraceDataSource(instanceSettings as any);
     });
@@ -60,12 +59,13 @@ describe('PCP BPFtrace', () => {
 
         response = await datasource.query(grafana.dataQueryRequest(targets));
         expect(response).toMatchSnapshot();
+        expect(backendSrvMock.fetch.mock.calls).toMatchSnapshot();
     });
 });
 
 const scriptRegisterResponse = {
     context: 2034847508,
-    timestamp: 1.267776,
+    timestamp: 10.267776,
     values: [
         {
             pmid: '151.0.0',
@@ -122,7 +122,7 @@ const metricResponse = {
 
 const fetchResponse = {
     context: 214989420,
-    timestamp: 1,
+    timestamp: 10,
     values: [
         {
             pmid: '151.102.10',
@@ -295,7 +295,7 @@ const indomResponse = {
 
 const fetchResponse2 = {
     context: 1776350321,
-    timestamp: 2,
+    timestamp: 11,
     values: [
         {
             pmid: '151.102.10',

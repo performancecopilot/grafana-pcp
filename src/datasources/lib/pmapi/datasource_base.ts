@@ -9,11 +9,12 @@ import {
     MetricFindValue,
     ScopedVars,
 } from '@grafana/data';
-import { getLogger, interval_to_ms, isBlank } from 'common/utils';
+import { interval_to_ms, isBlank } from 'common/utils';
 import { PmSeriesApiService } from 'common/services/pmseries/PmSeriesApiService';
 import { processQueries } from './data_processor';
 import { QueryResult } from './poller/types';
 import { Poller } from './poller/poller';
+import { getLogger } from 'loglevel';
 const log = getLogger('datasource_base');
 
 export abstract class DataSourceBase<Q extends PmapiQuery, O extends PmapiOptions> extends DataSourceApi<Q, O> {

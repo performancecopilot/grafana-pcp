@@ -11,8 +11,8 @@ Object {
           "name": "Time",
           "type": "time",
           "values": Array [
-            1000,
-            2000,
+            10000,
+            11000,
           ],
         },
         Object {
@@ -371,7 +371,7 @@ Object {
             },
             "values": Array [
               Object {
-                "timestampMs": 1000,
+                "timestampMs": 10000,
                 "values": Array [
                   Object {
                     "instance": 0,
@@ -408,7 +408,7 @@ Object {
                 ],
               },
               Object {
-                "timestampMs": 2000,
+                "timestampMs": 11000,
                 "values": Array [
                   Object {
                     "instance": 0,
@@ -460,4 +460,114 @@ Object {
     },
   ],
 }
+`;
+
+exports[`PCP BPFtrace should register a script and return the data 2`] = `
+Array [
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "hostspec": "127.0.0.1",
+        "polltimeout": 11,
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/pmapi/context",
+    },
+  ],
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "hostspec": "127.0.0.1",
+        "polltimeout": 30,
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/pmapi/context",
+    },
+  ],
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "context": 2,
+        "name": "bpftrace.control.register",
+        "value": "...cpuwalk...",
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/pmapi/store",
+    },
+  ],
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "context": 2,
+        "names": "bpftrace.control.register",
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/pmapi/fetch",
+    },
+  ],
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "context": 1,
+        "names": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu",
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/pmapi/metric",
+    },
+  ],
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "context": 1,
+        "names": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu,bpftrace.info.scripts_json",
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/pmapi/fetch",
+    },
+  ],
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "context": 1,
+        "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu",
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/pmapi/indom",
+    },
+  ],
+  Array [
+    Object {
+      "headers": Object {
+        "Content-Type": "application/json",
+      },
+      "params": Object {
+        "context": 1,
+        "names": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu,bpftrace.info.scripts_json",
+      },
+      "showSuccessAlert": false,
+      "url": "http://localhost:1234/pmapi/fetch",
+    },
+  ],
+]
 `;

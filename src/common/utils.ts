@@ -1,15 +1,18 @@
+import { isString } from 'lodash';
+import rootLogger, { LogLevelDesc } from 'loglevel';
+import logPrefixer from 'loglevel-plugin-prefix';
 import { DataSourceInstanceSettings } from '@grafana/data';
 import { BackendSrvRequest } from '@grafana/runtime';
 import { TimeoutError } from './types/errors/timeout';
-import rootLogger from 'loglevel';
-import logPrefixer from 'loglevel-plugin-prefix';
-import { isString } from 'lodash';
 import { RequiredField } from './types/utils';
 
-export function getLogger(name: string) {
-    logPrefixer.reg(rootLogger);
-    logPrefixer.apply(rootLogger, { template: '[%t] %l %n:' });
-    return rootLogger.getLogger(name);
+logPrefixer.reg(rootLogger);
+logPrefixer.apply(rootLogger, { template: '[%t] %l %n:' });
+
+export function setGlobalLogLevel(level: LogLevelDesc) {
+    for (const logger of Object.values(rootLogger.getLoggers())) {
+        logger.setDefaultLevel(level);
+    }
 }
 
 export type DefaultRequestOptions = Omit<BackendSrvRequest, 'url'>;

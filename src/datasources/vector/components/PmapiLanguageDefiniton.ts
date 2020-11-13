@@ -7,8 +7,8 @@ import { Metadata, NoIndomError } from 'common/services/pmapi/types';
 import { Dict } from 'common/types/utils';
 import { PCPVectorDataSource } from '../datasource';
 import { VectorQuery } from '../types';
-import { getLogger } from 'common/utils';
 import { MonacoLanguageDefinition } from 'components/monaco/MonacoEditorWrapper';
+import { getLogger } from 'loglevel';
 
 // this prevents monaco from being included in the redis datasource
 // (it it already in its own chunk in vendors~monaco-editor.js)

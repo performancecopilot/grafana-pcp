@@ -1,4 +1,4 @@
-import rootLogger from 'loglevel';
+import { advanceTo } from 'jest-date-mock';
 import { PCPVectorDataSource } from './datasource';
 import { VectorTargetData } from './types';
 import { Target } from 'datasources/lib/pmapi/types';
@@ -6,6 +6,7 @@ import { Endpoint } from 'datasources/lib/pmapi/poller/types';
 import { backendSrvMock, mockNextResponses } from 'datasources/lib/specs/mocks/backend_srv';
 import { TargetFormat } from 'datasources/lib/types';
 import { grafana, pmapi, pmseries, poller } from 'datasources/lib/specs/fixtures';
+import { setGlobalLogLevel } from 'common/utils';
 
 jest.mock('@grafana/runtime', () => ({
     ...jest.requireActual<object>('@grafana/runtime'),
@@ -21,14 +22,12 @@ describe('PCP Vector', () => {
     beforeEach(() => {
         jest.resetAllMocks();
         jest.useFakeTimers();
-
-        Object.values(rootLogger.getLoggers()).forEach(logger => logger.setLevel('DEBUG'));
+        advanceTo(20000);
+        setGlobalLogLevel('DEBUG');
 
         const instanceSettings = {
             url: 'http://localhost:1234',
-            jsonData: {
-                retentionTime: '0',
-            },
+            jsonData: {},
         };
         datasource = new PCPVectorDataSource(instanceSettings as any);
     });
@@ -43,16 +42,18 @@ describe('PCP Vector', () => {
             pmapi.context(),
             pmseries.ping(false),
             pmapi.metric(['disk.dev.read']),
-            pmapi.fetchDiskDevRead(0, 100, 0),
+            pmapi.fetchDiskDevRead(10, 100, 0),
             pmapi.indom('disk.dev.read'),
         ]);
         await datasource.poller.poll();
 
-        mockNextResponses([pmapi.fetchDiskDevRead(1, 200, 0)]);
+        mockNextResponses([pmapi.fetchDiskDevRead(11, 200, 0)]);
         await datasource.poller.poll();
 
         response = await datasource.query(grafana.dataQueryRequest(targets));
         expect(response).toMatchSnapshot();
+
+        expect(backendSrvMock.fetch.mock.calls).toMatchSnapshot();
     });
 
     // anything thats not a metric name
@@ -143,5 +144,6 @@ describe('PCP Vector', () => {
         mockNextResponses([pmseries.labels(['disk.dev.read[sda]', 'disk.dev.read[nvme0n1]'])]);
         await datasource.redisBackfill(endpoint, targets);
         expect(endpoint.metrics).toMatchSnapshot();
+        expect(backendSrvMock.fetch.mock.calls).toMatchSnapshot();
     });
 });

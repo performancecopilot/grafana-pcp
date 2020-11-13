@@ -6,11 +6,11 @@ import { Poller } from 'datasources/lib/pmapi/poller/poller';
 import { PmapiQuery, Target } from 'datasources/lib/pmapi/types';
 import { Endpoint, InstanceValuesSnapshot, Metric } from 'datasources/lib/pmapi/poller/types';
 import { SeriesId, SeriesLabelsItemResponse } from 'common/services/pmseries/types';
-import { getLogger } from 'common/utils';
 import { Config } from './config';
 import { Dict } from 'common/types/utils';
 import { InstanceId } from 'common/services/pmapi/types';
 import { keyBy } from 'lodash';
+import { getLogger } from 'loglevel';
 const log = getLogger('datasource');
 
 export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptions> {
@@ -115,7 +115,7 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
         const [values, instancesResponse] = await Promise.all([
             this.pmSeriesApiService.values({
                 series: [...seriesWithoutIndom, ...seriesWithIndom],
-                interval: '1s',
+                interval: `${Math.round(this.poller.state.refreshIntervalMs / 1000)}s`,
                 start: `-${seekStart}second`,
                 finish: 'now',
             }),

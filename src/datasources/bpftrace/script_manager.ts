@@ -1,7 +1,7 @@
 import { PmApiService } from 'common/services/pmapi/PmApiService';
 import { PermissionError } from 'common/services/pmapi/types';
-import { getLogger } from 'common/utils';
 import { TargetFormat } from 'datasources/lib/types';
+import { getLogger } from 'loglevel';
 import { Script, MetricType } from './script';
 const log = getLogger('script_manager');
 
