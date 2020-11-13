@@ -1,7 +1,7 @@
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { getTokenValues, TokenValue } from 'datasources/lib/language';
 import { PmApiService } from 'common/services/pmapi/PmApiService';
-import { BPFtraceDataSource } from '../datasource';
+import { PCPBPFtraceDataSource } from '../datasource';
 import { getLogger } from 'common/utils';
 import { BPFtraceQuery } from '../types';
 import * as BPFtraceLanguage from './BPFtraceLanguage.json';
@@ -24,7 +24,7 @@ export class BPFtraceLanguageDefinition implements MonacoLanguageDefinition {
     private functionCompletions: Monaco.languages.CompletionItem[] = [];
     private disposeCompletionProvider?: Monaco.IDisposable;
 
-    constructor(private datasource: BPFtraceDataSource, private getQuery: () => BPFtraceQuery) {
+    constructor(private datasource: PCPBPFtraceDataSource, private getQuery: () => BPFtraceQuery) {
         this.languageId = uniqueId('bpftrace');
         this.pmApiService = datasource.pmApiService;
     }
@@ -206,7 +206,7 @@ export class BPFtraceLanguageDefinition implements MonacoLanguageDefinition {
                     // the 'range' property gets modified by monaco, therefore return a clone instead of the real object
                     return cloneDeep(await this.findCompletions(getTokenValues(model, position)));
                 } catch (error) {
-                    log.error(error, error?.data);
+                    log.error('Error while auto-completing', error, error?.data);
                     return;
                 }
             },

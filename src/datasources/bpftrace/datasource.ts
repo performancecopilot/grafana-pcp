@@ -12,7 +12,7 @@ import { getLogger } from 'common/utils';
 import { Config } from './config';
 const log = getLogger('datasource');
 
-export class BPFtraceDataSource extends DataSourceBase<BPFtraceQuery, BPFtraceOptions> {
+export class PCPBPFtraceDataSource extends DataSourceBase<BPFtraceQuery, BPFtraceOptions> {
     poller: Poller;
     scriptManager: ScriptManager;
 
