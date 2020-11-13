@@ -4,15 +4,13 @@ import { VectorQuery, VectorOptions, VectorTargetData } from './types';
 import { DataSourceBase } from 'datasources/lib/pmapi/datasource_base';
 import { Poller } from 'datasources/lib/pmapi/poller/poller';
 import { PmapiQuery, Target } from 'datasources/lib/pmapi/types';
-import { Endpoint } from 'datasources/lib/pmapi/poller/types';
-import {
-    SeriesInstancesItemResponse,
-    SeriesMetricsItemResponse,
-    SeriesValuesItemResponse,
-} from 'common/services/pmseries/types';
-import { InstanceValue } from 'common/services/pmapi/types';
+import { Endpoint, InstanceValuesSnapshot, Metric } from 'datasources/lib/pmapi/poller/types';
+import { SeriesId, SeriesLabelsItemResponse } from 'common/services/pmseries/types';
 import { getLogger } from 'common/utils';
 import { Config } from './config';
+import { Dict } from 'common/types/utils';
+import { InstanceId } from 'common/services/pmapi/types';
+import { keyBy } from 'lodash';
 const log = getLogger('datasource');
 
 export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptions> {
@@ -94,64 +92,83 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
     }
 
     async redisBackfill(endpoint: Endpoint, targets: Array<Target<VectorTargetData>>) {
-        const series = endpoint.metrics
-            .map(metric => ({
-                series: metric.metadata.series,
-                name: metric.metadata.name,
-            }))
-            .filter(metric => targets.some(target => target.metricNames.some(name => name === metric.name)))
-            .map(({ series }) => series);
-        if (series.length === 0) {
-            return;
+        const metricNames = new Set(targets.flatMap(target => target.metricNames));
+
+        // split into series (metrics) with and without instance domains
+        const seriesWithoutIndom: string[] = [];
+        const seriesWithIndom: string[] = [];
+        // multiple series can point to the same metric
+        const seriesToMetric: Dict<SeriesId, Metric> = {};
+        for (const metric of endpoint.metrics) {
+            if (metricNames.has(metric.metadata.name)) {
+                if (metric.metadata.indom) {
+                    seriesWithIndom.push(metric.metadata.series);
+                } else {
+                    seriesWithoutIndom.push(metric.metadata.series);
+                }
+                seriesToMetric[metric.metadata.series] = metric;
+            }
         }
+
+        // get metric values and instances
         const seekStart = this.retentionTimeMs / 1000;
-        const [metricsResponse, seriesResponse, instancesResponse] = await Promise.all([
-            this.pmSeriesApiService.metrics({ series }) as Promise<SeriesMetricsItemResponse[]>,
+        const [values, instancesResponse] = await Promise.all([
             this.pmSeriesApiService.values({
-                series,
+                series: [...seriesWithoutIndom, ...seriesWithIndom],
                 interval: '1s',
                 start: `-${seekStart}second`,
                 finish: 'now',
             }),
-            this.pmSeriesApiService.instances({ series }),
+            seriesWithIndom.length > 0
+                ? this.pmSeriesApiService.instances({ series: seriesWithIndom })
+                : Promise.resolve([]),
         ]);
-        const backfills = new Map<string, [Map<number, SeriesValuesItemResponse[]>, SeriesInstancesItemResponse[]]>();
-        metricsResponse.forEach(({ series, name }) => {
-            if (backfills.has(name)) {
-                return;
-            }
-            const seriesForName = seriesResponse.filter(item => item.series === series);
-            const instancesForName = instancesResponse.filter(item => item.series === series);
-            const timedSeries = new Map<number, SeriesValuesItemResponse[]>();
-            seriesForName.forEach(seriesItem => {
-                if (timedSeries.has(seriesItem.timestamp)) {
-                    timedSeries.get(seriesItem.timestamp)!.push(seriesItem);
-                    return;
+
+        // get instance labels
+        let instanceLabels: Dict<string, SeriesLabelsItemResponse> = {};
+        if (seriesWithIndom.length > 0) {
+            const labelsResponse = (await this.pmSeriesApiService.labels({
+                series: instancesResponse.map(instance => instance.instance),
+            })) as SeriesLabelsItemResponse[];
+            instanceLabels = keyBy(labelsResponse, 'series');
+        }
+
+        // fill instanceDomain data structure of poller
+        const seriesInstanceToInstanceId: Dict<string, InstanceId> = {};
+        for (const instance of instancesResponse) {
+            seriesInstanceToInstanceId[instance.instance] = instance.id;
+
+            const metric = seriesToMetric[instance.series]!;
+            metric.instanceDomain!.instances[instance.id] = {
+                name: instance.name,
+                instance: instance.id,
+                labels: instanceLabels[instance.instance]?.labels || {},
+            };
+        }
+
+        // backfill metric values into poller datastructure
+        for (let i = 0; i < values.length; ) {
+            const curSeries = values[i].series;
+            while (i < values.length && values[i].series === curSeries) {
+                const curSnapshot: InstanceValuesSnapshot = {
+                    timestampMs: values[i].timestamp,
+                    values: [],
+                };
+
+                // if the timestamp significantly changed from the previous read one, consider it a new measurement
+                for (
+                    ;
+                    i < values.length &&
+                    values[i].series === curSeries &&
+                    Math.abs(values[i].timestamp - curSnapshot.timestampMs) < 0.1;
+                    i++
+                ) {
+                    const instanceId = values[i].instance ? seriesInstanceToInstanceId[values[i].instance!]! : null;
+                    curSnapshot.values.push({ instance: instanceId, value: parseFloat(values[i].value) });
                 }
-                timedSeries.set(seriesItem.timestamp, [seriesItem]);
-            });
-            backfills.set(name, [timedSeries, instancesForName]);
-        });
-        backfills.forEach((values, key) => {
-            const metric = endpoint.metrics.find(metric => metric.metadata.name === key);
-            if (metric === undefined) {
-                return;
+
+                seriesToMetric[curSeries]!.values.push(curSnapshot);
             }
-            const [timedSeries, instances] = values;
-            timedSeries.forEach((timedSeries, timestamp) => {
-                const values = timedSeries.reduce((acc, item) => {
-                    const instance = instances.find(instance => instance.instance === item.instance)?.id ?? null;
-                    try {
-                        const value = parseFloat(item.value);
-                        return [...acc, { instance, value }];
-                    } catch {}
-                    return acc;
-                }, [] as InstanceValue[]);
-                metric.values.push({
-                    timestampMs: timestamp,
-                    values,
-                });
-            });
-        });
+        }
     }
 }

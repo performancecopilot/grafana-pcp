@@ -100,7 +100,7 @@ export class PmapiLanguageDefinition implements MonacoLanguageDefinition {
                     // the 'range' property gets modified by monaco, therefore return a clone instead of the real object
                     return cloneDeep(await this.findCompletions(getTokenValues(model, position)));
                 } catch (error) {
-                    log.error(error, error?.data);
+                    log.error('Error while auto-completing', error, error?.data);
                     return;
                 }
             },

@@ -6,6 +6,7 @@ import { Target, TemplatedPmapiQuery } from '../types';
 export interface Metric {
     metadata: Metadata;
     instanceDomain?: {
+        // should be Dict<number, Indom>, but JS objects don't support numbers
         instances: Dict<string, Indom>;
         labels: Labels;
     };

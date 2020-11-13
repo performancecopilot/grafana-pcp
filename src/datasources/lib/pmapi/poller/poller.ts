@@ -20,7 +20,7 @@ interface PollerHooks {
     registerEndpoint?: (endpoint: Endpoint) => Promise<void>;
     registerTarget: (target: Target, endpoint: Endpoint) => Promise<string[]>;
     deregisterTarget?: (target: Target) => void;
-    redisBackfill?: (endpoint: Endpoint, pendingTargets: Target[]) => Promise<void>;
+    redisBackfill?: (endpoint: Endpoint, targets: Target[]) => Promise<void>;
 }
 
 interface PollerConfig {
@@ -38,7 +38,6 @@ interface PollerState {
 
 export class Poller {
     state: PollerState;
-    timer: NodeJS.Timeout;
 
     constructor(
         private pmApiService: PmApiService,
@@ -50,7 +49,7 @@ export class Poller {
             refreshIntervalMs: config.refreshIntervalMs,
             pageIsVisible: true,
         };
-        this.timer = setInterval(this.poll.bind(this), this.config.refreshIntervalMs);
+        setTimeout(this.poll.bind(this), this.state.refreshIntervalMs);
     }
 
     setRefreshInterval(intervalMs: number) {
@@ -59,9 +58,7 @@ export class Poller {
         }
 
         log.info('setting poll refresh interval to', intervalMs);
-        clearInterval(this.timer);
         this.state.refreshIntervalMs = intervalMs;
-        this.timer = setInterval(this.poll.bind(this), this.state.refreshIntervalMs);
     }
 
     setPageVisibility(visible: boolean) {
@@ -157,7 +154,14 @@ export class Poller {
         }
 
         if (endpoint.hasRedis) {
-            await this.config.hooks.redisBackfill?.(endpoint, pendingTargets);
+            const readyTargets = endpoint.targets.filter(target => target.state === TargetState.METRICS_AVAILABLE);
+            if (readyTargets.length > 0) {
+                try {
+                    await this.config.hooks.redisBackfill?.(endpoint, readyTargets);
+                } catch (error) {
+                    log.error('Error in redisBackfill hook', error);
+                }
+            }
         }
     }
 
@@ -274,6 +278,9 @@ export class Poller {
             )
         );
         log.debug('polling endpoints: finish');
+
+        // use setTimeout instead of setInterval to prevent overlapping timers
+        setTimeout(this.poll.bind(this), this.state.refreshIntervalMs);
     }
 
     deregisterTarget(endpoint: Endpoint, target: Target) {

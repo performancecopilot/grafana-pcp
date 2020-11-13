@@ -1,4 +1,5 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
+import { MetricName } from 'common/types/pcp';
 import { RequiredField } from 'common/types/utils';
 import { TargetFormat } from '../types';
 
@@ -45,7 +46,7 @@ export interface Target<T = any> {
     state: TargetState;
     query: TemplatedPmapiQuery;
     /** valid PCP metric names (can be a derived metric, e.g. derived_xxx) */
-    metricNames: string[];
+    metricNames: MetricName[];
     errors: any[];
     lastActiveMs: number;
     custom?: T;
