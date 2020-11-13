@@ -146,6 +146,14 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
             };
         }
 
+        // make sure values are sorted series < timestamp
+        values.sort((a, b) => {
+            if (a.series !== b.series) {
+                return a.series < b.series ? -1 : a.series > b.series ? 1 : 0;
+            }
+            return a.timestamp - b.timestamp;
+        });
+
         // backfill metric values into poller datastructure
         for (let i = 0; i < values.length; ) {
             const curSeries = values[i].series;
