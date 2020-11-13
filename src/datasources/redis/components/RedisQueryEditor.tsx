@@ -2,7 +2,7 @@ import defaults from 'lodash/defaults';
 import React, { PureComponent } from 'react';
 import { InlineFormLabel, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { DataSource } from '../datasource';
+import { PCPRedisDataSource } from '../datasource';
 import { RedisOptions, RedisQuery, defaultRedisQuery } from '../types';
 import { cx, css } from 'emotion';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
@@ -10,7 +10,7 @@ import { PmseriesLanguageDefiniton } from './PmseriesLanguageDefiniton';
 import { isBlank } from 'common/utils';
 import { TargetFormat } from 'datasources/lib/types';
 
-type Props = QueryEditorProps<DataSource, RedisQuery, RedisOptions>;
+type Props = QueryEditorProps<PCPRedisDataSource, RedisQuery, RedisOptions>;
 
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },

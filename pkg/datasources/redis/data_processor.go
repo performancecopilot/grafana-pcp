@@ -224,14 +224,13 @@ func (ds *redisDatasourceInstance) createDataFrames(redisQuery *Query, series ma
 
 	for i := 0; i < len(values); {
 		curSeriesID := values[i].Series
-		curTimestampMs := 0.0
 		curFrame := data.NewFrame("")
 		curTimeField := data.NewField("time", nil, []time.Time{})
 		curFrame.Fields = append(curFrame.Fields, curTimeField)
 		curInstanceToField := map[string]*data.Field{}
 
 		for i < len(values) && values[i].Series == curSeriesID {
-			curTimestampMs = values[i].Timestamp
+			curTimestampMs := values[i].Timestamp
 			curTimeField.Append(time.Unix(int64(curTimestampMs/1000), int64(curTimestampMs*1000*1000)%1000000000))
 
 			// if the timestamp significantly changed from the previous read one, consider it a new measurement

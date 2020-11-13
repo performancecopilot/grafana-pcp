@@ -5,7 +5,7 @@ import 'core-js/features/instance/replace-all';
 import { isBlank } from 'common/utils';
 //const log = getLogger('datasource');
 
-export class DataSource extends DataSourceWithBackend<RedisQuery, RedisOptions> {
+export class PCPRedisDataSource extends DataSourceWithBackend<RedisQuery, RedisOptions> {
     constructor(instanceSettings: DataSourceInstanceSettings<RedisOptions>) {
         super(instanceSettings);
     }

@@ -1,4 +1,4 @@
-import { DataSource } from '../datasource';
+import { PCPRedisDataSource } from '../datasource';
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { MetricFindValue } from '@grafana/data';
 import { findToken, getTokenValues, TokenValue } from '../../lib/language';
@@ -19,7 +19,7 @@ export class PmseriesLanguageDefiniton implements MonacoLanguageDefinition {
     private functionCompletions: Monaco.languages.CompletionItem[] = [];
     private disposeCompletionProvider?: Monaco.IDisposable;
 
-    constructor(private datasource: DataSource) {
+    constructor(private datasource: PCPRedisDataSource) {
         this.languageId = uniqueId('pmseries');
     }
 
@@ -94,7 +94,7 @@ export class PmseriesLanguageDefiniton implements MonacoLanguageDefinition {
                     // the 'range' property gets modified by monaco, therefore return a clone instead of the real object
                     return cloneDeep(await this.findCompletions(getTokenValues(model, position)));
                 } catch (error) {
-                    log.error(error, error?.data);
+                    log.error('Error while auto-completing', error, error?.data);
                     return;
                 }
             },
