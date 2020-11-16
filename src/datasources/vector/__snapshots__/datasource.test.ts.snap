@@ -34,7 +34,13 @@ Array [
           "name": "sda",
         },
       },
-      "labels": Object {},
+      "labels": Object {
+        "device_type": "block",
+        "domainname": "localdomain",
+        "hostname": "dev",
+        "indom_name": "per disk",
+        "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+      },
     },
     "metadata": Object {
       "indom": "60.1",

@@ -35,7 +35,7 @@ function getFieldName(metric: Metric, instanceId: InstanceId | null) {
         return metricName;
     }
 
-    const instanceName = metric.instanceDomain.instances[instanceId]?.name ?? '?';
+    const instanceName = metric.instanceDomain.instances[instanceId]?.name ?? instanceId;
     return `${metricName}[${instanceName}]`;
 }
 

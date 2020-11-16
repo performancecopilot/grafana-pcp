@@ -16,6 +16,7 @@
     "url": "git+https://github.com/performancecopilot/grafana-pcp.git"
   },
   "devDependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.12.1",
     "@grafana/data": "^7.2.1",
     "@grafana/runtime": "^7.2.1",
     "@grafana/toolkit": "^7.2.1",

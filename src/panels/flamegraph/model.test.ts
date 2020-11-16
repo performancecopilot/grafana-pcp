@@ -1,5 +1,5 @@
 import { LoadingState, PanelData, MutableDataFrame, FieldType, MISSING_VALUE } from '@grafana/data';
-import { generateFlameGraphModel } from '../model';
+import { generateFlameGraphModel } from './model';
 
 describe('Model', () => {
     it('should generate flame graph model', () => {

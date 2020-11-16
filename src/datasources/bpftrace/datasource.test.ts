@@ -31,7 +31,7 @@ describe('PCP BPFtrace', () => {
     });
 
     it('should register a script and return the data', async () => {
-        const targets = [
+        const queries = [
             {
                 refId: 'A',
                 expr: '...cpuwalk...',
@@ -39,7 +39,7 @@ describe('PCP BPFtrace', () => {
             },
         ];
 
-        let response = await datasource.query(grafana.dataQueryRequest(targets));
+        let response = await datasource.query(grafana.dataQueryRequest(queries));
         expect(response).toEqual({ data: [] });
 
         mockNextResponses([
@@ -57,7 +57,7 @@ describe('PCP BPFtrace', () => {
         mockNextResponses([fetchResponse2]);
         await datasource.poller.poll();
 
-        response = await datasource.query(grafana.dataQueryRequest(targets));
+        response = await datasource.query(grafana.dataQueryRequest(queries));
         expect(response).toMatchSnapshot();
         expect(backendSrvMock.fetch.mock.calls).toMatchSnapshot();
     });

@@ -5,4 +5,12 @@
 const standard = require('@grafana/toolkit/src/config/jest.plugin.config');
 
 // This process will use the same config that `yarn test` is using
-module.exports = standard.jestConfig();
+const defaultConfig = standard.jestConfig();
+module.exports = {
+    ...defaultConfig,
+    transformIgnorePatterns: [
+        ...defaultConfig.transformIgnorePatterns,
+        // required for d3-flame-graph (uses ES6 syntax)
+        '<rootDir>/node_modules/(?!d3-flame-graph/)',
+    ],
+};

@@ -1,51 +1,33 @@
-import { Metadata } from 'common/services/pmapi/types';
-import { Endpoint, EndpointState, Metric } from 'datasources/lib/pmapi/poller/types';
+import { RecursivePartial } from 'common/types/utils';
+import { EndpointState, EndpointWithCtx } from 'datasources/lib/pmapi/poller/types';
 import { Target, TargetState } from 'datasources/lib/pmapi/types';
-import { TargetFormat } from 'datasources/lib/types';
+import { defaultsDeep } from 'lodash';
+import { datasource } from '.';
 
-export function endpoint(metrics: Metric[], targets: Target[]): Endpoint {
-    return {
+export function endpoint(props?: RecursivePartial<EndpointWithCtx>): EndpointWithCtx {
+    return defaultsDeep(props, {
         state: EndpointState.CONNECTED,
         url: '',
         hostspec: '',
-        metrics: metrics,
-        targets: targets,
+        metrics: [],
+        targets: [],
         additionalMetricsToPoll: [],
         errors: [],
-    };
-}
-
-export function target(metric = 'disk.dev.read', refId = 'A'): Target {
-    return {
-        targetId: `0/1/${refId}`,
-        state: TargetState.METRICS_AVAILABLE,
-        query: {
-            refId,
-            expr: metric,
-            format: TargetFormat.TimeSeries,
-            url: '',
-            hostspec: '',
-        },
-        metricNames: [metric],
-        errors: [],
-        lastActiveMs: 0,
-    };
-}
-
-export function metric(metadata: Metadata, values = []): Metric {
-    return {
-        metadata,
-        values,
-    };
-}
-
-export function metricIndom(metadata: Metadata, values = []): Metric {
-    return {
-        metadata,
-        instanceDomain: {
-            instances: {},
+        context: {
+            context: 123,
             labels: {},
         },
-        values,
-    };
+    });
+}
+
+export function target(props?: RecursivePartial<Target>): Target {
+    const query = datasource.templatedQuery(props?.query);
+    return defaultsDeep(props, {
+        targetId: `0/1/${query.refId ?? 'A'}`,
+        state: TargetState.METRICS_AVAILABLE,
+        query,
+        metricNames: [query.expr],
+        errors: [],
+        lastActiveMs: 0,
+    });
 }

@@ -1,7 +1,18 @@
-import { DataQuery, DataQueryRequest, dateTimeParse } from '@grafana/data';
+import { DataQuery, DataQueryRequest, dateTimeParse, TimeRange } from '@grafana/data';
 import { FetchResponse } from '@grafana/runtime';
 
-export function dataQueryRequest<T extends DataQuery>(targets: Array<Partial<T>> = []): DataQueryRequest<T> {
+export function timeRange(): TimeRange {
+    return {
+        from: dateTimeParse(10000),
+        to: dateTimeParse(20000),
+        raw: {
+            from: dateTimeParse(10000),
+            to: dateTimeParse(20000),
+        },
+    };
+}
+
+export function dataQueryRequest<Q extends DataQuery>(queries: Q[] = []): DataQueryRequest<Q> {
     return {
         app: 'dashboard',
         dashboardId: 1,
@@ -11,16 +22,9 @@ export function dataQueryRequest<T extends DataQuery>(targets: Array<Partial<T>>
         intervalMs: 5000,
         startTime: 0,
         timezone: '',
-        range: {
-            from: dateTimeParse(10000),
-            to: dateTimeParse(20000),
-            raw: {
-                from: dateTimeParse(10000),
-                to: dateTimeParse(20000),
-            },
-        },
+        range: timeRange(),
         scopedVars: {},
-        targets: targets as any,
+        targets: queries,
     };
 }
 

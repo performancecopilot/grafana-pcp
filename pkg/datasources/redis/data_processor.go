@@ -131,7 +131,7 @@ func (ds *redisDatasourceInstance) getFieldName(series *series.Series, instanceI
 	if ok {
 		return fmt.Sprintf("%s[%s]", series.MetricName, instance.Name), nil
 	}
-	return fmt.Sprintf("%s[?]", series.MetricName), nil
+	return fmt.Sprintf("%s[%s]", series.MetricName, instanceID), nil
 }
 
 var legendFormatRegex = regexp.MustCompile(`\$\w+`)

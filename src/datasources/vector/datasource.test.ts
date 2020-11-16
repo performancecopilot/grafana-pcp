@@ -5,7 +5,7 @@ import { Target } from 'datasources/lib/pmapi/types';
 import { Endpoint } from 'datasources/lib/pmapi/poller/types';
 import { backendSrvMock, mockNextResponses } from 'datasources/lib/specs/mocks/backend_srv';
 import { TargetFormat } from 'datasources/lib/types';
-import { grafana, pmapi, pmseries, poller } from 'datasources/lib/specs/fixtures';
+import { grafana, pcp, pmapi, pmseries, poller } from 'datasources/lib/specs/fixtures';
 import { setGlobalLogLevel } from 'common/utils';
 
 jest.mock('@grafana/runtime', () => ({
@@ -133,15 +133,18 @@ describe('PCP Vector', () => {
     });
 
     it('redisBackfill hook should request series api for backfilling and populate metric values', async () => {
-        const targets: Target[] = [poller.target('disk.dev.read', 'A'), poller.target('kernel.all.sysfork', 'B')];
-        const endpoint: Endpoint = poller.endpoint(
-            [poller.metricIndom(pmapi.metadata['disk.dev.read']), poller.metric(pmapi.metadata['kernel.all.sysfork'])],
-            targets
-        );
+        const targets = [
+            poller.target({ query: { expr: 'disk.dev.read', refId: 'A' } }),
+            poller.target({ query: { expr: 'kernel.all.sysfork', refId: 'B' } }),
+        ];
+        const metrics = [pcp.metrics['disk.dev.read'], pcp.metrics['kernel.all.sysfork']];
+        const endpoint = poller.endpoint({ metrics, targets });
 
-        mockNextResponses([pmseries.values(['disk.dev.read', 'kernel.all.sysfork'])]);
-        mockNextResponses([pmseries.instances(['disk.dev.read'])]);
-        mockNextResponses([pmseries.labels(['disk.dev.read[sda]', 'disk.dev.read[nvme0n1]'])]);
+        mockNextResponses([
+            pmseries.values(['disk.dev.read', 'kernel.all.sysfork']),
+            pmseries.instances(['disk.dev.read']),
+            pmseries.labels(['disk.dev.read[sda]', 'disk.dev.read[nvme0n1]']),
+        ]);
         await datasource.redisBackfill(endpoint, targets);
         expect(endpoint.metrics).toMatchSnapshot();
         expect(backendSrvMock.fetch.mock.calls).toMatchSnapshot();

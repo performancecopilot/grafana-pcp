@@ -74,7 +74,11 @@ const PCP_TIME_UNITS: Dict<string, number> = {
     millisec: 1000,
 };
 
-export function applyFieldTransformations(targetFormat: TargetFormat, metadata: Metadata, frame: MutableDataFrame) {
+export function applyFieldTransformations(
+    targetFormat: TargetFormat,
+    metadata: Metadata,
+    frame: MutableDataFrame
+): void {
     if (metadata.sem === Semantics.Counter) {
         const discreteValues = targetFormat === TargetFormat.FlameGraph;
         rateConversion(frame, discreteValues);

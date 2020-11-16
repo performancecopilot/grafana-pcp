@@ -1,0 +1,449 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`data processor should create a dataframe and handle missing frames and backward counters 1`] = `
+Array [
+  Object {
+    "fields": Array [
+      Object {
+        "config": Object {},
+        "labels": undefined,
+        "name": "Time",
+        "type": "time",
+        "values": Array [
+          8000,
+          9000,
+          10000,
+          11000,
+          12000,
+          13000,
+          14000,
+          15000,
+          16000,
+          17000,
+          21000,
+        ],
+      },
+      Object {
+        "config": Object {
+          "custom": Object {
+            "instance": Object {
+              "instance": 0,
+              "labels": Object {
+                "domainname": "localdomain",
+                "hostname": "dev",
+                "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+              },
+              "name": "nvme0n1",
+            },
+            "instanceId": 0,
+          },
+          "displayName": "",
+          "unit": undefined,
+        },
+        "labels": Object {
+          "agent": "linux",
+          "device_type": "block",
+          "domainname": "localdomain",
+          "hostname": "dev",
+          "indom_name": "per disk",
+          "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+        },
+        "name": "disk.dev.read[nvme0n1]",
+        "type": "number",
+        "values": Array [
+          null,
+          1,
+          1,
+          3,
+          1,
+          1,
+          1,
+          2,
+          1,
+          1,
+          0.25,
+        ],
+      },
+      Object {
+        "config": Object {
+          "custom": Object {
+            "instance": Object {
+              "instance": 1,
+              "labels": Object {
+                "domainname": "localdomain",
+                "hostname": "dev",
+                "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+              },
+              "name": "sda",
+            },
+            "instanceId": 1,
+          },
+          "displayName": "",
+          "unit": undefined,
+        },
+        "labels": Object {
+          "agent": "linux",
+          "device_type": "block",
+          "domainname": "localdomain",
+          "hostname": "dev",
+          "indom_name": "per disk",
+          "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+        },
+        "name": "disk.dev.read[sda]",
+        "type": "number",
+        "values": Array [
+          null,
+          0,
+          1,
+          1,
+          null,
+          null,
+          1,
+          null,
+          1,
+          1,
+          0.25,
+        ],
+      },
+    ],
+    "meta": Object {
+      "custom": Object {
+        "context": Object {
+          "context": 123,
+          "labels": Object {},
+        },
+        "metric": Object {
+          "instanceDomain": Object {
+            "instances": Object {
+              "0": Object {
+                "instance": 0,
+                "labels": Object {
+                  "domainname": "localdomain",
+                  "hostname": "dev",
+                  "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                },
+                "name": "nvme0n1",
+              },
+              "1": Object {
+                "instance": 1,
+                "labels": Object {
+                  "domainname": "localdomain",
+                  "hostname": "dev",
+                  "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                },
+                "name": "sda",
+              },
+            },
+            "labels": Object {
+              "device_type": "block",
+              "domainname": "localdomain",
+              "hostname": "dev",
+              "indom_name": "per disk",
+              "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+            },
+          },
+          "metadata": Object {
+            "indom": "60.1",
+            "labels": Object {
+              "agent": "linux",
+              "device_type": "block",
+              "domainname": "localdomain",
+              "hostname": "dev",
+              "indom_name": "per disk",
+              "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+            },
+            "name": "disk.dev.read",
+            "sem": "counter",
+            "series": "f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9",
+            "text-help": "Cumulative number of disk read operations since system boot time (subject
+to counter wrap).",
+            "text-oneline": "per-disk read operations",
+            "type": "u64",
+            "units": "count",
+          },
+          "values": Array [
+            Object {
+              "timestampMs": 7000,
+              "values": Array [
+                Object {
+                  "instance": 0,
+                  "value": 7,
+                },
+                Object {
+                  "instance": 1,
+                  "value": 5,
+                },
+              ],
+            },
+            Object {
+              "timestampMs": 8000,
+              "values": Array [
+                Object {
+                  "instance": 0,
+                  "value": 8,
+                },
+                Object {
+                  "instance": 1,
+                  "value": 5,
+                },
+              ],
+            },
+            Object {
+              "timestampMs": 9000,
+              "values": Array [
+                Object {
+                  "instance": 0,
+                  "value": 9,
+                },
+                Object {
+                  "instance": 1,
+                  "value": 5,
+                },
+              ],
+            },
+            Object {
+              "timestampMs": 10000,
+              "values": Array [
+                Object {
+                  "instance": 0,
+                  "value": 10,
+                },
+                Object {
+                  "instance": 1,
+                  "value": 6,
+                },
+              ],
+            },
+            Object {
+              "timestampMs": 11000,
+              "values": Array [
+                Object {
+                  "instance": 0,
+                  "value": 13,
+                },
+                Object {
+                  "instance": 1,
+                  "value": 7,
+                },
+              ],
+            },
+            Object {
+              "timestampMs": 12000,
+              "values": Array [
+                Object {
+                  "instance": 0,
+                  "value": 14,
+                },
+              ],
+            },
+            Object {
+              "timestampMs": 13000,
+              "values": Array [
+                Object {
+                  "instance": 0,
+                  "value": 15,
+                },
+                Object {
+                  "instance": 1,
+                  "value": 8,
+                },
+              ],
+            },
+            Object {
+              "timestampMs": 14000,
+              "values": Array [
+                Object {
+                  "instance": 0,
+                  "value": 16,
+                },
+                Object {
+                  "instance": 1,
+                  "value": 9,
+                },
+              ],
+            },
+            Object {
+              "timestampMs": 15000,
+              "values": Array [
+                Object {
+                  "instance": 0,
+                  "value": 18,
+                },
+                Object {
+                  "instance": 1,
+                  "value": 8,
+                },
+              ],
+            },
+            Object {
+              "timestampMs": 16000,
+              "values": Array [
+                Object {
+                  "instance": 0,
+                  "value": 19,
+                },
+                Object {
+                  "instance": 1,
+                  "value": 9,
+                },
+              ],
+            },
+            Object {
+              "timestampMs": 17000,
+              "values": Array [
+                Object {
+                  "instance": 0,
+                  "value": 20,
+                },
+                Object {
+                  "instance": 1,
+                  "value": 10,
+                },
+              ],
+            },
+            Object {
+              "timestampMs": 21000,
+              "values": Array [
+                Object {
+                  "instance": 0,
+                  "value": 21,
+                },
+                Object {
+                  "instance": 1,
+                  "value": 11,
+                },
+              ],
+            },
+            Object {
+              "timestampMs": 22000,
+              "values": Array [
+                Object {
+                  "instance": 0,
+                  "value": 22,
+                },
+                Object {
+                  "instance": 1,
+                  "value": 12,
+                },
+              ],
+            },
+          ],
+        },
+        "query": Object {
+          "expr": "disk.dev.read",
+          "format": "time_series",
+          "hostspec": "",
+          "refId": "A",
+          "url": "",
+        },
+      },
+    },
+    "name": undefined,
+    "refId": undefined,
+  },
+]
+`;
+
+exports[`data processor should process a CSV table 1`] = `
+Array [
+  Object {
+    "fields": Array [
+      Object {
+        "config": Object {},
+        "labels": undefined,
+        "name": "col1",
+        "type": "other",
+        "values": Array [
+          "row1 col1",
+          "row2 col1",
+        ],
+      },
+      Object {
+        "config": Object {},
+        "labels": undefined,
+        "name": "col2",
+        "type": "other",
+        "values": Array [
+          "row1 col2",
+          "row2 col2",
+        ],
+      },
+      Object {
+        "config": Object {},
+        "labels": undefined,
+        "name": "col3",
+        "type": "other",
+        "values": Array [
+          "row1 col3",
+          "row2 col3",
+        ],
+      },
+    ],
+    "meta": undefined,
+    "name": undefined,
+    "refId": undefined,
+  },
+]
+`;
+
+exports[`data processor should process a metrics table 1`] = `
+Array [
+  Object {
+    "fields": Array [
+      Object {
+        "config": Object {},
+        "labels": undefined,
+        "name": "instance",
+        "type": "string",
+        "values": Array [
+          "Inst 0",
+          "Inst 1",
+        ],
+      },
+      Object {
+        "config": Object {
+          "custom": Object {
+            "instance": undefined,
+            "instanceId": null,
+          },
+          "displayName": "A",
+          "unit": undefined,
+        },
+        "labels": Object {
+          "agent": "linux",
+          "hostname": "host1",
+        },
+        "name": "some.string.A",
+        "type": "string",
+        "values": Array [
+          "A/0/11000",
+          "A/1/11000",
+        ],
+      },
+      Object {
+        "config": Object {
+          "custom": Object {
+            "instance": undefined,
+            "instanceId": null,
+          },
+          "displayName": "B",
+          "unit": undefined,
+        },
+        "labels": Object {
+          "agent": "linux",
+          "hostname": "host1",
+        },
+        "name": "some.string.B",
+        "type": "string",
+        "values": Array [
+          "B/0/11000",
+          "B/1/11000",
+        ],
+      },
+    ],
+    "meta": undefined,
+    "name": undefined,
+    "refId": undefined,
+  },
+]
+`;
