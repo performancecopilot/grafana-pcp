@@ -58,8 +58,225 @@ describe('PCP BPFtrace', () => {
         await datasource.poller.poll();
 
         response = await datasource.query(grafana.dataQueryRequest(queries));
-        expect(response).toMatchSnapshot();
-        expect(backendSrvMock.fetch.mock.calls).toMatchSnapshot();
+        expect({ fields: response.data[0].fields }).toMatchInlineSnapshot(
+            {
+                fields: [
+                    { config: expect.anything() },
+                    { config: expect.anything() },
+                    { config: expect.anything() },
+                    { config: expect.anything() },
+                    { config: expect.anything() },
+                    { config: expect.anything() },
+                    { config: expect.anything() },
+                    { config: expect.anything() },
+                    { config: expect.anything() },
+                ],
+            },
+            `
+            Object {
+              "fields": Array [
+                Object {
+                  "config": Anything,
+                  "name": "Time",
+                  "type": "time",
+                  "values": Array [
+                    10000,
+                    11000,
+                  ],
+                },
+                Object {
+                  "config": Anything,
+                  "labels": Object {
+                    "agent": "bpftrace",
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                    "metrictype": "histogram",
+                  },
+                  "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[0-0]",
+                  "type": "number",
+                  "values": Array [
+                    null,
+                    7814,
+                  ],
+                },
+                Object {
+                  "config": Anything,
+                  "labels": Object {
+                    "agent": "bpftrace",
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                    "metrictype": "histogram",
+                  },
+                  "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[1-1]",
+                  "type": "number",
+                  "values": Array [
+                    null,
+                    7841,
+                  ],
+                },
+                Object {
+                  "config": Anything,
+                  "labels": Object {
+                    "agent": "bpftrace",
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                    "metrictype": "histogram",
+                  },
+                  "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[2-2]",
+                  "type": "number",
+                  "values": Array [
+                    null,
+                    7024,
+                  ],
+                },
+                Object {
+                  "config": Anything,
+                  "labels": Object {
+                    "agent": "bpftrace",
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                    "metrictype": "histogram",
+                  },
+                  "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[3-3]",
+                  "type": "number",
+                  "values": Array [
+                    null,
+                    6902,
+                  ],
+                },
+                Object {
+                  "config": Anything,
+                  "labels": Object {
+                    "agent": "bpftrace",
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                    "metrictype": "histogram",
+                  },
+                  "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[4-4]",
+                  "type": "number",
+                  "values": Array [
+                    null,
+                    6784,
+                  ],
+                },
+                Object {
+                  "config": Anything,
+                  "labels": Object {
+                    "agent": "bpftrace",
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                    "metrictype": "histogram",
+                  },
+                  "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[5-5]",
+                  "type": "number",
+                  "values": Array [
+                    null,
+                    7354,
+                  ],
+                },
+                Object {
+                  "config": Anything,
+                  "labels": Object {
+                    "agent": "bpftrace",
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                    "metrictype": "histogram",
+                  },
+                  "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[6-6]",
+                  "type": "number",
+                  "values": Array [
+                    null,
+                    6943,
+                  ],
+                },
+                Object {
+                  "config": Anything,
+                  "labels": Object {
+                    "agent": "bpftrace",
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                    "metrictype": "histogram",
+                  },
+                  "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[7-7]",
+                  "type": "number",
+                  "values": Array [
+                    null,
+                    6817,
+                  ],
+                },
+              ],
+            }
+        `
+        );
+        expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "params": Object {
+                  "hostspec": "127.0.0.1",
+                  "polltimeout": 11,
+                },
+                "url": "http://localhost:1234/pmapi/context",
+              },
+              Object {
+                "params": Object {
+                  "hostspec": "127.0.0.1",
+                  "polltimeout": 30,
+                },
+                "url": "http://localhost:1234/pmapi/context",
+              },
+              Object {
+                "params": Object {
+                  "context": 2,
+                  "name": "bpftrace.control.register",
+                  "value": "...cpuwalk...",
+                },
+                "url": "http://localhost:1234/pmapi/store",
+              },
+              Object {
+                "params": Object {
+                  "context": 2,
+                  "names": "bpftrace.control.register",
+                },
+                "url": "http://localhost:1234/pmapi/fetch",
+              },
+              Object {
+                "params": Object {
+                  "context": 1,
+                  "names": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu",
+                },
+                "url": "http://localhost:1234/pmapi/metric",
+              },
+              Object {
+                "params": Object {
+                  "context": 1,
+                  "names": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu,bpftrace.info.scripts_json",
+                },
+                "url": "http://localhost:1234/pmapi/fetch",
+              },
+              Object {
+                "params": Object {
+                  "context": 1,
+                  "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu",
+                },
+                "url": "http://localhost:1234/pmapi/indom",
+              },
+              Object {
+                "params": Object {
+                  "context": 1,
+                  "names": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu,bpftrace.info.scripts_json",
+                },
+                "url": "http://localhost:1234/pmapi/fetch",
+              },
+            ]
+        `);
     });
 });
 

@@ -88,4 +88,22 @@ export const metrics: Record<MetricName, Metric> = {
         },
         values: [],
     },
+    'mem.util.free': {
+        metadata: {
+            name: 'mem.util.free',
+            series: 'ac85fc61c2146bbd75793bae3dd3b3e13b12d164',
+            type: 'u64',
+            sem: Semantics.Instant,
+            units: 'Kbyte',
+            labels: {
+                agent: 'linux',
+                domainname: 'localdomain',
+                hostname: 'dev',
+                machineid: '6dabb302d60b402dabcc13dc4fd0fab8',
+            },
+            'text-oneline': 'free memory metric from /proc/meminfo',
+            'text-help': 'Alias for mem.freemem.',
+        },
+        values: [],
+    },
 };

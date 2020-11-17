@@ -1,5 +1,6 @@
 import {
     Indom,
+    InstanceId,
     PmapiContextResponse,
     PmapiDeriveResponse,
     PmapiFetchResponse,
@@ -28,22 +29,17 @@ export function indom(metric: MetricName): PmapiIndomResponse {
     };
 }
 
-export function fetchDiskDevRead(timestamp: number, value1: number, value2: number): PmapiFetchResponse {
+export function fetch(
+    metric: string,
+    timestamp: number,
+    instances: Array<[InstanceId | null, number]>
+): PmapiFetchResponse {
     return {
         timestamp,
         values: [
             {
-                name: 'disk.dev.read',
-                instances: [
-                    {
-                        instance: 0,
-                        value: value1,
-                    },
-                    {
-                        instance: 1,
-                        value: value2,
-                    },
-                ],
+                name: metric,
+                instances: instances.map(([instance, value]) => ({ instance, value })),
             },
         ],
     };

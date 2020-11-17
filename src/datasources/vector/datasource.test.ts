@@ -42,18 +42,119 @@ describe('PCP Vector', () => {
             pmapi.context(),
             pmseries.ping(false),
             pmapi.metric(['disk.dev.read']),
-            pmapi.fetchDiskDevRead(10, 100, 0),
+            pmapi.fetch('disk.dev.read', 10, [
+                [0, 100],
+                [1, 0],
+            ]),
             pmapi.indom('disk.dev.read'),
         ]);
         await datasource.poller.poll();
 
-        mockNextResponses([pmapi.fetchDiskDevRead(11, 200, 0)]);
+        mockNextResponses([
+            pmapi.fetch('disk.dev.read', 11, [
+                [0, 200],
+                [1, 0],
+            ]),
+        ]);
         await datasource.poller.poll();
 
         response = await datasource.query(grafana.dataQueryRequest(targets));
-        expect(response).toMatchSnapshot();
-
-        expect(backendSrvMock.fetch.mock.calls).toMatchSnapshot();
+        expect({ fields: response.data[0].fields }).toMatchInlineSnapshot({
+                fields: [{ config: expect.anything() }, { config: expect.anything() }, { config: expect.anything() }],
+        },
+            `
+            Object {
+              "fields": Array [
+                Object {
+                  "config": Anything,
+                  "name": "Time",
+                  "type": "time",
+                  "values": Array [
+                    10000,
+                    11000,
+                  ],
+                },
+                Object {
+                  "config": Anything,
+                  "labels": Object {
+                    "agent": "linux",
+                    "device_type": "block",
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "indom_name": "per disk",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                  },
+                  "name": "disk.dev.read[nvme0n1]",
+                  "type": "number",
+                  "values": Array [
+                    null,
+                    100,
+                  ],
+                },
+                Object {
+                  "config": Anything,
+                  "labels": Object {
+                    "agent": "linux",
+                    "device_type": "block",
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "indom_name": "per disk",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                  },
+                  "name": "disk.dev.read[sda]",
+                  "type": "number",
+                  "values": Array [
+                    null,
+                    0,
+                  ],
+                },
+              ],
+            }
+        `
+        );
+        expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "params": Object {
+                  "hostspec": "127.0.0.1",
+                  "polltimeout": 11,
+                },
+                "url": "http://localhost:1234/pmapi/context",
+              },
+              Object {
+                "params": undefined,
+                "url": "http://localhost:1234/series/ping",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "disk.dev.read",
+                },
+                "url": "http://localhost:1234/pmapi/metric",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "disk.dev.read",
+                },
+                "url": "http://localhost:1234/pmapi/fetch",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "name": "disk.dev.read",
+                },
+                "url": "http://localhost:1234/pmapi/indom",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "disk.dev.read",
+                },
+                "url": "http://localhost:1234/pmapi/fetch",
+              },
+            ]
+        `);
     });
 
     // anything thats not a metric name
@@ -147,6 +248,280 @@ describe('PCP Vector', () => {
         ]);
         await datasource.redisBackfill(endpoint, targets);
         expect(endpoint.metrics).toMatchSnapshot();
-        expect(backendSrvMock.fetch.mock.calls).toMatchSnapshot();
+        expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "params": Object {
+                  "finish": "now",
+                  "interval": "1s",
+                  "series": "73d93ee9efa086923d0c9eabc96f98f2b583b8f2,f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9",
+                  "start": "-1800second",
+                },
+                "url": "http://localhost:1234/series/values",
+              },
+              Object {
+                "params": Object {
+                  "series": "f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9",
+                },
+                "url": "http://localhost:1234/series/instances",
+              },
+              Object {
+                "params": Object {
+                  "series": "0aeab8b239522ab0640577ed788cc601fc640266,7f3afb6f41e53792b18e52bcec26fdfa2899fa58",
+                },
+                "url": "http://localhost:1234/series/labels",
+              },
+            ]
+        `);
+    });
+});
+
+describe('PCP Vector: overridden url and hostspec', () => {
+    beforeEach(() => {
+        jest.resetAllMocks();
+        jest.useFakeTimers();
+        advanceTo(20000);
+        setGlobalLogLevel('DEBUG');
+    });
+
+    it('should use non-default hostspec from datasource settings', async () => {
+        const instanceSettings = {
+            url: 'http://settings_host:1234',
+            jsonData: {
+                hostspec: 'pcp://settings_hostspec:4321',
+            },
+        };
+        const datasource = new PCPVectorDataSource(instanceSettings as any);
+        const targets = [{ refId: 'A', expr: 'mem.util.free', format: TargetFormat.TimeSeries }];
+
+        let response = await datasource.query(grafana.dataQueryRequest(targets));
+        expect(response).toEqual({ data: [] });
+
+        mockNextResponses([
+            pmapi.context(),
+            pmseries.ping(false),
+            pmapi.metric(['mem.util.free']),
+            pmapi.fetch('mem.util.free', 10, [[null, 1000]]),
+        ]);
+        await datasource.poller.poll();
+
+        response = await datasource.query(grafana.dataQueryRequest(targets));
+        expect(response).toMatchObject({
+            data: [{ fields: [{ values: { buffer: [10000] } }, { values: { buffer: [1000] } }] }],
+        });
+        expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "params": Object {
+                  "hostspec": "pcp://settings_hostspec:4321",
+                  "polltimeout": 11,
+                },
+                "url": "http://settings_host:1234/pmapi/context",
+              },
+              Object {
+                "params": undefined,
+                "url": "http://settings_host:1234/series/ping",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "mem.util.free",
+                },
+                "url": "http://settings_host:1234/pmapi/metric",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "mem.util.free",
+                },
+                "url": "http://settings_host:1234/pmapi/fetch",
+              },
+            ]
+        `);
+    });
+
+    it('should use url from panel config', async () => {
+        const instanceSettings = {
+            url: 'http://settings_host:1234',
+            jsonData: {
+                hostspec: 'pcp://settings_hostspec:4321',
+            },
+        };
+        const datasource = new PCPVectorDataSource(instanceSettings as any);
+        const targets = [
+            { refId: 'A', expr: 'mem.util.free', format: TargetFormat.TimeSeries, url: 'http://panel_host:8080' },
+        ];
+
+        let response = await datasource.query(grafana.dataQueryRequest(targets));
+        expect(response).toEqual({ data: [] });
+
+        mockNextResponses([
+            pmapi.context(),
+            pmseries.ping(false),
+            pmapi.metric(['mem.util.free']),
+            pmapi.fetch('mem.util.free', 10, [[null, 1000]]),
+        ]);
+        await datasource.poller.poll();
+
+        response = await datasource.query(grafana.dataQueryRequest(targets));
+        expect(response).toMatchObject({
+            data: [{ fields: [{ values: { buffer: [10000] } }, { values: { buffer: [1000] } }] }],
+        });
+        expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "params": Object {
+                  "hostspec": "pcp://settings_hostspec:4321",
+                  "polltimeout": 11,
+                },
+                "url": "http://panel_host:8080/pmapi/context",
+              },
+              Object {
+                "params": undefined,
+                "url": "http://settings_host:1234/series/ping",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "mem.util.free",
+                },
+                "url": "http://panel_host:8080/pmapi/metric",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "mem.util.free",
+                },
+                "url": "http://panel_host:8080/pmapi/fetch",
+              },
+            ]
+        `);
+    });
+
+    it('should use hostspec from panel config', async () => {
+        const instanceSettings = {
+            url: 'http://settings_host:1234',
+            jsonData: {
+                hostspec: 'pcp://settings_hostspec:4321',
+            },
+        };
+        const datasource = new PCPVectorDataSource(instanceSettings as any);
+        const targets = [
+            {
+                refId: 'A',
+                expr: 'mem.util.free',
+                format: TargetFormat.TimeSeries,
+                hostspec: 'pcp://panel_hostspec:44322?container=app',
+            },
+        ];
+
+        let response = await datasource.query(grafana.dataQueryRequest(targets));
+        expect(response).toEqual({ data: [] });
+
+        mockNextResponses([
+            pmapi.context(),
+            pmseries.ping(false),
+            pmapi.metric(['mem.util.free']),
+            pmapi.fetch('mem.util.free', 10, [[null, 1000]]),
+        ]);
+        await datasource.poller.poll();
+
+        response = await datasource.query(grafana.dataQueryRequest(targets));
+        expect(response).toMatchObject({
+            data: [{ fields: [{ values: { buffer: [10000] } }, { values: { buffer: [1000] } }] }],
+        });
+        expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "params": Object {
+                  "hostspec": "pcp://panel_hostspec:44322?container=app",
+                  "polltimeout": 11,
+                },
+                "url": "http://settings_host:1234/pmapi/context",
+              },
+              Object {
+                "params": undefined,
+                "url": "http://settings_host:1234/series/ping",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "mem.util.free",
+                },
+                "url": "http://settings_host:1234/pmapi/metric",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "mem.util.free",
+                },
+                "url": "http://settings_host:1234/pmapi/fetch",
+              },
+            ]
+        `);
+    });
+
+    it('should use url and hostspec from panel config', async () => {
+        const instanceSettings = {
+            url: 'http://settings_host:1234',
+            jsonData: {
+                hostspec: 'pcp://settings_hostspec:4321',
+            },
+        };
+        const datasource = new PCPVectorDataSource(instanceSettings as any);
+        const targets = [
+            {
+                refId: 'A',
+                expr: 'mem.util.free',
+                format: TargetFormat.TimeSeries,
+                url: 'http://panel_host:8080',
+                hostspec: 'pcp://panel_hostspec:44322?container=app',
+            },
+        ];
+
+        let response = await datasource.query(grafana.dataQueryRequest(targets));
+        expect(response).toEqual({ data: [] });
+
+        mockNextResponses([
+            pmapi.context(),
+            pmseries.ping(false),
+            pmapi.metric(['mem.util.free']),
+            pmapi.fetch('mem.util.free', 10, [[null, 1000]]),
+        ]);
+        await datasource.poller.poll();
+
+        response = await datasource.query(grafana.dataQueryRequest(targets));
+        expect(response).toMatchObject({
+            data: [{ fields: [{ values: { buffer: [10000] } }, { values: { buffer: [1000] } }] }],
+        });
+        expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "params": Object {
+                  "hostspec": "pcp://panel_hostspec:44322?container=app",
+                  "polltimeout": 11,
+                },
+                "url": "http://panel_host:8080/pmapi/context",
+              },
+              Object {
+                "params": undefined,
+                "url": "http://settings_host:1234/series/ping",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "mem.util.free",
+                },
+                "url": "http://panel_host:8080/pmapi/metric",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "mem.util.free",
+                },
+                "url": "http://panel_host:8080/pmapi/fetch",
+              },
+            ]
+        `);
     });
 });
