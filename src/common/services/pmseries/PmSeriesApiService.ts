@@ -35,17 +35,17 @@ export class PmSeriesApiService {
         }
     }
 
-    async ping(): Promise<SeriesPingResponse> {
+    async ping(url?: string): Promise<SeriesPingResponse> {
         const request = {
-            url: `${this.apiConfig.baseUrl}/series/ping`,
+            url: `${url ?? this.apiConfig.baseUrl}/series/ping`,
         };
         const response = await this.request<SeriesPingResponse>(request);
         return response.data;
     }
 
-    async descs(params: SeriesDescQueryParams): Promise<SeriesDescResponse> {
+    async descs(params: SeriesDescQueryParams, url?: string): Promise<SeriesDescResponse> {
         const request = {
-            url: `${this.apiConfig.baseUrl}/series/descs`,
+            url: `${url ?? this.apiConfig.baseUrl}/series/descs`,
             params: {
                 ...params,
                 series: params.series.join(','),
@@ -55,18 +55,18 @@ export class PmSeriesApiService {
         return response.data;
     }
 
-    async query(params: SeriesQueryQueryParams): Promise<SeriesQueryResponse> {
+    async query(params: SeriesQueryQueryParams, url?: string): Promise<SeriesQueryResponse> {
         const request = {
-            url: `${this.apiConfig.baseUrl}/series/query`,
+            url: `${url ?? this.apiConfig.baseUrl}/series/query`,
             params,
         };
         const response = await this.request<SeriesQueryResponse>(request);
         return response.data;
     }
 
-    async metrics(params: SeriesMetricsQueryParams): Promise<SeriesMetricsResponse> {
+    async metrics(params: SeriesMetricsQueryParams, url?: string): Promise<SeriesMetricsResponse> {
         const request = {
-            url: `${this.apiConfig.baseUrl}/series/metrics`,
+            url: `${url ?? this.apiConfig.baseUrl}/series/metrics`,
             params: {
                 ...params,
                 ...(params.series ? { series: params.series.join(',') } : {}),
@@ -76,9 +76,9 @@ export class PmSeriesApiService {
         return response.data;
     }
 
-    async instances(params: SeriesInstancesQueryParams): Promise<SeriesInstancesResponse> {
+    async instances(params: SeriesInstancesQueryParams, url?: string): Promise<SeriesInstancesResponse> {
         const request = {
-            url: `${this.apiConfig.baseUrl}/series/instances`,
+            url: `${url ?? this.apiConfig.baseUrl}/series/instances`,
             params: {
                 ...params,
                 ...(params.series ? { series: params.series.join(',') } : {}),
@@ -88,9 +88,9 @@ export class PmSeriesApiService {
         return response.data;
     }
 
-    async labels(params: SeriesLabelsQueryParams): Promise<SeriesLabelsResponse> {
+    async labels(params: SeriesLabelsQueryParams, url?: string): Promise<SeriesLabelsResponse> {
         const request = {
-            url: `${this.apiConfig.baseUrl}/series/labels`,
+            url: `${url ?? this.apiConfig.baseUrl}/series/labels`,
             params: {
                 ...params,
                 ...(params.series ? { series: params.series.join(',') } : {}),
@@ -101,9 +101,9 @@ export class PmSeriesApiService {
         return response.data;
     }
 
-    async values(params: SeriesValuesQueryParams): Promise<SeriesValuesResponse> {
+    async values(params: SeriesValuesQueryParams, url?: string): Promise<SeriesValuesResponse> {
         const request = {
-            url: `${this.apiConfig.baseUrl}/series/values`,
+            url: `${url ?? this.apiConfig.baseUrl}/series/values`,
             params: {
                 ...params,
                 ...(params.series ? { series: params.series.join(',') } : {}),

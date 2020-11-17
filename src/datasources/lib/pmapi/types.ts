@@ -22,6 +22,7 @@ export interface PmapiQuery extends DataQuery {
     hostspec?: string;
 }
 
+/** like PmapiQuery, but url and hostspec are the empty string if unset */
 export type TemplatedPmapiQuery = RequiredField<PmapiQuery, 'url' | 'hostspec'>;
 
 export enum TargetState {

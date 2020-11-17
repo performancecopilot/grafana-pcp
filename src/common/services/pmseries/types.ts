@@ -97,6 +97,7 @@ export interface SeriesValuesQueryParams {
 export interface SeriesValuesItemResponse {
     series: string;
     instance?: string;
+    /** unix timestamp in milliseconds */
     timestamp: number;
     value: string;
 }

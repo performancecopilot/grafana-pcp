@@ -108,7 +108,7 @@ to counter wrap).",
     },
     "values": Array [
       Object {
-        "timestampMs": 1599320691309.872,
+        "timestampMs": 10000,
         "values": Array [
           Object {
             "instance": null,
@@ -117,7 +117,7 @@ to counter wrap).",
         ],
       },
       Object {
-        "timestampMs": 1599320691310.872,
+        "timestampMs": 11000,
         "values": Array [
           Object {
             "instance": null,

@@ -91,6 +91,10 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
         }
     }
 
+    /**
+     * try to backfill if redis is available
+     * Note: poller made sure that all targets belong to the same endpoint (url + hostspec)
+     */
     async redisBackfill(endpoint: Endpoint, targets: Array<Target<VectorTargetData>>) {
         const metricNames = new Set(targets.flatMap(target => target.metricNames));
 
@@ -113,23 +117,29 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
         // get metric values and instances
         const seekStart = this.retentionTimeMs / 1000;
         const [values, instancesResponse] = await Promise.all([
-            this.pmSeriesApiService.values({
-                series: [...seriesWithoutIndom, ...seriesWithIndom],
-                interval: `${Math.round(this.poller.state.refreshIntervalMs / 1000)}s`,
-                start: `-${seekStart}second`,
-                finish: 'now',
-            }),
+            this.pmSeriesApiService.values(
+                {
+                    series: [...seriesWithoutIndom, ...seriesWithIndom],
+                    interval: `${Math.round(this.poller.state.refreshIntervalMs / 1000)}s`,
+                    start: `-${seekStart}second`,
+                    finish: 'now',
+                },
+                endpoint.url
+            ),
             seriesWithIndom.length > 0
-                ? this.pmSeriesApiService.instances({ series: seriesWithIndom })
+                ? this.pmSeriesApiService.instances({ series: seriesWithIndom }, endpoint.url)
                 : Promise.resolve([]),
         ]);
 
         // get instance labels
         let instanceLabels: Dict<string, SeriesLabelsItemResponse> = {};
         if (seriesWithIndom.length > 0) {
-            const labelsResponse = (await this.pmSeriesApiService.labels({
-                series: instancesResponse.map(instance => instance.instance),
-            })) as SeriesLabelsItemResponse[];
+            const labelsResponse = (await this.pmSeriesApiService.labels(
+                {
+                    series: instancesResponse.map(instance => instance.instance),
+                },
+                endpoint.url
+            )) as SeriesLabelsItemResponse[];
             instanceLabels = keyBy(labelsResponse, 'series');
         }
 

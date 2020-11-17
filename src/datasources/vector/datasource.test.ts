@@ -5,7 +5,7 @@ import { Target } from 'datasources/lib/pmapi/types';
 import { Endpoint } from 'datasources/lib/pmapi/poller/types';
 import { backendSrvMock, mockNextResponses } from 'datasources/lib/specs/mocks/backend_srv';
 import { TargetFormat } from 'datasources/lib/types';
-import { grafana, pcp, pmapi, pmseries, poller } from 'datasources/lib/specs/fixtures';
+import { ds, grafana, pcp, pmapi, pmseries, poller } from 'datasources/lib/specs/fixtures';
 import { setGlobalLogLevel } from 'common/utils';
 
 jest.mock('@grafana/runtime', () => ({
@@ -33,9 +33,8 @@ describe('PCP Vector', () => {
     });
 
     it('should poll disk.dev.read, perform rate conversation and return the result', async () => {
-        const targets = [{ refId: 'A', expr: 'disk.dev.read', format: TargetFormat.TimeSeries }];
-
-        let response = await datasource.query(grafana.dataQueryRequest(targets));
+        const queries = [ds.query()];
+        let response = await datasource.query(grafana.dataQueryRequest(queries));
         expect(response).toEqual({ data: [] });
 
         mockNextResponses([
@@ -58,10 +57,11 @@ describe('PCP Vector', () => {
         ]);
         await datasource.poller.poll();
 
-        response = await datasource.query(grafana.dataQueryRequest(targets));
-        expect({ fields: response.data[0].fields }).toMatchInlineSnapshot({
+        response = await datasource.query(grafana.dataQueryRequest(queries));
+        expect({ fields: response.data[0].fields }).toMatchInlineSnapshot(
+            {
                 fields: [{ config: expect.anything() }, { config: expect.anything() }, { config: expect.anything() }],
-        },
+            },
             `
             Object {
               "fields": Array [
@@ -257,19 +257,110 @@ describe('PCP Vector', () => {
                   "series": "73d93ee9efa086923d0c9eabc96f98f2b583b8f2,f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9",
                   "start": "-1800second",
                 },
-                "url": "http://localhost:1234/series/values",
+                "url": "http://fixture_url:1234/series/values",
               },
               Object {
                 "params": Object {
                   "series": "f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9",
                 },
-                "url": "http://localhost:1234/series/instances",
+                "url": "http://fixture_url:1234/series/instances",
               },
               Object {
                 "params": Object {
                   "series": "0aeab8b239522ab0640577ed788cc601fc640266,7f3afb6f41e53792b18e52bcec26fdfa2899fa58",
                 },
-                "url": "http://localhost:1234/series/labels",
+                "url": "http://fixture_url:1234/series/labels",
+              },
+            ]
+        `);
+    });
+
+    it('redisBackfill hook should use panel url', async () => {
+        const queries = [ds.query({ expr: 'kernel.all.sysfork', url: 'http://panel_url:1234' })];
+        let response = await datasource.query(grafana.dataQueryRequest(queries));
+        expect(response).toEqual({ data: [] });
+
+        mockNextResponses([
+            pmapi.context(),
+            pmseries.ping(true),
+            pmapi.metric(['kernel.all.sysfork']),
+            pmseries.values(['kernel.all.sysfork']),
+            pmapi.fetch('kernel.all.sysfork', 12, [[null, 400]]),
+            ,
+        ]);
+        await datasource.poller.poll();
+
+        response = await datasource.query(grafana.dataQueryRequest(queries));
+        expect({ fields: response.data[0].fields }).toMatchInlineSnapshot(
+            { fields: [{ config: expect.anything() }, { config: expect.anything() }] },
+            `
+            Object {
+              "fields": Array [
+                Object {
+                  "config": Anything,
+                  "name": "Time",
+                  "type": "time",
+                  "values": Array [
+                    10000,
+                    11000,
+                    12000,
+                  ],
+                },
+                Object {
+                  "config": Anything,
+                  "labels": Object {
+                    "agent": "linux",
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                  },
+                  "name": "kernel.all.sysfork",
+                  "type": "number",
+                  "values": Array [
+                    null,
+                    100,
+                    200,
+                  ],
+                },
+              ],
+            }
+        `
+        );
+        expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "params": Object {
+                  "hostspec": "127.0.0.1",
+                  "polltimeout": 11,
+                },
+                "url": "http://panel_url:1234/pmapi/context",
+              },
+              Object {
+                "params": undefined,
+                "url": "http://panel_url:1234/series/ping",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "kernel.all.sysfork",
+                },
+                "url": "http://panel_url:1234/pmapi/metric",
+              },
+              Object {
+                "params": Object {
+                  "finish": "now",
+                  "interval": "1s",
+                  "series": "73d93ee9efa086923d0c9eabc96f98f2b583b8f2",
+                  "start": "-1800second",
+                },
+                "url": "http://panel_url:1234/series/values",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "kernel.all.sysfork",
+                },
+                "url": "http://panel_url:1234/pmapi/fetch",
               },
             ]
         `);
@@ -378,7 +469,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
               },
               Object {
                 "params": undefined,
-                "url": "http://settings_host:1234/series/ping",
+                "url": "http://panel_host:8080/series/ping",
               },
               Object {
                 "params": Object {
@@ -505,7 +596,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
               },
               Object {
                 "params": undefined,
-                "url": "http://settings_host:1234/series/ping",
+                "url": "http://panel_host:8080/series/ping",
               },
               Object {
                 "params": Object {

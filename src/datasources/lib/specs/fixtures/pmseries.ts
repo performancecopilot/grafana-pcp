@@ -36,12 +36,12 @@ const _values: Dict<string, SeriesValuesResponse> = {
     'kernel.all.sysfork': [
         {
             series: '73d93ee9efa086923d0c9eabc96f98f2b583b8f2',
-            timestamp: 1599320691309.872,
+            timestamp: 10000.0,
             value: '100',
         },
         {
             series: '73d93ee9efa086923d0c9eabc96f98f2b583b8f2',
-            timestamp: 1599320691310.872,
+            timestamp: 11000.0,
             value: '200',
         },
     ],

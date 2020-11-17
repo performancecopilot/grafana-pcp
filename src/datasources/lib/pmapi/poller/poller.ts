@@ -159,15 +159,22 @@ export class Poller {
                 try {
                     await this.config.hooks.redisBackfill?.(endpoint, readyTargets);
                 } catch (error) {
+                    // redis backfill is entirely optional, therefore ignore any errors
                     log.error('Error in redisBackfill hook', error);
                 }
             }
         }
     }
 
-    async endpointHasRedis(): Promise<boolean> {
-        const { success } = await this.pmSeriesApiService.ping();
-        return success;
+    async endpointHasRedis(endpoint: Endpoint): Promise<boolean> {
+        try {
+            const pingRespone = await this.pmSeriesApiService.ping(endpoint.url);
+            return pingRespone.success;
+        } catch (error) {
+            // redis backfill is entirely optional, therefore ignore any errors
+            log.debug('Error checking if endpoint has redis', error);
+            return false;
+        }
     }
 
     async initContext(endpoint: Endpoint) {
@@ -175,7 +182,7 @@ export class Poller {
             hostspec: endpoint.hostspec,
             polltimeout: Math.round((this.state.refreshIntervalMs + this.config.gracePeriodMs) / 1000),
         });
-        endpoint.hasRedis = this.config.hooks.redisBackfill && (await this.endpointHasRedis());
+        endpoint.hasRedis = this.config.hooks.redisBackfill && (await this.endpointHasRedis(endpoint));
         endpoint.state = EndpointState.CONNECTED;
         await this.config.hooks.registerEndpoint?.(endpoint);
     }
