@@ -1,14 +1,14 @@
-import React from 'react';
 import { Button, VerticalGroup } from '@grafana/ui';
+import { cx } from 'emotion';
+import React from 'react';
+import { SearchQuery } from '../../store/slices/search/shared/state';
+import { wrappedBtn } from '../../styles';
+import { SearchEntityUtil } from '../../utils/SearchEntityUtil';
 import {
     searchHistoryListBtnWithNoSpacing,
     searchHistoryListContainer,
     searchHistoryListContainerMultiCol,
 } from './styles';
-import { cx } from 'emotion';
-import { SearchQuery } from '../../store/slices/search/shared/state';
-import { SearchEntityUtil } from '../../utils/SearchEntityUtil';
-import { wrappedBtn } from '../../styles';
 
 export interface SearchHistoryListProps {
     showClearBtn?: boolean;

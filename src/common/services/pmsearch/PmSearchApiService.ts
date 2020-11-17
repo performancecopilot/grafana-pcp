@@ -1,8 +1,8 @@
 import { BackendSrv, BackendSrvRequest, FetchResponse } from '@grafana/runtime';
-import { NetworkError } from 'common/types/errors/network';
-import { DefaultRequestOptions, getRequestOptions, timeout } from 'common/utils';
-import { SearchEntityUtil } from 'components/search/utils/SearchEntityUtil';
 import { defaults, has } from 'lodash';
+import { NetworkError } from '../../../common/types/errors/network';
+import { DefaultRequestOptions, getRequestOptions, timeout } from '../../../common/utils';
+import { SearchEntityUtil } from '../../../components/search/utils/SearchEntityUtil';
 import {
     AutocompleteQueryParams,
     AutocompleteResponse,

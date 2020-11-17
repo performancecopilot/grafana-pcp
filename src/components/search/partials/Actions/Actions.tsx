@@ -1,13 +1,13 @@
+import { Button, VerticalGroup } from '@grafana/ui';
 import React from 'react';
-import { VerticalGroup, Button } from '@grafana/ui';
 import { connect } from 'react-redux';
-import { ThunkDispatch } from 'redux-thunk';
 import { AnyAction, bindActionCreators } from 'redux';
-import { actionsBtnWithNoSpacing } from './styles';
+import { ThunkDispatch } from 'redux-thunk';
 import { RootState } from '../../store/reducer';
-import { ViewState } from '../../store/slices/search/slices/view/state';
 import { querySearch } from '../../store/slices/search/shared/actionCreators';
 import { setView } from '../../store/slices/search/slices/view/actionCreators';
+import { ViewState } from '../../store/slices/search/slices/view/state';
+import { actionsBtnWithNoSpacing } from './styles';
 
 const mapStateToProps = (state: RootState) => ({
     query: state.search.query,

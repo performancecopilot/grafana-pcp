@@ -1,10 +1,10 @@
-import React from 'react';
-import { shallow } from 'enzyme';
-import { BookmarkList } from './BookmarkList';
 import { GrafanaThemeType } from '@grafana/data';
 import { getTheme } from '@grafana/ui';
+import { shallow } from 'enzyme';
+import React from 'react';
+import { EntityType } from '../../../../common/services/pmsearch/types';
 import { BookmarkItem } from '../../store/slices/search/slices/bookmarks/state';
-import { EntityType } from 'common/services/pmsearch/types';
+import { BookmarkList } from './BookmarkList';
 
 describe('<BookmarkList/>', () => {
     const placeholderCallbacks = {

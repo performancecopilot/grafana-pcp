@@ -1,8 +1,8 @@
-import { RecursivePartial } from 'common/types/utils';
-import { EndpointState, EndpointWithCtx } from 'datasources/lib/pmapi/poller/types';
-import { Target, TargetState } from 'datasources/lib/pmapi/types';
 import { defaultsDeep } from 'lodash';
 import { ds } from '.';
+import { RecursivePartial } from '../../../../common/types/utils';
+import { EndpointState, EndpointWithCtx } from '../../../../datasources/lib/pmapi/poller/types';
+import { Target, TargetState } from '../../../../datasources/lib/pmapi/types';
 
 export function endpoint(props?: RecursivePartial<EndpointWithCtx>): EndpointWithCtx {
     return defaultsDeep(props, {

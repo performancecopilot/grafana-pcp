@@ -1,4 +1,4 @@
-import { EntityType } from 'common/services/pmsearch/types';
+import { EntityType } from '../../../../../../../common/services/pmsearch/types';
 
 export interface BookmarkItem {
     // Is also human readable name

@@ -1,5 +1,5 @@
 import { NullValueMode } from '@grafana/data';
-import { LegendPlacement, LegendDisplayMode } from '@grafana/ui';
+import { LegendDisplayMode, LegendPlacement } from '@grafana/ui';
 
 export interface GraphOptions {
     showBars: boolean;

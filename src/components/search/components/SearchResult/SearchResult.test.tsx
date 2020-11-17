@@ -1,9 +1,9 @@
-import { shallow, render } from 'enzyme';
-import { SearchResult } from './SearchResult';
-import React from 'react';
 import { GrafanaThemeType } from '@grafana/data';
 import { getTheme } from '@grafana/ui';
-import { TextItemResponse, EntityType } from 'common/services/pmsearch/types';
+import { render, shallow } from 'enzyme';
+import React from 'react';
+import { EntityType, TextItemResponse } from '../../../../common/services/pmsearch/types';
+import { SearchResult } from './SearchResult';
 
 describe('<SearchResult/>', () => {
     const openDetailMock = jest.fn<void, TextItemResponse[]>(() => void 0);

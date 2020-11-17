@@ -1,5 +1,5 @@
 import { DataSourceInstanceSettings } from '@grafana/data';
-import { InstanceName, Labels, Semantics } from 'common/types/pcp';
+import { InstanceName, Labels, Semantics } from '../../../common/types/pcp';
 
 export interface PmSeriesApiConfig {
     dsInstanceSettings: DataSourceInstanceSettings;

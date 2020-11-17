@@ -2,14 +2,13 @@ import { SelectableValue } from '@grafana/data';
 import { getLocationSrv, LocationSrv } from '@grafana/runtime';
 import React from 'react';
 import { connect } from 'react-redux';
-
-import { detailPageContainer } from './styles';
-import MetricDetailPage, { MetricDetailPreview } from './Metric/Metric';
-import InstanceDomainDetailPage from './InstanceDomain/InstanceDomain';
+import { EntityType } from '../../../../common/services/pmsearch/types';
 import { RootState } from '../../store/reducer';
-import { BookmarkItem } from '../../store/slices/search/slices/bookmarks/state';
 import { addBookmark, removeBookmark } from '../../store/slices/search/slices/bookmarks/actionCreators';
-import { EntityType } from 'common/services/pmsearch/types';
+import { BookmarkItem } from '../../store/slices/search/slices/bookmarks/state';
+import InstanceDomainDetailPage from './InstanceDomain/InstanceDomain';
+import MetricDetailPage, { MetricDetailPreview } from './Metric/Metric';
+import { detailPageContainer } from './styles';
 
 const mapStateToProps = (state: RootState) => ({
     entity: state.search.entity,

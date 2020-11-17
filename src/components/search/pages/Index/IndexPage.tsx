@@ -1,16 +1,16 @@
+import { VerticalGroup } from '@grafana/ui';
 import React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators, AnyAction } from 'redux';
+import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { RootState } from '../../store/reducer';
-import { indexPageContainer } from './styles';
-import { VerticalGroup } from '@grafana/ui';
-import Card from '../../components/Card/Card';
 import BookmarkList from '../../components/BookmarkList/BookmarkList';
+import Card from '../../components/Card/Card';
 import SearchHistoryList from '../../components/SearchHistoryList/SearchHistoryList';
-import { querySearch, openDetail } from '../../store/slices/search/shared/actionCreators';
+import { RootState } from '../../store/reducer';
+import { openDetail, querySearch } from '../../store/slices/search/shared/actionCreators';
 import { clearBookmarks } from '../../store/slices/search/slices/bookmarks/actionCreators';
 import { clearSearchHistory } from '../../store/slices/search/slices/history/actionCreators';
+import { indexPageContainer } from './styles';
 
 const mapStateToProps = (state: RootState) => ({
     bookmarks: state.search.bookmarks,

@@ -1,5 +1,5 @@
-import { PmapiOptions, PmapiQuery } from 'datasources/lib/pmapi/types';
-import { TargetFormat } from 'datasources/lib/types';
+import { PmapiOptions, PmapiQuery } from '../../datasources/lib/pmapi/types';
+import { TargetFormat } from '../../datasources/lib/types';
 
 export interface VectorOptions extends PmapiOptions {}
 
@@ -10,6 +10,4 @@ export const defaultVectorQuery: Partial<VectorQuery> = {
     format: TargetFormat.TimeSeries,
 };
 
-export interface VectorTargetData {
-    isDerivedMetric: boolean;
-}
+export interface VectorTargetData {}

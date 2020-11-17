@@ -1,6 +1,6 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
-import { MetricName } from 'common/types/pcp';
-import { RequiredField } from 'common/types/utils';
+import { MetricName } from '../../../common/types/pcp';
+import { RequiredField } from '../../../common/types/utils';
 import { TargetFormat } from '../types';
 
 export interface PmapiOptions extends DataSourceJsonData {

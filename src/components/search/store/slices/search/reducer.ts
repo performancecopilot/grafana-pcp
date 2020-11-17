@@ -1,12 +1,12 @@
 import { combineReducers } from 'redux';
-import { bookmarksReducer } from './slices/bookmarks/reducer';
-import { viewReducer } from './slices/view/reducer';
-import { entityReducer } from './slices/entity/reducer';
-import { queryReducer } from './slices/query/reducer';
-import { historyReducer } from './slices/history/reducer';
-import { resultReducer } from './slices/result/reducer';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import { bookmarksReducer } from './slices/bookmarks/reducer';
+import { entityReducer } from './slices/entity/reducer';
+import { historyReducer } from './slices/history/reducer';
+import { queryReducer } from './slices/query/reducer';
+import { resultReducer } from './slices/result/reducer';
+import { viewReducer } from './slices/view/reducer';
 
 const persistanceConfig = {
     key: 'grafana-pcp-app:search',

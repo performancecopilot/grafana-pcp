@@ -1,17 +1,17 @@
-import {
-    IndexPageReduxProps,
-    IndexPageReduxStateProps,
-    IndexPageReduxDispatchProps,
-    IndexPageProps,
-    IndexPage,
-} from './IndexPage';
 import { shallow } from 'enzyme';
 import React from 'react';
+import { EntityType, SearchEntity } from '../../../../common/services/pmsearch/types';
 import { BookmarkListProps } from '../../components/BookmarkList/BookmarkList';
 import { SearchHistoryListProps } from '../../components/SearchHistoryList/SearchHistoryList';
 import { OpenDetailActionCreator, QuerySearchActionCreator } from '../../store/slices/search/shared/actionCreators';
 import { ClearSearchHistoryActionCreator } from '../../store/slices/search/slices/history/actionCreators';
-import { EntityType, SearchEntity } from 'common/services/pmsearch/types';
+import {
+    IndexPage,
+    IndexPageProps,
+    IndexPageReduxDispatchProps,
+    IndexPageReduxProps,
+    IndexPageReduxStateProps,
+} from './IndexPage';
 
 describe('<IndexPage/>', () => {
     let mockReduxStateProps: IndexPageReduxStateProps;

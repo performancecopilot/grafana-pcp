@@ -1,6 +1,6 @@
 import React from 'react';
 import { MetricEntityLabels } from '../../../../models/entities/metric';
-import { gridList, gridItem, gridTitle, gridValue } from '../../styles';
+import { gridItem, gridList, gridTitle, gridValue } from '../../styles';
 
 export interface LabelsProps {
     labels: MetricEntityLabels;

@@ -1,16 +1,16 @@
 import { DataSourceInstanceSettings } from '@grafana/data';
 import md5 from 'blueimp-md5';
-import { VectorQuery, VectorOptions, VectorTargetData } from './types';
-import { DataSourceBase } from 'datasources/lib/pmapi/datasource_base';
-import { Poller } from 'datasources/lib/pmapi/poller/poller';
-import { PmapiQuery, Target } from 'datasources/lib/pmapi/types';
-import { Endpoint, InstanceValuesSnapshot, Metric } from 'datasources/lib/pmapi/poller/types';
-import { SeriesId, SeriesLabelsItemResponse } from 'common/services/pmseries/types';
-import { Config } from './config';
-import { Dict } from 'common/types/utils';
-import { InstanceId } from 'common/services/pmapi/types';
 import { keyBy } from 'lodash';
 import { getLogger } from 'loglevel';
+import { InstanceId } from '../../common/services/pmapi/types';
+import { SeriesId, SeriesLabelsItemResponse } from '../../common/services/pmseries/types';
+import { Dict } from '../../common/types/utils';
+import { DataSourceBase } from '../../datasources/lib/pmapi/datasource_base';
+import { Poller } from '../../datasources/lib/pmapi/poller/poller';
+import { Endpoint, EndpointWithCtx, InstanceValuesSnapshot, Metric } from '../../datasources/lib/pmapi/poller/types';
+import { PmapiQuery, Target } from '../../datasources/lib/pmapi/types';
+import { Config } from './config';
+import { VectorOptions, VectorQuery, VectorTargetData } from './types';
 const log = getLogger('datasource');
 
 export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptions> {
@@ -57,35 +57,33 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
         return !/^[a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z][a-zA-Z0-9_]+)*$/.test(expr);
     }
 
-    derivedMetricName(expr: string): string {
+    computeDerivedMetricName(expr: string): string {
         return `derived_${md5(expr)}`;
     }
 
-    async registerDerivedMetric(target: Target<VectorTargetData>, endpoint: Endpoint): Promise<string[]> {
-        const name = this.derivedMetricName(target.query.expr);
-        const context = endpoint.context?.context;
-        const result = await this.pmApiService.derive(target.query.url!, {
-            context,
-            expr: target.query.expr,
+    async registerDerivedMetric(endpoint: EndpointWithCtx, expr: string): Promise<string> {
+        const name = this.computeDerivedMetricName(expr);
+        const result = await this.pmApiService.derive(endpoint.url, {
+            context: endpoint.context.context,
+            expr,
             name,
         });
-        if (result.success) {
-            this.derivedMetrics.set(target.query.expr, name);
-            return [name];
+        if (!result.success) {
+            throw new Error('Unknown error while registering derived metrics. Please look in the pmproxy logs.');
         }
-        return [];
+
+        this.derivedMetrics.set(expr, name);
+        return name;
     }
 
-    async registerTarget(target: Target<VectorTargetData>, endpoint: Endpoint): Promise<string[]> {
-        target.custom = {
-            isDerivedMetric: this.isDerivedMetric(target.query.expr),
-        };
-        if (target.custom.isDerivedMetric) {
+    async registerTarget(endpoint: EndpointWithCtx, target: Target<VectorTargetData>): Promise<string[]> {
+        const isDerivedMetric = this.isDerivedMetric(target.query.expr);
+        if (isDerivedMetric) {
             const key = this.derivedMetrics.get(target.query.expr);
             if (key) {
                 return [key];
             }
-            return await this.registerDerivedMetric(target, endpoint);
+            return [await this.registerDerivedMetric(endpoint, target.query.expr)];
         } else {
             return [target.query.expr];
         }
@@ -133,7 +131,7 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
 
         // get instance labels
         let instanceLabels: Dict<string, SeriesLabelsItemResponse> = {};
-        if (seriesWithIndom.length > 0) {
+        if (instancesResponse.length > 0) {
             const labelsResponse = (await this.pmSeriesApiService.labels(
                 {
                     series: instancesResponse.map(instance => instance.instance),

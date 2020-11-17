@@ -1,17 +1,17 @@
-import React from 'react';
-import { shallow } from 'enzyme';
-import {
-    MetricDetailPage,
-    MetricDetailPageReduxProps,
-    MetricDetailPageProps,
-    MetricDetailPageBasicProps,
-} from './Metric';
-import { FetchStatus } from '../../../store/slices/search/shared/state';
-import { MetricEntity } from '../../../models/entities/metric';
-import { LoaderBasicProps } from '../../../components/Loader/Loader';
 import { GrafanaThemeType } from '@grafana/data';
 import { getTheme } from '@grafana/ui';
-import { EntityType } from 'common/services/pmsearch/types';
+import { shallow } from 'enzyme';
+import React from 'react';
+import { EntityType } from '../../../../../common/services/pmsearch/types';
+import { LoaderBasicProps } from '../../../components/Loader/Loader';
+import { MetricEntity } from '../../../models/entities/metric';
+import { FetchStatus } from '../../../store/slices/search/shared/state';
+import {
+    MetricDetailPage,
+    MetricDetailPageBasicProps,
+    MetricDetailPageProps,
+    MetricDetailPageReduxProps,
+} from './Metric';
 
 describe('Detail Page <MetricDetailpage/>', () => {
     let mockReduxProps: MetricDetailPageReduxProps;

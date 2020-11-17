@@ -1,5 +1,5 @@
-import { ADD_BOOKMARK, CLEAR_BOOKMARKS, REMOVE_BOOKMARK } from './types';
 import { BookmarkItem } from './state';
+import { ADD_BOOKMARK, CLEAR_BOOKMARKS, REMOVE_BOOKMARK } from './types';
 
 export interface AddBookmarkAction {
     type: typeof ADD_BOOKMARK;

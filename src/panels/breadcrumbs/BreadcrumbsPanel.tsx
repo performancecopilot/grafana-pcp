@@ -1,17 +1,17 @@
-import React from 'react';
 import { PanelProps } from '@grafana/data';
-import { Options, LinkItem } from './types';
-import { Themeable, withTheme, Button, Icon, Select } from '@grafana/ui';
-import {
-    breadcrumbsContainer,
-    breadcrumbsList,
-    breadcrumbsItem,
-    breadcrumbsControl,
-    breadcrumbsBtn,
-    notUsableContainer,
-    breadcrumbsCurrentItem,
-} from './styles';
 import { getLocationSrv, LocationSrv } from '@grafana/runtime';
+import { Button, Icon, Select, Themeable, withTheme } from '@grafana/ui';
+import React from 'react';
+import {
+    breadcrumbsBtn,
+    breadcrumbsContainer,
+    breadcrumbsControl,
+    breadcrumbsCurrentItem,
+    breadcrumbsItem,
+    breadcrumbsList,
+    notUsableContainer,
+} from './styles';
+import { LinkItem, Options } from './types';
 
 export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & Themeable> {
     locationSrv: LocationSrv;

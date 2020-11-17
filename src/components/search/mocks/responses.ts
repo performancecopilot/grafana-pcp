@@ -1,5 +1,5 @@
-import { TextItemResponse, EntityType } from 'common/services/pmsearch/types';
-import { PmApiMetricEndpointResponse, PmApiIndomEndpointResponse } from '../models/endpoints/pmapi';
+import { EntityType, TextItemResponse } from '../../../common/services/pmsearch/types';
+import { PmApiIndomEndpointResponse, PmApiMetricEndpointResponse } from '../models/endpoints/pmapi';
 
 export const searchEntities: TextItemResponse[] = [
     {

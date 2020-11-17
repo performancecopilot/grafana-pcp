@@ -1,4 +1,4 @@
-import { TextItemResponse } from 'common/services/pmsearch/types';
+import { TextItemResponse } from '../../../../common/services/pmsearch/types';
 
 export type IndomEntitySparseItem = Omit<TextItemResponse, 'type' | 'indom'>;
 

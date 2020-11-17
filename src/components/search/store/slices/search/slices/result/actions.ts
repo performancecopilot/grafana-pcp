@@ -1,5 +1,5 @@
-import { LOAD_RESULT_INIT, LOAD_RESULT_PENDING, LOAD_RESULT_SUCCESS, LOAD_RESULT_ERROR } from './types';
 import { ResultData } from './state';
+import { LOAD_RESULT_ERROR, LOAD_RESULT_INIT, LOAD_RESULT_PENDING, LOAD_RESULT_SUCCESS } from './types';
 
 export interface LoadResultInitAction {
     type: typeof LOAD_RESULT_INIT;

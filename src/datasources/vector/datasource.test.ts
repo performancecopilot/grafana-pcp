@@ -1,12 +1,12 @@
 import { advanceTo } from 'jest-date-mock';
+import { setGlobalLogLevel } from '../../common/utils';
+import { EndpointWithCtx } from '../../datasources/lib/pmapi/poller/types';
+import { Target } from '../../datasources/lib/pmapi/types';
+import { ds, grafana, pcp, pmapi, pmseries, poller } from '../../datasources/lib/specs/fixtures';
+import { backendSrvMock, mockNextResponses } from '../../datasources/lib/specs/mocks/backend_srv';
+import { TargetFormat } from '../../datasources/lib/types';
 import { PCPVectorDataSource } from './datasource';
 import { VectorTargetData } from './types';
-import { Target } from 'datasources/lib/pmapi/types';
-import { Endpoint } from 'datasources/lib/pmapi/poller/types';
-import { backendSrvMock, mockNextResponses } from 'datasources/lib/specs/mocks/backend_srv';
-import { TargetFormat } from 'datasources/lib/types';
-import { ds, grafana, pcp, pmapi, pmseries, poller } from 'datasources/lib/specs/fixtures';
-import { setGlobalLogLevel } from 'common/utils';
 
 jest.mock('@grafana/runtime', () => ({
     ...jest.requireActual<object>('@grafana/runtime'),
@@ -192,7 +192,7 @@ describe('PCP Vector', () => {
             'disk.all.blktotal+2',
         ];
         const names = formulas.map(formula => {
-            const name = datasource.derivedMetricName(formula);
+            const name = datasource.computeDerivedMetricName(formula);
             expect(name).toContain('derived_');
             return name;
         });
@@ -204,26 +204,25 @@ describe('PCP Vector', () => {
     it('should be able to create derived metric and store information about it', async () => {
         const spy = jest.spyOn(datasource.pmApiService, 'derive');
         const expr = 'disk.all.blktotal/2';
-        const targetMock: jest.Mocked<Target<VectorTargetData>> = { query: { expr } } as any;
-        const endpointMock: jest.Mocked<Endpoint> = { context: { context: 0 } } as any;
+        const endpointMock: jest.Mocked<EndpointWithCtx> = { context: { context: 0 } } as any;
         mockNextResponses([pmapi.derive()]);
-        await datasource.registerDerivedMetric(targetMock, endpointMock);
+        await datasource.registerDerivedMetric(endpointMock, expr);
 
         expect(spy).toBeCalledTimes(1);
-        expect(spy.mock.calls[0][1]).toMatchObject({ name: datasource.derivedMetricName(expr) });
+        expect(spy.mock.calls[0][1]).toMatchObject({ name: datasource.computeDerivedMetricName(expr) });
         expect(datasource.derivedMetrics.has(expr)).toBe(true);
     });
 
     it('should request registration of derived metric', async () => {
         const expr = 'disk.all.blktotal/2';
-        const metricName = datasource.derivedMetricName(expr);
+        const metricName = datasource.computeDerivedMetricName(expr);
         const createDerivedSpy = jest.spyOn(datasource.pmApiService, 'derive');
         const registerDeriverMetricSpy = jest.spyOn(datasource, 'registerDerivedMetric');
         const targetMock: jest.Mocked<Target<VectorTargetData>> = { query: { expr } } as any;
-        const endpointMock: jest.Mocked<Endpoint> = { context: { context: 0 } } as any;
+        const endpointMock: jest.Mocked<EndpointWithCtx> = { context: { context: 0 } } as any;
 
         mockNextResponses([pmapi.derive()]);
-        const resultRegistered = await datasource.registerTarget(targetMock, endpointMock);
+        const resultRegistered = await datasource.registerTarget(endpointMock, targetMock);
 
         expect(resultRegistered).toEqual([metricName]);
         expect(createDerivedSpy).toBeCalledTimes(1);
@@ -232,7 +231,7 @@ describe('PCP Vector', () => {
         expect(datasource.derivedMetrics.has(expr)).toBe(true);
 
         // will skip registering derived metric, since we already did so
-        const resultRegistrationSkipped = await datasource.registerTarget(targetMock, endpointMock);
+        const resultRegistrationSkipped = await datasource.registerTarget(endpointMock, targetMock);
         expect(resultRegistrationSkipped).toEqual([metricName]);
         expect(createDerivedSpy).toBeCalledTimes(1);
         expect(registerDeriverMetricSpy).toBeCalledTimes(1);

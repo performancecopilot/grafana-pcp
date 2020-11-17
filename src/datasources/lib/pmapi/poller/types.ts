@@ -1,6 +1,6 @@
-import { Context, Indom, InstanceValue, Metadata } from 'common/services/pmapi/types';
-import { Labels } from 'common/types/pcp';
-import { Dict, RequiredField } from 'common/types/utils';
+import { Context, Indom, InstanceValue, Metadata } from '../../../../common/services/pmapi/types';
+import { Labels } from '../../../../common/types/pcp';
+import { Dict, RequiredField } from '../../../../common/types/utils';
 import { Target, TemplatedPmapiQuery } from '../types';
 
 export interface Metric {

@@ -1,6 +1,6 @@
 {
     "extends": [
-        "./node_modules/@grafana/toolkit/node_modules/@grafana/eslint-config"
+        "@grafana/eslint-config"
     ],
     "parserOptions": {
         "project": "./tsconfig.json"

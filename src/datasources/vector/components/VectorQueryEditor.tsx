@@ -1,14 +1,14 @@
+import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import { InlineFormLabel, Select } from '@grafana/ui';
+import { css, cx } from 'emotion';
 import defaults from 'lodash/defaults';
 import React, { PureComponent } from 'react';
-import { InlineFormLabel, Select } from '@grafana/ui';
-import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import { isBlank } from '../../../common/utils';
+import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
+import { TargetFormat } from '../../../datasources/lib/types';
 import { PCPVectorDataSource } from '../datasource';
-import { VectorOptions, VectorQuery, defaultVectorQuery } from '../types';
-import { MonacoEditorLazy } from 'components/monaco/MonacoEditorLazy';
-import { css, cx } from 'emotion';
+import { defaultVectorQuery, VectorOptions, VectorQuery } from '../types';
 import { PmapiLanguageDefinition } from './PmapiLanguageDefiniton';
-import { isBlank } from 'common/utils';
-import { TargetFormat } from 'datasources/lib/types';
 
 type Props = QueryEditorProps<PCPVectorDataSource, VectorQuery, VectorOptions>;
 

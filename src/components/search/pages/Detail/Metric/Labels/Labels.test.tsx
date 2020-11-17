@@ -1,6 +1,6 @@
-import { Labels, LabelsProps } from './Labels';
 import { shallow } from 'enzyme';
 import React from 'react';
+import { Labels, LabelsProps } from './Labels';
 
 describe('Metric <Labels/>', () => {
     let labelsProps: LabelsProps;

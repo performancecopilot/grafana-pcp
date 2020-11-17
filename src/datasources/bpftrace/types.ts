@@ -1,5 +1,5 @@
-import { PmapiOptions, PmapiQuery } from 'datasources/lib/pmapi/types';
-import { TargetFormat } from 'datasources/lib/types';
+import { PmapiOptions, PmapiQuery } from '../../datasources/lib/pmapi/types';
+import { TargetFormat } from '../../datasources/lib/types';
 import { Script } from './script';
 
 export interface BPFtraceOptions extends PmapiOptions {}

@@ -1,16 +1,16 @@
-import { Aside, AsideReduxStateProps, AsideReduxDispatchProps, AsideReduxProps, AsideProps } from './Aside';
-import { getTheme } from '@grafana/ui';
 import { GrafanaThemeType } from '@grafana/data';
-import React from 'react';
-import { MetricDataState, initialEntity, MetricDetailState } from '../../store/slices/search/slices/entity/state';
-import { FetchStatus } from '../../store/slices/search/shared/state';
-import { initialView, ViewState } from '../../store/slices/search/slices/view/state';
-import { initialHistory } from '../../store/slices/search/slices/history/state';
-import { initialBookmarks, BookmarkItem } from '../../store/slices/search/slices/bookmarks/state';
+import { getTheme } from '@grafana/ui';
 import { shallow } from 'enzyme';
+import React from 'react';
+import { EntityType, SearchEntity } from '../../../../common/services/pmsearch/types';
 import { OpenDetailActionCreator } from '../../store/slices/search/shared/actionCreators';
+import { FetchStatus } from '../../store/slices/search/shared/state';
 import { ClearBookmarksActionCreator } from '../../store/slices/search/slices/bookmarks/actionCreators';
-import { EntityType, SearchEntity } from 'common/services/pmsearch/types';
+import { BookmarkItem, initialBookmarks } from '../../store/slices/search/slices/bookmarks/state';
+import { initialEntity, MetricDataState, MetricDetailState } from '../../store/slices/search/slices/entity/state';
+import { initialHistory } from '../../store/slices/search/slices/history/state';
+import { initialView, ViewState } from '../../store/slices/search/slices/view/state';
+import { Aside, AsideProps, AsideReduxDispatchProps, AsideReduxProps, AsideReduxStateProps } from './Aside';
 
 describe('<Aside/>', () => {
     let mockReduxStateProps: AsideReduxStateProps;

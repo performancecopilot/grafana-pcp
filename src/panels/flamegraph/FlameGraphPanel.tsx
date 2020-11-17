@@ -1,8 +1,7 @@
-import _ from 'lodash';
-import React, { PureComponent } from 'react';
-import memoizeOne from 'memoize-one';
 import { dateTime, PanelProps } from '@grafana/data';
 import { Tooltip } from '@grafana/ui';
+import memoizeOne from 'memoize-one';
+import React, { PureComponent } from 'react';
 import { FlameGraphChart } from './FlameGraphChart';
 import { generateFlameGraphModel } from './model';
 import { Options } from './types';

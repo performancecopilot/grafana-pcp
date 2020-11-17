@@ -1,15 +1,15 @@
 import { DataSourceInstanceSettings } from '@grafana/data';
 import { keyBy } from 'lodash';
-import { BPFtraceQuery, BPFtraceOptions, BPFtraceTargetData } from './types';
-import { ScriptManager } from './script_manager';
-import { Status, Script } from './script';
-
-import { DataSourceBase } from 'datasources/lib/pmapi/datasource_base';
-import { Poller } from 'datasources/lib/pmapi/poller/poller';
-import { PmapiQuery, Target, TargetState } from 'datasources/lib/pmapi/types';
-import { Endpoint } from 'datasources/lib/pmapi/poller/types';
-import { Config } from './config';
 import { getLogger } from 'loglevel';
+import { DataSourceBase } from '../../datasources/lib/pmapi/datasource_base';
+import { Poller } from '../../datasources/lib/pmapi/poller/poller';
+import { EndpointWithCtx } from '../../datasources/lib/pmapi/poller/types';
+import { PmapiQuery, Target, TargetState } from '../../datasources/lib/pmapi/types';
+import { Config } from './config';
+import { Script, Status } from './script';
+import { ScriptManager } from './script_manager';
+import { BPFtraceOptions, BPFtraceQuery, BPFtraceTargetData } from './types';
+
 const log = getLogger('datasource');
 
 export class PCPBPFtraceDataSource extends DataSourceBase<BPFtraceQuery, BPFtraceOptions> {
@@ -41,7 +41,7 @@ export class PCPBPFtraceDataSource extends DataSourceBase<BPFtraceQuery, BPFtrac
         return newQuery.expr !== prevQuery.expr || newQuery.format !== prevQuery.format;
     }
 
-    async registerEndpoint(endpoint: Endpoint) {
+    async registerEndpoint(endpoint: EndpointWithCtx) {
         endpoint.additionalMetricsToPoll.push({
             name: 'bpftrace.info.scripts_json',
             callback: values => {
@@ -64,7 +64,7 @@ export class PCPBPFtraceDataSource extends DataSourceBase<BPFtraceQuery, BPFtrac
         });
     }
 
-    async registerTarget(target: Target<BPFtraceTargetData>) {
+    async registerTarget(endpoint: EndpointWithCtx, target: Target<BPFtraceTargetData>) {
         const script = await this.scriptManager.register(target.query.url, target.query.hostspec, target.query.expr);
         if (script.state.status === Status.Error) {
             throw new Error(`BPFtrace error:\n\n${script.state.error}`);

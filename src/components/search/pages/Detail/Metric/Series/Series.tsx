@@ -1,16 +1,16 @@
-import React from 'react';
 import { SelectableValue } from '@grafana/data';
+import { RadioButtonGroup, VerticalGroup } from '@grafana/ui';
+import React from 'react';
+import { connect } from 'react-redux';
+import { AnyAction, bindActionCreators } from 'redux';
+import { ThunkDispatch } from 'redux-thunk';
+import { EntityType } from '../../../../../../common/services/pmsearch/types';
+import { MetricEntitySeries } from '../../../../models/entities/metric';
+import { RootState } from '../../../../store/reducer';
+import { openDetail } from '../../../../store/slices/search/shared/actionCreators';
+import { radioBtnGroupContainer } from '../../styles';
 import Labels from '../Labels/Labels';
 import Meta from '../Meta/Meta';
-import { VerticalGroup, RadioButtonGroup } from '@grafana/ui';
-import { MetricEntitySeries } from '../../../../models/entities/metric';
-import { radioBtnGroupContainer } from '../../styles';
-import { openDetail } from '../../../../store/slices/search/shared/actionCreators';
-import { ThunkDispatch } from 'redux-thunk';
-import { RootState } from '../../../../store/reducer';
-import { AnyAction, bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { EntityType } from 'common/services/pmsearch/types';
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, null, AnyAction>) =>
     bindActionCreators({ openDetail }, dispatch);

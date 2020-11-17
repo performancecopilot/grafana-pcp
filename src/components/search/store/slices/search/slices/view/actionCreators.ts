@@ -1,5 +1,5 @@
-import { ViewState } from './state';
 import { SetViewAction } from './actions';
+import { ViewState } from './state';
 import { SET_VIEW } from './types';
 
 export type SetViewActionCreator = (view: ViewState) => SetViewAction;

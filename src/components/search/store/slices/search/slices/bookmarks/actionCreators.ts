@@ -1,5 +1,5 @@
-import { BookmarkItem } from './state';
 import { AddBookmarkAction, ClearBookmarksAction, RemoveBookmarkAction } from './actions';
+import { BookmarkItem } from './state';
 import { ADD_BOOKMARK, CLEAR_BOOKMARKS, REMOVE_BOOKMARK } from './types';
 
 export const addBookmark = (item: BookmarkItem): AddBookmarkAction => {

@@ -1,7 +1,7 @@
-import { of } from 'rxjs';
 import { BackendSrv } from '@grafana/runtime';
-import * as grafana from 'datasources/lib/specs/fixtures/grafana';
 import { getLogger } from 'loglevel';
+import { of } from 'rxjs';
+import * as grafana from '../../../../datasources/lib/specs/fixtures/grafana';
 
 const backendSrvMockLogger = getLogger('backendSrvMock');
 export const backendSrvMock: jest.Mocked<BackendSrv> = {

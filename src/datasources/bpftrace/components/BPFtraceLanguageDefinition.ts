@@ -1,13 +1,13 @@
+import { cloneDeep, uniqueId } from 'lodash';
+import { getLogger } from 'loglevel';
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { getTokenValues, TokenValue } from 'datasources/lib/language';
-import { PmApiService } from 'common/services/pmapi/PmApiService';
+import { PmApiService } from '../../../common/services/pmapi/PmApiService';
+import { Dict } from '../../../common/types/utils';
+import { MonacoLanguageDefinition } from '../../../components/monaco/MonacoEditorWrapper';
+import { getTokenValues, TokenValue } from '../../../datasources/lib/language';
 import { PCPBPFtraceDataSource } from '../datasource';
 import { BPFtraceQuery } from '../types';
 import * as BPFtraceLanguage from './BPFtraceLanguage.json';
-import { Dict } from 'common/types/utils';
-import { cloneDeep, uniqueId } from 'lodash';
-import { MonacoLanguageDefinition } from 'components/monaco/MonacoEditorWrapper';
-import { getLogger } from 'loglevel';
 
 // this prevents monaco from being included in the redis datasource
 // (it it already in its own chunk in vendors~monaco-editor.js)

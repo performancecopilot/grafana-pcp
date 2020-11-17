@@ -1,7 +1,7 @@
 import { PluginMeta } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
-import './css/config.css';
 import appPluginConfig from '../../plugin.json';
+import './css/config.css';
 
 export class PCPAppConfigCtrl {
     static templateUrl = 'components/appconfig/config.html';

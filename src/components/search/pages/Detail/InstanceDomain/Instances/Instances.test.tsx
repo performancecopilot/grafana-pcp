@@ -1,6 +1,6 @@
-import { Instances, InstancesProps } from './Instances';
 import { shallow } from 'enzyme';
 import React from 'react';
+import { Instances, InstancesProps } from './Instances';
 
 describe('Instance Domain <Instances/>', () => {
     let instancesProps: InstancesProps;

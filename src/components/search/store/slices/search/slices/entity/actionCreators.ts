@@ -1,20 +1,20 @@
 import { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import { LoadMetricAction, LoadIndomAction, LoadMetricSiblingsAction } from './actions';
+import { Services } from '../../../../../services/services';
+import { LoadIndomAction, LoadMetricAction, LoadMetricSiblingsAction } from './actions';
 import {
-    LOAD_METRIC_INIT,
-    LOAD_METRIC_PENDING,
-    LOAD_METRIC_SUCCESS,
-    LOAD_METRIC_ERROR,
+    LOAD_INDOM_ERROR,
     LOAD_INDOM_INIT,
     LOAD_INDOM_PENDING,
     LOAD_INDOM_SUCCESS,
-    LOAD_INDOM_ERROR,
+    LOAD_METRIC_ERROR,
+    LOAD_METRIC_INIT,
+    LOAD_METRIC_PENDING,
+    LOAD_METRIC_SIBLINGS_ERROR,
     LOAD_METRIC_SIBLINGS_INIT,
     LOAD_METRIC_SIBLINGS_PENDING,
     LOAD_METRIC_SIBLINGS_SUCCESS,
-    LOAD_METRIC_SIBLINGS_ERROR,
+    LOAD_METRIC_SUCCESS,
 } from './types';
-import { Services } from '../../../../../services/services';
 
 export const loadMetric = (id: string): ThunkAction<Promise<string>, {}, Services, LoadMetricAction> => async (
     dispatch: ThunkDispatch<{}, {}, LoadMetricAction>,

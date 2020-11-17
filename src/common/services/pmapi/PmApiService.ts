@@ -1,28 +1,28 @@
 import { BackendSrv, BackendSrvRequest, FetchResponse } from '@grafana/runtime';
-import { NetworkError } from 'common/types/errors/network';
-import { DefaultRequestOptions, getRequestOptions, timeout } from 'common/utils';
-import { has, defaults } from 'lodash';
+import { defaults, has } from 'lodash';
+import { NetworkError } from '../../../common/types/errors/network';
+import { DefaultRequestOptions, getRequestOptions, timeout } from '../../../common/utils';
 import {
+    MetricNotFoundError,
+    MetricSemanticError,
+    MetricSyntaxError,
+    NoIndomError,
+    PermissionError,
+    PmapiChildrenRequest,
+    PmapiChildrenResponse,
     PmApiConfig,
     PmapiContextRequest,
     PmapiContextResponse,
-    PmapiMetricRequest,
-    PmapiMetricResponse,
-    PmapiIndomRequest,
-    PmapiIndomResponse,
-    NoIndomError,
-    PmapiFetchRequest,
-    PmapiFetchResponse,
-    PmapiStoreRequest,
-    PmapiStoreResponse,
-    MetricNotFoundError,
-    PermissionError,
     PmapiDeriveRequest,
     PmapiDeriveResponse,
-    MetricSemanticError,
-    MetricSyntaxError,
-    PmapiChildrenRequest,
-    PmapiChildrenResponse,
+    PmapiFetchRequest,
+    PmapiFetchResponse,
+    PmapiIndomRequest,
+    PmapiIndomResponse,
+    PmapiMetricRequest,
+    PmapiMetricResponse,
+    PmapiStoreRequest,
+    PmapiStoreResponse,
 } from './types';
 
 export class PmApiService {

@@ -5,22 +5,22 @@
  * All metric related requests happen in the background, to use the same PCP Context and fetch multiple metrics at once
  */
 
+import { DataQueryRequest } from '@grafana/data';
 import { difference, has, remove, uniq } from 'lodash';
+import { getLogger } from 'loglevel';
+import { PmApiService } from '../../../../common/services/pmapi/PmApiService';
+import { MetricNotFoundError } from '../../../../common/services/pmapi/types';
+import { PmSeriesApiService } from '../../../../common/services/pmseries/PmSeriesApiService';
 import { PmapiQuery, Target, TargetState, TemplatedPmapiQuery } from '../types';
 import { Endpoint, EndpointState, EndpointWithCtx, Metric, QueryResult } from './types';
-import { PmApiService } from 'common/services/pmapi/PmApiService';
-import { PmSeriesApiService } from 'common/services/pmseries/PmSeriesApiService';
-import { MetricNotFoundError } from 'common/services/pmapi/types';
-import { DataQueryRequest } from '@grafana/data';
-import { getLogger } from 'loglevel';
 const log = getLogger('poller');
 
 interface PollerHooks {
     queryHasChanged: (prevQuery: PmapiQuery, newQuery: PmapiQuery) => boolean;
-    registerEndpoint?: (endpoint: Endpoint) => Promise<void>;
-    registerTarget: (target: Target, endpoint: Endpoint) => Promise<string[]>;
+    registerEndpoint?: (endpoint: EndpointWithCtx) => Promise<void>;
+    registerTarget: (endpoint: EndpointWithCtx, target: Target) => Promise<string[]>;
     deregisterTarget?: (target: Target) => void;
-    redisBackfill?: (endpoint: Endpoint, targets: Target[]) => Promise<void>;
+    redisBackfill?: (endpoint: EndpointWithCtx, targets: Target[]) => Promise<void>;
 }
 
 interface PollerConfig {
@@ -128,7 +128,7 @@ export class Poller {
         await Promise.all(
             pendingTargets.map(target =>
                 this.config.hooks
-                    .registerTarget(target, endpoint)
+                    .registerTarget(endpoint, target)
                     .then(metricNames => (target.metricNames = metricNames))
                     .catch(error => {
                         target.state = TargetState.ERROR;
@@ -184,7 +184,7 @@ export class Poller {
         });
         endpoint.hasRedis = this.config.hooks.redisBackfill && (await this.endpointHasRedis(endpoint));
         endpoint.state = EndpointState.CONNECTED;
-        await this.config.hooks.registerEndpoint?.(endpoint);
+        await this.config.hooks.registerEndpoint?.(endpoint as EndpointWithCtx);
     }
 
     async pollEndpoint(endpoint: Endpoint) {

@@ -1,12 +1,12 @@
-import { PCPRedisDataSource } from '../datasource';
-import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { MetricFindValue } from '@grafana/data';
-import { findToken, getTokenValues, TokenValue } from '../../lib/language';
+import { getTemplateSrv } from '@grafana/runtime';
 //import * as PmseriesLanguage from './PmseriesLanguage.json';
 import { cloneDeep, uniqueId } from 'lodash';
-import { MonacoLanguageDefinition } from 'components/monaco/MonacoEditorWrapper';
-import { getTemplateSrv } from '@grafana/runtime';
 import { getLogger } from 'loglevel';
+import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { MonacoLanguageDefinition } from '../../../components/monaco/MonacoEditorWrapper';
+import { findToken, getTokenValues, TokenValue } from '../../lib/language';
+import { PCPRedisDataSource } from '../datasource';
 
 // this prevents monaco from being included in the redis datasource
 // (it it already in its own chunk in vendors~monaco-editor.js)

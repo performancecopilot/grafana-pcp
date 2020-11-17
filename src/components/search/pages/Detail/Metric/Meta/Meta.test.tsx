@@ -1,6 +1,6 @@
-import { Meta, MetaProps } from './Meta';
 import { shallow } from 'enzyme';
 import React from 'react';
+import { Meta, MetaProps } from './Meta';
 
 describe('Metric <Meta/>', () => {
     let metaProps: MetaProps;

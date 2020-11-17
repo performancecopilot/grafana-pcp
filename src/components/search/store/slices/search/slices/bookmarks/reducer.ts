@@ -1,6 +1,6 @@
 import { Reducer } from 'redux';
-import { BookmarksState, initialBookmarks } from './state';
 import { BookmarksAction } from './actions';
+import { BookmarksState, initialBookmarks } from './state';
 import { ADD_BOOKMARK, CLEAR_BOOKMARKS, REMOVE_BOOKMARK } from './types';
 
 const bookmarksReducer: Reducer<BookmarksState, BookmarksAction> = (state, action) => {

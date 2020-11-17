@@ -1,6 +1,6 @@
-import { searchEntities, detailEntities, indomEntities } from './responses';
-import { PmApiMetricMetricResponse, PmApiIndomEndpointResponse } from '../models/endpoints/pmapi';
-import { SearchEntity, TextResponse, AutocompleteResponse } from 'common/services/pmsearch/types';
+import { AutocompleteResponse, SearchEntity, TextResponse } from '../../../common/services/pmsearch/types';
+import { PmApiIndomEndpointResponse, PmApiMetricMetricResponse } from '../models/endpoints/pmapi';
+import { detailEntities, indomEntities, searchEntities } from './responses';
 
 export const querySearchEndpoint = (
     pattern: string,

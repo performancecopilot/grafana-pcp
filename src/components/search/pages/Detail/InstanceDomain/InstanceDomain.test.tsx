@@ -1,18 +1,18 @@
-import {
-    InstanceDomainDetailPage,
-    InstanceDomainDetailPageReduxProps,
-    InstanceDomainDetailPageBasicProps,
-    InstanceDomainDetailPageProps,
-} from './InstanceDomain';
-import { getTheme } from '@grafana/ui';
 import { GrafanaThemeType } from '@grafana/data';
+import { getTheme } from '@grafana/ui';
 import { shallow } from 'enzyme';
 import React from 'react';
-import { FetchStatus } from '../../../store/slices/search/shared/state';
-import { IndomEntity } from '../../../models/entities/indom';
+import { EntityType } from '../../../../../common/services/pmsearch/types';
 import { LoaderBasicProps } from '../../../components/Loader/Loader';
+import { IndomEntity } from '../../../models/entities/indom';
+import { FetchStatus } from '../../../store/slices/search/shared/state';
+import {
+    InstanceDomainDetailPage,
+    InstanceDomainDetailPageBasicProps,
+    InstanceDomainDetailPageProps,
+    InstanceDomainDetailPageReduxProps,
+} from './InstanceDomain';
 import { InstancesProps } from './Instances/Instances';
-import { EntityType } from 'common/services/pmsearch/types';
 
 describe('Detail Page <InstanceDomainPage/>', () => {
     let mockReduxProps: InstanceDomainDetailPageReduxProps;

@@ -1,14 +1,14 @@
-import React from 'react';
 import { AppRootProps } from '@grafana/data';
+import React from 'react';
 import { Provider } from 'react-redux';
-import App from './App';
-import { PersistGate } from 'redux-persist/integration/react';
+import { AnyAction, Store } from 'redux';
 import { Persistor } from 'redux-persist';
+import { PersistGate } from 'redux-persist/integration/react';
+import App from './App';
 import Loader from './components/Loader/Loader';
-import { initStore } from './store/store';
-import { Store, AnyAction } from 'redux';
-import { initServices, Services } from './services/services';
 import ServicesContext from './contexts/services';
+import { initServices, Services } from './services/services';
+import { initStore } from './store/store';
 
 interface AppRootState {
     store: Store<any, AnyAction> | null;

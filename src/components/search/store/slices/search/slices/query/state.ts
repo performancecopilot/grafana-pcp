@@ -1,4 +1,4 @@
-import { SearchEntity } from 'common/services/pmsearch/types';
+import { SearchEntity } from '../../../../../../../common/services/pmsearch/types';
 import { SearchQuery } from '../../shared/state';
 
 export type QueryState = SearchQuery;

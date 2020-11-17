@@ -1,3 +1,4 @@
+import { pcp } from '.';
 import {
     Indom,
     InstanceId,
@@ -7,9 +8,8 @@ import {
     PmapiIndomResponse,
     PmapiMetricResponse,
     PmapiStoreResponse,
-} from 'common/services/pmapi/types';
-import { MetricName } from 'common/types/pcp';
-import { pcp } from '.';
+} from '../../../../common/services/pmapi/types';
+import { MetricName } from '../../../../common/types/pcp';
 
 export function context(ctx = 123): PmapiContextResponse {
     return { context: ctx, labels: {} };

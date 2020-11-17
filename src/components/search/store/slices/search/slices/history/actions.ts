@@ -1,5 +1,5 @@
-import { ADD_HISTORY, CLEAR_HISTORY } from './types';
 import { SearchQuery } from '../../shared/state';
+import { ADD_HISTORY, CLEAR_HISTORY } from './types';
 
 export interface AddHistoryAction {
     type: typeof ADD_HISTORY;

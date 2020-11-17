@@ -1,5 +1,5 @@
 import { FieldType, MutableDataFrame } from '@grafana/data';
-import { Semantics } from 'common/types/pcp';
+import { Semantics } from '../../../common/types/pcp';
 import { TargetFormat } from '../types';
 import { applyFieldTransformations } from './field_transformations';
 

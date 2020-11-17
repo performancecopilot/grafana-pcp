@@ -1,8 +1,8 @@
-import { Loader } from './Loader';
-import React from 'react';
-import { shallow, render } from 'enzyme';
 import { GrafanaThemeType } from '@grafana/data';
 import { getTheme } from '@grafana/ui';
+import { render, shallow } from 'enzyme';
+import React from 'react';
+import { Loader } from './Loader';
 
 describe('<Loader/>', () => {
     const theme = getTheme(GrafanaThemeType.Light);

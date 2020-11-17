@@ -1,23 +1,23 @@
 import { BackendSrv, BackendSrvRequest, FetchResponse } from '@grafana/runtime';
+import { defaults } from 'lodash';
+import { NetworkError } from '../../../common/types/errors/network';
+import { DefaultRequestOptions, getRequestOptions, timeout } from '../../../common/utils';
 import {
+    PmSeriesApiConfig,
     SeriesDescQueryParams,
     SeriesDescResponse,
-    SeriesQueryQueryParams,
-    SeriesQueryResponse,
-    SeriesMetricsQueryParams,
-    SeriesMetricsResponse,
-    SeriesLabelsQueryParams,
-    SeriesLabelsResponse,
     SeriesInstancesQueryParams,
     SeriesInstancesResponse,
-    SeriesValuesQueryParams,
+    SeriesLabelsQueryParams,
+    SeriesLabelsResponse,
+    SeriesMetricsQueryParams,
+    SeriesMetricsResponse,
     SeriesPingResponse,
+    SeriesQueryQueryParams,
+    SeriesQueryResponse,
+    SeriesValuesQueryParams,
     SeriesValuesResponse,
-    PmSeriesApiConfig,
 } from './types';
-import { defaults } from 'lodash';
-import { DefaultRequestOptions, getRequestOptions, timeout } from 'common/utils';
-import { NetworkError } from 'common/types/errors/network';
 
 export class PmSeriesApiService {
     defaultRequestOptions: DefaultRequestOptions;

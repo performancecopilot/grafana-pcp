@@ -1,5 +1,5 @@
-import { css } from 'emotion';
 import { GrafanaTheme } from '@grafana/data';
+import { css } from 'emotion';
 
 const cardContainer = (theme: GrafanaTheme, background: 'weak' | 'strong') => css`
     width: 100%;

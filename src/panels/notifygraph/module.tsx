@@ -1,6 +1,6 @@
-import { PanelPlugin, NullValueMode } from '@grafana/data';
-import NotifyGraphPanel from './NotifyGraphPanel';
+import { NullValueMode, PanelPlugin } from '@grafana/data';
 import { LegendDisplayMode } from '@grafana/ui';
+import NotifyGraphPanel from './NotifyGraphPanel';
 import { Options } from './types';
 
 const nOpts = (n: number) => Array.from(Array(n).keys());

@@ -3,8 +3,8 @@ import {
     SeriesLabelsItemResponse,
     SeriesPingResponse,
     SeriesValuesResponse,
-} from 'common/services/pmseries/types';
-import { Dict } from 'common/types/utils';
+} from '../../../../common/services/pmseries/types';
+import { Dict } from '../../../../common/types/utils';
 
 const _values: Dict<string, SeriesValuesResponse> = {
     'disk.dev.read': [

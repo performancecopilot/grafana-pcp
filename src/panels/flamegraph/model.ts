@@ -1,7 +1,6 @@
-import { PanelData } from '@grafana/data';
+import { FieldType, getTimeField, PanelData } from '@grafana/data';
 import { StackFrame } from 'd3-flame-graph';
 import { Options } from './types';
-import { getTimeField, FieldType } from '@grafana/data';
 
 interface FlameGraphModel {
     root: StackFrame;

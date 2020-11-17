@@ -1,8 +1,8 @@
-import React from 'react';
-import { Card } from './Card';
-import { shallow } from 'enzyme';
 import { GrafanaThemeType } from '@grafana/data';
 import { getTheme } from '@grafana/ui';
+import { shallow } from 'enzyme';
+import React from 'react';
+import { Card } from './Card';
 
 describe('<Card/>', () => {
     const theme = getTheme(GrafanaThemeType.Light);

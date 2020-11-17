@@ -1,8 +1,8 @@
-import _ from 'lodash';
-import React, { PureComponent } from 'react';
-import { select } from 'd3-selection';
 import { flamegraph, FlameGraph, StackFrame } from 'd3-flame-graph';
 import 'd3-flame-graph/dist/d3-flamegraph.css';
+import { select } from 'd3-selection';
+import _ from 'lodash';
+import React, { PureComponent } from 'react';
 import './css/flamegraph.css';
 
 interface Props {

@@ -1,4 +1,4 @@
-import { SearchEntity, EntityType } from 'common/services/pmsearch/types';
+import { EntityType, SearchEntity } from '../../../common/services/pmsearch/types';
 
 export class SearchEntityUtil {
     static toEntityTypes(searchEntity: SearchEntity): EntityType[] {

@@ -1,8 +1,8 @@
-import React from 'react';
-import { gridList, gridTitle, gridValue, gridItem } from '../../styles';
-import { MetricEntityMeta } from '../../../../models/entities/metric';
 import { Button } from '@grafana/ui';
 import { css } from 'emotion';
+import React from 'react';
+import { MetricEntityMeta } from '../../../../models/entities/metric';
+import { gridItem, gridList, gridTitle, gridValue } from '../../styles';
 
 export interface MetaProps {
     meta: MetricEntityMeta;

@@ -1,7 +1,7 @@
-import { Metadata } from 'common/services/pmapi/types';
-import { MetricName, Semantics } from 'common/types/pcp';
-import { Metric } from 'datasources/lib/pmapi/poller/types';
 import { defaultsDeep } from 'lodash';
+import { Metadata } from '../../../../common/services/pmapi/types';
+import { MetricName, Semantics } from '../../../../common/types/pcp';
+import { Metric } from '../../../../datasources/lib/pmapi/poller/types';
 
 export function metadata(props: Partial<Metadata>): Metadata {
     return defaultsDeep(props, {

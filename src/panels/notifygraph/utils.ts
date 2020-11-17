@@ -1,17 +1,17 @@
 import {
-    GraphSeriesXY,
-    PanelData,
-    getTimeField,
+    FieldColorModeId,
     FieldType,
+    getDisplayProcessor,
+    getFieldDisplayName,
     getFlotPairs,
     getSeriesTimeStep,
-    FieldColorMode,
-    getDisplayProcessor,
-    hasMsResolution,
-    TimeZone,
+    getTimeField,
     GraphSeriesValue,
+    GraphSeriesXY,
+    hasMsResolution,
+    PanelData,
     systemDateFormats,
-    getFieldDisplayName,
+    TimeZone,
 } from '@grafana/data';
 import { colors } from '@grafana/ui';
 import { Options, ThresholdOptions, ThresholdsOperator } from './types';
@@ -48,7 +48,7 @@ export function generateGraphModel(data: PanelData, timeZone: TimeZone, options:
                     field.config = {
                         ...field.config,
                         color: {
-                            mode: FieldColorMode.Thresholds,
+                            mode: FieldColorModeId.Thresholds,
                             fixedColor: colors[series.length % colors.length],
                         },
                     };

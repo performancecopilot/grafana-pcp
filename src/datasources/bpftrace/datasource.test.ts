@@ -1,10 +1,10 @@
-import { PCPBPFtraceDataSource } from './datasource';
-import { backendSrvMock, mockNextResponses } from 'datasources/lib/specs/mocks/backend_srv';
-import { TargetFormat } from 'datasources/lib/types';
-import { grafana, pmapi } from 'datasources/lib/specs/fixtures';
-import { Semantics } from 'common/types/pcp';
 import { advanceTo } from 'jest-date-mock';
-import { setGlobalLogLevel } from 'common/utils';
+import { Semantics } from '../../common/types/pcp';
+import { setGlobalLogLevel } from '../../common/utils';
+import { grafana, pmapi } from '../../datasources/lib/specs/fixtures';
+import { backendSrvMock, mockNextResponses } from '../../datasources/lib/specs/mocks/backend_srv';
+import { TargetFormat } from '../../datasources/lib/types';
+import { PCPBPFtraceDataSource } from './datasource';
 
 jest.mock('@grafana/runtime', () => ({
     ...jest.requireActual<object>('@grafana/runtime'),

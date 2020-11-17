@@ -1,22 +1,22 @@
 import { Reducer } from 'redux';
-import { EntityState, initialEntity } from './state';
+import { EntityType } from '../../../../../../../common/services/pmsearch/types';
+import { FetchStatus } from '../../shared/state';
 import { EntityAction } from './actions';
+import { EntityState, initialEntity } from './state';
 import {
-    LOAD_METRIC_INIT,
-    LOAD_METRIC_PENDING,
-    LOAD_METRIC_SUCCESS,
-    LOAD_METRIC_ERROR,
+    LOAD_INDOM_ERROR,
     LOAD_INDOM_INIT,
     LOAD_INDOM_PENDING,
     LOAD_INDOM_SUCCESS,
-    LOAD_INDOM_ERROR,
+    LOAD_METRIC_ERROR,
+    LOAD_METRIC_INIT,
+    LOAD_METRIC_PENDING,
+    LOAD_METRIC_SIBLINGS_ERROR,
     LOAD_METRIC_SIBLINGS_INIT,
     LOAD_METRIC_SIBLINGS_PENDING,
     LOAD_METRIC_SIBLINGS_SUCCESS,
-    LOAD_METRIC_SIBLINGS_ERROR,
+    LOAD_METRIC_SUCCESS,
 } from './types';
-import { FetchStatus } from '../../shared/state';
-import { EntityType } from 'common/services/pmsearch/types';
 
 const entityReducer: Reducer<EntityState, EntityAction> = (state, action) => {
     if (state === undefined) {

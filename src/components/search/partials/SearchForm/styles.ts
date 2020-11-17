@@ -1,6 +1,6 @@
-import { css, cx } from 'emotion';
-import { getFormStyles } from '@grafana/ui';
 import { GrafanaTheme } from '@grafana/data';
+import { getFormStyles } from '@grafana/ui';
+import { css, cx } from 'emotion';
 
 const searchContainer = css`
     display: flex;

@@ -1,21 +1,21 @@
 import { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import { loadMetric, loadIndom, loadMetricSiblings } from '../slices/entity/actionCreators';
-import { SearchQuery } from './state';
-import { LoadResultAction } from '../slices/result/actions';
-import { HistoryAction } from '../slices/history/actions';
-import { SetQueryAction } from '../slices/query/actions';
-import { SET_VIEW } from '../slices/view/types';
-import { ViewState } from '../slices/view/state';
-import { LOAD_RESULT_INIT, LOAD_RESULT_PENDING, LOAD_RESULT_SUCCESS, LOAD_RESULT_ERROR } from '../slices/result/types';
-import { SET_QUERY } from '../slices/query/types';
-import { ResultData } from '../slices/result/state';
-import { ADD_HISTORY } from '../slices/history/types';
-import { EntityAction } from '../slices/entity/actions';
-import { ViewAction, SetViewAction } from '../slices/view/actions';
-import { RootState } from '../../../reducer';
-import { Services } from '../../../../services/services';
+import { EntityType, TextItemResponseField } from '../../../../../../common/services/pmsearch/types';
 import Config from '../../../../config/config';
-import { TextItemResponseField, EntityType } from 'common/services/pmsearch/types';
+import { Services } from '../../../../services/services';
+import { RootState } from '../../../reducer';
+import { loadIndom, loadMetric, loadMetricSiblings } from '../slices/entity/actionCreators';
+import { EntityAction } from '../slices/entity/actions';
+import { HistoryAction } from '../slices/history/actions';
+import { ADD_HISTORY } from '../slices/history/types';
+import { SetQueryAction } from '../slices/query/actions';
+import { SET_QUERY } from '../slices/query/types';
+import { LoadResultAction } from '../slices/result/actions';
+import { ResultData } from '../slices/result/state';
+import { LOAD_RESULT_ERROR, LOAD_RESULT_INIT, LOAD_RESULT_PENDING, LOAD_RESULT_SUCCESS } from '../slices/result/types';
+import { SetViewAction, ViewAction } from '../slices/view/actions';
+import { ViewState } from '../slices/view/state';
+import { SET_VIEW } from '../slices/view/types';
+import { SearchQuery } from './state';
 
 type QuerySearchAction = LoadResultAction | SetViewAction | HistoryAction | SetQueryAction;
 

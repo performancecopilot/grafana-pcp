@@ -1,14 +1,14 @@
-import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import PmapiLanguage from './PmapiLanguage.json';
-import { findToken, getTokenValues, TokenValue } from 'datasources/lib/language';
 import { cloneDeep, keyBy, uniqueId } from 'lodash';
-import { PmApiService } from 'common/services/pmapi/PmApiService';
-import { Metadata, NoIndomError } from 'common/services/pmapi/types';
-import { Dict } from 'common/types/utils';
+import { getLogger } from 'loglevel';
+import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { PmApiService } from '../../../common/services/pmapi/PmApiService';
+import { Metadata, NoIndomError } from '../../../common/services/pmapi/types';
+import { Dict } from '../../../common/types/utils';
+import { MonacoLanguageDefinition } from '../../../components/monaco/MonacoEditorWrapper';
+import { findToken, getTokenValues, TokenValue } from '../../../datasources/lib/language';
 import { PCPVectorDataSource } from '../datasource';
 import { VectorQuery } from '../types';
-import { MonacoLanguageDefinition } from 'components/monaco/MonacoEditorWrapper';
-import { getLogger } from 'loglevel';
+import PmapiLanguage from './PmapiLanguage.json';
 
 // this prevents monaco from being included in the redis datasource
 // (it it already in its own chunk in vendors~monaco-editor.js)

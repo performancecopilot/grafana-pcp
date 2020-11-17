@@ -1,8 +1,8 @@
+import { DataSourceInstanceSettings, MetricFindValue, ScopedVars, VariableModel } from '@grafana/data';
 import { DataSourceWithBackend, getTemplateSrv } from '@grafana/runtime';
-import { RedisQuery, RedisOptions } from './types';
-import { DataSourceInstanceSettings, ScopedVars, MetricFindValue, VariableModel } from '@grafana/data';
 import 'core-js/features/instance/replace-all';
-import { isBlank } from 'common/utils';
+import { isBlank } from '../../common/utils';
+import { RedisOptions, RedisQuery } from './types';
 //const log = getLogger('datasource');
 
 export class PCPRedisDataSource extends DataSourceWithBackend<RedisQuery, RedisOptions> {

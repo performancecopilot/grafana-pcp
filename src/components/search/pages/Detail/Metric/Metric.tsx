@@ -1,24 +1,24 @@
+import { Button, HorizontalGroup, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
 import React from 'react';
-import { HorizontalGroup, Button, VerticalGroup, withTheme, Themeable } from '@grafana/ui';
-import {
-    detailPageItem,
-    detailPageHeader,
-    detailPageTitle,
-    detailPageBtn,
-    detailPageDescription,
-    detailPageActions,
-    detailPageProperties,
-    detailPageEntityType,
-} from '../styles';
 import { connect } from 'react-redux';
-import Series from './Series/Series';
-import { RootState } from '../../../store/reducer';
-import { MetricDataState } from '../../../store/slices/search/slices/entity/state';
-import { BookmarkItem } from '../../../store/slices/search/slices/bookmarks/state';
-import { FetchStatus } from '../../../store/slices/search/shared/state';
+import { EntityType } from '../../../../../common/services/pmsearch/types';
 import Card from '../../../components/Card/Card';
 import Loader from '../../../components/Loader/Loader';
-import { EntityType } from 'common/services/pmsearch/types';
+import { RootState } from '../../../store/reducer';
+import { FetchStatus } from '../../../store/slices/search/shared/state';
+import { BookmarkItem } from '../../../store/slices/search/slices/bookmarks/state';
+import { MetricDataState } from '../../../store/slices/search/slices/entity/state';
+import {
+    detailPageActions,
+    detailPageBtn,
+    detailPageDescription,
+    detailPageEntityType,
+    detailPageHeader,
+    detailPageItem,
+    detailPageProperties,
+    detailPageTitle,
+} from '../styles';
+import Series from './Series/Series';
 
 const mapStateToProps = (state: RootState) => ({
     bookmarks: state.search.bookmarks,

@@ -1,6 +1,6 @@
 import { Reducer } from 'redux';
-import { ViewState, initialView } from './state';
 import { ViewAction } from './actions';
+import { initialView, ViewState } from './state';
 import { SET_VIEW } from './types';
 
 const viewReducer: Reducer<ViewState, ViewAction> = (state, action) => {

@@ -1,9 +1,9 @@
-import React from 'react';
-import { VerticalGroup, withTheme, Themeable, Button } from '@grafana/ui';
-import { bookmarkListBtnWithNoSpacing, bookmarkListContainer, bookmarkListContainerMultiCol } from './styles';
+import { Button, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
 import { cx } from 'emotion';
+import React from 'react';
+import { EntityType } from '../../../../common/services/pmsearch/types';
 import { BookmarkItem } from '../../store/slices/search/slices/bookmarks/state';
-import { EntityType } from 'common/services/pmsearch/types';
+import { bookmarkListBtnWithNoSpacing, bookmarkListContainer, bookmarkListContainerMultiCol } from './styles';
 
 export interface BookmarkListBasicProps {
     showClearBtn?: boolean;

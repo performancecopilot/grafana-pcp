@@ -1,13 +1,13 @@
-import { DetailPage, DetailPageReduxProps, DetailPageProps } from './DetailPage';
-import React from 'react';
 import { shallow } from 'enzyme';
-import { MetricDetailPageBasicProps } from './Metric/Metric';
-import { InstanceDomainDetailPageBasicProps } from './InstanceDomain/InstanceDomain';
-import { InstanceDomainDetailState, MetricDetailState } from '../../store/slices/search/slices/entity/state';
-import { FetchStatus } from '../../store/slices/search/shared/state';
-import { MetricEntity } from '../../models/entities/metric';
+import React from 'react';
+import { EntityType } from '../../../../common/services/pmsearch/types';
 import { IndomEntity } from '../../models/entities/indom';
-import { EntityType } from 'common/services/pmsearch/types';
+import { MetricEntity } from '../../models/entities/metric';
+import { FetchStatus } from '../../store/slices/search/shared/state';
+import { InstanceDomainDetailState, MetricDetailState } from '../../store/slices/search/slices/entity/state';
+import { DetailPage, DetailPageProps, DetailPageReduxProps } from './DetailPage';
+import { InstanceDomainDetailPageBasicProps } from './InstanceDomain/InstanceDomain';
+import { MetricDetailPageBasicProps } from './Metric/Metric';
 
 describe('<DetailPage/>', () => {
     let mockReduxProps: DetailPageReduxProps;

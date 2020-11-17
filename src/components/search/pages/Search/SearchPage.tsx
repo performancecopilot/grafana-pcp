@@ -1,17 +1,17 @@
+import { HorizontalGroup, Pagination, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
+import { getLogger } from 'loglevel';
 import React from 'react';
-import { VerticalGroup, Pagination, withTheme, Themeable, HorizontalGroup } from '@grafana/ui';
 import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { paginationContainer, searchPageElapsed, searchPageMatchesDesc } from './styles';
-import { RootState } from '../../store/reducer';
-import { stripHtml } from '../../utils/utils';
-import { FetchStatus } from '../../store/slices/search/shared/state';
-import SearchResult from '../../components/SearchResult/SearchResult';
+import { EntityType, TextItemResponse } from '../../../../common/services/pmsearch/types';
 import Loader from '../../components/Loader/Loader';
-import { querySearch, openDetail } from '../../store/slices/search/shared/actionCreators';
-import { TextItemResponse, EntityType } from 'common/services/pmsearch/types';
-import { getLogger } from 'loglevel';
+import SearchResult from '../../components/SearchResult/SearchResult';
+import { RootState } from '../../store/reducer';
+import { openDetail, querySearch } from '../../store/slices/search/shared/actionCreators';
+import { FetchStatus } from '../../store/slices/search/shared/state';
+import { stripHtml } from '../../utils/utils';
+import { paginationContainer, searchPageElapsed, searchPageMatchesDesc } from './styles';
 const log = getLogger('search/SearchPage');
 
 const mapStateToProps = (state: RootState) => ({

@@ -11,13 +11,13 @@ import {
     ScopedVars,
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
-import { Labels, Semantics } from 'common/types/pcp';
-import { Context, Indom, InstanceId, Metadata } from 'common/services/pmapi/types';
 import { every, isString, mapValues } from 'lodash';
+import { Context, Indom, InstanceId, Metadata } from '../../../common/services/pmapi/types';
+import { Labels, Semantics } from '../../../common/types/pcp';
+import { TargetFormat } from '../types';
 import { applyFieldTransformations } from './field_transformations';
 import { Metric, QueryResult } from './poller/types';
 import { PmapiQuery } from './types';
-import { TargetFormat } from '../types';
 
 interface FrameCustom {
     context: Context;

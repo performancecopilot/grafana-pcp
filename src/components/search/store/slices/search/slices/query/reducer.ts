@@ -1,7 +1,7 @@
 import { Reducer } from 'redux';
-import { QueryState, initialState, initialQuery } from './state';
 import { QueryAction } from './actions';
-import { SET_QUERY, CLEAR_QUERY } from './types';
+import { initialQuery, initialState, QueryState } from './state';
+import { CLEAR_QUERY, SET_QUERY } from './types';
 
 const queryReducer: Reducer<QueryState, QueryAction> = (state, action) => {
     if (state === undefined) {

@@ -1,5 +1,5 @@
-import { DataSourceJsonData, DataQuery } from '@grafana/data';
-import { TargetFormat } from 'datasources/lib/types';
+import { DataQuery, DataSourceJsonData } from '@grafana/data';
+import { TargetFormat } from '../../datasources/lib/types';
 
 export interface RedisOptions extends DataSourceJsonData {}
 

@@ -1,5 +1,5 @@
-import { css } from 'emotion';
 import { GrafanaTheme } from '@grafana/data';
+import { css } from 'emotion';
 
 const asideContainer = css`
     grid-area: aside;

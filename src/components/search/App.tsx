@@ -1,14 +1,14 @@
 import React from 'react';
-import { RootState } from './store/reducer';
-import { ViewState } from './store/slices/search/slices/view/state';
+import { connect } from 'react-redux';
 import DetailPage from './pages/Detail/DetailPage';
-import SearchPage from './pages/Search/SearchPage';
 import IndexPage from './pages/Index/IndexPage';
-import { appLayout } from './styles';
-import SearchForm from './partials/SearchForm/SearchForm';
+import SearchPage from './pages/Search/SearchPage';
 import Actions from './partials/Actions/Actions';
 import Aside from './partials/Aside/Aside';
-import { connect } from 'react-redux';
+import SearchForm from './partials/SearchForm/SearchForm';
+import { RootState } from './store/reducer';
+import { ViewState } from './store/slices/search/slices/view/state';
+import { appLayout } from './styles';
 
 const mapStateToProps = (state: RootState) => ({
     view: state.search.view,

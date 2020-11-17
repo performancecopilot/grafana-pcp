@@ -1,43 +1,43 @@
+import { Button, Checkbox, HorizontalGroup, Icon, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
+import { getLogger } from 'loglevel';
 import React from 'react';
 import Autosuggest, {
-    SuggestionsFetchRequestedParams,
     RenderSuggestionParams,
     SuggestionSelectedEventData,
+    SuggestionsFetchRequestedParams,
     Theme,
 } from 'react-autosuggest';
-import { VerticalGroup, Button, HorizontalGroup, Checkbox, withTheme, Themeable, Icon } from '@grafana/ui';
 import { connect } from 'react-redux';
-
+import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { bindActionCreators, AnyAction } from 'redux';
+import { AutocompleteSuggestion, SearchEntity } from '../../../../common/services/pmsearch/types';
+import withServices, { WithServicesProps } from '../../components/withServices/withServices';
+import Config from '../../config/config';
+import { RootState } from '../../store/reducer';
+import { querySearch } from '../../store/slices/search/shared/actionCreators';
 import {
-    searchContainer,
-    searchFormGroup,
-    searchSubmitBtn,
-    searchBlockWrapper,
-    autosuggestContainerOpen,
     autosuggestContainer,
+    autosuggestContainerOpen,
+    autosuggestIcon,
     autosuggestInput,
-    autosuggestInputOpen,
-    autosuggestSuggestionsContainer,
-    autosuggestSuggestionsContainerOpen,
     autosuggestInputFocused,
-    autosuggestSuggestionsList,
-    autosuggestSuggestion,
-    autosuggestSuggestionFirst,
-    autosuggestSuggestionHighlighted,
+    autosuggestInputOpen,
     autosuggestSectionContainer,
     autosuggestSectionContainerFirst,
     autosuggestSectionTitle,
+    autosuggestSuggestion,
+    autosuggestSuggestionFirst,
+    autosuggestSuggestionHighlighted,
+    autosuggestSuggestionsContainer,
+    autosuggestSuggestionsContainerOpen,
+    autosuggestSuggestionsList,
     autosuggestWrapper,
-    autosuggestIcon,
+    searchBlockWrapper,
+    searchContainer,
+    searchFormGroup,
+    searchSubmitBtn,
 } from './styles';
-import { RootState } from '../../store/reducer';
-import withServices, { WithServicesProps } from '../../components/withServices/withServices';
-import { querySearch } from '../../store/slices/search/shared/actionCreators';
-import Config from '../../config/config';
-import { SearchEntity, AutocompleteSuggestion } from 'common/services/pmsearch/types';
-import { getLogger } from 'loglevel';
+
 const log = getLogger('search/SearchFrom');
 
 const mapStateToProps = (state: RootState) => ({

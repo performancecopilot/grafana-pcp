@@ -1,14 +1,14 @@
+import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import { InlineFormLabel, Select } from '@grafana/ui';
+import { css, cx } from 'emotion';
 import defaults from 'lodash/defaults';
 import React, { PureComponent } from 'react';
-import { InlineFormLabel, Select } from '@grafana/ui';
-import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { PCPRedisDataSource } from '../datasource';
-import { RedisOptions, RedisQuery, defaultRedisQuery } from '../types';
-import { cx, css } from 'emotion';
+import { isBlank } from '../../../common/utils';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
+import { TargetFormat } from '../../../datasources/lib/types';
+import { PCPRedisDataSource } from '../datasource';
+import { defaultRedisQuery, RedisOptions, RedisQuery } from '../types';
 import { PmseriesLanguageDefiniton } from './PmseriesLanguageDefiniton';
-import { isBlank } from 'common/utils';
-import { TargetFormat } from 'datasources/lib/types';
 
 type Props = QueryEditorProps<PCPRedisDataSource, RedisQuery, RedisOptions>;
 

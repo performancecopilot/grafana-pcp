@@ -1,6 +1,6 @@
-import { PmapiQuery, TemplatedPmapiQuery } from 'datasources/lib/pmapi/types';
-import { TargetFormat } from 'datasources/lib/types';
 import { defaults } from 'lodash';
+import { PmapiQuery, TemplatedPmapiQuery } from '../../../../datasources/lib/pmapi/types';
+import { TargetFormat } from '../../../../datasources/lib/types';
 
 export function query(props?: Partial<PmapiQuery>): PmapiQuery {
     return defaults(props, {

@@ -1,5 +1,5 @@
-import { CLEAR_QUERY, SET_QUERY } from './types';
 import { SearchQuery } from '../../shared/state';
+import { CLEAR_QUERY, SET_QUERY } from './types';
 
 export interface ClearQueryAction {
     type: typeof CLEAR_QUERY;

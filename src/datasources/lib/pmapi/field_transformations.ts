@@ -1,7 +1,7 @@
-import { MutableDataFrame, MISSING_VALUE, FieldType, MutableField } from '@grafana/data';
-import { Semantics } from 'common/types/pcp';
-import { Dict } from 'common/types/utils';
-import { Metadata } from 'common/services/pmapi/types';
+import { FieldType, MISSING_VALUE, MutableDataFrame, MutableField } from '@grafana/data';
+import { Metadata } from '../../../common/services/pmapi/types';
+import { Semantics } from '../../../common/types/pcp';
+import { Dict } from '../../../common/types/utils';
 import { TargetFormat } from '../types';
 
 function fieldSetRate(field: MutableField, idx: number, deltaSec: number, discreteValues: boolean) {

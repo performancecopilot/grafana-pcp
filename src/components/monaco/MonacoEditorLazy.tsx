@@ -1,6 +1,6 @@
+import { ErrorWithStack, LoadingPlaceholder } from '@grafana/ui';
 import React from 'react';
 import { useAsync } from 'react-use';
-import { ErrorWithStack, LoadingPlaceholder } from '@grafana/ui';
 import { MonacoEditorWrapperProps } from './MonacoEditorWrapper';
 
 // COPY FROM https://github.com/grafana/grafana/blob/master/packages/grafana-ui/src/components/Monaco/CodeEditorLazy.tsx

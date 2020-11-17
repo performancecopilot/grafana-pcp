@@ -1,5 +1,5 @@
+import { Themeable, withTheme } from '@grafana/ui';
 import React from 'react';
-import { withTheme, Themeable } from '@grafana/ui';
 import { cardContainer } from './styles';
 
 export interface CardBasicProps {

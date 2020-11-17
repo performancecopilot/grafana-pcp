@@ -1,6 +1,3 @@
-import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
-import { PmApiService } from 'common/services/pmapi/PmApiService';
-import { PmapiDefaultOptions, PmapiOptions, PmapiQuery, TemplatedPmapiQuery } from './types';
 import {
     DataQueryRequest,
     DataQueryResponse,
@@ -9,12 +6,15 @@ import {
     MetricFindValue,
     ScopedVars,
 } from '@grafana/data';
-import { interval_to_ms, isBlank } from 'common/utils';
-import { PmSeriesApiService } from 'common/services/pmseries/PmSeriesApiService';
-import { processQueries } from './data_processor';
-import { QueryResult } from './poller/types';
-import { Poller } from './poller/poller';
+import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { getLogger } from 'loglevel';
+import { PmApiService } from '../../../common/services/pmapi/PmApiService';
+import { PmSeriesApiService } from '../../../common/services/pmseries/PmSeriesApiService';
+import { interval_to_ms, isBlank } from '../../../common/utils';
+import { processQueries } from './data_processor';
+import { Poller } from './poller/poller';
+import { QueryResult } from './poller/types';
+import { PmapiDefaultOptions, PmapiOptions, PmapiQuery, TemplatedPmapiQuery } from './types';
 const log = getLogger('datasource_base');
 
 export abstract class DataSourceBase<Q extends PmapiQuery, O extends PmapiOptions> extends DataSourceApi<Q, O> {

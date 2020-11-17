@@ -1,8 +1,8 @@
 import { Reducer } from 'redux';
-import { ResultState, initialState } from './state';
 import { FetchStatus } from '../../shared/state';
-import { LOAD_RESULT_INIT, LOAD_RESULT_PENDING, LOAD_RESULT_SUCCESS, LOAD_RESULT_ERROR } from './types';
 import { ResultAction } from './actions';
+import { initialState, ResultState } from './state';
+import { LOAD_RESULT_ERROR, LOAD_RESULT_INIT, LOAD_RESULT_PENDING, LOAD_RESULT_SUCCESS } from './types';
 
 const resultReducer: Reducer<ResultState, ResultAction> = (state, action) => {
     if (state === undefined) {

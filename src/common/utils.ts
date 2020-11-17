@@ -1,8 +1,8 @@
+import { DataSourceInstanceSettings } from '@grafana/data';
+import { BackendSrvRequest } from '@grafana/runtime';
 import { isString } from 'lodash';
 import rootLogger, { LogLevelDesc } from 'loglevel';
 import logPrefixer from 'loglevel-plugin-prefix';
-import { DataSourceInstanceSettings } from '@grafana/data';
-import { BackendSrvRequest } from '@grafana/runtime';
 import { TimeoutError } from './types/errors/timeout';
 import { RequiredField } from './types/utils';
 

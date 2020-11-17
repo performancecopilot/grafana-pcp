@@ -1,14 +1,14 @@
+import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import { InlineFormLabel, Select } from '@grafana/ui';
+import { css, cx } from 'emotion';
 import defaults from 'lodash/defaults';
 import React, { PureComponent } from 'react';
-import { InlineFormLabel, Select } from '@grafana/ui';
-import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import { isBlank } from '../../../common/utils';
+import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
+import { TargetFormat } from '../../../datasources/lib/types';
 import { PCPBPFtraceDataSource } from '../datasource';
 import { BPFtraceOptions, BPFtraceQuery, defaultBPFtraceQuery } from '../types';
-import { isBlank } from 'common/utils';
-import { MonacoEditorLazy } from 'components/monaco/MonacoEditorLazy';
-import { css, cx } from 'emotion';
 import { BPFtraceLanguageDefinition } from './BPFtraceLanguageDefinition';
-import { TargetFormat } from 'datasources/lib/types';
 
 type Props = QueryEditorProps<PCPBPFtraceDataSource, BPFtraceQuery, BPFtraceOptions>;
 

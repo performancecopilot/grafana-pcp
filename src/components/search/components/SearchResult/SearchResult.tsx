@@ -1,18 +1,17 @@
+import { Button, HorizontalGroup, Themeable, withTheme } from '@grafana/ui';
 import React from 'react';
-import { HorizontalGroup, Button, withTheme, Themeable } from '@grafana/ui';
-
+import { TextItemResponse } from '../../../../common/services/pmsearch/types';
+import Card from '../Card/Card';
 import {
-    searchResultDescription,
-    searchResultFooter,
     searchResultBtnWithNoSpacing,
-    searchResultItem,
+    searchResultDescription,
+    searchResultEntityType,
+    searchResultFooter,
     searchResultHeader,
+    searchResultItem,
     searchResultTitle,
     searchResultTitleLink,
-    searchResultEntityType,
 } from './styles';
-import Card from '../Card/Card';
-import { TextItemResponse } from 'common/services/pmsearch/types';
 
 export type SearchResultProps = Themeable & {
     item: TextItemResponse;

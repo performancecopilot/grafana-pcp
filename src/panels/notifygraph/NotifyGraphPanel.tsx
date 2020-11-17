@@ -1,26 +1,26 @@
-import { PanelProps, GraphSeriesXY } from '@grafana/data';
-import React from 'react';
-import memoizeOne from 'memoize-one';
-import { generateGraphModel, outsideThresholdSeries } from './utils';
-import { GraphWithLegend, withTheme, Themeable, IconButton, Modal, VerticalGroup, Icon, Button } from '@grafana/ui';
+import { GraphSeriesXY, PanelProps } from '@grafana/data';
+import { getLocationSrv, LocationSrv } from '@grafana/runtime';
+import { Button, GraphWithLegend, Icon, IconButton, Modal, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
 import { GraphWithLegendProps } from '@grafana/ui/components/Graph/GraphWithLegend';
-import { Options, ThresholdOptions, MetaOptions, ThresholdsOperator } from './types';
+import { cx } from 'emotion';
+import memoizeOne from 'memoize-one';
+import React from 'react';
 import {
     graphWrapper,
-    modalTypography,
-    modalArticleIcon,
-    modalTooltipContent,
-    modalParentsLinks,
-    modalChildrenLinks,
-    modalRelativesLinksContainer,
-    infoBoxIssueToggle,
-    infoBoxTogglesContainer,
     infoBoxInfoToggle,
+    infoBoxIssueToggle,
     infoBoxToggle,
+    infoBoxTogglesContainer,
+    modalArticleIcon,
+    modalChildrenLinks,
+    modalParentsLinks,
+    modalRelativesLinksContainer,
+    modalTooltipContent,
+    modalTypography,
     notUsableContainer,
 } from './styles';
-import { LocationSrv, getLocationSrv } from '@grafana/runtime';
-import { cx } from 'emotion';
+import { MetaOptions, Options, ThresholdOptions, ThresholdsOperator } from './types';
+import { generateGraphModel, outsideThresholdSeries } from './utils';
 
 interface NotifyGraphPanelState {
     showInfoModal: boolean;

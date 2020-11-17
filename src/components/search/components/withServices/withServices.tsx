@@ -1,6 +1,6 @@
 import React from 'react';
-import { Services } from '../../services/services';
 import ServicesContext from '../../contexts/services';
+import { Services } from '../../services/services';
 
 export interface WithServicesProps {
     services: Services;

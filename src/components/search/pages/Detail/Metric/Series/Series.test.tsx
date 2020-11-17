@@ -1,7 +1,7 @@
-import { Series, SeriesProps, SeriesTabOpt } from './Series';
 import { shallow } from 'enzyme';
 import React from 'react';
 import { LabelsProps } from '../Labels/Labels';
+import { Series, SeriesProps, SeriesTabOpt } from './Series';
 
 describe('Metric <Series/>', () => {
     let seriesProps: SeriesProps;

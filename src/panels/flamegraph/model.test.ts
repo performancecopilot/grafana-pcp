@@ -1,4 +1,4 @@
-import { LoadingState, PanelData, MutableDataFrame, FieldType, MISSING_VALUE } from '@grafana/data';
+import { FieldType, LoadingState, MISSING_VALUE, MutableDataFrame, PanelData } from '@grafana/data';
 import { generateFlameGraphModel } from './model';
 
 describe('Model', () => {

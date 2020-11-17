@@ -1,9 +1,9 @@
 import { getBackendSrv } from '@grafana/runtime';
-import EntityService from './EntityDetailService';
-import { PmSeriesApiService } from 'common/services/pmseries/PmSeriesApiService';
-import Config from '../config/config';
+import { PmSearchApiService } from '../../../common/services/pmsearch/PmSearchApiService';
+import { PmSeriesApiService } from '../../../common/services/pmseries/PmSeriesApiService';
 import redisPluginConfig from '../../../datasources/redis/plugin.json';
-import { PmSearchApiService } from 'common/services/pmsearch/PmSearchApiService';
+import Config from '../config/config';
+import EntityService from './EntityDetailService';
 
 export interface Services {
     searchService: PmSearchApiService;

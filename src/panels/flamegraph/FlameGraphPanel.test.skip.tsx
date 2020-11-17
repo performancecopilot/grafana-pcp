@@ -1,8 +1,8 @@
-import React from 'react';
-import { mount } from 'enzyme';
-import { FlameGraphPanel } from './FlameGraphPanel';
 import { FieldConfigSource, LoadingState, PanelData } from '@grafana/data';
-import { grafana } from 'datasources/lib/specs/fixtures';
+import { mount } from 'enzyme';
+import React from 'react';
+import { grafana } from '../../datasources/lib/specs/fixtures';
+import { FlameGraphPanel } from './FlameGraphPanel';
 import { defaults } from './types';
 
 describe('FlameGraphPanel', () => {

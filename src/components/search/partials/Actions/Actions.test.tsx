@@ -1,11 +1,11 @@
-import { Actions } from './Actions';
-import React from 'react';
 import { shallow } from 'enzyme';
-import { QueryState, initialQuery } from '../../store/slices/search/slices/query/state';
-import { ViewState, initialView } from '../../store/slices/search/slices/view/state';
+import React from 'react';
+import { SearchEntity } from '../../../../common/services/pmsearch/types';
 import { QuerySearchActionCreator } from '../../store/slices/search/shared/actionCreators';
+import { initialQuery, QueryState } from '../../store/slices/search/slices/query/state';
 import { SetViewActionCreator } from '../../store/slices/search/slices/view/actionCreators';
-import { SearchEntity } from 'common/services/pmsearch/types';
+import { initialView, ViewState } from '../../store/slices/search/slices/view/state';
+import { Actions } from './Actions';
 
 interface ActionsReduxStatePropsMock {
     query: QueryState;

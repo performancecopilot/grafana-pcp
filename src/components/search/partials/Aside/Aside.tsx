@@ -1,22 +1,21 @@
-import React from 'react';
-import { VerticalGroup, Button, Themeable, withTheme } from '@grafana/ui';
-
-import { asideContainer, asideButton, asideButtonInactive } from './styles';
-import { connect } from 'react-redux';
+import { Button, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
 import { cx } from 'emotion';
-import { RootState } from '../../store/reducer';
-import { ThunkDispatch } from 'redux-thunk';
+import React from 'react';
+import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators } from 'redux';
-import { MetricDetailState, InstanceDomainDetailState } from '../../store/slices/search/slices/entity/state';
-import { FetchStatus } from '../../store/slices/search/shared/state';
-import Loader from '../../components/Loader/Loader';
-import { ViewState } from '../../store/slices/search/slices/view/state';
+import { ThunkDispatch } from 'redux-thunk';
+import { EntityType } from '../../../../common/services/pmsearch/types';
 import BookmarkList from '../../components/BookmarkList/BookmarkList';
+import Loader from '../../components/Loader/Loader';
 import SearchHistoryList from '../../components/SearchHistoryList/SearchHistoryList';
+import { RootState } from '../../store/reducer';
 import { openDetail, querySearch } from '../../store/slices/search/shared/actionCreators';
+import { FetchStatus } from '../../store/slices/search/shared/state';
 import { clearBookmarks } from '../../store/slices/search/slices/bookmarks/actionCreators';
+import { InstanceDomainDetailState, MetricDetailState } from '../../store/slices/search/slices/entity/state';
 import { clearSearchHistory } from '../../store/slices/search/slices/history/actionCreators';
-import { EntityType } from 'common/services/pmsearch/types';
+import { ViewState } from '../../store/slices/search/slices/view/state';
+import { asideButton, asideButtonInactive, asideContainer } from './styles';
 
 const mapStateToProps = (state: RootState) => ({
     view: state.search.view,

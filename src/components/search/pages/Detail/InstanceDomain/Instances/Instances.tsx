@@ -1,8 +1,8 @@
-import React from 'react';
-import { gridList, gridValue, gridItem, gridListSingleCol } from '../../styles';
 import { VerticalGroup } from '@grafana/ui';
 import { cx } from 'emotion';
+import React from 'react';
 import { IndomEntitySparseItem } from '../../../../models/entities/indom';
+import { gridItem, gridList, gridListSingleCol, gridValue } from '../../styles';
 
 export interface InstancesProps {
     instances: IndomEntitySparseItem[];

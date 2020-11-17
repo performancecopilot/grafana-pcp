@@ -1,7 +1,7 @@
-import { TrackableStatus } from '../../shared/state';
-import { MetricEntity, MetricSiblingsEntity } from '../../../../../models/entities/metric';
+import { EntityType } from '../../../../../../../common/services/pmsearch/types';
 import { IndomEntity } from '../../../../../models/entities/indom';
-import { EntityType } from 'common/services/pmsearch/types';
+import { MetricEntity, MetricSiblingsEntity } from '../../../../../models/entities/metric';
+import { TrackableStatus } from '../../shared/state';
 
 export interface MetricData {
     data: MetricEntity | null;

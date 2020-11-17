@@ -1,22 +1,22 @@
-import {
-    SearchPageReduxStateProps,
-    SearchPageReduxDispatchProps,
-    SearchPageReduxProps,
-    SearchPageProps,
-    SearchPage,
-} from './SearchPage';
-import { getTheme } from '@grafana/ui';
 import { GrafanaThemeType } from '@grafana/data';
+import { getTheme } from '@grafana/ui';
 import { shallow } from 'enzyme';
 import React from 'react';
-import { ResultDataState } from '../../store/slices/search/slices/result/state';
+import { EntityType, TextResponse } from '../../../../common/services/pmsearch/types';
+import { LoaderBasicProps } from '../../components/Loader/Loader';
 import { SearchResultProps } from '../../components/SearchResult/SearchResult';
 import { OpenDetailActionCreator, QuerySearchActionCreator } from '../../store/slices/search/shared/actionCreators';
-import { QueryState } from '../../store/slices/search/slices/query/state';
 import { FetchStatus } from '../../store/slices/search/shared/state';
-import { LoaderBasicProps } from '../../components/Loader/Loader';
+import { QueryState } from '../../store/slices/search/slices/query/state';
+import { ResultDataState } from '../../store/slices/search/slices/result/state';
 import { stripHtml } from '../../utils/utils';
-import { EntityType, TextResponse } from 'common/services/pmsearch/types';
+import {
+    SearchPage,
+    SearchPageProps,
+    SearchPageReduxDispatchProps,
+    SearchPageReduxProps,
+    SearchPageReduxStateProps,
+} from './SearchPage';
 
 describe('<SearchPage/>', () => {
     let mockReduxStateProps: SearchPageReduxStateProps;
