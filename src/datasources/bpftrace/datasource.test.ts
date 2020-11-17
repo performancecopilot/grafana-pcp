@@ -61,22 +61,23 @@ describe('PCP BPFtrace', () => {
         expect({ fields: response.data[0].fields }).toMatchInlineSnapshot(
             {
                 fields: [
-                    { config: expect.anything() },
-                    { config: expect.anything() },
-                    { config: expect.anything() },
-                    { config: expect.anything() },
-                    { config: expect.anything() },
-                    { config: expect.anything() },
-                    { config: expect.anything() },
-                    { config: expect.anything() },
-                    { config: expect.anything() },
+                    {},
+                    { config: { custom: expect.anything() } },
+                    { config: { custom: expect.anything() } },
+                    { config: { custom: expect.anything() } },
+                    { config: { custom: expect.anything() } },
+                    { config: { custom: expect.anything() } },
+                    { config: { custom: expect.anything() } },
+                    { config: { custom: expect.anything() } },
+                    { config: { custom: expect.anything() } },
                 ],
             },
+
             `
             Object {
               "fields": Array [
                 Object {
-                  "config": Anything,
+                  "config": Object {},
                   "name": "Time",
                   "type": "time",
                   "values": Array [
@@ -85,7 +86,10 @@ describe('PCP BPFtrace', () => {
                   ],
                 },
                 Object {
-                  "config": Anything,
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "0",
+                  },
                   "labels": Object {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
@@ -101,7 +105,10 @@ describe('PCP BPFtrace', () => {
                   ],
                 },
                 Object {
-                  "config": Anything,
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "1",
+                  },
                   "labels": Object {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
@@ -117,7 +124,10 @@ describe('PCP BPFtrace', () => {
                   ],
                 },
                 Object {
-                  "config": Anything,
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "2",
+                  },
                   "labels": Object {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
@@ -133,7 +143,10 @@ describe('PCP BPFtrace', () => {
                   ],
                 },
                 Object {
-                  "config": Anything,
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "3",
+                  },
                   "labels": Object {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
@@ -149,7 +162,10 @@ describe('PCP BPFtrace', () => {
                   ],
                 },
                 Object {
-                  "config": Anything,
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "4",
+                  },
                   "labels": Object {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
@@ -165,7 +181,10 @@ describe('PCP BPFtrace', () => {
                   ],
                 },
                 Object {
-                  "config": Anything,
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "5",
+                  },
                   "labels": Object {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
@@ -181,7 +200,10 @@ describe('PCP BPFtrace', () => {
                   ],
                 },
                 Object {
-                  "config": Anything,
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "6",
+                  },
                   "labels": Object {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
@@ -197,7 +219,10 @@ describe('PCP BPFtrace', () => {
                   ],
                 },
                 Object {
-                  "config": Anything,
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "7",
+                  },
                   "labels": Object {
                     "agent": "bpftrace",
                     "domainname": "localdomain",

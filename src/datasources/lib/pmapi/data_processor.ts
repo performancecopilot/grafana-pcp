@@ -2,6 +2,7 @@ import {
     DataFrame,
     DataQueryRequest,
     Field,
+    FieldConfig,
     FieldDTO,
     FieldType,
     MISSING_VALUE,
@@ -147,24 +148,30 @@ function createField(
     query: PmapiQuery,
     metric: Metric,
     instanceId: InstanceId | null
-): FieldDTO & { config: { custom: FieldCustom } } {
-    let instance;
+): FieldDTO & { config: FieldConfig<FieldCustom> } {
+    let instance: Indom | undefined;
     if (metric.instanceDomain && instanceId !== null) {
         instance = metric.instanceDomain.instances[instanceId];
+    }
+
+    const config: FieldConfig<FieldCustom> = {
+        displayName: getFieldDisplayName(scopedVars, context, query, metric, instanceId),
+        custom: {
+            instanceId: instanceId,
+            instance,
+        },
+    };
+
+    const unit = getFieldUnit(metric.metadata);
+    if (unit) {
+        config.unit = unit;
     }
 
     return {
         name: getFieldName(metric, instanceId),
         type: getFieldType(metric.metadata),
         labels: getLabels(context, metric, instanceId),
-        config: {
-            unit: getFieldUnit(metric.metadata),
-            displayName: getFieldDisplayName(scopedVars, context, query, metric, instanceId),
-            custom: {
-                instanceId: instanceId,
-                instance,
-            },
-        },
+        config,
     };
 }
 

@@ -107,7 +107,93 @@ describe('data processor', () => {
         const endpoint = poller.endpoint({ metrics: [metric], targets: [target] });
 
         const result = processQueries(dataQueryRequest, [{ endpoint, query: target.query, metrics: [metric] }], 1);
-        expect(result).toMatchSnapshot();
+        expect({ fields: result[0].fields }).toMatchInlineSnapshot(
+            {
+                fields: [{}, { config: { custom: expect.anything() } }, { config: { custom: expect.anything() } }],
+            },
+            `
+            Object {
+              "fields": Array [
+                Object {
+                  "config": Object {},
+                  "name": "Time",
+                  "type": "time",
+                  "values": Array [
+                    8000,
+                    9000,
+                    10000,
+                    11000,
+                    12000,
+                    13000,
+                    14000,
+                    15000,
+                    16000,
+                    17000,
+                    21000,
+                  ],
+                },
+                Object {
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "",
+                  },
+                  "labels": Object {
+                    "agent": "linux",
+                    "device_type": "block",
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "indom_name": "per disk",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                  },
+                  "name": "disk.dev.read[nvme0n1]",
+                  "type": "number",
+                  "values": Array [
+                    null,
+                    1,
+                    1,
+                    3,
+                    1,
+                    1,
+                    1,
+                    2,
+                    1,
+                    1,
+                    0.25,
+                  ],
+                },
+                Object {
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "",
+                  },
+                  "labels": Object {
+                    "agent": "linux",
+                    "device_type": "block",
+                    "domainname": "localdomain",
+                    "hostname": "dev",
+                    "indom_name": "per disk",
+                    "machineid": "6dabb302d60b402dabcc13dc4fd0fab8",
+                  },
+                  "name": "disk.dev.read[sda]",
+                  "type": "number",
+                  "values": Array [
+                    null,
+                    0,
+                    1,
+                    1,
+                    null,
+                    null,
+                    1,
+                    null,
+                    1,
+                    1,
+                    0.25,
+                  ],
+                },
+              ],
+            }
+        `
+        );
     });
 
     it('should process a metrics table', () => {
@@ -190,7 +276,56 @@ describe('data processor', () => {
             ],
             1
         );
-        expect(result).toMatchSnapshot();
+        expect({ fields: result[0].fields }).toMatchInlineSnapshot(
+            { fields: [{}, { config: { custom: expect.anything() } }, { config: { custom: expect.anything() } }] },
+            `
+            Object {
+              "fields": Array [
+                Object {
+                  "config": Object {},
+                  "name": "instance",
+                  "type": "string",
+                  "values": Array [
+                    "Inst 0",
+                    "Inst 1",
+                  ],
+                },
+                Object {
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "A",
+                  },
+                  "labels": Object {
+                    "agent": "linux",
+                    "hostname": "host1",
+                  },
+                  "name": "some.string.A",
+                  "type": "string",
+                  "values": Array [
+                    "A/0/11000",
+                    "A/1/11000",
+                  ],
+                },
+                Object {
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "B",
+                  },
+                  "labels": Object {
+                    "agent": "linux",
+                    "hostname": "host1",
+                  },
+                  "name": "some.string.B",
+                  "type": "string",
+                  "values": Array [
+                    "B/0/11000",
+                    "B/1/11000",
+                  ],
+                },
+              ],
+            }
+        `
+        );
     });
 
     it('should process a CSV table', () => {
@@ -226,6 +361,36 @@ describe('data processor', () => {
         const endpoint = poller.endpoint({ metrics: [metric], targets: [target] });
         const dataQueryRequest = grafana.dataQueryRequest([target.query]);
         const result = processQueries(dataQueryRequest, [{ endpoint, query: target.query, metrics: [metric] }], 1);
-        expect(result).toMatchSnapshot();
+        expect(result[0].fields).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "config": Object {},
+                "name": "col1",
+                "type": "other",
+                "values": Array [
+                  "row1 col1",
+                  "row2 col1",
+                ],
+              },
+              Object {
+                "config": Object {},
+                "name": "col2",
+                "type": "other",
+                "values": Array [
+                  "row1 col2",
+                  "row2 col2",
+                ],
+              },
+              Object {
+                "config": Object {},
+                "name": "col3",
+                "type": "other",
+                "values": Array [
+                  "row1 col3",
+                  "row2 col3",
+                ],
+              },
+            ]
+        `);
     });
 });

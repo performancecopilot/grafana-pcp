@@ -60,13 +60,14 @@ describe('PCP Vector', () => {
         response = await datasource.query(grafana.dataQueryRequest(queries));
         expect({ fields: response.data[0].fields }).toMatchInlineSnapshot(
             {
-                fields: [{ config: expect.anything() }, { config: expect.anything() }, { config: expect.anything() }],
+                fields: [{}, { config: { custom: expect.anything() } }, { config: { custom: expect.anything() } }],
             },
+
             `
             Object {
               "fields": Array [
                 Object {
-                  "config": Anything,
+                  "config": Object {},
                   "name": "Time",
                   "type": "time",
                   "values": Array [
@@ -75,7 +76,10 @@ describe('PCP Vector', () => {
                   ],
                 },
                 Object {
-                  "config": Anything,
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "",
+                  },
                   "labels": Object {
                     "agent": "linux",
                     "device_type": "block",
@@ -92,7 +96,10 @@ describe('PCP Vector', () => {
                   ],
                 },
                 Object {
-                  "config": Anything,
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "",
+                  },
                   "labels": Object {
                     "agent": "linux",
                     "device_type": "block",
@@ -292,12 +299,13 @@ describe('PCP Vector', () => {
 
         response = await datasource.query(grafana.dataQueryRequest(queries));
         expect({ fields: response.data[0].fields }).toMatchInlineSnapshot(
-            { fields: [{ config: expect.anything() }, { config: expect.anything() }] },
+            { fields: [{}, { config: { custom: expect.anything() } }] },
+
             `
             Object {
               "fields": Array [
                 Object {
-                  "config": Anything,
+                  "config": Object {},
                   "name": "Time",
                   "type": "time",
                   "values": Array [
@@ -307,7 +315,10 @@ describe('PCP Vector', () => {
                   ],
                 },
                 Object {
-                  "config": Anything,
+                  "config": Object {
+                    "custom": Anything,
+                    "displayName": "",
+                  },
                   "labels": Object {
                     "agent": "linux",
                     "domainname": "localdomain",

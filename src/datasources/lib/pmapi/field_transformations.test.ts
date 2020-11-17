@@ -29,6 +29,38 @@ describe('field transformations', () => {
             'text-help': 'CPU time consumed by processes in each cgroup',
         };
         applyFieldTransformations(TargetFormat.TimeSeries, metadata, frame);
-        expect(frame).toMatchSnapshot();
+        expect(frame).toMatchInlineSnapshot(`
+            Object {
+              "fields": Array [
+                Object {
+                  "config": Object {},
+                  "labels": undefined,
+                  "name": "Time",
+                  "type": "time",
+                  "values": Array [
+                    2000,
+                    4000,
+                    6000,
+                  ],
+                },
+                Object {
+                  "config": Object {
+                    "unit": "percentunit",
+                  },
+                  "labels": undefined,
+                  "name": "cgroup.cpu.stat.usage",
+                  "type": "number",
+                  "values": Array [
+                    0,
+                    1,
+                    0.5,
+                  ],
+                },
+              ],
+              "meta": undefined,
+              "name": undefined,
+              "refId": undefined,
+            }
+        `);
     });
 });
