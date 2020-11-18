@@ -88,7 +88,7 @@ describe('PCP BPFtrace', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "0",
+                    "displayNameFromDS": "0",
                   },
                   "labels": Object {
                     "agent": "bpftrace",
@@ -107,7 +107,7 @@ describe('PCP BPFtrace', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "1",
+                    "displayNameFromDS": "1",
                   },
                   "labels": Object {
                     "agent": "bpftrace",
@@ -126,7 +126,7 @@ describe('PCP BPFtrace', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "2",
+                    "displayNameFromDS": "2",
                   },
                   "labels": Object {
                     "agent": "bpftrace",
@@ -145,7 +145,7 @@ describe('PCP BPFtrace', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "3",
+                    "displayNameFromDS": "3",
                   },
                   "labels": Object {
                     "agent": "bpftrace",
@@ -164,7 +164,7 @@ describe('PCP BPFtrace', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "4",
+                    "displayNameFromDS": "4",
                   },
                   "labels": Object {
                     "agent": "bpftrace",
@@ -183,7 +183,7 @@ describe('PCP BPFtrace', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "5",
+                    "displayNameFromDS": "5",
                   },
                   "labels": Object {
                     "agent": "bpftrace",
@@ -202,7 +202,7 @@ describe('PCP BPFtrace', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "6",
+                    "displayNameFromDS": "6",
                   },
                   "labels": Object {
                     "agent": "bpftrace",
@@ -221,7 +221,7 @@ describe('PCP BPFtrace', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "7",
+                    "displayNameFromDS": "7",
                   },
                   "labels": Object {
                     "agent": "bpftrace",

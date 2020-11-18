@@ -78,7 +78,7 @@ describe('PCP Vector', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "",
+                    "displayNameFromDS": "",
                   },
                   "labels": Object {
                     "agent": "linux",
@@ -98,7 +98,7 @@ describe('PCP Vector', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "",
+                    "displayNameFromDS": "",
                   },
                   "labels": Object {
                     "agent": "linux",
@@ -316,7 +316,7 @@ describe('PCP Vector', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "",
+                    "displayNameFromDS": "",
                   },
                   "labels": Object {
                     "agent": "linux",

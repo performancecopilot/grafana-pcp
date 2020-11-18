@@ -6,7 +6,7 @@ import logPrefixer from 'loglevel-plugin-prefix';
 import { TimeoutError } from './types/errors/timeout';
 import { RequiredField } from './types/utils';
 
-rootLogger.setDefaultLevel("INFO")
+rootLogger.setDefaultLevel('INFO');
 logPrefixer.reg(rootLogger);
 logPrefixer.apply(rootLogger, { template: '[%t] %l %n:' });
 

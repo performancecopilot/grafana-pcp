@@ -135,7 +135,7 @@ describe('data processor', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "",
+                    "displayNameFromDS": "",
                   },
                   "labels": Object {
                     "agent": "linux",
@@ -164,7 +164,7 @@ describe('data processor', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "",
+                    "displayNameFromDS": "",
                   },
                   "labels": Object {
                     "agent": "linux",
@@ -293,7 +293,7 @@ describe('data processor', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "A",
+                    "displayNameFromDS": "A",
                   },
                   "labels": Object {
                     "agent": "linux",
@@ -309,7 +309,7 @@ describe('data processor', () => {
                 Object {
                   "config": Object {
                     "custom": Anything,
-                    "displayName": "B",
+                    "displayNameFromDS": "B",
                   },
                   "labels": Object {
                     "agent": "linux",

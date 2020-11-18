@@ -289,8 +289,9 @@ function toMetricsTable(scopedVars: ScopedVars, frames: DataFrame[]) {
         const { context, query, metric } = frame.meta?.custom as FrameCustom;
         const metricSpl = metric.metadata.name.split('.');
         const newField = createField(scopedVars, context, query, metric, null);
-        if (!newField.config.displayNameFromDS)
+        if (!newField.config.displayNameFromDS) {
             newField.config.displayNameFromDS = metricSpl[metricSpl.length - 1];
+        }
         tableFrame.addField(newField);
 
         if (frame.length === 0) {
