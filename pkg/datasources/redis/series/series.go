@@ -125,27 +125,29 @@ func (s *Service) RefreshInstances(series *Series) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	instances, err := s.pmseriesAPI.Instances([]string{series.Desc.Series})
+	instancesResponse, err := s.pmseriesAPI.Instances([]string{series.Desc.Series})
 	if err != nil {
 		return err
 	}
 
-	for _, instance := range instances {
-		labelsResponse, err := s.pmseriesAPI.Labels([]string{instance.Instance})
-		if err != nil {
-			return err
-		}
+	seriesIds := []string{}
+	for _, instance := range instancesResponse {
+		seriesIds = append(seriesIds, instance.Instance)
+	}
+	labelsResponse, err := s.pmseriesAPI.Labels(seriesIds)
+	if err != nil {
+		return err
+	}
+	labelsByInstance := map[string]Labels{}
+	for _, labelResponse := range labelsResponse {
+		labelsByInstance[labelResponse.Series] = labelResponse.Labels
+	}
 
-		labels := Labels{}
-		if len(labelsResponse) > 0 {
-			labels = labelsResponse[0].Labels
-		}
-
+	for _, instance := range instancesResponse {
 		series.Instances[instance.Instance] = Instance{
-			Series:   instance.Series,
 			Instance: instance.Instance,
 			Name:     instance.Name,
-			Labels:   labels,
+			Labels:   labelsByInstance[instance.Instance],
 		}
 	}
 

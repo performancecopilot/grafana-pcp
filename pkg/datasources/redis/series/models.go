@@ -15,7 +15,6 @@ type Desc = pmseries.DescsResponseItem
 
 // Instance holds information about a PCP instance
 type Instance struct {
-	Series   string
 	Instance string
 	Name     string
 	Labels   Labels

@@ -33,7 +33,7 @@ func fieldSetRate(field *data.Field, idx int, delta time.Duration) error {
 }
 
 func rateConversation(frame *data.Frame) error {
-	log.DefaultLogger.Debug("Performing Rate Conversation", "frame", frame.Name)
+	log.DefaultLogger.Debug("Performing Rate Conversation")
 	var timeField *data.Field
 	for _, field := range frame.Fields {
 		if field.Type() == data.FieldTypeTime {
