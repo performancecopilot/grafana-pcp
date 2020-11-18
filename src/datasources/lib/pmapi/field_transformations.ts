@@ -1,4 +1,4 @@
-import { FieldType, MISSING_VALUE, MutableDataFrame, MutableField } from '@grafana/data';
+import { FieldType, getTimeField, MISSING_VALUE, MutableDataFrame, MutableField } from '@grafana/data';
 import { Metadata } from '../../../common/services/pmapi/types';
 import { Semantics } from '../../../common/types/pcp';
 import { Dict } from '../../../common/types/utils';
@@ -28,13 +28,7 @@ function fieldSetRate(field: MutableField, idx: number, deltaSec: number, discre
 }
 
 function rateConversion(frame: MutableDataFrame, discreteValues = false) {
-    let timeField: MutableField | undefined;
-    for (const field of frame.fields) {
-        if (field.type === FieldType.time) {
-            timeField = field;
-            break;
-        }
-    }
+    const { timeField } = getTimeField(frame);
     if (!timeField || timeField.values.length === 0) {
         return;
     }

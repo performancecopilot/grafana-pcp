@@ -5,6 +5,7 @@ import {
     FieldConfig,
     FieldDTO,
     FieldType,
+    getTimeField,
     MISSING_VALUE,
     MutableDataFrame,
     MutableField,
@@ -254,17 +255,15 @@ function getHeatMapDisplayName(field: Field) {
     return '0-0';
 }
 
-function toHeatMap(frames: MutableDataFrame) {
-    let timeField;
-    for (const field of frames.fields) {
-        if (field.type === FieldType.time) {
-            timeField = field;
-            continue;
-        }
-        field.config.displayNameFromDS = getHeatMapDisplayName(field);
-    }
+function toHeatMap(frame: MutableDataFrame) {
+    const { timeField } = getTimeField(frame) as { timeField?: MutableField };
     if (!timeField) {
         return;
+    }
+    for (const field of frame.fields) {
+        if (field.type === FieldType.number) {
+            field.config.displayNameFromDS = getHeatMapDisplayName(field);
+        }
     }
 
     for (let i = 0; i < timeField.values.length; i++) {
