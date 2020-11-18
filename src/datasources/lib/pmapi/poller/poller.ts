@@ -87,7 +87,7 @@ export class Poller {
             endpoint.targets
                 .filter(target => target.metricNames.includes(missingMetric))
                 .forEach(target => {
-                    log.debug('missing metric', missingMetric, 'for target', target);
+                    log.warn(`missing metric ${missingMetric} for target`, target);
                     target.state = TargetState.PENDING;
                     target.errors.push(new MetricNotFoundError(missingMetric));
                 });
@@ -277,7 +277,7 @@ export class Poller {
         this.cleanInactiveTargets();
         this.cleanHistoryData();
 
-        log.debug(
+        log.trace(
             'polling endpoints: start',
             this.state.endpoints.filter(endpoint => endpoint.targets.length > 0)
         );
@@ -289,14 +289,14 @@ export class Poller {
                 })
             )
         );
-        log.debug('polling endpoints: finish');
+        log.trace('polling endpoints: finish');
 
         // use setTimeout instead of setInterval to prevent overlapping timers
         this.timer = setTimeout(this.poll.bind(this), this.state.refreshIntervalMs);
     }
 
-    deregisterTarget(endpoint: Endpoint, target: Target) {
-        log.debug('deregistering target', target);
+    deregisterTarget(endpoint: Endpoint, target: Target, reason: string) {
+        log.debug(`deregistering target (${reason})`, target);
         this.config.hooks.deregisterTarget?.(target);
         remove(endpoint.targets, target);
     }
@@ -308,10 +308,13 @@ export class Poller {
             return;
         }
 
-        const keepPolling = new Date().getTime() - (this.state.refreshIntervalMs + this.config.gracePeriodMs);
+        const now = new Date().getTime();
+        const keepPolling = now - (this.state.refreshIntervalMs + this.config.gracePeriodMs);
         for (const endpoint of this.state.endpoints) {
             const targetsToDeregister = endpoint.targets.filter(target => target.lastActiveMs <= keepPolling);
-            targetsToDeregister.forEach(target => this.deregisterTarget(endpoint, target));
+            targetsToDeregister.forEach(target =>
+                this.deregisterTarget(endpoint, target, `last active ${(now - target.lastActiveMs) / 1000}s ago`)
+            );
         }
     }
 
@@ -331,7 +334,7 @@ export class Poller {
         }
 
         if (cleanedSnapshots > 0) {
-            log.debug(`cleaned ${cleanedSnapshots} historical metric values`);
+            log.debug(`cleaned ${cleanedSnapshots} historical metric value(s)`);
         }
     }
 
@@ -345,6 +348,10 @@ export class Poller {
     /**
      * do *not* create a context here, or fetch any metric
      * otherwise the initial load of a dashboard creates lots of duplicate contexts
+     *
+     * targets belong to one endpoint instead of a global list:
+     *   * no need for grouping on every poll
+     *   * endpoint has context and errors attached
      */
     query(request: DataQueryRequest<PmapiQuery>, query: TemplatedPmapiQuery): QueryResult | null {
         let endpoint = this.state.endpoints.find(ep => ep.url === query.url && ep.hostspec === query.hostspec);
@@ -374,8 +381,21 @@ export class Poller {
             if (target) {
                 // target exists but has changed -> remove from list & create a new target
                 log.debug('changed target', target);
-                this.deregisterTarget(endpoint, target);
+                this.deregisterTarget(endpoint, target, 'target changed');
             } else {
+                // target does not exist in endpoint where it should be,
+                // maybe the endpoint of target changed
+                for (const otherEndoint of this.state.endpoints) {
+                    if (otherEndoint === endpoint) {
+                        continue;
+                    }
+                    const targetOfOtherEndpoint = otherEndoint.targets.find(target => target.targetId === targetId);
+                    if (targetOfOtherEndpoint) {
+                        this.deregisterTarget(otherEndoint, targetOfOtherEndpoint, 'target changed endpoint');
+                        break;
+                    }
+                }
+
                 log.debug('new target', targetId, query);
             }
 
