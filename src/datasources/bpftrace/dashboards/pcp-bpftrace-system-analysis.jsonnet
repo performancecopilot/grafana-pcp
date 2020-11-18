@@ -19,13 +19,24 @@ grafana.dashboard.new(
     hide='value',
   )
 )
-
+.addPanel(
+  grafana.text.new(
+    'Installation Instructions',
+    mode='markdown',
+    content='This dashboards requires the [bpftrace PMDA](https://man7.org/linux/man-pages/man1/pmdabpftrace.1.html) to be installed and configured with *dynamic_scripts* enabled.',
+  ), gridPos={
+    x: 0,
+    y: 0,
+    w: 24,
+    h: 2,
+  }
+)
 .addPanel(
   grafana.row.new(
     title='CPU'
   ), gridPos={
     x: 0,
-    y: 0,
+    y: 2,
     w: 24,
     h: 1,
   }
@@ -42,7 +53,7 @@ grafana.dashboard.new(
     { expr: importstr 'tools/cpuwalk.bt', format: 'heatmap' },
   ]), gridPos={
     x: 0,
-    y: 1,
+    y: 3,
     w: 12,
     h: 8,
   }
@@ -56,10 +67,10 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-    { expr: importstr 'tools/syscall_count.bt', legendFormat: '$metric0', format: 'time_series' },
+    { expr: importstr 'tools/syscall_count.bt', format: 'time_series', legendFormat: '$metric0' },
   ]), gridPos={
     x: 12,
-    y: 1,
+    y: 3,
     w: 12,
     h: 8,
   }
@@ -70,7 +81,7 @@ grafana.dashboard.new(
     title='Scheduler'
   ), gridPos={
     x: 0,
-    y: 9,
+    y: 11,
     w: 24,
     h: 1,
   }
@@ -88,7 +99,7 @@ grafana.dashboard.new(
     { expr: importstr 'tools/runqlat.bt', format: 'heatmap' },
   ]), gridPos={
     x: 0,
-    y: 10,
+    y: 12,
     w: 12,
     h: 8,
   }
@@ -105,7 +116,7 @@ grafana.dashboard.new(
     { expr: importstr 'tools/runqlen.bt', format: 'heatmap' },
   ]), gridPos={
     x: 12,
-    y: 10,
+    y: 12,
     w: 12,
     h: 8,
   }
@@ -116,7 +127,7 @@ grafana.dashboard.new(
     title='Disk'
   ), gridPos={
     x: 0,
-    y: 18,
+    y: 20,
     w: 24,
     h: 1,
   }
@@ -134,7 +145,7 @@ grafana.dashboard.new(
     { expr: importstr 'tools/biolatency.bt', format: 'heatmap' },
   ]), gridPos={
     x: 0,
-    y: 19,
+    y: 21,
     w: 24,
     h: 8,
   }
@@ -145,7 +156,7 @@ grafana.dashboard.new(
     title='Filesystem'
   ), gridPos={
     x: 0,
-    y: 27,
+    y: 29,
     w: 24,
     h: 1,
   }
@@ -159,10 +170,10 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-    { expr: importstr 'tools/vfscount.bt', format: 'time_series' },
+    { expr: importstr 'tools/vfscount.bt', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
-    y: 28,
+    y: 30,
     w: 24,
     h: 8,
   }
@@ -173,7 +184,7 @@ grafana.dashboard.new(
     title='Network'
   ), gridPos={
     x: 0,
-    y: 36,
+    y: 38,
     w: 24,
     h: 1,
   }
@@ -188,7 +199,7 @@ grafana.dashboard.new(
       { expr: importstr 'tools/tcplife.bt', format: 'csv_table' },
   ]), gridPos={
     x: 0,
-    y: 37,
+    y: 39,
     w: 24,
     h: 8,
   }
@@ -210,7 +221,7 @@ grafana.dashboard.new(
     }
   }, gridPos={
     x: 0,
-    y: 45,
+    y: 47,
     w: 12,
     h: 8,
   }
@@ -232,7 +243,7 @@ grafana.dashboard.new(
     }
   }, gridPos={
     x: 12,
-    y: 45,
+    y: 47,
     w: 12,
     h: 8,
   }
@@ -254,7 +265,7 @@ grafana.dashboard.new(
     }
   }, gridPos={
     x: 0,
-    y: 53,
+    y: 55,
     w: 12,
     h: 8,
   }
@@ -276,7 +287,7 @@ grafana.dashboard.new(
     }
   }, gridPos={
     x: 12,
-    y: 53,
+    y: 55,
     w: 12,
     h: 8,
   }

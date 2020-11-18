@@ -20,6 +20,18 @@ grafana.dashboard.new(
   )
 )
 .addPanel(
+  grafana.text.new(
+    'Installation Instructions',
+    mode='markdown',
+    content='This dashboards requires the [bcc PMDA](https://man7.org/linux/man-pages/man1/pmdabcc.1.html) to be installed and configured with the following modules: runqlat, biolatency, tcptop, tcplife.',
+  ), gridPos={
+    x: 0,
+    y: 0,
+    w: 24,
+    h: 2,
+  }
+)
+.addPanel(
   grafana.heatmapPanel.new(
     'run queue latency (us)',
     datasource='$datasource',
@@ -33,7 +45,7 @@ grafana.dashboard.new(
     { expr: 'bcc.runq.latency', format: 'heatmap' },
   ]), gridPos={
     x: 0,
-    y: 0,
+    y: 2,
     w: 24,
     h: 11,
   }
@@ -52,7 +64,7 @@ grafana.dashboard.new(
     { expr: 'bcc.disk.all.latency', format: 'heatmap' },
   ]), gridPos={
     x: 0,
-    y: 11,
+    y: 13,
     w: 24,
     h: 11,
   }
@@ -86,7 +98,7 @@ grafana.dashboard.new(
     }],
   }, gridPos={
     x: 0,
-    y: 22,
+    y: 24,
     w: 24,
     h: 7,
   }
@@ -121,7 +133,7 @@ grafana.dashboard.new(
     }],
   }, gridPos={
     x: 0,
-    y: 29,
+    y: 31,
     w: 24,
     h: 7,
   }

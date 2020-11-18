@@ -44,7 +44,18 @@ grafana.dashboard.new(
     hide='value',
   )
 )
-
+.addPanel(
+  grafana.text.new(
+    'Installation Instructions',
+    mode='markdown',
+    content='This dashboards requires the [bpftrace PMDA](https://man7.org/linux/man-pages/man1/pmdabpftrace.1.html) to be installed and configured with *dynamic_scripts* enabled.',
+  ), gridPos={
+    x: 0,
+    y: 0,
+    w: 24,
+    h: 2,
+  }
+)
 .addPanel(
   grafana.graphPanel.new(
     'CPU Utilization',
@@ -60,7 +71,7 @@ grafana.dashboard.new(
     { expr: 'kernel.cpu.util.sys', format: 'time_series' },
   ]), gridPos={
     x: 0,
-    y: 0,
+    y: 2,
     w: 24,
     h: 4,
   }
@@ -74,9 +85,9 @@ grafana.dashboard.new(
     { expr: importstr 'tools/kstacks.bt', format: 'flamegraph' },
   ]), gridPos={
     x: 0,
-    y: 4,
+    y: 6,
     w: 24,
-    h: 9,
+    h: 8,
   }
 )
 .addPanel(
@@ -88,8 +99,8 @@ grafana.dashboard.new(
     { expr: importstr 'tools/ustacks.bt', format: 'flamegraph' },
   ]), gridPos={
     x: 0,
-    y: 13,
+    y: 14,
     w: 24,
-    h: 9,
+    h: 8,
   }
 )
