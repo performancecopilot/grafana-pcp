@@ -147,21 +147,20 @@ export class Poller {
         }
 
         currentMetricNames = endpoint.metrics.map(metric => metric.metadata.name);
+        const readyTargets: Target[] = [];
         for (const target of pendingTargets) {
             if (target.metricNames.length > 0 && difference(target.metricNames, currentMetricNames).length === 0) {
                 target.state = TargetState.METRICS_AVAILABLE;
+                readyTargets.push(target);
             }
         }
 
-        if (endpoint.hasRedis) {
-            const readyTargets = endpoint.targets.filter(target => target.state === TargetState.METRICS_AVAILABLE);
-            if (readyTargets.length > 0) {
-                try {
-                    await this.config.hooks.redisBackfill?.(endpoint, readyTargets);
-                } catch (error) {
-                    // redis backfill is entirely optional, therefore ignore any errors
-                    log.error('Error in redisBackfill hook', error);
-                }
+        if (endpoint.hasRedis && readyTargets.length > 0) {
+            try {
+                await this.config.hooks.redisBackfill?.(endpoint, readyTargets);
+            } catch (error) {
+                // redis backfill is entirely optional, therefore ignore any errors
+                log.error('Error in redisBackfill hook', error);
             }
         }
     }
@@ -242,6 +241,7 @@ export class Poller {
             });
         }
 
+        // metrics can appear and disappear at any time, update state accordingly
         this.detectMissingMetrics(
             endpoint as EndpointWithCtx,
             metricsToPoll,
