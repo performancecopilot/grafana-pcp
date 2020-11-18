@@ -38,6 +38,7 @@ interface PollerState {
 
 export class Poller {
     state: PollerState;
+    timer: NodeJS.Timeout;
 
     constructor(
         private pmApiService: PmApiService,
@@ -49,7 +50,7 @@ export class Poller {
             refreshIntervalMs: config.refreshIntervalMs,
             pageIsVisible: true,
         };
-        setTimeout(this.poll.bind(this), this.state.refreshIntervalMs);
+        this.timer = setTimeout(this.poll.bind(this), this.state.refreshIntervalMs);
     }
 
     setRefreshInterval(intervalMs: number) {
@@ -59,6 +60,10 @@ export class Poller {
 
         log.info('setting poll refresh interval to', intervalMs);
         this.state.refreshIntervalMs = intervalMs;
+        // when changing the refresh interval from e.g. 30m to 1s, do not wait until the current timeout
+        // cancel the current timeout (30m) and start a new one (1s) instead
+        clearTimeout(this.timer);
+        this.timer = setTimeout(this.poll.bind(this), this.state.refreshIntervalMs);
     }
 
     setPageVisibility(visible: boolean) {
@@ -287,7 +292,7 @@ export class Poller {
         log.debug('polling endpoints: finish');
 
         // use setTimeout instead of setInterval to prevent overlapping timers
-        setTimeout(this.poll.bind(this), this.state.refreshIntervalMs);
+        this.timer = setTimeout(this.poll.bind(this), this.state.refreshIntervalMs);
     }
 
     deregisterTarget(endpoint: Endpoint, target: Target) {

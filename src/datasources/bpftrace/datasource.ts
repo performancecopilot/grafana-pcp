@@ -37,6 +37,10 @@ export class PCPBPFtraceDataSource extends DataSourceBase<BPFtraceQuery, BPFtrac
         });
     }
 
+    /**
+     * force a deregistration of the current target if the format has changed,
+     * because then we need different metrics (e.g. heatmap format -> looking for histogram maps)
+     */
     queryHasChanged(prevQuery: PmapiQuery, newQuery: PmapiQuery) {
         return newQuery.expr !== prevQuery.expr || newQuery.format !== prevQuery.format;
     }

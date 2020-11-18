@@ -37,6 +37,10 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
         });
     }
 
+    /**
+     * check only expr for difference, changing the format
+     * doesn't require the metric to be deregistered
+     */
     queryHasChanged(prevQuery: PmapiQuery, newQuery: PmapiQuery) {
         return newQuery.expr !== prevQuery.expr;
     }
