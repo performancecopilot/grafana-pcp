@@ -155,7 +155,7 @@ function createField(
     }
 
     const config: FieldConfig<FieldCustom> = {
-        displayName: getFieldDisplayName(scopedVars, context, query, metric, instanceId),
+        displayNameFromDS: getFieldDisplayName(scopedVars, context, query, metric, instanceId),
         custom: {
             instanceId: instanceId,
             instance,
@@ -261,7 +261,7 @@ function toHeatMap(frames: MutableDataFrame) {
             timeField = field;
             continue;
         }
-        field.config.displayName = getHeatMapDisplayName(field);
+        field.config.displayNameFromDS = getHeatMapDisplayName(field);
     }
     if (!timeField) {
         return;
@@ -289,7 +289,8 @@ function toMetricsTable(scopedVars: ScopedVars, frames: DataFrame[]) {
         const { context, query, metric } = frame.meta?.custom as FrameCustom;
         const metricSpl = metric.metadata.name.split('.');
         const newField = createField(scopedVars, context, query, metric, null);
-        newField.config.displayName = newField.config.displayName || metricSpl[metricSpl.length - 1];
+        if (!newField.config.displayNameFromDS)
+            newField.config.displayNameFromDS = metricSpl[metricSpl.length - 1];
         tableFrame.addField(newField);
 
         if (frame.length === 0) {

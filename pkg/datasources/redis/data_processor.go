@@ -179,7 +179,7 @@ func (ds *redisDatasourceInstance) createField(redisQuery *Query, series *series
 	}
 
 	labels := getStringLabels(series, instanceID)
-	displayName := getFieldDisplayName(redisQuery, series, instanceID, labels)
+	displayNameFromDS := getFieldDisplayName(redisQuery, series, instanceID, labels)
 	unit := getFieldUnit(&series.Desc)
 
 	var instance series_.Instance
@@ -189,8 +189,8 @@ func (ds *redisDatasourceInstance) createField(redisQuery *Query, series *series
 
 	field := data.NewField(name, labels, vector)
 	field.SetConfig(&data.FieldConfig{
-		DisplayName: displayName,
-		Unit:        unit,
+		DisplayNameFromDS: displayNameFromDS,
+		Unit:              unit,
 		Custom: map[string]interface{}{
 			"InstanceId": instanceID,
 			"Instance":   instance,
