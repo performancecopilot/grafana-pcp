@@ -69,7 +69,8 @@ test-backend: deps-backend ## Run backend tests
 	go test -race ./pkg/...
 
 test-backend-coverage: deps-backend ## Run backend tests with coverage
-	go test -race -cover ./pkg/...
+	go test -race -coverprofile=coverage.out ./pkg/...
+	go tool cover -html=coverage.out
 
 test-backend-web: deps-backend ## Run backend tests using goconvey
 	cd pkg && goconvey
