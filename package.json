@@ -1,12 +1,13 @@
 {
-  "name": "pcp-grafana-app",
+  "name": "performancecopilot-pcp-app",
   "description": "Performance Co-Pilot Grafana Plugin",
   "version": "3.0.0-beta2",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
     "test": "grafana-toolkit plugin:test",
     "dev": "grafana-toolkit plugin:dev",
-    "watch": "grafana-toolkit plugin:dev --watch"
+    "watch": "grafana-toolkit plugin:dev --watch",
+    "sign": "grafana-toolkit plugin:sign"
   },
   "author": "Performance Co-Pilot and Netflix",
   "license": "Apache-2.0",

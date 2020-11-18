@@ -91,6 +91,9 @@ test-e2e: test-e2e-container ## Run End-to-End tests
 
 ##@ Helpers
 
+sign: ## Sign the plugin
+	yarn run sign
+
 clean: ## Clean all artifacts
 	rm -rf node_modules "$(JSONNET_VENDOR_DIR)" dist
 
