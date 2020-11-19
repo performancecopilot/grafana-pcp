@@ -9,10 +9,10 @@ local parents = checklist.getParentNodes(node);
 checklist.dashboard.new(node)
 .addPanel(
   notifyGraph.panel.new(
-    title='Network TX - Saturation',
+    title='Saturation [# packet drops]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
-      metric='network_tx_drops',
+      metric='network.interface.out.drops',
       operator='>',
       value=0.01
     ),
@@ -25,14 +25,13 @@ checklist.dashboard.new(node)
           'network send drops from /proc/net/dev per network interface',
         ),
       ],
-      derived=['network_tx_drops = rate(network.interface.out.drops)'],
       urls=['https://access.redhat.com/solutions/21301'],
       details='Packets maybe dropped if there is not enough room in the ring buffers',
       issues=['The URL mentions comparing the current ring buffer size to the max allowed and increase the ring buffer size, but PCP doesn\'t have metrics to provide ring buffer info, a 1% packet drop threshold might be too high.'],
       parents=parents,
     ),
   ).addTargets([
-    { name: 'network_tx_drops', expr: 'rate(network.interface.out.drops)', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'network.interface.out.drops', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -42,10 +41,10 @@ checklist.dashboard.new(node)
 )
 .addPanel(
   notifyGraph.panel.new(
-    title='Network TX - errors',
+    title='Errors',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
-      metric='network_tx_errors',
+      metric='network.interface.out.errors',
       operator='>',
       value=0.01,
     ),
@@ -58,13 +57,12 @@ checklist.dashboard.new(node)
           'network send errors from /proc/net/dev per network interface',
         ),
       ],
-      derived=['network_tx_errors = rate(network.interface.out.errors)'],
       urls=['https://access.redhat.com/solutions/518893'],
       details='In general the the operation of the network devices should be error free.',
       parents=parents,
     ),
   ).addTargets([
-    { name: 'network_tx_errors', expr: 'rate(network.interface.out.errors)', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'network.interface.out.errors', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 3,

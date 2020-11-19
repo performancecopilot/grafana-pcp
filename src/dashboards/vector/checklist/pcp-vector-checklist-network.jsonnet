@@ -9,7 +9,7 @@ local parents = checklist.getParentNodes(node);
 checklist.dashboard.new(node)
 .addPanel(
   notifyGraph.panel.new(
-    title='Network TX',
+    title='TX Utilization [%]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
       metric='network_tx_bandwidth',
@@ -44,7 +44,7 @@ checklist.dashboard.new(node)
 )
 .addPanel(
   notifyGraph.panel.new(
-    title='Network RX',
+    title='RX Utilization [%]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
       metric='network_rx_bandwidth',

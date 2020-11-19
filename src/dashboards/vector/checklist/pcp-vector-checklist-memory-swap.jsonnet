@@ -9,7 +9,7 @@ local parents = checklist.getParentNodes(node);
 checklist.dashboard.new(node)
 .addPanel(
   notifyGraph.panel.new(
-    title='Memory - Low system memory',
+    title='Available system memory [%]',
     datasource='$datasource',
     meta=notifyGraph.meta.new(
       name='Memory - Low system memory',
@@ -38,7 +38,7 @@ checklist.dashboard.new(node)
 )
 .addPanel(
   notifyGraph.panel.new(
-    title='Memory - Low NUMA node memory',
+    title='Available NUMA node memory [%]',
     datasource='$datasource',
     meta=notifyGraph.meta.new(
       name='Memory - Low NUMA node memory',

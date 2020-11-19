@@ -9,10 +9,10 @@ local parents = checklist.getParentNodes(node);
 checklist.dashboard.new(node)
 .addPanel(
   notifyGraph.panel.new(
-    title='CPU - User Time',
+    title='Per-CPU busy (User) [%]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
-      metric='kernel.percpu.cpu.util.user',
+      metric='kernel.percpu.cpu.user',
       operator='>',
       value=0.8,
     ),
@@ -25,13 +25,12 @@ checklist.dashboard.new(node)
           'percpu user CPU time metric from /proc/stat, including guest CPU time',
         ),
       ],
-      derived=['kernel.percpu.cpu.util.user = rate(kernel.percpu.cpu.user)'],
       urls=['https://access.redhat.com/articles/767563#cpu'],
       parents=parents,
       children=[checklist.getNodeByUid('pcp-vector-checklist-cpu-user')],
     ),
   ).addTargets([
-    { name: 'kernel.percpu.cpu.util.user', expr: 'rate(kernel.percpu.cpu.user)', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'kernel.percpu.cpu.user', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -41,10 +40,10 @@ checklist.dashboard.new(node)
 )
 .addPanel(
   notifyGraph.panel.new(
-    title='CPU - System Time',
+    title='Per-CPU busy (System) [%]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
-      metric='kernel.percpu.cpu.util.sys',
+      metric='kernel.percpu.cpu.sys',
       operator='>',
       value=0.2,
     ),
@@ -57,13 +56,12 @@ checklist.dashboard.new(node)
           'percpu sys CPU time metric from /proc/stat',
         ),
       ],
-      derived=['kernel.percpu.cpu.util.sys = rate(kernel.percpu.cpu.sys)'],
       urls=['https://access.redhat.com/articles/767563#cpu'],
       parents=parents,
       children=[checklist.getNodeByUid('pcp-vector-checklist-cpu-sys')],
     ),
   ).addTargets([
-    { name: 'kernel.percpu.cpu.util.sys', expr: 'rate(kernel.percpu.cpu.sys)', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'kernel.percpu.cpu.sys', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 3,
@@ -73,7 +71,7 @@ checklist.dashboard.new(node)
 )
 .addPanel(
   notifyGraph.panel.new(
-    title='CPU - Kernel SamePage Merging Daemon (ksmd)',
+    title='Kernel SamePage Merging Daemon (ksmd)',
     datasource='$datasource',
     meta=notifyGraph.meta.new(
       name='CPU - Kernel SamePage Merging Daemon (ksmd)',

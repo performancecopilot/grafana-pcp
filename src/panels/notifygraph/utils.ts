@@ -47,6 +47,11 @@ export function generateGraphModel(data: PanelData, timeZone: TimeZone, options:
                     fixedColor: colors[series.length % colors.length],
                 },
             };
+            // looks like there is no way at the moment to display a custom unit
+            // with the <Graph> React component:
+            // we need to set the `tickFormatter` property on the yAxis, but there is no way
+            // to do so (see @grafana/ui/components/Graph/Graph.tsx)
+            // maybe we need the <GraphNG> component
             field.display = getDisplayProcessor({ field });
             timeField.display = getDisplayProcessor({
                 timeZone,
@@ -86,9 +91,9 @@ export function outsideThresholdSeries(series: GraphSeriesXY[], threshold: Thres
             // might be better to just use eval
             switch (threshold.operator) {
                 case ThresholdsOperator.GreaterThan:
-                    return threshold.value! > value;
+                    return threshold.value > value;
                 case ThresholdsOperator.LesserThan:
-                    return threshold.value! < value;
+                    return threshold.value < value;
                 default:
                     return true;
             }

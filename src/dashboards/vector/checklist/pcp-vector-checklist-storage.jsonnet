@@ -9,15 +9,15 @@ local parents = checklist.getParentNodes(node);
 checklist.dashboard.new(node)
 .addPanel(
   notifyGraph.panel.new(
-    title='Storage - bandwidth',
+    title='IOPS',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
-      metric='disk.dm.bw',
+      metric='disk.dm.total',
       operator='>',
       value=2500,
     ),
     meta=notifyGraph.meta.new(
-      name='Storage - bandwidth',
+      name='Storage - IOPS',
       warning='Overly high data saturation rate.',
       metrics=[
         notifyGraph.metric.new(
@@ -25,12 +25,11 @@ checklist.dashboard.new(node)
           'per-device-mapper device total (read+write) operations',
         ),
       ],
-      derived=['disk.dm.bw = rate(disk.dm.total)'],
       details='There are maximum rates that data can be read from and written to a storage device which can present a bottleneck on performance',
       parents=parents,
     ),
   ).addTargets([
-    { name: 'disk.dm.bw', expr: 'rate(disk.dm.total)', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'disk.dm.total', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -40,7 +39,7 @@ checklist.dashboard.new(node)
 )
 .addPanel(
   notifyGraph.panel.new(
-    title='Storage - small blocks',
+    title='Average block size [KB]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
       metric='disk.dm.avgsz',
@@ -48,7 +47,7 @@ checklist.dashboard.new(node)
       value=0.5,
     ),
     meta=notifyGraph.meta.new(
-      name='Storage - small blocks',
+      name='Storage - Average block size',
       warning='Excessively small sized operations for storage.',
       metrics=[
         notifyGraph.metric.new(

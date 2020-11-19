@@ -9,7 +9,7 @@ local parents = checklist.getParentNodes(node);
 checklist.dashboard.new(node)
 .addPanel(
   notifyGraph.panel.new(
-    title='CPU',
+    title='CPU Utilization [%]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
       metric='kernel.percpu.cpu.util.all',
@@ -40,7 +40,7 @@ checklist.dashboard.new(node)
 )
 .addPanel(
   notifyGraph.panel.new(
-    title='Storage',
+    title='Storage Utilization [%]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
       metric='diskbusy',
@@ -55,14 +55,13 @@ checklist.dashboard.new(node)
           'disk.dm.avactive', 'per-device-mapper device count of active time'
         )
       ],
-      derived=['diskbusy = rate(disk.dm.avactive)'],
       urls=['https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html-single/Performance_Tuning_Guide/index.html#chap-Red_Hat_Enterprise_Linux-Performance_Tuning_Guide-Storage_and_File_Systems'],
       details='Storage devices have queues for the IO requests for the device.  When the queue is empty the device is idle.  As the device utilization increases the amount of idle time drops and the avactive time increases. If the utilization is excessive and the device becomes saturated the time required to service IO request can become excessive.',
       parents=parents,
       children=[checklist.getNodeByUid('pcp-vector-checklist-storage')],
     ),
   ).addTargets([
-    { name: 'diskbusy', expr: 'rate(disk.dm.avactive)', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'disk.dm.avactive', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 3,
@@ -72,7 +71,7 @@ checklist.dashboard.new(node)
 )
 .addPanel(
   notifyGraph.panel.new(
-    title='Memory',
+    title='Memory Utilization [%]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
       metric='mem.ratio.available',
@@ -109,7 +108,7 @@ checklist.dashboard.new(node)
 )
 .addPanel(
   notifyGraph.panel.new(
-    title='Network TX',
+    title='Network TX Utilization [%]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
       metric='network_tx_bandwidth',
@@ -118,7 +117,7 @@ checklist.dashboard.new(node)
     ),
     meta=notifyGraph.meta.new(
       name='Network TX',
-      warning='Overly high ammount of network trafic sent.',
+      warning='Overly high ammount of network traffic sent.',
       metrics=[
         notifyGraph.metric.new(
           'network.interface.out.bytes',
@@ -136,7 +135,7 @@ checklist.dashboard.new(node)
   ).addTargets([
     { name: 'network_tx_bandwidth', expr: 'rate(network.interface.out.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
-    x: 12,
+    x: 0,
     y: 23,
     w: 12,
     h: 9
@@ -144,7 +143,7 @@ checklist.dashboard.new(node)
 )
 .addPanel(
   notifyGraph.panel.new(
-    title='Network RX',
+    title='Network RX Utilization [%]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
       metric='network_rx_bandwidth',
@@ -153,7 +152,7 @@ checklist.dashboard.new(node)
     ),
     meta=notifyGraph.meta.new(
       name='Network RX',
-      warning='Overly high ammount of network trafic received.',
+      warning='Overly high ammount of network traffic received.',
       metrics=[
         notifyGraph.metric.new(
           'network.interface.in.bytes',
@@ -171,7 +170,7 @@ checklist.dashboard.new(node)
   ).addTargets([
     { name: 'network_rx_bandwidth', expr: 'rate(network.interface.in.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance' }
   ]), gridPos={
-    x: 0,
+    x: 12,
     y: 23,
     w: 12,
     h: 9

@@ -57,9 +57,8 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
     thresholdDescription(threshold: ThresholdOptions) {
         return (
             <p>
-                Metric{' '}
+                Metric <strong>{threshold.metric}</strong> has recently had a value{' '}
                 <strong>
-                    {threshold.metric} has recently had a value{' '}
                     {threshold.operator === ThresholdsOperator.GreaterThan ? 'above' : 'below'} {threshold.value}
                 </strong>
             </p>

@@ -9,10 +9,10 @@ local parents = checklist.getParentNodes(node);
 checklist.dashboard.new(node)
 .addPanel(
   notifyGraph.panel.new(
-    title='Memory - Swapping',
+    title='Swapping [# of pages]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
-      metric='swaps',
+      metric='swap.pagesout',
       operator='>',
       value=1,
     ),
@@ -25,14 +25,13 @@ checklist.dashboard.new(node)
           'pages written to swap devices due to demand for physical memory',
         ),
       ],
-      derived=['swaps = rate(swap.pagesout)'],
       urls=['https://access.redhat.com/articles/767563#cpu'],
       details='When the memory pressure is excessive the operating system will move data in memory to swap space on storage devices so that the memory can be use to store other data.  Data in swap will be moved back into memory as needed.  However, there is a cost for scanning memory for candidate data to move to swap and the cost of moving data between memory and swap space is high.',
       parents=parents,
       children=[checklist.getNodeByUid('pcp-vector-checklist-memory-swap')],
     ),
   ).addTargets([
-    { name: 'swaps', expr: 'rate(swap.pagesout)', format: 'time_series', legendFormat: '$expr' },
+    { expr: 'swap.pagesout', format: 'time_series', legendFormat: '$expr' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -42,7 +41,7 @@ checklist.dashboard.new(node)
 )
 .addPanel(
   notifyGraph.panel.new(
-    title='Memory - Low mm reclaim efficiency',
+    title='Low mm reclaim efficiency [%]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
       metric='vmeff',
@@ -87,7 +86,7 @@ checklist.dashboard.new(node)
 )
 .addPanel(
   notifyGraph.panel.new(
-    title='Memory - Huge defragmentation',
+    title='Huge defragmentation [ops]',
     datasource='$datasource',
     meta=notifyGraph.meta.new(
       name='Memory - huge page defragmentation',
@@ -122,7 +121,7 @@ checklist.dashboard.new(node)
 )
 .addPanel(
   notifyGraph.panel.new(
-    title='Memory - Huge fragmentation',
+    title='Huge fragmentation [# of page splits]',
     datasource='$datasource',
     meta=notifyGraph.meta.new(
       name='Memory - huge page fragmentation',

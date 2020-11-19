@@ -9,7 +9,7 @@ local parents = checklist.getParentNodes(node);
 checklist.dashboard.new(node)
 .addPanel(
   notifyGraph.panel.new(
-    title='CPU - Intensive tasks in kernel-space',
+    title='Intensive tasks in kernel-space [%]',
     datasource='$datasource',
     meta=notifyGraph.meta.new(
       name='CPU - Intensive tasks in kernel-space',
