@@ -30,7 +30,7 @@ func getStringLabels(series *series.Series, instanceID string) data.Labels {
 	return strLabels
 }
 
-func getFieldVector(seriesType string) (interface{}, error) {
+func createFieldVector(seriesType string) (interface{}, error) {
 	switch seriesType {
 	case "32", "u32", "64", "u64", "float", "double":
 		// most counters are integers, but once they got rate-converted they are floats
@@ -173,7 +173,7 @@ func (ds *redisDatasourceInstance) createField(redisQuery *Query, series *series
 		return nil, err
 	}
 
-	vector, err := getFieldVector(series.Desc.Type)
+	vector, err := createFieldVector(series.Desc.Type)
 	if err != nil {
 		return nil, err
 	}
@@ -294,7 +294,7 @@ func getHeatMapDisplayName(field *data.Field) string {
 	return "0-0"
 }
 
-func (ds *redisDatasourceInstance) toHeatMap(frame *data.Frame) error {
+func (ds *redisDatasourceInstance) transformToHeatMap(frame *data.Frame) error {
 	var timeField *data.Field
 	for _, field := range frame.Fields {
 		if field.Type() == data.FieldTypeTime {
@@ -327,7 +327,7 @@ func (ds *redisDatasourceInstance) processQuery(redisQuery *Query, series map[st
 		return frames, nil
 	case Heatmap:
 		for _, frame := range frames {
-			err = ds.toHeatMap(frame)
+			err = ds.transformToHeatMap(frame)
 			if err != nil {
 				return nil, err
 			}

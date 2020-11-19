@@ -259,7 +259,7 @@ function getHeatMapDisplayName(field: Field) {
     return '0-0';
 }
 
-function toHeatMap(frame: MutableDataFrame) {
+function transformToHeatMap(frame: MutableDataFrame) {
     const { timeField } = getTimeField(frame) as { timeField?: MutableField };
     if (!timeField) {
         return;
@@ -280,7 +280,7 @@ function toHeatMap(frame: MutableDataFrame) {
  * transform a list of data frames to a table with metric names as columns and instances as rows
  * instances are grouped over multiple metrics
  */
-function toMetricsTable(scopedVars: ScopedVars, frames: DataFrame[]) {
+function transformToMetricsTable(scopedVars: ScopedVars, frames: DataFrame[]) {
     const tableFrame = new MutableDataFrame();
     tableFrame.addField({
         name: 'instance',
@@ -372,7 +372,7 @@ function* parseCsvLine(line: string) {
     }
 }
 
-function toCsvTable(frames: DataFrame[]) {
+function transformToCsvTable(frames: DataFrame[]) {
     let tableText = '';
     if (frames.length === 1 && frames[0].length > 0) {
         for (const field of frames[0].fields) {
@@ -435,12 +435,12 @@ export function processQueries(
         case TargetFormat.FlameGraph:
             return frames;
         case TargetFormat.Heatmap:
-            frames.forEach(toHeatMap);
+            frames.forEach(transformToHeatMap);
             return frames;
         case TargetFormat.MetricsTable:
-            return [toMetricsTable(request.scopedVars, frames)];
+            return [transformToMetricsTable(request.scopedVars, frames)];
         case TargetFormat.CsvTable:
-            return [toCsvTable(frames)];
+            return [transformToCsvTable(frames)];
         default:
             throw { message: `Invalid target format '${format}'.` };
     }
