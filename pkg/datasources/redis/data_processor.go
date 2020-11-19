@@ -43,7 +43,7 @@ func getFieldVector(seriesType string) (interface{}, error) {
 	}
 }
 
-func getFieldValue(seriesType string, value string) (interface{}, error) {
+func convertFieldValue(seriesType string, value string) (interface{}, error) {
 	switch seriesType {
 	case "32", "u32", "64", "u64", "float", "double":
 		val, err := strconv.ParseFloat(value, 64)
@@ -243,21 +243,31 @@ func (ds *redisDatasourceInstance) createDataFrames(redisQuery *Query, series ma
 						return nil, err
 					}
 
+					// it's possible that an instance appeared later
+					if curTimeField.Len()-1 > 0 {
+						// match new field vector to the length of the time field
+						// minus one (one value will be added a few lines down)
+						field.Extend(curTimeField.Len() - 1)
+					}
+
 					curInstanceToField[values[i].Instance] = field
 					curFrame.Fields = append(curFrame.Fields, field)
 				}
 
-				val, err := getFieldValue(series[curSeriesID].Desc.Type, values[i].Value)
-				if err != nil {
-					return nil, err
+				// sometimes there are duplicate values for the *same* timestamp and *same* instance :|
+				if field.Len() < curTimeField.Len() {
+					val, err := convertFieldValue(series[curSeriesID].Desc.Type, values[i].Value)
+					if err != nil {
+						return nil, err
+					}
+					field.Append(val)
 				}
-				field.Append(val)
 			}
 
 			// it's possible that some instance existed previously but disappeared
 			for _, field := range curInstanceToField {
-				if field.Len() != curTimeField.Len() {
-					field.Extend(1)
+				if curTimeField.Len() > field.Len() {
+					field.Extend(curTimeField.Len() - field.Len())
 				}
 			}
 		}

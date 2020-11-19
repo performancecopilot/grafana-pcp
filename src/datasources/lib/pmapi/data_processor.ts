@@ -223,12 +223,16 @@ function createDataFrame(
         timeField.values.add(snapshot.timestampMs);
         for (const instanceValue of snapshot.values) {
             let field = instanceIdToField.get(instanceValue.instance)!;
-            field.values.add(instanceValue.value);
+            // make sure a field doesn't grow larger than the time field
+            // in case an instance has two values for the same timestamp (should not happen)
+            if (field.values.length < timeField.values.length) {
+                field.values.add(instanceValue.value);
+            }
         }
 
         // some instance existed previously but disappeared -> fill field with MISSING_VALUE
         for (const field of instanceIdToField.values()) {
-            if (field.values.length !== timeField.values.length) {
+            if (timeField.values.length > field.values.length) {
                 field.values.add(MISSING_VALUE);
             }
         }

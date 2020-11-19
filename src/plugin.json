@@ -140,7 +140,7 @@
     ],
     "dependencies": {
         "grafanaVersion": "7.x.x",
-        "grafanaDependency": ">=7.2.0",
+        "grafanaDependency": ">=7.3.3",
         "plugins": []
     }
 }

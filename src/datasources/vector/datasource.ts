@@ -1,6 +1,6 @@
 import { DataSourceInstanceSettings } from '@grafana/data';
 import md5 from 'blueimp-md5';
-import { keyBy } from 'lodash';
+import { keyBy, uniqBy } from 'lodash';
 import { getLogger } from 'loglevel';
 import { InstanceId } from '../../common/services/pmapi/types';
 import { SeriesId, SeriesLabelsItemResponse } from '../../common/services/pmseries/types';
@@ -186,6 +186,8 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
                     const instanceId = values[i].instance ? seriesInstanceToInstanceId[values[i].instance!]! : null;
                     curSnapshot.values.push({ instance: instanceId, value: parseFloat(values[i].value) });
                 }
+                // sometimes there are duplicate values for the *same* timestamp and *same* instance :|
+                curSnapshot.values = uniqBy(curSnapshot.values, 'instance');
 
                 seriesToMetric[curSeries]!.values.push(curSnapshot);
             }
