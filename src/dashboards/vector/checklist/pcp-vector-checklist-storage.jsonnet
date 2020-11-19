@@ -39,7 +39,7 @@ checklist.dashboard.new(node)
 )
 .addPanel(
   notifyGraph.panel.new(
-    title='Average block size [KB]',
+    title='Average block size [KiB]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
       metric='disk.dm.avgsz',

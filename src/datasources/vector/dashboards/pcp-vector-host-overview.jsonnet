@@ -658,7 +658,7 @@ grafana.dashboard.new(
   grafana.graphPanel.new(
     'Disk Throughput',
     datasource='$datasource',
-    format='KBs',
+    format='KiBs',
     min=0,
   )
   .addTargets([

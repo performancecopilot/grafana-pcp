@@ -85,17 +85,17 @@ func getFieldUnit(desc *series.Desc) string {
 	if desc.Semantics == "counter" {
 		switch desc.Units {
 		case "byte":
-			return "Bps"
+			return "binBps"
 		case "Kbyte":
-			return "KBs"
+			return "KiBs"
 		case "Mbyte":
-			return "MBs"
+			return "MiBs"
 		case "Gbyte":
-			return "GBs"
+			return "GiBs"
 		case "Tbyte":
-			return "TBs"
+			return "TiBs"
 		case "Pbyte":
-			return "PBs"
+			return "PiBs"
 		}
 	} else {
 		switch desc.Units {

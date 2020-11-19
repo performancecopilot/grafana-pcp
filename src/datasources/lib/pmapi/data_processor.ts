@@ -85,17 +85,17 @@ function getFieldUnit(metadata: Metadata): string | undefined {
     if (metadata.sem === Semantics.Counter) {
         switch (metadata.units) {
             case 'byte':
-                return 'Bps';
+                return 'binBps';
             case 'Kbyte':
-                return 'KBs';
+                return 'KiBs';
             case 'Mbyte':
-                return 'MBs';
+                return 'MiBs';
             case 'Gbyte':
-                return 'GBs';
+                return 'GiBs';
             case 'Tbyte':
-                return 'TBs';
+                return 'TiBs';
             case 'Pbyte':
-                return 'PBs';
+                return 'PiBs';
         }
     } else {
         switch (metadata.units) {

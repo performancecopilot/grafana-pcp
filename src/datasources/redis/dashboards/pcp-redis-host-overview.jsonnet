@@ -490,7 +490,7 @@ grafana.dashboard.new(
   grafana.graphPanel.new(
     'Disk Throughput',
     datasource='$datasource',
-    format='KBs',
+    format='KiBs',
   )
   .addTargets([
       { expr: 'disk.dev.read_bytes{hostname == "$host"}', legendFormat: 'read $instance', format: 'time_series' },
