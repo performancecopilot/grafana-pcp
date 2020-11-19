@@ -20,7 +20,12 @@ func getStringLabels(series *series.Series, instanceID string) data.Labels {
 	if series.Instances == nil {
 		labels = series.Labels
 	} else {
-		labels = series.Instances[instanceID].Labels
+		instance, ok := series.Instances[instanceID]
+		if ok {
+			labels = instance.Labels
+		} else {
+			labels = series_.Labels{}
+		}
 	}
 
 	strLabels := data.Labels{}
@@ -112,26 +117,16 @@ func getFieldUnit(desc *series.Desc) string {
 	return ""
 }
 
-func (ds *redisDatasourceInstance) getFieldName(series *series.Series, instanceID string) (string, error) {
+func (ds *redisDatasourceInstance) getFieldName(series *series.Series, instanceID string) string {
 	if series.Instances == nil {
-		return series.MetricName, nil
+		return series.MetricName
 	}
 
 	instance, ok := series.Instances[instanceID]
 	if !ok {
-		err := ds.seriesService.RefreshInstances(series)
-		if err != nil {
-			return "", err
-		}
-
-		instance, ok = series.Instances[instanceID]
+		return fmt.Sprintf("%s[%s]", series.MetricName, instanceID)
 	}
-
-	// try again after (possibly) refreshing indoms
-	if ok {
-		return fmt.Sprintf("%s[%s]", series.MetricName, instance.Name), nil
-	}
-	return fmt.Sprintf("%s[%s]", series.MetricName, instanceID), nil
+	return fmt.Sprintf("%s[%s]", series.MetricName, instance.Name)
 }
 
 var legendFormatRegex = regexp.MustCompile(`\$\w+`)
@@ -141,7 +136,7 @@ func getFieldDisplayName(redisQuery *Query, series *series.Series, instanceID st
 		return ""
 	}
 
-	result := legendFormatRegex.ReplaceAllStringFunc(redisQuery.LegendFormat, func(match string) string {
+	return legendFormatRegex.ReplaceAllStringFunc(redisQuery.LegendFormat, func(match string) string {
 		varName := match[1:]
 		switch varName {
 		case "expr":
@@ -152,10 +147,15 @@ func getFieldDisplayName(redisQuery *Query, series *series.Series, instanceID st
 			spl := strings.Split(series.MetricName, ".")
 			return spl[len(spl)-1]
 		case "instance":
-			if series.Instances != nil {
-				return series.Instances[instanceID].Name
+			if series.Instances == nil {
+				return match
 			}
-			return ""
+
+			instance, ok := series.Instances[instanceID]
+			if ok {
+				return instance.Name
+			}
+			return instanceID
 		default:
 			labelValue, ok := labels[varName]
 			if ok {
@@ -164,14 +164,10 @@ func getFieldDisplayName(redisQuery *Query, series *series.Series, instanceID st
 			return match
 		}
 	})
-	return string(result)
 }
 
 func (ds *redisDatasourceInstance) createField(redisQuery *Query, series *series.Series, instanceID string) (*data.Field, error) {
-	name, err := ds.getFieldName(series, instanceID)
-	if err != nil {
-		return nil, err
-	}
+	name := ds.getFieldName(series, instanceID)
 
 	vector, err := createFieldVector(series.Desc.Type)
 	if err != nil {
@@ -182,22 +178,37 @@ func (ds *redisDatasourceInstance) createField(redisQuery *Query, series *series
 	displayNameFromDS := getFieldDisplayName(redisQuery, series, instanceID, labels)
 	unit := getFieldUnit(&series.Desc)
 
-	var instance series_.Instance
-	if series.Instances != nil {
-		instance = series.Instances[instanceID]
-	}
-
 	field := data.NewField(name, labels, vector)
 	field.SetConfig(&data.FieldConfig{
 		DisplayNameFromDS: displayNameFromDS,
 		Unit:              unit,
 		Custom: map[string]interface{}{
 			"InstanceId": instanceID,
-			"Instance":   instance,
 		},
 	})
 
+	if series.Instances != nil {
+		instance, ok := series.Instances[instanceID]
+		if ok {
+			field.Config.Custom["Instance"] = instance
+		}
+	}
+
 	return field, nil
+}
+
+func (ds *redisDatasourceInstance) maybeRefreshInstances(series *series.Series, instanceID string) (bool, error) {
+	_, ok := series.Instances[instanceID]
+	if ok {
+		return false, nil
+	}
+
+	err := ds.seriesService.RefreshInstances(series)
+	if err != nil {
+		return true, err
+	}
+	return true, nil
+
 }
 
 func (ds *redisDatasourceInstance) createDataFrames(redisQuery *Query, series map[string]*series.Series, values []pmseries.ValuesResponseItem) (data.Frames, error) {
@@ -228,6 +239,7 @@ func (ds *redisDatasourceInstance) createDataFrames(redisQuery *Query, series ma
 		curTimeField := data.NewField("time", nil, []time.Time{})
 		curFrame.Fields = append(curFrame.Fields, curTimeField)
 		curInstanceToField := map[string]*data.Field{}
+		curInstancesRefreshed := false // refresh instances only once per series (frame)
 
 		for i < len(values) && values[i].Series == curSeriesID {
 			curTimestampMs := values[i].Timestamp
@@ -238,6 +250,15 @@ func (ds *redisDatasourceInstance) createDataFrames(redisQuery *Query, series ma
 				field := curInstanceToField[values[i].Instance]
 				if field == nil {
 					var err error
+
+					// maybe refresh instances cache
+					if series[curSeriesID].Instances != nil && !curInstancesRefreshed {
+						curInstancesRefreshed, err = ds.maybeRefreshInstances(series[curSeriesID], values[i].Instance)
+						if err != nil {
+							return nil, err
+						}
+					}
+
 					field, err = ds.createField(redisQuery, series[curSeriesID], values[i].Instance)
 					if err != nil {
 						return nil, err
