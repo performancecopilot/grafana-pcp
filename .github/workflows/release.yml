@@ -1,11 +1,14 @@
 name: Release
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   release:
     name: Publish Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - name: Checkout sources
       uses: actions/checkout@v2
@@ -24,13 +27,15 @@ jobs:
     - name: Install dependencies
       run: make deps
 
-    - name: Build
-      run: make dist sign
+    - name: Build plugin
+      run: make dist
+
+    #- name: Sign plugin
+    #  run: make sign
+    #  env:
+    #    GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
 
     - name: Create GitHub release
-      run: |
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "action@github.com"
-        scripts/github-release.sh
+      run: scripts/github-release.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

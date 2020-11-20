@@ -29,10 +29,10 @@ jobs:
     - name: Install dependencies
       run: make deps
 
-    - name: Test
+    - name: Test plugin
       run: make test-frontend-coverage test-backend-coverage
 
-    - name: Build
+    - name: Build plugin
       run: make dist
 
     - name: Publish build artifact
