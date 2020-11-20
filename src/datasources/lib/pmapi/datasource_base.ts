@@ -56,9 +56,11 @@ export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends Pmap
         const url = getTemplateSrv().replace(query?.url ?? this.url ?? '', scopedVars);
         const orInTheQueryErrorText = query ? ' or in the query editor' : '';
 
-        if (this.url?.startsWith("/api/datasources/proxy") && !isBlank(query?.url)) {
+        if (this.url?.startsWith('/api/datasources/proxy') && !isBlank(query?.url)) {
             // Grafana will send additional x-grafana headers, which make the CORS request fail
-            throw new Error('Please set the access mode to Browser in the datasource settings when using a custom URL for this panel.');
+            throw new Error(
+                'Please set the access mode to Browser in the datasource settings when using a custom URL for this panel.'
+            );
         }
 
         if (isBlank(url)) {

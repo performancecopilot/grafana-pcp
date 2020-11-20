@@ -58,10 +58,9 @@ export class PmApiService {
                 throw new NetworkError('Received malformed response.', request);
             }
             return response.data;
-        }
-        catch (error) {
+        } catch (error) {
             if (has(error, 'data.message')) {
-                throw new NetworkError(error.data.message+'.', request);
+                throw new NetworkError(error.data.message + '.', request);
             } else {
                 throw error;
             }
