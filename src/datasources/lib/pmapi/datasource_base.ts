@@ -56,6 +56,11 @@ export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends Pmap
         const url = getTemplateSrv().replace(query?.url ?? this.url ?? '', scopedVars);
         const orInTheQueryErrorText = query ? ' or in the query editor' : '';
 
+        if (this.url?.startsWith("/api/datasources/proxy") && !isBlank(query?.url)) {
+            // Grafana will send additional x-grafana headers, which make the CORS request fail
+            throw new Error('Please set the access mode to Browser in the datasource settings when using a custom URL for this panel.');
+        }
+
         if (isBlank(url)) {
             throw new Error(`Please specify a connection URL in the datasource settings${orInTheQueryErrorText}.`);
         }
@@ -104,10 +109,18 @@ export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends Pmap
     }
 
     async testDatasource() {
+        // only catches browser access mode and empty url
+        // for server access mode the url is always /api/datasources/proxy/..., i.e. it's never empty
+        if (isBlank(this.url)) {
+            return {
+                status: 'error',
+                message: 'Empty URL. To use this data source, please configure the URL in the query editor.',
+            };
+        }
+
         try {
-            const { url, hostspec } = this.getUrlAndHostspec();
-            const context = await this.pmApiService.createContext(url, { hostspec });
-            const pmcdVersionMetric = await this.pmApiService.fetch(url, {
+            const context = await this.pmApiService.createContext(this.url!, { hostspec: this.hostspec });
+            const pmcdVersionMetric = await this.pmApiService.fetch(this.url!, {
                 context: context.context,
                 names: ['pmcd.version'],
             });
