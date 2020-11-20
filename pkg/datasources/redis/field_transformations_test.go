@@ -44,15 +44,18 @@ func ShouldAlmostEqualPointer(actual interface{}, expected ...interface{}) strin
 
 func TestTransformations(t *testing.T) {
 	Convey("Counter 1", t, func() {
-		series := &series.Series{
-			Desc: series.Desc{
-				Semantics: "counter",
-			},
+		query := &Query{
+			Expr:         "",
+			Format:       "",
+			LegendFormat: "",
+		}
+		desc := &series.Desc{
+			Semantics: "counter",
 		}
 		timeField := data.NewField("time", nil, []time.Time{time.Unix(1000, 0), time.Unix(1010, 0), time.Unix(1020, 0)})
 		dataField := data.NewField("data", nil, Float64P(10, 20, 40))
 		frame := data.NewFrame("", timeField, dataField)
-		err := applyFieldTransformations(series, frame)
+		err := applyFieldTransformations(query, desc, frame)
 		So(err, ShouldBeNil)
 
 		expectedTime := []time.Time{time.Unix(1010, 0), time.Unix(1020, 0)}
@@ -66,16 +69,19 @@ func TestTransformations(t *testing.T) {
 	})
 
 	Convey("Counter wrap", t, func() {
-		series := &series.Series{
-			Desc: series.Desc{
-				Semantics: "counter",
-			},
+		query := &Query{
+			Expr:         "",
+			Format:       "",
+			LegendFormat: "",
+		}
+		desc := &series.Desc{
+			Semantics: "counter",
 		}
 		timeField := data.NewField("time", nil, []time.Time{time.Unix(1000, 0), time.Unix(1010, 0), time.Unix(1020, 0), time.Unix(1030, 0)})
 		dataField1 := data.NewField("data1", nil, Float64P(10, 30, 20, 30))
 		dataField2 := data.NewField("data2", nil, Float64P(100, 300, 200, 300))
 		frame := data.NewFrame("", timeField, dataField1, dataField2)
-		err := applyFieldTransformations(series, frame)
+		err := applyFieldTransformations(query, desc, frame)
 		So(err, ShouldBeNil)
 
 		expectedTime := []time.Time{time.Unix(1010, 0), time.Unix(1020, 0), time.Unix(1030, 0)}
@@ -92,11 +98,14 @@ func TestTransformations(t *testing.T) {
 	})
 
 	Convey("Time Utilization", t, func() {
-		series := &series.Series{
-			Desc: series.Desc{
-				Semantics: "counter",
-				Units:     "millisec",
-			},
+		query := &Query{
+			Expr:         "",
+			Format:       "",
+			LegendFormat: "",
+		}
+		desc := &series.Desc{
+			Semantics: "counter",
+			Units:     "millisec",
 		}
 		timeField := data.NewField("time", nil, []time.Time{time.Unix(1000, 0), time.Unix(1001, 0), time.Unix(1002, 0)})
 		dataField := data.NewField("data", nil, Float64P(10, 11, 13))
@@ -104,7 +113,7 @@ func TestTransformations(t *testing.T) {
 			Unit: "",
 		})
 		frame := data.NewFrame("", timeField, dataField)
-		err := applyFieldTransformations(series, frame)
+		err := applyFieldTransformations(query, desc, frame)
 		So(err, ShouldBeNil)
 
 		expectedTime := []time.Time{time.Unix(1001, 0), time.Unix(1002, 0)}
