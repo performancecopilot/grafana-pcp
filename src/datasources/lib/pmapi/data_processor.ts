@@ -396,7 +396,7 @@ function transformToCsvTable(frames: DataFrame[]) {
         if (tableFrame.fields.length === 0) {
             const header = Array.from(parseCsvLine(line));
             for (const title of header) {
-                tableFrame.addField({ name: title });
+                tableFrame.addField({ name: title, type: FieldType.string });
             }
         } else {
             const row = Array.from(parseCsvLine(line));
