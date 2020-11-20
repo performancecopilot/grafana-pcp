@@ -3,6 +3,7 @@ import { Metadata } from '../../../common/services/pmapi/types';
 import { Semantics } from '../../../common/types/pcp';
 import { Dict } from '../../../common/types/utils';
 import { TargetFormat } from '../types';
+import { PmapiQuery } from './types';
 
 function fieldSetRate(field: MutableField, idx: number, deltaSec: number, discreteValues: boolean) {
     const curVal = field.values.get(idx);
@@ -68,16 +69,16 @@ const PCP_TIME_UNITS: Dict<string, number> = {
     millisec: 1000,
 };
 
-export function applyFieldTransformations(
-    targetFormat: TargetFormat,
-    metadata: Metadata,
-    frame: MutableDataFrame
-): void {
+export function applyFieldTransformations(query: PmapiQuery, metadata: Metadata, frame: MutableDataFrame): void {
     if (metadata.sem === Semantics.Counter) {
-        const discreteValues = targetFormat === TargetFormat.FlameGraph;
+        const discreteValues = query.format === TargetFormat.FlameGraph;
         rateConversion(frame, discreteValues);
 
-        if (targetFormat !== TargetFormat.Heatmap && metadata.units in PCP_TIME_UNITS) {
+        if (
+            query.options.timeUtilizationConversation &&
+            query.format !== TargetFormat.Heatmap &&
+            metadata.units in PCP_TIME_UNITS
+        ) {
             // for time based counters, convert to time utilization
             // but not for heatmaps, otherwise bcc.runq.latency would also get converted
             timeUtilizationConversation(frame, PCP_TIME_UNITS[metadata.units]!);

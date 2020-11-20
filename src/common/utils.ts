@@ -3,8 +3,8 @@ import { BackendSrvRequest } from '@grafana/runtime';
 import { isString } from 'lodash';
 import rootLogger, { LogLevelDesc } from 'loglevel';
 import logPrefixer from 'loglevel-plugin-prefix';
+import { Required } from 'utility-types';
 import { TimeoutError } from './types/errors/timeout';
-import { RequiredField } from './types/utils';
 
 rootLogger.setDefaultLevel('INFO');
 logPrefixer.reg(rootLogger);
@@ -26,7 +26,7 @@ export function setGlobalLogLevel(level: LogLevelDesc) {
 
 export type DefaultRequestOptions = Omit<BackendSrvRequest, 'url'>;
 export function getRequestOptions(instanceSettings: DataSourceInstanceSettings): DefaultRequestOptions {
-    const defaultRequestOptions: RequiredField<DefaultRequestOptions, 'headers'> = {
+    const defaultRequestOptions: Required<DefaultRequestOptions, 'headers'> = {
         headers: {
             'Content-Type': 'application/json',
         },

@@ -27,7 +27,7 @@ export class PmSeriesApiService {
     }
 
     async request<T>(options: BackendSrvRequest): Promise<FetchResponse<T>> {
-        options = defaults(options, this.defaultRequestOptions);
+        options = defaults({}, options, this.defaultRequestOptions);
         try {
             return await timeout(this.backendSrv.fetch<T>(options).toPromise(), this.apiConfig.timeoutMs);
         } catch (error) {

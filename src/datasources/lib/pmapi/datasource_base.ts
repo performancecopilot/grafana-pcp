@@ -14,10 +14,10 @@ import { interval_to_ms, isBlank } from '../../../common/utils';
 import { processQueries } from './data_processor';
 import { Poller } from './poller/poller';
 import { QueryResult } from './poller/types';
-import { PmapiDefaultOptions, PmapiOptions, PmapiQuery, TemplatedPmapiQuery } from './types';
+import { MinimalPmapiQuery, PmapiDefaultOptions, PmapiOptions, PmapiQuery } from './types';
 const log = getLogger('datasource_base');
 
-export abstract class DataSourceBase<Q extends PmapiQuery, O extends PmapiOptions> extends DataSourceApi<Q, O> {
+export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends PmapiOptions> extends DataSourceApi<Q, O> {
     url?: string;
     hostspec: string;
     retentionTimeMs: number;
@@ -52,7 +52,7 @@ export abstract class DataSourceBase<Q extends PmapiQuery, O extends PmapiOption
         return !(query.hide === true || isBlank(query.expr) || /container=(&|$)/.test(query.hostspec ?? ''));
     }
 
-    getUrlAndHostspec(query?: Q, scopedVars = {}): { url: string; hostspec: string } {
+    getUrlAndHostspec(query?: Q, scopedVars: ScopedVars = {}): { url: string; hostspec: string } {
         const url = getTemplateSrv().replace(query?.url ?? this.url ?? '', scopedVars);
         const orInTheQueryErrorText = query ? ' or in the query editor' : '';
 
@@ -68,17 +68,6 @@ export abstract class DataSourceBase<Q extends PmapiQuery, O extends PmapiOption
         return { url, hostspec };
     }
 
-    applyTemplateVariables(query: Q, scopedVars: ScopedVars): TemplatedPmapiQuery {
-        const expr = getTemplateSrv().replace(query.expr.trim(), scopedVars);
-        const { url, hostspec } = this.getUrlAndHostspec(query, scopedVars);
-        return {
-            ...query,
-            expr,
-            url,
-            hostspec,
-        };
-    }
-
     async metricFindQuery(query: string): Promise<MetricFindValue[]> {
         query = getTemplateSrv().replace(query.trim());
         const { url, hostspec } = this.getUrlAndHostspec();
@@ -92,6 +81,8 @@ export abstract class DataSourceBase<Q extends PmapiQuery, O extends PmapiOption
         return interval ? interval_to_ms(interval) : undefined;
     }
 
+    abstract buildPmapiQuery(query: Q, scopedVars: ScopedVars): PmapiQuery;
+
     async query(request: DataQueryRequest<Q>): Promise<DataQueryResponse> {
         if (!this.poller) {
             return { data: [] };
@@ -102,9 +93,8 @@ export abstract class DataSourceBase<Q extends PmapiQuery, O extends PmapiOption
         }
 
         const queryResults = request.targets
-            .filter(this.filterQuery)
-            .map(query => this.applyTemplateVariables(query, request.scopedVars))
-            .filter(this.filterQuery) // filter again after applying template variables
+            .map(query => this.buildPmapiQuery(query, request.scopedVars))
+            .filter(this.filterQuery) // filter after applying template variables (maybe a template variable is empty)
             .map(query => this.poller?.query(request, query))
             .filter(result => result !== null) as QueryResult[];
         const data = processQueries(request, queryResults, this.poller.state.refreshIntervalMs / 1000);

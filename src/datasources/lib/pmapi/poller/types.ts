@@ -1,7 +1,8 @@
+import { Required } from 'utility-types';
 import { Context, Indom, InstanceValue, Metadata } from '../../../../common/services/pmapi/types';
 import { Labels } from '../../../../common/types/pcp';
-import { Dict, RequiredField } from '../../../../common/types/utils';
-import { Target, TemplatedPmapiQuery } from '../types';
+import { Dict } from '../../../../common/types/utils';
+import { PmapiQuery, Target } from '../types';
 
 export interface Metric {
     metadata: Metadata;
@@ -45,10 +46,10 @@ export interface Endpoint {
     hasRedis?: boolean;
 }
 
-export type EndpointWithCtx = RequiredField<Endpoint, 'context'>;
+export type EndpointWithCtx = Required<Endpoint, 'context'>;
 
 export interface QueryResult {
     endpoint: EndpointWithCtx;
-    query: TemplatedPmapiQuery;
+    query: PmapiQuery;
     metrics: Metric[];
 }

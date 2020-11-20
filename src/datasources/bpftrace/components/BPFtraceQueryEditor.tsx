@@ -1,7 +1,7 @@
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { InlineFormLabel, Select } from '@grafana/ui';
 import { css, cx } from 'emotion';
-import defaults from 'lodash/defaults';
+import { defaultsDeep } from 'lodash';
 import React, { PureComponent } from 'react';
 import { isBlank } from '../../../common/utils';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
@@ -34,7 +34,7 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        const query = defaults(this.props.query, defaultBPFtraceQuery);
+        const query = defaultsDeep({}, this.props.query, defaultBPFtraceQuery);
         this.state = {
             expr: query.expr,
             format: FORMAT_OPTIONS.find(option => option.value === query.format) ?? FORMAT_OPTIONS[0],
@@ -72,9 +72,9 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
         this.setState({ hostspec }, this.runQuery);
     };
 
-    getQuery = () => {
+    getQuery = (): BPFtraceQuery => {
         return {
-            ...this.props.query,
+            refId: this.props.query.refId,
             expr: this.state.expr,
             format: this.state.format.value as TargetFormat,
             legendFormat: this.state.legendFormat,

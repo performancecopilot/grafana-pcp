@@ -1,6 +1,5 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 import { MetricName } from '../../../common/types/pcp';
-import { RequiredField } from '../../../common/types/utils';
 import { TargetFormat } from '../types';
 
 export interface PmapiOptions extends DataSourceJsonData {
@@ -13,17 +12,35 @@ export interface PmapiDefaultOptions {
     retentionTime: string;
 }
 
-export interface PmapiQuery extends DataQuery {
-    expr: string;
-    format: TargetFormat;
-    legendFormat?: string;
+export interface PmapiQueryOptions {
+    rateConversation: boolean;
+    timeUtilizationConversation: boolean;
+}
 
+/**
+ * query as stored in the dashboard JSON, all fields optional
+ */
+export interface MinimalPmapiQuery extends DataQuery {
+    expr?: string;
+    format?: TargetFormat;
+    legendFormat?: string;
+    options?: Partial<PmapiQueryOptions>;
     url?: string;
     hostspec?: string;
 }
 
-/** like PmapiQuery, but url and hostspec are the empty string if unset */
-export type TemplatedPmapiQuery = RequiredField<PmapiQuery, 'url' | 'hostspec'>;
+/**
+ * query filled with all default values and
+ * url + hostspec set from the panel or datasource settings
+ */
+export interface PmapiQuery extends MinimalPmapiQuery {
+    expr: string;
+    format: TargetFormat;
+    // legendFormat can still be undefined (not set)
+    options: PmapiQueryOptions;
+    url: string;
+    hostspec: string;
+}
 
 export enum TargetState {
     /** newly entered target or target with error (trying again) */
@@ -45,7 +62,7 @@ export enum TargetState {
 export interface Target<T = any> {
     targetId: string;
     state: TargetState;
-    query: TemplatedPmapiQuery;
+    query: PmapiQuery;
     /** valid PCP metric names (can be a derived metric, e.g. derived_xxx) */
     metricNames: MetricName[];
     errors: any[];

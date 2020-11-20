@@ -104,14 +104,14 @@ var pcpTimeUnits = map[string]int{
 	"millisec": 1000,
 }
 
-func applyFieldTransformations(series *series.Series, frame *data.Frame) error {
-	if series.Desc.Semantics == "counter" {
+func applyFieldTransformations(redisQuery *Query, desc *series.Desc, frame *data.Frame) error {
+	if desc.Semantics == "counter" {
 		err := rateConversation(frame)
 		if err != nil {
 			return err
 		}
 
-		divisor, isTimeUtilization := pcpTimeUnits[series.Desc.Units]
+		divisor, isTimeUtilization := pcpTimeUnits[desc.Units]
 		if isTimeUtilization {
 			err = timeUtilizationConversation(frame, divisor)
 			if err != nil {

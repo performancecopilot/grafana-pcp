@@ -18,7 +18,7 @@ import { Labels, Semantics } from '../../../common/types/pcp';
 import { TargetFormat } from '../types';
 import { applyFieldTransformations } from './field_transformations';
 import { Metric, QueryResult } from './poller/types';
-import { PmapiQuery } from './types';
+import { MinimalPmapiQuery, PmapiQuery } from './types';
 
 interface FrameCustom {
     context: Context;
@@ -177,7 +177,7 @@ function createField(
 }
 
 function createDataFrame(
-    request: DataQueryRequest<PmapiQuery>,
+    request: DataQueryRequest<MinimalPmapiQuery>,
     context: Context,
     query: PmapiQuery,
     metric: Metric,
@@ -242,7 +242,7 @@ function createDataFrame(
         return null;
     }
 
-    applyFieldTransformations(query.format, metric.metadata, frame);
+    applyFieldTransformations(query, metric.metadata, frame);
     return frame;
 }
 
@@ -409,7 +409,7 @@ function transformToCsvTable(frames: DataFrame[]) {
 }
 
 export function processQueries(
-    request: DataQueryRequest<PmapiQuery>,
+    request: DataQueryRequest<MinimalPmapiQuery>,
     queryResults: QueryResult[],
     sampleIntervalSec: number
 ): DataFrame[] {

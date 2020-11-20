@@ -1,11 +1,12 @@
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { InlineFormLabel, Select } from '@grafana/ui';
 import { css, cx } from 'emotion';
-import defaults from 'lodash/defaults';
+import { defaultsDeep } from 'lodash';
 import React, { PureComponent } from 'react';
 import { isBlank } from '../../../common/utils';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
 import { TargetFormat } from '../../../datasources/lib/types';
+import { PmapiQueryOptions } from '../../lib/pmapi/types';
 import { PCPVectorDataSource } from '../datasource';
 import { defaultVectorQuery, VectorOptions, VectorQuery } from '../types';
 import { PmapiLanguageDefinition } from './PmapiLanguageDefiniton';
@@ -22,6 +23,7 @@ interface State {
     expr: string;
     format: SelectableValue<string>;
     legendFormat?: string;
+    options: PmapiQueryOptions;
     url?: string;
     hostspec?: string;
 }
@@ -31,11 +33,15 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        const query = defaults(this.props.query, defaultVectorQuery);
+        const query = defaultsDeep({}, this.props.query, defaultVectorQuery);
         this.state = {
             expr: query.expr,
             format: FORMAT_OPTIONS.find(option => option.value === query.format) ?? FORMAT_OPTIONS[0],
             legendFormat: query.legendFormat,
+            options: {
+                rateConversation: query.options.rateConversation,
+                timeUtilizationConversation: query.options.rateConversation,
+            },
             url: query.url,
             hostspec: query.hostspec,
         };
@@ -65,12 +71,16 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         this.setState({ hostspec }, this.runQuery);
     };
 
-    getQuery = () => {
+    getQuery = (): VectorQuery => {
         return {
-            ...this.props.query,
+            refId: this.props.query.refId,
             expr: this.state.expr,
             format: this.state.format.value as TargetFormat,
             legendFormat: this.state.legendFormat,
+            options: {
+                rateConversation: this.state.options.rateConversation,
+                timeUtilizationConversation: this.state.options.rateConversation,
+            },
             url: this.state.url,
             hostspec: this.state.hostspec,
         };

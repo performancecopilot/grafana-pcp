@@ -1,6 +1,7 @@
-import { DataSourceInstanceSettings } from '@grafana/data';
+import { DataSourceInstanceSettings, ScopedVars } from '@grafana/data';
+import { getTemplateSrv } from '@grafana/runtime';
 import md5 from 'blueimp-md5';
-import { keyBy, uniqBy } from 'lodash';
+import { defaultsDeep, keyBy, uniqBy } from 'lodash';
 import { getLogger } from 'loglevel';
 import { InstanceId } from '../../common/services/pmapi/types';
 import { SeriesId, SeriesLabelsItemResponse } from '../../common/services/pmseries/types';
@@ -10,7 +11,7 @@ import { Poller } from '../../datasources/lib/pmapi/poller/poller';
 import { Endpoint, EndpointWithCtx, InstanceValuesSnapshot, Metric } from '../../datasources/lib/pmapi/poller/types';
 import { PmapiQuery, Target } from '../../datasources/lib/pmapi/types';
 import { Config } from './config';
-import { VectorOptions, VectorQuery, VectorTargetData } from './types';
+import { defaultVectorQuery, VectorOptions, VectorQuery, VectorTargetData } from './types';
 const log = getLogger('datasource');
 
 export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptions> {
@@ -35,6 +36,21 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
         document.addEventListener('visibilitychange', () => {
             this.poller.setPageVisibility(!document.hidden);
         });
+    }
+
+    buildPmapiQuery(query: VectorQuery, scopedVars: ScopedVars): PmapiQuery {
+        const expr = getTemplateSrv().replace(query.expr?.trim(), scopedVars);
+        const { url, hostspec } = this.getUrlAndHostspec(query, scopedVars);
+        return defaultsDeep(
+            {},
+            {
+                ...query,
+                expr,
+                url,
+                hostspec,
+            },
+            defaultVectorQuery
+        );
     }
 
     /**
@@ -98,6 +114,9 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
      * Note: poller made sure that all targets belong to the same endpoint (url + hostspec)
      */
     async redisBackfill(endpoint: Endpoint, targets: Array<Target<VectorTargetData>>) {
+        // the instance id of pmseries doesn't match instance id of pmapi
+        // which leads to wrong association of instance names... disable backfilling until this is solved.
+        return;
         const metricNames = new Set(targets.flatMap(target => target.metricNames));
 
         // split into series (metrics) with and without instance domains

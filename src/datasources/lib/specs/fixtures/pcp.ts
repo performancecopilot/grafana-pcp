@@ -4,7 +4,7 @@ import { MetricName, Semantics } from '../../../../common/types/pcp';
 import { Metric } from '../../../../datasources/lib/pmapi/poller/types';
 
 export function metadata(props: Partial<Metadata>): Metadata {
-    return defaultsDeep(props, {
+    return defaultsDeep({}, props, {
         name: 'sample.metric',
         series: 'seriesid1',
         type: 'u64',

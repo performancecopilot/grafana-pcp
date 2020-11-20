@@ -293,7 +293,7 @@ func (ds *redisDatasourceInstance) createDataFrames(redisQuery *Query, series ma
 			}
 		}
 
-		applyFieldTransformations(series[curSeriesID], curFrame)
+		applyFieldTransformations(redisQuery, &series[curSeriesID].Desc, curFrame)
 		frames = append(frames, curFrame)
 	}
 

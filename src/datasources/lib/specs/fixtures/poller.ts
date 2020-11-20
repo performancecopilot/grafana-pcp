@@ -1,11 +1,11 @@
 import { defaultsDeep } from 'lodash';
+import { DeepPartial } from 'utility-types';
 import { ds } from '.';
-import { RecursivePartial } from '../../../../common/types/utils';
 import { EndpointState, EndpointWithCtx } from '../../../../datasources/lib/pmapi/poller/types';
 import { Target, TargetState } from '../../../../datasources/lib/pmapi/types';
 
-export function endpoint(props?: RecursivePartial<EndpointWithCtx>): EndpointWithCtx {
-    return defaultsDeep(props, {
+export function endpoint(props?: DeepPartial<EndpointWithCtx>): EndpointWithCtx {
+    return defaultsDeep({}, props, {
         state: EndpointState.CONNECTED,
         url: 'http://fixture_url:1234',
         hostspec: '',
@@ -20,9 +20,9 @@ export function endpoint(props?: RecursivePartial<EndpointWithCtx>): EndpointWit
     });
 }
 
-export function target(props?: RecursivePartial<Target>): Target {
-    const query = ds.templatedQuery(props?.query);
-    return defaultsDeep(props, {
+export function target(props?: DeepPartial<Target>): Target {
+    const query = ds.pmapiQuery(props?.query);
+    return defaultsDeep({}, props, {
         targetId: `0/1/${query.refId ?? 'A'}`,
         state: TargetState.METRICS_AVAILABLE,
         query,

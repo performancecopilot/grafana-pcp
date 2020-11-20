@@ -1,5 +1,6 @@
-import { DataSourceInstanceSettings } from '@grafana/data';
-import { keyBy } from 'lodash';
+import { DataSourceInstanceSettings, ScopedVars } from '@grafana/data';
+import { getTemplateSrv } from '@grafana/runtime';
+import { defaultsDeep, keyBy } from 'lodash';
 import { getLogger } from 'loglevel';
 import { DataSourceBase } from '../../datasources/lib/pmapi/datasource_base';
 import { Poller } from '../../datasources/lib/pmapi/poller/poller';
@@ -8,7 +9,7 @@ import { PmapiQuery, Target, TargetState } from '../../datasources/lib/pmapi/typ
 import { Config } from './config';
 import { Script, Status } from './script';
 import { ScriptManager } from './script_manager';
-import { BPFtraceOptions, BPFtraceQuery, BPFtraceTargetData } from './types';
+import { BPFtraceOptions, BPFtraceQuery, BPFtraceTargetData, defaultBPFtraceQuery } from './types';
 
 const log = getLogger('datasource');
 
@@ -35,6 +36,21 @@ export class PCPBPFtraceDataSource extends DataSourceBase<BPFtraceQuery, BPFtrac
         document.addEventListener('visibilitychange', () => {
             this.poller.setPageVisibility(!document.hidden);
         });
+    }
+
+    buildPmapiQuery(query: BPFtraceQuery, scopedVars: ScopedVars): PmapiQuery {
+        const expr = getTemplateSrv().replace(query.expr?.trim(), scopedVars);
+        const { url, hostspec } = this.getUrlAndHostspec(query, scopedVars);
+        return defaultsDeep(
+            {},
+            {
+                ...query,
+                expr,
+                url,
+                hostspec,
+            },
+            defaultBPFtraceQuery
+        );
     }
 
     /**

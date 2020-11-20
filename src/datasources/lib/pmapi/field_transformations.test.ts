@@ -1,5 +1,6 @@
 import { FieldType, MutableDataFrame } from '@grafana/data';
 import { Semantics } from '../../../common/types/pcp';
+import { pmapiQuery } from '../specs/fixtures/datasource';
 import { TargetFormat } from '../types';
 import { applyFieldTransformations } from './field_transformations';
 
@@ -28,7 +29,7 @@ describe('field transformations', () => {
             'text-oneline': 'CPU time consumed by processes in each cgroup',
             'text-help': 'CPU time consumed by processes in each cgroup',
         };
-        applyFieldTransformations(TargetFormat.TimeSeries, metadata, frame);
+        applyFieldTransformations(pmapiQuery({ format: TargetFormat.TimeSeries }), metadata, frame);
         expect(frame).toMatchInlineSnapshot(`
             Object {
               "fields": Array [

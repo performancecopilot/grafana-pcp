@@ -11,7 +11,7 @@ import { getLogger } from 'loglevel';
 import { PmApiService } from '../../../../common/services/pmapi/PmApiService';
 import { MetricNotFoundError } from '../../../../common/services/pmapi/types';
 import { PmSeriesApiService } from '../../../../common/services/pmseries/PmSeriesApiService';
-import { PmapiQuery, Target, TargetState, TemplatedPmapiQuery } from '../types';
+import { MinimalPmapiQuery, PmapiQuery, Target, TargetState } from '../types';
 import { Endpoint, EndpointState, EndpointWithCtx, Metric, QueryResult } from './types';
 const log = getLogger('poller');
 
@@ -353,7 +353,7 @@ export class Poller {
      *   * no need for grouping on every poll
      *   * endpoint has context and errors attached
      */
-    query(request: DataQueryRequest<PmapiQuery>, query: TemplatedPmapiQuery): QueryResult | null {
+    query(request: DataQueryRequest<MinimalPmapiQuery>, query: PmapiQuery): QueryResult | null {
         let endpoint = this.state.endpoints.find(ep => ep.url === query.url && ep.hostspec === query.hostspec);
         if (!endpoint) {
             endpoint = {
