@@ -285,7 +285,7 @@ export class Poller {
             this.state.endpoints.map(endpoint =>
                 this.pollEndpointAndHandleContextTimeout(endpoint).catch(error => {
                     endpoint.state = EndpointState.PENDING;
-                    endpoint.errors.push(error);
+                    endpoint.errors = [error];
                 })
             )
         );
