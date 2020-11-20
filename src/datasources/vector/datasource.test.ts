@@ -239,7 +239,7 @@ describe('PCP Vector', () => {
         expect(datasource.derivedMetrics.has(expr)).toBe(true);
     });
 
-    it('redisBackfill hook should request series api for backfilling and populate metric values', async () => {
+    it.skip('redisBackfill hook should request series api for backfilling and populate metric values', async () => {
         const targets = [
             poller.target({ query: { expr: 'disk.dev.read', refId: 'A' } }),
             poller.target({ query: { expr: 'kernel.all.sysfork', refId: 'B' } }),
@@ -281,7 +281,7 @@ describe('PCP Vector', () => {
         `);
     });
 
-    it('redisBackfill hook should use panel url', async () => {
+    it.skip('redisBackfill hook should use panel url', async () => {
         const queries = [ds.query({ expr: 'kernel.all.sysfork', url: 'http://panel_url:1234' })];
         let response = await datasource.query(grafana.dataQueryRequest(queries));
         expect(response).toEqual({ data: [] });

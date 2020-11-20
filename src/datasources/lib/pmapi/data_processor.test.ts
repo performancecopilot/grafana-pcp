@@ -366,7 +366,7 @@ describe('data processor', () => {
               Object {
                 "config": Object {},
                 "name": "col1",
-                "type": "other",
+                "type": "string",
                 "values": Array [
                   "row1 col1",
                   "row2 col1",
@@ -375,7 +375,7 @@ describe('data processor', () => {
               Object {
                 "config": Object {},
                 "name": "col2",
-                "type": "other",
+                "type": "string",
                 "values": Array [
                   "row1 col2",
                   "row2 col2",
@@ -384,7 +384,7 @@ describe('data processor', () => {
               Object {
                 "config": Object {},
                 "name": "col3",
-                "type": "other",
+                "type": "string",
                 "values": Array [
                   "row1 col3",
                   "row2 col3",
