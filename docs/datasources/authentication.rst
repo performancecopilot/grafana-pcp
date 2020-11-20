@@ -1,21 +1,21 @@
 Authentication
 ==============
 
-Performance Co-Pilot supports the following authentication mechanisms through the SASL authentication framework: ``plain``, ``login``, ``digest-md5``, and ``gssapi``.
-This guide shows how to setup authentication using the ``digest-md5`` authentication mechanism and a local user database.
+Performance Co-Pilot supports the following authentication mechanisms through the SASL authentication framework: ``plain``, ``login``, ``digest-md5``, ``scram-sha-256`` and ``gssapi``.
+This guide shows how to setup authentication using the ``scram-sha-256`` authentication mechanism and a local user database.
 
 
 .. note::
-    Authentication methods ``login`` and ``digest-md5`` require PCP 5.1.0 or later.
+    Authentication methods ``login``, ``digest-md5`` and ``scram-sha-256`` require PCP 5.1.0 or later.
 
 Requisites
 ----------
 
-Install the following package, which provides support for the ``digest-md5`` authentication method:
+Install the following package, which provides support for the ``scram-sha-256`` authentication method:
 
 .. code-block:: console
 
-    $ sudo dnf install -y cyrus-sasl-md5
+    $ sudo dnf install -y cyrus-sasl-scram
 
 Configuring PMCD
 ----------------
@@ -24,7 +24,7 @@ First, open the ``/etc/sasl2/pmcd.conf`` file and specify the supported authenti
 
 .. code-block:: yaml
 
-    mech_list: digest-md5
+    mech_list: scram-sha-256
     sasldb_path: /etc/pcp/passwd.db
 
 Then create a new unix user (in this example ``pcptestuser``) and add it to the user database:
