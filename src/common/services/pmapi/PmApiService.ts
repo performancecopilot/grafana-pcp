@@ -52,11 +52,20 @@ export class PmApiService {
                 polltimeout: params.polltimeout ?? 30,
             },
         };
-        const response = await this.request<PmapiContextResponse>(request);
-        if (!has(response.data, 'context')) {
-            throw new NetworkError('Received malformed response.', request);
+        try {
+            const response = await this.request<PmapiContextResponse>(request);
+            if (!has(response.data, 'context')) {
+                throw new NetworkError('Received malformed response.', request);
+            }
+            return response.data;
         }
-        return response.data;
+        catch (error) {
+            if (has(error, 'data.message')) {
+                throw new NetworkError(error.data.message+'.', request);
+            } else {
+                throw error;
+            }
+        }
     }
 
     async metric(url: string, params: PmapiMetricRequest): Promise<PmapiMetricResponse> {

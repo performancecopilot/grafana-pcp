@@ -2,7 +2,8 @@ export const Config = {
     /** default refresh interval if not specified in the URL query params */
     defaultRefreshIntervalMs: 1000,
 
-    apiTimeoutMs: 2000,
+    /** set timeout to 6s, because pmproxy timeout is 5s (e.g. connecting to a remote pmcd) */
+    apiTimeoutMs: 6000,
 
     /**
      * don't remove targets immediately if not requested in refreshInterval

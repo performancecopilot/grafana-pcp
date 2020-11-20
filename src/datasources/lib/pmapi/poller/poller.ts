@@ -255,10 +255,10 @@ export class Poller {
     }
 
     async pollEndpointAndHandleContextTimeout(endpoint: Endpoint) {
-        endpoint.errors = [];
-
         try {
             await this.pollEndpoint(endpoint);
+            // clean endpoint errors only if we have a successful poll
+            endpoint.errors = [];
         } catch (error) {
             if (has(error, 'data.message') && error.data.message.includes('unknown context identifier')) {
                 log.debug('context expired. requesting a new context');
@@ -380,7 +380,6 @@ export class Poller {
         } else {
             if (target) {
                 // target exists but has changed -> remove from list & create a new target
-                log.debug('changed target', target);
                 this.deregisterTarget(endpoint, target, 'target changed');
             } else {
                 // target does not exist in endpoint where it should be,
@@ -395,10 +394,9 @@ export class Poller {
                         break;
                     }
                 }
-
-                log.debug('new target', targetId, query);
             }
 
+            log.debug('adding new target', targetId, query);
             target = {
                 state: TargetState.PENDING,
                 targetId,
