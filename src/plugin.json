@@ -39,6 +39,10 @@
             {
                 "name": "bpftrace Flame Graph",
                 "path": "img/screenshots/bpftrace-flame-graph.png"
+            },
+            {
+                "name": "Metric Search",
+                "path": "img/screenshots/search.png"
             }
         ],
         "version": "%VERSION%",

@@ -6,6 +6,8 @@ PCP Vector
 
 .. image:: ../src/img/screenshots/vector-overview.png
   :width: 700
+.. image:: ../src/img/screenshots/vector-checklist.png
+  :width: 700
 .. image:: ../src/img/screenshots/vector-metric-autocompletion.png
   :width: 700
 
@@ -33,4 +35,10 @@ bpftrace flame graphs
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: ../src/img/screenshots/bpftrace-flame-graph.png
+  :width: 700
+
+Metric Search
+~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../src/img/screenshots/search.png
   :width: 700
