@@ -1,7 +1,7 @@
 {
   "name": "performancecopilot-pcp-app",
   "description": "Performance Co-Pilot Grafana Plugin",
-  "version": "3.0.0-beta2",
+  "version": "3.0.0",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
     "test": "grafana-toolkit plugin:test",
@@ -51,7 +51,7 @@
     "utility-types": "^3.10.0"
   },
   "engines": {
-    "node": ">=12 <13"
+    "node": ">= 12"
   },
   "dependencies": {
     "blueimp-md5": "^2.17.0",

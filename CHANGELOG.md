@@ -1,28 +1,63 @@
 # Change Log
 
-## 3.0.0-beta2 (unreleased)
+## 3.0.0 (2020-11-23)
 
-- **dashboards**: moved dashboards to the datasource level: dashboards of interest can be imported using the dashboards tab of each datasource settings page
+### Highlights of v3.0
+- **redis**: support for [Grafana Alerting](https://grafana.com/docs/grafana/latest/alerting/create-alerts/)
+- **redis**: full-text search in metric names, descriptions, instances
+- **vector**: support derived metrics, which allows the usage of arithmetic operators and statistical functions inside a query ([pmRegisterDerived(3)](https://man7.org/linux/man-pages/man3/pmregisterderived.3.html#DESCRIPTION))
+- **vector**: configurable hostspec (access remote PMCDs through a central pmproxy)
+- **vector**: automatically configure the unit of the panel
+- **dashboards**: detect potential performance issues and show possible solutions with the checklist dashboards, using the [USE method](http://www.brendangregg.com/usemethod.html)
+- **dashboards**: new MS SQL server dashboard (Louis Imershein)
+- **dashboards**: new eBPF/BCC dashboard
+- **dashboards**: new container overview dashboard with CGroups v2
+
+### Breaking Changes in v3.0
+- **dashboards**: All dashboards are now located in the *Dashboards* tab at the datasource settings pages and are not imported automatically
+- **redis**: Using `label_values(metric, label)` in a Grafana variable query is deprecated due to performance reasons. `label_values(label)` is still supported.
+
+### New Features
+- **redis**: added instance.name and dashboard variables support in query editor
+- **redis**: heatmap support
 - **dashboards**: updated PCP Redis Metric Preview dashboards: added metric drop-down
 - **dashboards**: added MS SQL server dashboard for Vector (Louis Imershein)
-- **redis**: added instance.name and dashboard variables support in query editor
+- **chore**: sign plugin
+
+### Enhancements / Bug Fixes
+- **redis**: implement workaround if two values for the same instance and timestamp are received
+- **redis**: send one instance labels request instead of one per instance
+- **redis**: refresh instances only once per series
 - **redis**: improved error messages
-- **redis**: heatmap support
+- **vector**: (internal) option to disable time utilization conversation
+- **vector**: show error message when access mode is set to server & url override is set
+- **vector**: disable redis backfill for now (pmseries and pmapi instance id's don't match)
+- **bpftrace**: interpret all fields of CSV output as strings
+- **dashboards**: moved dashboards to the datasource level: dashboards of interest can be imported using the dashboards tab of each datasource settings page
+- **dashboards**: fix KB/s unit in dashboards, should be KiB/s
+- **dashboards**: add installation instructions to BCC and bpftrace dashboards
+- **dashboards**: update titles and add units to checklist dashboards
 - **search**: fix datasource detection
 - **search**: propagate error messages to the user
+- **poller**: use timeout instead of interval to prevent overlapping timers
+- **poller**: deregister targets immediately if endpoint changed
+- **chore**: update build dependencies
+- **test**: add unit tests to all datasources
+- **test**: add End-to-End tests
+- **docs**: update authentication guide to use scram-sha-256
 
 ## 3.0.0-beta1 (2020-10-12)
 
-### New features
+### New Features
 - **redis**: support for [Grafana Alerting](https://grafana.com/docs/grafana/latest/alerting/create-alerts/)
 - **redis**: full-text search in metric names, descriptions, instances
 - **vector**: support derived metrics, which allows the usage of arithmetic operators and statistical functions inside a query, [see pmRegisterDerived(3)](https://man7.org/linux/man-pages/man3/pmregisterderived.3.html#DESCRIPTION)
-- **vector**: checklist dashboard: detects potential performance issues and shows possible solutions to resolve them
 - **vector**: set background metric poll interval according to current dashboard refresh interval, do not stop polling while in background
 - **vector**: automatically configure the unit of the panel
 - **vector**: redis backfilling: if redis is available, initialize the graph with historical data
 - **vector**: configurable hostspec (access remote PMCDs through a central pmproxy)
 - **vector**: access context, metric, instancedomain and instance labels
+- **dashboards**: checklist dashboard: detects potential performance issues and shows possible solutions to resolve them
 - **dashboards**: eBPF/BCC dashboard
 - **dashboards**: container overview dashboard with CGroups v2
 
