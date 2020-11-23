@@ -48,8 +48,14 @@ dist-dashboards: $(shell find src -name '*.jsonnet' | sed -E 's@src/(.*)\.jsonne
 dist-frontend: deps-frontend ## Build frontend datasources
 	yarn run build
 
+GO_LD_FLAGS := -w -s -extldflags "-static"
 dist-backend: deps-backend ## Build backend datasource
-	go build -o ./dist/datasources/redis/pcp_redis_datasource_$$(go env GOOS)_$$(go env GOARCH) -tags netgo -ldflags -w ./pkg
+	#mage buildAll
+	for arch in amd64 arm arm64 s390x ppc64le 386; do \
+	  CGO_ENABLED=0 GOOS=linux GOARCH=$${arch} go build -o dist/datasources/redis/pcp_redis_datasource_linux_$${arch} -ldflags '$(GO_LD_FLAGS)' ./pkg; \
+	done
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o dist/datasources/redis/pcp_redis_datasource_darwin_amd64 -ldflags '$(GO_LD_FLAGS)' ./pkg
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o dist/datasources/redis/pcp_redis_datasource_windows_amd64.exe -ldflags '$(GO_LD_FLAGS)' ./pkg
 
 dist: dist-dashboards dist-frontend dist-backend ## Build everything
 
