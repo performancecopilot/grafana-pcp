@@ -1,6 +1,5 @@
 name: Release
 on:
-  workflow_dispatch:
   push:
     tags:
       - 'v*'
@@ -30,10 +29,10 @@ jobs:
     - name: Build plugin
       run: make dist
 
-    #- name: Sign plugin
-    #  run: make sign
-    #  env:
-    #    GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
+    - name: Sign plugin
+      run: make sign
+      env:
+        GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
 
     - name: Create GitHub release
       run: scripts/github-release.sh
