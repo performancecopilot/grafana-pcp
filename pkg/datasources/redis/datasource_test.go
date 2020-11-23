@@ -46,7 +46,7 @@ func TestDatasource(t *testing.T) {
 		So(response.Responses["A"].Frames, ShouldBeEmpty)
 	})
 
-	Convey("query disk.dev.read{hostname==\"localhost\"}, perform rate conversation and return the result", t, func(c C) {
+	Convey("query disk.dev.read{hostname==\"localhost\"}, perform rate conversion and return the result", t, func(c C) {
 		handler := http.NewServeMux()
 		handler.HandleFunc("/series/query", func(writer http.ResponseWriter, request *http.Request) {
 			c.So(request.URL.Query().Get("expr"), ShouldEqual, `disk.dev.read{hostname=="localhost"}`)

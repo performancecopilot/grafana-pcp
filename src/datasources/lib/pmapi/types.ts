@@ -13,8 +13,8 @@ export interface PmapiDefaultOptions {
 }
 
 export interface PmapiQueryOptions {
-    rateConversation: boolean;
-    timeUtilizationConversation: boolean;
+    rateConversion: boolean;
+    timeUtilizationConversion: boolean;
 }
 
 /**

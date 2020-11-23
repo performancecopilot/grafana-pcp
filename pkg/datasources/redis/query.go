@@ -30,7 +30,7 @@ func (ds *redisDatasourceInstance) executeTimeSeriesQuery(dataQuery *backend.Dat
 
 	interval := dataQuery.Interval.Seconds()
 	// request a bigger time frame to fill the chart (otherwise left and right border of chart is empty)
-	// because of the rate conversation of counters first datapoint my be "lost" -> expand timeframe at the beginning
+	// because of the rate conversion of counters first datapoint my be "lost" -> expand timeframe at the beginning
 	additionalTimeRange := int64(math.Max(interval, 60))             // 60s is the default sample interval of pmlogger
 	start := dataQuery.TimeRange.From.Unix() - 2*additionalTimeRange // seconds
 	finish := dataQuery.TimeRange.To.Unix() + additionalTimeRange    // seconds

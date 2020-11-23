@@ -11,8 +11,8 @@ export const defaultVectorQuery: VectorQuery & Optional<PmapiQuery, 'url' | 'hos
     expr: '',
     format: TargetFormat.TimeSeries,
     options: {
-        rateConversation: true,
-        timeUtilizationConversation: true,
+        rateConversion: true,
+        timeUtilizationConversion: true,
     },
 };
 

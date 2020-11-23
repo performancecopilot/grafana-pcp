@@ -21,7 +21,7 @@ It presents a unifying abstraction for all of the performance data in a system, 
 * support for [Grafana Alerting](https://grafana.com/docs/grafana/latest/alerting/create-alerts/) [1]
 * support for [derived metrics](https://man7.org/linux/man-pages/man3/pmregisterderived.3.html#DESCRIPTION) (allows the usage of arithmetic operators and statistical functions inside a query) [2]
 * automated configuration of metric units [1,2,3]
-* automatic rate conversation and time utilization conversion
+* automatic rate and time utilization conversion
 * heatmap, table [2,3] and flame graph [3] support
 * auto completion of metric names [1,2], qualifier keys and values [1], and bpftrace probes, builtin variables and functions [3]
 * display of semantics, units and help texts of metrics [2] and bpftrace builtins [3]

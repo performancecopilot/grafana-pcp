@@ -12,8 +12,8 @@ export const defaultBPFtraceQuery: BPFtraceQuery & Optional<PmapiQuery, 'url' | 
     expr: '',
     format: TargetFormat.TimeSeries,
     options: {
-        rateConversation: true,
-        timeUtilizationConversation: true,
+        rateConversion: true,
+        timeUtilizationConversion: true,
     },
 };
 

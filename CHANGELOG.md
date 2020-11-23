@@ -29,7 +29,7 @@
 - **redis**: send one instance labels request instead of one per instance
 - **redis**: refresh instances only once per series
 - **redis**: improved error messages
-- **vector**: (internal) option to disable time utilization conversation
+- **vector**: (internal) option to disable time utilization conversion
 - **vector**: show error message when access mode is set to server & url override is set
 - **vector**: disable redis backfill for now (pmseries and pmapi instance id's don't match)
 - **bpftrace**: interpret all fields of CSV output as strings
@@ -148,7 +148,7 @@ Restart Grafana server, and check the logs if the plugin loaded successfully.
 
 ### Redis
 
-- fix value transformations (e.g., rate conversation of counters)
+- fix value transformations (e.g., rate conversion of counters)
 
 ### All
 
@@ -186,7 +186,7 @@ Restart Grafana server, and check the logs if the plugin loaded successfully.
 ### Features
 
 - retrieval of Performance Co-Pilot metrics from pmseries (PCP Redis), pmproxy, and pmwebd (PCP Live)
-- automatic rate conversation of counter metrics
+- automatic rate conversion of counter metrics
 - auto-completion of metric names <sup>1,2</sup>, qualifier keys, and values <sup>2</sup>
 - display of semantics, units, and help texts of metrics <sup>1</sup>
 - legend templating support with `$metric`, `$metric0`, `$instance`, `$some_label`

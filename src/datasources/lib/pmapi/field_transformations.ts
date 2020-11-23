@@ -50,7 +50,7 @@ function rateConversion(frame: MutableDataFrame, discreteValues = false) {
     // timeField.values.set(0, MISSING_VALUE);
 }
 
-function timeUtilizationConversation(frame: MutableDataFrame, divisor: number) {
+function timeUtilizationConversion(frame: MutableDataFrame, divisor: number) {
     for (const field of frame.fields) {
         if (field.type !== FieldType.number) {
             continue;
@@ -75,13 +75,13 @@ export function applyFieldTransformations(query: PmapiQuery, metadata: Metadata,
         rateConversion(frame, discreteValues);
 
         if (
-            query.options.timeUtilizationConversation &&
+            query.options.timeUtilizationConversion &&
             query.format !== TargetFormat.Heatmap &&
             metadata.units in PCP_TIME_UNITS
         ) {
             // for time based counters, convert to time utilization
             // but not for heatmaps, otherwise bcc.runq.latency would also get converted
-            timeUtilizationConversation(frame, PCP_TIME_UNITS[metadata.units]!);
+            timeUtilizationConversion(frame, PCP_TIME_UNITS[metadata.units]!);
         }
     }
 }

@@ -187,7 +187,7 @@ function createDataFrame(
     let requestRangeFromMs = request.range.from.valueOf() - sampleIntervalSec * 1000;
     let requestRangeToMs = request.range.to.valueOf() + sampleIntervalSec * 1000;
 
-    // the first value of a counter metric is lost due to rate conversation
+    // the first value of a counter metric is lost due to rate conversion
     if (metric.metadata.sem === Semantics.Counter) {
         requestRangeFromMs -= sampleIntervalSec * 1000;
     }

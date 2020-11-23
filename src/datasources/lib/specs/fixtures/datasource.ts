@@ -17,8 +17,8 @@ export function pmapiQuery(props?: DeepPartial<PmapiQuery>): PmapiQuery {
         url: '',
         hostspec: '',
         options: {
-            rateConversation: true,
-            timeUtilizationConversation: true,
+            rateConversion: true,
+            timeUtilizationConversion: true,
         },
     });
 }

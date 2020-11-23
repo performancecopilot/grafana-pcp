@@ -39,7 +39,7 @@ func createFieldVector(seriesType string) (interface{}, error) {
 	switch seriesType {
 	case "32", "u32", "64", "u64", "float", "double":
 		// most counters are integers, but once they got rate-converted they are floats
-		// and rate conversation happens inline
+		// and rate conversion happens inline
 		return []*float64{}, nil
 	case "string":
 		return []*string{}, nil

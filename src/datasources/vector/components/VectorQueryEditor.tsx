@@ -39,8 +39,8 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
             format: FORMAT_OPTIONS.find(option => option.value === query.format) ?? FORMAT_OPTIONS[0],
             legendFormat: query.legendFormat,
             options: {
-                rateConversation: query.options.rateConversation,
-                timeUtilizationConversation: query.options.rateConversation,
+                rateConversion: query.options.rateConversion,
+                timeUtilizationConversion: query.options.rateConversion,
             },
             url: query.url,
             hostspec: query.hostspec,
@@ -78,8 +78,8 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
             format: this.state.format.value as TargetFormat,
             legendFormat: this.state.legendFormat,
             options: {
-                rateConversation: this.state.options.rateConversation,
-                timeUtilizationConversation: this.state.options.rateConversation,
+                rateConversion: this.state.options.rateConversion,
+                timeUtilizationConversion: this.state.options.rateConversion,
             },
             url: this.state.url,
             hostspec: this.state.hostspec,

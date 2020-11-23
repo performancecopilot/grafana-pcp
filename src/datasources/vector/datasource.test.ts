@@ -32,7 +32,7 @@ describe('PCP Vector', () => {
         datasource = new PCPVectorDataSource(instanceSettings as any);
     });
 
-    it('should poll disk.dev.read, perform rate conversation and return the result', async () => {
+    it('should poll disk.dev.read, perform rate conversion and return the result', async () => {
         const queries = [ds.query()];
         let response = await datasource.query(grafana.dataQueryRequest(queries));
         expect(response).toEqual({ data: [] });

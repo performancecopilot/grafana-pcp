@@ -279,7 +279,7 @@ grafana.dashboard.new(
     datasource='$datasource',
   )
   .addTargets([
-    { expr: 'mssql.os_wait_stats.wait_time', format: 'time_series', legendFormat: '$instance', options: { timeUtilizationConversation: false } },
+    { expr: 'mssql.os_wait_stats.wait_time', format: 'time_series', legendFormat: '$instance', options: { timeUtilizationConversion: false } },
   ]), gridPos={
     x: 12,
     y: 88,

@@ -32,8 +32,8 @@ func fieldSetRate(field *data.Field, idx int, delta time.Duration) error {
 	return nil
 }
 
-func rateConversation(frame *data.Frame) error {
-	log.DefaultLogger.Debug("Performing Rate Conversation")
+func rateConversion(frame *data.Frame) error {
+	log.DefaultLogger.Debug("Performing Rate Conversion")
 	var timeField *data.Field
 	for _, field := range frame.Fields {
 		if field.Type() == data.FieldTypeTime {
@@ -80,7 +80,7 @@ func fieldDivideBy(field *data.Field, idx int, divisor int) error {
 	return nil
 }
 
-func timeUtilizationConversation(frame *data.Frame, divisor int) error {
+func timeUtilizationConversion(frame *data.Frame, divisor int) error {
 	log.DefaultLogger.Debug("Converting to Time Utilization", "frame", frame.Name)
 	for _, field := range frame.Fields {
 		if field.Type() == data.FieldTypeTime {
@@ -106,14 +106,14 @@ var pcpTimeUnits = map[string]int{
 
 func applyFieldTransformations(redisQuery *Query, desc *series.Desc, frame *data.Frame) error {
 	if desc.Semantics == "counter" {
-		err := rateConversation(frame)
+		err := rateConversion(frame)
 		if err != nil {
 			return err
 		}
 
 		divisor, isTimeUtilization := pcpTimeUnits[desc.Units]
 		if isTimeUtilization {
-			err = timeUtilizationConversation(frame, divisor)
+			err = timeUtilizationConversion(frame, divisor)
 			if err != nil {
 				return err
 			}
