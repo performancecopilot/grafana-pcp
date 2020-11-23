@@ -114,9 +114,6 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
      * Note: poller made sure that all targets belong to the same endpoint (url + hostspec)
      */
     async redisBackfill(endpoint: Endpoint, targets: Array<Target<VectorTargetData>>) {
-        // the instance id of pmseries doesn't match instance id of pmapi
-        // which leads to wrong association of instance names... disable backfilling until this is solved.
-        return;
         const metricNames = new Set(targets.flatMap(target => target.metricNames));
 
         // split into series (metrics) with and without instance domains

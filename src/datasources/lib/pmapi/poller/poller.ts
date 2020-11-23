@@ -171,6 +171,10 @@ export class Poller {
     }
 
     async endpointHasRedis(endpoint: Endpoint): Promise<boolean> {
+        // the instance id of pmseries doesn't match instance id of pmapi
+        // which leads to wrong association of instance names... disable backfilling until this is solved.
+        return false;
+
         try {
             const pingRespone = await this.pmSeriesApiService.ping(endpoint.url);
             return pingRespone.success;

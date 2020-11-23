@@ -39,7 +39,7 @@ describe('PCP Vector', () => {
 
         mockNextResponses([
             pmapi.context(),
-            pmseries.ping(false),
+            //pmseries.ping(false),
             pmapi.metric(['disk.dev.read']),
             pmapi.fetch('disk.dev.read', 10, [
                 [0, 100],
@@ -127,10 +127,6 @@ describe('PCP Vector', () => {
                   "polltimeout": 11,
                 },
                 "url": "http://localhost:1234/pmapi/context",
-              },
-              Object {
-                "params": undefined,
-                "url": "http://localhost:1234/series/ping",
               },
               Object {
                 "params": Object {
@@ -400,7 +396,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
 
         mockNextResponses([
             pmapi.context(),
-            pmseries.ping(false),
+            //pmseries.ping(false),
             pmapi.metric(['mem.util.free']),
             pmapi.fetch('mem.util.free', 10, [[null, 1000]]),
         ]);
@@ -418,10 +414,6 @@ describe('PCP Vector: overridden url and hostspec', () => {
                   "polltimeout": 11,
                 },
                 "url": "http://settings_host:1234/pmapi/context",
-              },
-              Object {
-                "params": undefined,
-                "url": "http://settings_host:1234/series/ping",
               },
               Object {
                 "params": Object {
@@ -458,7 +450,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
 
         mockNextResponses([
             pmapi.context(),
-            pmseries.ping(false),
+            //pmseries.ping(false),
             pmapi.metric(['mem.util.free']),
             pmapi.fetch('mem.util.free', 10, [[null, 1000]]),
         ]);
@@ -476,10 +468,6 @@ describe('PCP Vector: overridden url and hostspec', () => {
                   "polltimeout": 11,
                 },
                 "url": "http://panel_host:8080/pmapi/context",
-              },
-              Object {
-                "params": undefined,
-                "url": "http://panel_host:8080/series/ping",
               },
               Object {
                 "params": Object {
@@ -521,7 +509,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
 
         mockNextResponses([
             pmapi.context(),
-            pmseries.ping(false),
+            //pmseries.ping(false),
             pmapi.metric(['mem.util.free']),
             pmapi.fetch('mem.util.free', 10, [[null, 1000]]),
         ]);
@@ -539,10 +527,6 @@ describe('PCP Vector: overridden url and hostspec', () => {
                   "polltimeout": 11,
                 },
                 "url": "http://settings_host:1234/pmapi/context",
-              },
-              Object {
-                "params": undefined,
-                "url": "http://settings_host:1234/series/ping",
               },
               Object {
                 "params": Object {
@@ -585,7 +569,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
 
         mockNextResponses([
             pmapi.context(),
-            pmseries.ping(false),
+            //pmseries.ping(false),
             pmapi.metric(['mem.util.free']),
             pmapi.fetch('mem.util.free', 10, [[null, 1000]]),
         ]);
@@ -603,10 +587,6 @@ describe('PCP Vector: overridden url and hostspec', () => {
                   "polltimeout": 11,
                 },
                 "url": "http://panel_host:8080/pmapi/context",
-              },
-              Object {
-                "params": undefined,
-                "url": "http://panel_host:8080/series/ping",
               },
               Object {
                 "params": Object {
