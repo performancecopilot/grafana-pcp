@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.0.1 (unreleased)
+
+### Enhancements / Bug Fixes
+- **test**: fix PCP Redis datasource test on 32bit architectures
+
+
 ## 3.0.0 (2020-11-23)
 
 ### Highlights of v3.0
@@ -46,6 +52,7 @@
 - **test**: add End-to-End tests
 - **docs**: update authentication guide to use scram-sha-256
 
+
 ## 3.0.0-beta1 (2020-10-12)
 
 ### New Features
@@ -78,13 +85,16 @@ Restart Grafana server, and check the logs if the plugin loaded successfully.
 ### Deprecated features
 - **redis**: Using `label_values(metric, label)` in a Grafana variable query is deprecated due to performance reasons. `label_values(label)` is still supported.
 
+
 ## 2.0.2 (2020-02-25)
 
 - **vector, redis**: remove autocompletion cache (PCP metrics can be added and removed dynamically)
 
+
 ## 2.0.1 (2020-02-17)
 
 - **build**: fix production build (implement workaround for [systemjs/systemjs#2117](https://github.com/systemjs/systemjs/issues/2117), [grafana/grafana#21785](https://github.com/grafana/grafana/issues/21785))
+
 
 ## 2.0.0 (2020-02-17)
 
@@ -95,9 +105,16 @@ Restart Grafana server, and check the logs if the plugin loaded successfully.
 - **dashboards**: remove BCC metrics from Vector host overview (because the BCC PMDA isn't installed by default)
 - **misc**: update dependencies
 
+
+## 2.0.0-beta1 (2019-12-12)
+
+- support Grafana 6.5+, drop support for Grafana < 6.5
+
+
 ## 1.0.7 (2020-01-29)
 
 - **redis:** fix timespec (fixes empty graphs for large time ranges)
+
 
 ## 1.0.6 (2020-01-07)
 
@@ -105,15 +122,13 @@ Restart Grafana server, and check the logs if the plugin loaded successfully.
 - **redis:** fix label support
 - **redis:** fix legends
 
+
 ## 1.0.5 (2019-12-16)
 
 - **redis:** set default sample interval to `60s` (fixes empty graph borders)
 - **build:** upgrade `copy-webpack-plugin` to mitigate XSS vulnerability in the `serialize-javascript` transitive dependency
 - **build:** remove deprecated `uglify-webpack-plugin`
 
-## 2.0.0-beta1 (2019-12-12)
-
-- support Grafana 6.5+, drop support for Grafana < 6.5
 
 ## 1.0.4 (2019-12-11)
 
@@ -125,14 +140,17 @@ Restart Grafana server, and check the logs if the plugin loaded successfully.
 - **build:** remove `weak` dependency (doesn't work with Node.js 12)
 - **build:** upgrade `terser-webpack-plugin` to mitigate XSS vulnerability in the `serialize-javascript` transitive dependency
 
+
 ## 1.0.3 (2019-11-22)
 
 - fix flame graph dependency (`flamegraph.destroy` error in javascript console)
+
 
 ## 1.0.2 (2019-11-12)
 
 - handle counter wraps (overflows)
 - convert time based counters to time utilization
+
 
 ## 1.0.1 (2019-10-24)
 
@@ -153,6 +171,7 @@ Restart Grafana server, and check the logs if the plugin loaded successfully.
 ### All
 
 - request more datapoints from the datasource to fill the borders of the graph panel
+
 
 ## 1.0.0 (2019-10-11)
 
@@ -178,6 +197,7 @@ Restart Grafana server, and check the logs if the plugin loaded successfully.
 - renamed PCP Live to PCP Vector
 - logos for all datasources
 - improved error handling
+
 
 ## 0.0.7 (2019-08-16)
 
