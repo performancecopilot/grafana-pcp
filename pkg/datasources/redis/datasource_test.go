@@ -107,7 +107,7 @@ func TestDatasource(t *testing.T) {
 		So(response.Responses["A"].Frames, ShouldHaveLength, 1)
 		So(response.Responses["A"].Frames[0].Fields, ShouldHaveLength, 3)
 		So(response.Responses["A"].Frames[0].Fields[0].Len(), ShouldEqual, 1) // it's a counter metric with two values
-		So(response.Responses["A"].Frames[0].Fields[0].At(0).(time.Time).UnixNano(), ShouldEqual, 1599320692309872128)
+		So(response.Responses["A"].Frames[0].Fields[0].At(0).(time.Time).UnixNano(), ShouldEqual, int64(1599320692309872128))
 		So(response.Responses["A"].Frames[0].Fields[1].Name, ShouldEqual, "disk.dev.read[nvme0n1]")
 		So(*response.Responses["A"].Frames[0].Fields[1].At(0).(*float64), ShouldEqual, 200)
 		So(response.Responses["A"].Frames[0].Fields[2].Name, ShouldEqual, "disk.dev.read[sda]")
