@@ -289,7 +289,7 @@ function transformToMetricsTable(scopedVars: ScopedVars, frames: DataFrame[]) {
 
     let instanceColumn: Map<InstanceId | null, string> = new Map();
     for (const frame of frames) {
-        const { context, query, metric } = frame.meta?.custom as FrameCustom;
+        const { context, query, metric } = frame.meta!.custom as FrameCustom;
         const metricSpl = metric.metadata.name.split('.');
         const newField = createField(scopedVars, context, query, metric, null);
         if (!newField.config.displayNameFromDS) {

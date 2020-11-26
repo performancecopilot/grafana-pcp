@@ -75,7 +75,7 @@ export class PCPBPFtraceDataSource extends DataSourceBase<BPFtraceQuery, BPFtrac
                     }
 
                     const script = scriptsById[scriptId];
-                    if (script?.state.status === Status.Error) {
+                    if (script && script.state.status === Status.Error) {
                         target.errors.push(new Error(`BPFtrace error:\n\n${script.state.error}`));
                         target.state = TargetState.ERROR;
                     }
