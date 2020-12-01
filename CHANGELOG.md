@@ -3,6 +3,7 @@
 ## 3.0.1 (unreleased)
 
 ### Enhancements / Bug Fixes
+- **vector, bpftrace**: fix error messages regarding missing metrics
 - **test**: fix PCP Redis datasource test on 32bit architectures
 
 

@@ -107,7 +107,7 @@ export class PmApiService {
             return response.data;
         } catch (error) {
             if (has(error, 'data.message') && error.data.message.includes('metric has null indom')) {
-                throw new NoIndomError(name);
+                throw new NoIndomError(params.name);
             } else {
                 throw error;
             }
@@ -140,12 +140,12 @@ export class PmApiService {
             return response.data;
         } catch (error) {
             if (has(error, 'data.message') && error.data.message.includes('failed to lookup metric')) {
-                throw new MetricNotFoundError(name);
+                throw new MetricNotFoundError(params.name);
             } else if (
                 has(error, 'data.message') &&
                 error.data.message.includes('No permission to perform requested operation')
             ) {
-                throw new PermissionError(name);
+                throw new PermissionError(params.name);
             } else if (has(error, 'data.message') && error.data.message.includes('Bad input')) {
                 return { success: false };
             } else {
