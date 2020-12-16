@@ -18,10 +18,10 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.12.1",
-    "@grafana/data": "^7.3.3",
-    "@grafana/runtime": "^7.3.3",
-    "@grafana/toolkit": "^7.3.3",
-    "@grafana/ui": "^7.3.3",
+    "@grafana/data": "^7.3.5",
+    "@grafana/runtime": "^7.3.5",
+    "@grafana/toolkit": "^7.3.5",
+    "@grafana/ui": "^7.3.5",
     "@types/blueimp-md5": "^2.7.0",
     "@types/d3-selection": "^1.4.2",
     "@types/enzyme": "^3.10.5",
@@ -43,7 +43,7 @@
     "jest": "^26.6.3",
     "jest-date-mock": "^1.0.8",
     "jest-puppeteer": "^4.4.0",
-    "monaco-editor-webpack-plugin": "^2.0.0",
+    "monaco-editor-webpack-plugin": "1.9.0",
     "prettier": "^2.1.2",
     "prettier-plugin-organize-imports": "^1.1.1",
     "puppeteer": "^5.3.1",
@@ -63,13 +63,16 @@
     "loglevel": "^1.6.8",
     "loglevel-plugin-prefix": "^0.8.4",
     "memoize-one": "^5.1.1",
-    "monaco-editor": "^0.21.2",
+    "monaco-editor": "0.20.0",
     "react-autosuggest": "^10.0.2",
-    "react-monaco-editor": "^0.40.0",
+    "react-monaco-editor": "0.36.0",
     "react-redux": "^7.2.0",
     "react-use": "^15.3.4",
     "redux": "^4.0.5",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.3.0"
+  },
+  "resolutions": {
+    "monaco-editor": "0.20.0"
   }
 }
