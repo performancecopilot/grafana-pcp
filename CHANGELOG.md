@@ -3,8 +3,11 @@
 ## 3.0.1 (unreleased)
 
 ### Enhancements / Bug Fixes
+- **redis**: add auto-completions for new pmseries(1) language functions
+- **redis**: show error messages returned by the REST API
 - **vector, bpftrace**: fix error messages regarding missing metrics
 - **test**: fix PCP Redis datasource test on 32bit architectures
+- **build**: update dependencies
 
 
 ## 3.0.0 (2020-11-23)
