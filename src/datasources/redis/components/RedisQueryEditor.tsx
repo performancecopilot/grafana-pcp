@@ -65,6 +65,7 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
             <div>
                 <MonacoEditorLazy
                     languageDefinition={this.languageDefinition}
+                    alwaysShowHelpText={true}
                     height="60px"
                     value={this.state.expr}
                     onBlur={this.onExprChange}

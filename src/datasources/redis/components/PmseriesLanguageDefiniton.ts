@@ -1,12 +1,12 @@
 import { MetricFindValue } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
-//import * as PmseriesLanguage from './PmseriesLanguage.json';
 import { cloneDeep, uniqueId } from 'lodash';
 import { getLogger } from 'loglevel';
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { MonacoLanguageDefinition } from '../../../components/monaco/MonacoEditorWrapper';
 import { findToken, getTokenValues, TokenValue } from '../../lib/language';
 import { PCPRedisDataSource } from '../datasource';
+import * as PmseriesLanguage from './PmseriesLanguage.json';
 
 // this prevents monaco from being included in the redis datasource
 // (it it already in its own chunk in vendors~monaco-editor.js)
@@ -24,13 +24,19 @@ export class PmseriesLanguageDefiniton implements MonacoLanguageDefinition {
     }
 
     register() {
-        /*this.functionCompletions = PmseriesLanguage.functions.map(f => ({
-            kind: monaco.languages.CompletionItemKind.Function,
-            label: f.name,
-            insertText: f.name,
-            detail: f.doc,
-            range: undefined as any,
-        }));*/
+        this.functionCompletions = PmseriesLanguage.functions.map(f => {
+            const name = f.def.substring(0, f.def.indexOf('('));
+            return {
+                kind: monaco.languages.CompletionItemKind.Function,
+                label: name,
+                insertText: name,
+                documentation: {
+                    value: `${f.def}\n\n${f.doc}`,
+                    isTrusted: true,
+                },
+                range: undefined as any,
+            };
+        });
 
         monaco.languages.register({ id: this.languageId });
         monaco.languages.setLanguageConfiguration(this.languageId, {

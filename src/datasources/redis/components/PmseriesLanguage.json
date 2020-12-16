@@ -1,4 +1,40 @@
 {
     "functions": [
+        {
+            "def": "max(expr)",
+            "doc": "the maximum value in the time series for each instance of expr"
+        },
+        {
+            "def": "min(expr)",
+            "doc": "the minimum value in the time series for each instance of expr"
+        },
+        {
+            "def": "rate(expr)",
+            "doc": "the rate with respect to time of each sample. The given expr must have counter semantics and the result will have instant semantics (the time dimension reduced by one). In addition, the result will have one less sample than the operand - this is because the first sample cannot be rate converted (two samples are required)."
+        },
+        {
+            "def": "rescale(expr, scale)",
+            "doc": "rescale the values in the time series for each instance of expr to scale (units). Note that expr should have instant or discrete semantics (not counter - rate conversion should be done first if needed). The time, space and count dimensions between expr and scale must be compatible. Example: rate convert the read throughput counter for each disk instance and then rescale to mbytes per second.  Note the native units of disk.dev.read_bytes is a counter of kbytes read from each device instance since boot: `rescale(rate(disk.dev.read_bytes), \"mbytes/s\")`"
+        },
+        {
+            "def": "abs(expr)",
+            "doc": "the absolute value of each value in the time series for each instance of expr. This has no effect if the type of expr is unsigned."
+        },
+        {
+            "def": "floor(expr)",
+            "doc": "rounded down to the nearest integer value of the time series for each instance of expr."
+        },
+        {
+            "def": "round(expr)",
+            "doc": "rounded up or down to the nearest integer for each value in the time series for each instance of expr."
+        },
+        {
+            "def": "log(expr)",
+            "doc": "logarithm of the values in the time series for each instance of expr"
+        },
+        {
+            "def": "sqrt(expr)",
+            "doc": "square root of the values in the time series for each instance of expr"
+        }
     ]
 }
