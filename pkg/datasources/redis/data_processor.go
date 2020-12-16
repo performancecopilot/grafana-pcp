@@ -44,7 +44,7 @@ func createFieldVector(seriesType string) (interface{}, error) {
 	case "string":
 		return []*string{}, nil
 	default:
-		return nil, fmt.Errorf("unknown series type %s", seriesType)
+		return nil, fmt.Errorf("unknown series type '%s'", seriesType)
 	}
 }
 
@@ -59,7 +59,7 @@ func convertFieldValue(seriesType string, value string) (interface{}, error) {
 	case "string":
 		return &value, nil
 	default:
-		return nil, fmt.Errorf("unknown series type %s", seriesType)
+		return nil, fmt.Errorf("unknown series type '%s'", seriesType)
 	}
 }
 
@@ -355,6 +355,6 @@ func (ds *redisDatasourceInstance) processQuery(redisQuery *Query, series map[st
 		}
 		return frames, nil
 	default:
-		return nil, fmt.Errorf("Invalid target format %s", redisQuery.Format)
+		return nil, fmt.Errorf("invalid target format '%s'", redisQuery.Format)
 	}
 }

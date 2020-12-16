@@ -21,10 +21,10 @@ func (rs *Service) CallResource(method string, queryParams url.Values) (interfac
 	case "metricFindQuery":
 		query, ok := queryParams["query"]
 		if !ok || len(query) != 1 {
-			return nil, fmt.Errorf("Invalid query passed to metricFindQuery")
+			return nil, fmt.Errorf("invalid query passed to metricFindQuery")
 		}
 		return rs.metricFindQuery(query[0])
 	default:
-		return nil, fmt.Errorf("Unknown method %s", method)
+		return nil, fmt.Errorf("unknown method '%s'", method)
 	}
 }

@@ -49,61 +49,57 @@ func NewPmseriesAPI(url string, basicAuth *BasicAuthSettings) API {
 	}
 }
 
-func (e *ApiError) Unwrap() error { return e.Err }
-func (e *ApiError) Error() string {
-	var urlError *url.Error
-	if errors.As(e.Err, &urlError) {
-		if urlError.Timeout() {
-			return fmt.Sprintf("Timeout while connecting to %s", urlError.URL)
-		}
-		return fmt.Sprintf("Network Error: %s", urlError.Error())
-	}
-	return e.Err.Error()
-}
-
 func (api *pmseriesAPI) doRequest(path string, params url.Values, response interface{}) error {
-	url := api.url + path
-	req, err := http.NewRequest("GET", url, nil)
+	// prepare HTTP request
+	absURL := api.url + path
+	req, err := http.NewRequest("GET", absURL, nil)
 	if err != nil {
-		return &ApiError{URL: url, Err: err}
+		log.DefaultLogger.Error("Network Error", "url", absURL, "err", err)
+		return fmt.Errorf("network error accessing '%s': %w", absURL, err)
 	}
-
+	req.URL.RawQuery = params.Encode()
 	if api.basicAuth != nil {
 		req.SetBasicAuth(api.basicAuth.Username, api.basicAuth.Password)
 	}
 
-	req.URL.RawQuery = params.Encode()
+	// send HTTP request
 	log.DefaultLogger.Debug("HTTP Request", "url", req.URL.String())
 	resp, err := api.client.Do(req)
 	if err != nil {
-		log.DefaultLogger.Error("HTTP Response", "url", req.URL.String(), "err", err)
-		return &ApiError{URL: req.URL.String(), Err: err}
+		log.DefaultLogger.Error("Network Error", "url", req.URL.String(), "err", err)
+
+		var urlError *url.Error
+		if errors.As(err, &urlError) {
+			if urlError.Timeout() {
+				return fmt.Errorf("timeout while connecting to '%s'", req.URL.String())
+			}
+		}
+		return fmt.Errorf("network error: %w", err)
 	}
 	defer resp.Body.Close()
 
+	// HTTP request was successful, but pmproxy returned non-200 status code
 	if resp.StatusCode != 200 {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return &ApiError{URL: req.URL.String(), StatusCode: resp.StatusCode, Err: err}
+			return fmt.Errorf("cannot read HTTP response: %w", err)
 		}
 		bodyStr := string(bodyBytes)
-		log.DefaultLogger.Error("HTTP Response", "url", req.URL.String(), "code", resp.StatusCode, "data", bodyStr)
-		return &ApiError{
-			URL:        req.URL.String(),
-			StatusCode: resp.StatusCode,
-			Response:   bodyStr,
-			Err:        fmt.Errorf("HTTP Error %d", resp.StatusCode),
+		log.DefaultLogger.Error("Received HTTP Error Response", "url", req.URL.String(), "code", resp.StatusCode, "data", bodyStr)
+
+		var genericErrorResponse GenericErrorResponse
+		err = json.Unmarshal(bodyBytes, &genericErrorResponse)
+		if err != nil {
+			return fmt.Errorf("cannot unmarshal error response: %w", err)
 		}
+		return errors.New(genericErrorResponse.Message)
 	}
 
+	// HTTP request was successful, 200 status code
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
-		log.DefaultLogger.Error("HTTP Response", "url", req.URL.String(), "code", resp.StatusCode, "err", err)
-		return &ApiError{
-			URL:        req.URL.String(),
-			StatusCode: resp.StatusCode,
-			Err:        err,
-		}
+		log.DefaultLogger.Error("Cannot unmarshal response", "url", req.URL.String(), "code", resp.StatusCode, "err", err)
+		return fmt.Errorf("cannot unmarshal response: %w", err)
 	}
 	//log.DefaultLogger.Debug("HTTP response", "url", req.URL.String(), "code", resp.StatusCode, "response", response)
 	return nil

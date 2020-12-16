@@ -89,7 +89,7 @@ func (s *Service) GetSeries(sids []string) (map[string]*Series, error) {
 			}
 		}
 		if metricName == "" {
-			return nil, fmt.Errorf("Could not find metric name for series %s", sid)
+			return nil, fmt.Errorf("could not find metric name for series '%s'", sid)
 		}
 
 		var labels Labels
@@ -129,11 +129,15 @@ func (s *Service) RefreshInstances(series *Series) error {
 	if err != nil {
 		return err
 	}
+	if len(instancesResponse) == 0 {
+		return fmt.Errorf("received no instances for series '%s' which has an instance domain", series.Desc.Series)
+	}
 
 	seriesIds := []string{}
 	for _, instance := range instancesResponse {
 		seriesIds = append(seriesIds, instance.Instance)
 	}
+
 	labelsResponse, err := s.pmseriesAPI.Labels(seriesIds)
 	if err != nil {
 		return err

@@ -4,6 +4,11 @@ type GenericSuccessResponse struct {
 	Success bool `json:"success"`
 }
 
+type GenericErrorResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
 type QueryResponse []string
 
 type MetricsResponseItem struct {
@@ -45,11 +50,4 @@ type ValuesResponseItem struct {
 	Timestamp float64 `json:"timestamp"` // milliseconds
 	Instance  string  `json:"instance"`  // can be empty
 	Value     string  `json:"value"`
-}
-
-type ApiError struct {
-	URL        string
-	StatusCode int
-	Response   string
-	Err        error
 }

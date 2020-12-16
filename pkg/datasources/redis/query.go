@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"math"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
@@ -20,7 +21,7 @@ func (ds *redisDatasourceInstance) executeTimeSeriesQuery(dataQuery *backend.Dat
 		return nil, err
 	}
 	if len(seriesIds) == 0 {
-		return data.Frames{}, nil
+		return nil, fmt.Errorf("cannot find any series for query '%s'", redisQuery.Expr)
 	}
 
 	series, err := ds.seriesService.GetSeries(seriesIds)

@@ -12,7 +12,7 @@ import (
 
 func fieldSetRate(field *data.Field, idx int, delta time.Duration) error {
 	if field.Type() != data.FieldTypeNullableFloat64 {
-		return fmt.Errorf("fieldSetRate: invalid field type %s", field.Type())
+		return fmt.Errorf("fieldSetRate: invalid field type '%s'", field.Type())
 	}
 
 	curVal, prevVal := field.At(idx).(*float64), field.At(idx-1).(*float64)
@@ -69,7 +69,7 @@ func rateConversion(frame *data.Frame) error {
 
 func fieldDivideBy(field *data.Field, idx int, divisor int) error {
 	if field.Type() != data.FieldTypeNullableFloat64 {
-		return fmt.Errorf("fieldDivideBy: invalid field type %s", field.Type())
+		return fmt.Errorf("fieldDivideBy: invalid field type '%s'", field.Type())
 	}
 
 	val := field.At(idx).(*float64)
