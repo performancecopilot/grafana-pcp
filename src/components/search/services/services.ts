@@ -1,6 +1,7 @@
 import { getBackendSrv } from '@grafana/runtime';
 import { PmSearchApiService } from '../../../common/services/pmsearch/PmSearchApiService';
 import { PmSeriesApiService } from '../../../common/services/pmseries/PmSeriesApiService';
+import { GenericError } from '../../../common/types/errors';
 import redisPluginConfig from '../../../datasources/redis/plugin.json';
 import Config from '../config/config';
 import EntityService from './EntityDetailService';
@@ -15,7 +16,7 @@ async function getDatasourceSettings() {
     const datasources = await getBackendSrv().get('/api/datasources');
     const redisDatasource = datasources.find((ds: any) => ds.type === redisPluginConfig.id);
     if (!redisDatasource) {
-        throw new Error(
+        throw new GenericError(
             `Could not find any PCP Redis datasource. Please create a PCP Redis datasource before using the search feature.`
         );
     }

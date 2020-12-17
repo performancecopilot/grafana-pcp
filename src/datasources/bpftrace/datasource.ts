@@ -2,6 +2,7 @@ import { DataSourceInstanceSettings, ScopedVars } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { defaultsDeep, keyBy } from 'lodash';
 import { getLogger } from 'loglevel';
+import { GenericError } from '../../common/types/errors';
 import { DataSourceBase } from '../../datasources/lib/pmapi/datasource_base';
 import { Poller } from '../../datasources/lib/pmapi/poller/poller';
 import { EndpointWithCtx } from '../../datasources/lib/pmapi/poller/types';
@@ -76,7 +77,7 @@ export class PCPBPFtraceDataSource extends DataSourceBase<BPFtraceQuery, BPFtrac
 
                     const script = scriptsById[scriptId];
                     if (script && script.state.status === Status.Error) {
-                        target.errors.push(new Error(`BPFtrace error:\n\n${script.state.error}`));
+                        target.errors.push(new GenericError(`BPFtrace error:\n\n${script.state.error}`));
                         target.state = TargetState.ERROR;
                     }
                 }
@@ -87,7 +88,7 @@ export class PCPBPFtraceDataSource extends DataSourceBase<BPFtraceQuery, BPFtrac
     async registerTarget(endpoint: EndpointWithCtx, target: Target<BPFtraceTargetData>) {
         const script = await this.scriptManager.register(target.query.url, target.query.hostspec, target.query.expr);
         if (script.state.status === Status.Error) {
-            throw new Error(`BPFtrace error:\n\n${script.state.error}`);
+            throw new GenericError(`BPFtrace error:\n\n${script.state.error}`);
         }
         target.custom = { script };
         return this.scriptManager.getMetrics(target.custom.script, target.query.format);

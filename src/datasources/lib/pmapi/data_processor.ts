@@ -14,6 +14,7 @@ import {
 import { getTemplateSrv } from '@grafana/runtime';
 import { every, isString, mapValues } from 'lodash';
 import { Context, Indom, InstanceId, Metadata } from '../../../common/services/pmapi/types';
+import { GenericError } from '../../../common/types/errors';
 import { Labels, Semantics } from '../../../common/types/pcp';
 import { TargetFormat } from '../types';
 import { applyFieldTransformations } from './field_transformations';
@@ -418,7 +419,7 @@ export function processQueries(
     }
     const format = queryResults[0].query.format;
     if (!every(queryResults, result => result.query.format === format)) {
-        throw new Error('Format must be the same for all queries of a panel.');
+        throw new GenericError('Format must be the same for all queries of a panel.');
     }
 
     const frames = queryResults.flatMap(
@@ -442,6 +443,6 @@ export function processQueries(
         case TargetFormat.CsvTable:
             return [transformToCsvTable(frames)];
         default:
-            throw { message: `Invalid target format '${format}'.` };
+            throw new GenericError(`Invalid target format '${format}'`);
     }
 }

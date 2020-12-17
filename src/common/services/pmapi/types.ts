@@ -1,5 +1,6 @@
 import { DataSourceInstanceSettings } from '@grafana/data';
 import { InstanceName, Labels, MetricName, Semantics } from '../../../common/types/pcp';
+import { GenericError } from '../../types/errors';
 
 export interface PmApiConfig {
     dsInstanceSettings: DataSourceInstanceSettings;
@@ -99,49 +100,41 @@ export interface PmapiChildrenResponse {
     nonleaf: string[];
 }
 
-export class MetricNotFoundError extends Error {
-    constructor(readonly metric: string, message?: string) {
-        super(message ?? `Cannot find metric ${metric}. Please check if the PMDA is enabled.`);
+export class MetricNotFoundError extends GenericError {
+    constructor(readonly metric: string, err?: GenericError) {
+        super(`Cannot find metric ${metric}. Please check if the PMDA is enabled.`, err);
         this.metric = metric;
         Object.setPrototypeOf(this, new.target.prototype);
     }
 }
 
-export class NoIndomError extends Error {
-    constructor(readonly metric: string, message?: string) {
-        super(message ?? `Metric ${metric} has no instance domain.`);
+export class NoIndomError extends GenericError {
+    constructor(readonly metric: string, err?: GenericError) {
+        super(`Metric ${metric} has no instance domain.`, err);
         this.metric = metric;
         Object.setPrototypeOf(this, new.target.prototype);
     }
 }
 
-export class MetricSemanticError extends Error {
-    constructor(readonly expr: string, message?: string) {
-        super(message ?? `Semantic error in '${expr}' definition.`);
+export class MetricSemanticError extends GenericError {
+    constructor(readonly expr: string, err?: GenericError) {
+        super(`Semantic error in '${expr}' definition.`, err);
         this.expr = expr;
         Object.setPrototypeOf(this, new.target.prototype);
     }
 }
 
-export class MetricSyntaxError extends Error {
-    constructor(readonly expr: string, message?: string) {
-        super(message ?? `Syntax error in '${expr}' definition.`);
+export class MetricSyntaxError extends GenericError {
+    constructor(readonly expr: string, err?: GenericError) {
+        super(`Syntax error in '${expr}' definition.`, err);
         this.expr = expr;
         Object.setPrototypeOf(this, new.target.prototype);
     }
 }
 
-export class DuplicateDerivedMetricNameError extends Error {
-    constructor(readonly metric: string, message?: string) {
-        super(message ?? `Duplicate derived metric name ${metric}`);
-        this.metric = metric;
-        Object.setPrototypeOf(this, new.target.prototype);
-    }
-}
-
-export class PermissionError extends Error {
-    constructor(readonly metric: string, message?: string) {
-        super(message ?? `Insufficient permissions to store metric ${metric}. Please check the PMDA configuration.`);
+export class PermissionError extends GenericError {
+    constructor(readonly metric: string, err?: GenericError) {
+        super(`Insufficient permissions to store metric ${metric}. Please check the PMDA configuration.`, err);
         this.metric = metric;
         Object.setPrototypeOf(this, new.target.prototype);
     }

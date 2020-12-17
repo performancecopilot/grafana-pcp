@@ -5,6 +5,7 @@ import { defaultsDeep, keyBy, uniqBy } from 'lodash';
 import { getLogger } from 'loglevel';
 import { InstanceId } from '../../common/services/pmapi/types';
 import { SeriesId, SeriesLabelsItemResponse } from '../../common/services/pmseries/types';
+import { GenericError } from '../../common/types/errors';
 import { Dict } from '../../common/types/utils';
 import { DataSourceBase } from '../../datasources/lib/pmapi/datasource_base';
 import { Poller } from '../../datasources/lib/pmapi/poller/poller';
@@ -89,7 +90,7 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
             name,
         });
         if (!result.success) {
-            throw new Error('Unknown error while registering derived metrics. Please look in the pmproxy logs.');
+            throw new GenericError('Unknown error while registering derived metrics. Please look in the pmproxy logs.');
         }
 
         this.derivedMetrics.set(expr, name);

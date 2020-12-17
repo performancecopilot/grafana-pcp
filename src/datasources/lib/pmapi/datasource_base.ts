@@ -10,6 +10,7 @@ import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { getLogger } from 'loglevel';
 import { PmApiService } from '../../../common/services/pmapi/PmApiService';
 import { PmSeriesApiService } from '../../../common/services/pmseries/PmSeriesApiService';
+import { GenericError } from '../../../common/types/errors';
 import { interval_to_ms, isBlank } from '../../../common/utils';
 import { processQueries } from './data_processor';
 import { Poller } from './poller/poller';
@@ -58,18 +59,22 @@ export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends Pmap
 
         if (this.url?.startsWith('/api/datasources/proxy') && !isBlank(query?.url)) {
             // Grafana will send additional x-grafana headers, which make the CORS request fail
-            throw new Error(
+            throw new GenericError(
                 'Please set the access mode to Browser in the datasource settings when using a custom URL for this panel.'
             );
         }
 
         if (isBlank(url)) {
-            throw new Error(`Please specify a connection URL in the datasource settings${orInTheQueryErrorText}.`);
+            throw new GenericError(
+                `Please specify a connection URL in the datasource settings${orInTheQueryErrorText}.`
+            );
         }
 
         const hostspec = getTemplateSrv().replace(query?.hostspec ?? this.hostspec, scopedVars);
         if (isBlank(hostspec)) {
-            throw new Error(`Please specify a host specification in the datasource settings${orInTheQueryErrorText}.`);
+            throw new GenericError(
+                `Please specify a host specification in the datasource settings${orInTheQueryErrorText}.`
+            );
         }
 
         return { url, hostspec };
@@ -128,7 +133,7 @@ export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends Pmap
             });
             return {
                 status: 'success',
-                message: `Data source is working, using PCP Version ${pmcdVersionMetric.values[0].instances[0].value}`,
+                message: `Data source is working, using Performance Co-Pilot ${pmcdVersionMetric.values[0].instances[0].value}`,
             };
         } catch (error) {
             return {

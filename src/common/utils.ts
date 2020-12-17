@@ -4,7 +4,7 @@ import { isString } from 'lodash';
 import rootLogger, { LogLevelDesc } from 'loglevel';
 import logPrefixer from 'loglevel-plugin-prefix';
 import { Required } from 'utility-types';
-import { TimeoutError } from './types/errors/timeout';
+import { GenericError } from './types/errors';
 
 rootLogger.setDefaultLevel('INFO');
 logPrefixer.reg(rootLogger);
@@ -39,6 +39,13 @@ export function getRequestOptions(instanceSettings: DataSourceInstanceSettings):
         defaultRequestOptions.headers['Authorization'] = instanceSettings.basicAuth;
     }
     return defaultRequestOptions;
+}
+
+export class TimeoutError extends GenericError {
+    constructor(message?: string, err?: GenericError) {
+        super(message ?? 'request timeout', err);
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
 }
 
 export function timeout<T>(promise: Promise<T>, ms: number): Promise<T> {

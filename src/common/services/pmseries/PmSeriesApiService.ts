@@ -1,7 +1,7 @@
 import { BackendSrv, BackendSrvRequest, FetchResponse } from '@grafana/runtime';
 import { defaults } from 'lodash';
-import { NetworkError } from '../../../common/types/errors/network';
-import { DefaultRequestOptions, getRequestOptions, timeout } from '../../../common/utils';
+import { DefaultRequestOptions, getRequestOptions, timeout, TimeoutError } from '../../../common/utils';
+import { NetworkError } from '../../types/errors';
 import {
     PmSeriesApiConfig,
     SeriesDescQueryParams,
@@ -31,7 +31,10 @@ export class PmSeriesApiService {
         try {
             return await timeout(this.backendSrv.fetch<T>(options).toPromise(), this.apiConfig.timeoutMs);
         } catch (error) {
-            throw new NetworkError(error, options);
+            if (error instanceof TimeoutError) {
+                throw new TimeoutError(`Timeout while connecting to '${options.url}'`, error);
+            }
+            throw new NetworkError(error);
         }
     }
 

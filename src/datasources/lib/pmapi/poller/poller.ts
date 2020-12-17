@@ -6,11 +6,12 @@
  */
 
 import { DataQueryRequest } from '@grafana/data';
-import { difference, has, remove, uniq } from 'lodash';
+import { difference, remove, uniq } from 'lodash';
 import { getLogger } from 'loglevel';
 import { PmApiService } from '../../../../common/services/pmapi/PmApiService';
 import { MetricNotFoundError } from '../../../../common/services/pmapi/types';
 import { PmSeriesApiService } from '../../../../common/services/pmseries/PmSeriesApiService';
+import { NetworkError } from '../../../../common/types/errors';
 import { MinimalPmapiQuery, PmapiQuery, Target, TargetState } from '../types';
 import { Endpoint, EndpointState, EndpointWithCtx, Metric, QueryResult } from './types';
 const log = getLogger('poller');
@@ -50,6 +51,9 @@ export class Poller {
             refreshIntervalMs: config.refreshIntervalMs,
             pageIsVisible: true,
         };
+
+        // wait one cycle before the first poll
+        // this way we collect all requested metrics of all panels and can poll them combined
         this.timer = setTimeout(this.poll.bind(this), this.state.refreshIntervalMs);
     }
 
@@ -264,7 +268,11 @@ export class Poller {
             // clean endpoint errors only if we have a successful poll
             endpoint.errors = [];
         } catch (error) {
-            if (has(error, 'data.message') && error.data.message.includes('unknown context identifier')) {
+            if (
+                error instanceof NetworkError &&
+                (error.data?.message?.includes('unknown context identifier') ||
+                    error.data?.message?.includes('expired context identifier'))
+            ) {
                 log.debug('context expired. requesting a new context');
                 endpoint.context = await this.pmApiService.createContext(endpoint.url, {
                     hostspec: endpoint.hostspec,

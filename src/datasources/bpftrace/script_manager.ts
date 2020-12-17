@@ -1,6 +1,7 @@
 import { getLogger } from 'loglevel';
 import { PmApiService } from '../../common/services/pmapi/PmApiService';
 import { PermissionError } from '../../common/services/pmapi/types';
+import { GenericError } from '../../common/types/errors';
 import { TargetFormat } from '../../datasources/lib/types';
 import { MetricType, Script } from './script';
 const log = getLogger('script_manager');
@@ -23,7 +24,7 @@ export class ScriptManager {
                 ([, varDef]) => varDef.metrictype === MetricType.Histogram
             );
             if (!foundVar) {
-                throw new Error('Cannot find any histogram in this BPFtrace script.');
+                throw new GenericError('Cannot find any histogram in this BPFtrace script.');
             }
             return [foundVar[0]];
         } else if (format === TargetFormat.CsvTable) {
@@ -31,7 +32,7 @@ export class ScriptManager {
                 ([, varDef]) => varDef.metrictype === MetricType.Output
             );
             if (!foundVar) {
-                throw new Error('Please printf() a table in CSV format in the BPFtrace script.');
+                throw new GenericError('Please printf() a table in CSV format in the BPFtrace script.');
             }
             return [foundVar[0]];
         } else if (format === TargetFormat.FlameGraph) {
@@ -39,13 +40,13 @@ export class ScriptManager {
                 ([, varDef]) => varDef.metrictype === MetricType.Stacks
             );
             if (!foundVar) {
-                throw new Error(
+                throw new GenericError(
                     'Cannot find any sampled stacks in this BPFtrace script. Try: profile:hz:99 { @[kstack] = count(); }'
                 );
             }
             return [foundVar[0]];
         }
-        throw new Error('Unsupported panel format.');
+        throw new GenericError('Unsupported panel format.');
     }
 
     getMetrics(script: Script, format: TargetFormat) {
@@ -60,7 +61,7 @@ export class ScriptManager {
             await this.pmApiService.store(url, { context: context.context, name: metric, value });
         } catch (error) {
             if (error instanceof PermissionError) {
-                throw new Error(
+                throw new GenericError(
                     "You don't have permission to register bpftrace scripts. " +
                         'Please check the bpftrace PMDA configuration (bpftrace.conf) and the datasource authentication settings.'
                 );

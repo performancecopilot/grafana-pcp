@@ -1,7 +1,7 @@
 import { BackendSrv, BackendSrvRequest, FetchResponse } from '@grafana/runtime';
 import { defaults, has } from 'lodash';
-import { NetworkError } from '../../../common/types/errors/network';
-import { DefaultRequestOptions, getRequestOptions, timeout } from '../../../common/utils';
+import { DefaultRequestOptions, getRequestOptions, timeout, TimeoutError } from '../../../common/utils';
+import { GenericError, NetworkError } from '../../types/errors';
 import {
     MetricNotFoundError,
     MetricSemanticError,
@@ -37,7 +37,10 @@ export class PmApiService {
         try {
             return await timeout(this.backendSrv.fetch<T>(options).toPromise(), this.apiConfig.timeoutMs);
         } catch (error) {
-            throw new NetworkError(error, options);
+            if (error instanceof TimeoutError) {
+                throw new TimeoutError(`Timeout while connecting to '${options.url}'`, error);
+            }
+            throw new NetworkError(error);
         }
     }
 
@@ -52,19 +55,12 @@ export class PmApiService {
                 polltimeout: params.polltimeout ?? 30,
             },
         };
-        try {
-            const response = await this.request<PmapiContextResponse>(request);
-            if (!has(response.data, 'context')) {
-                throw new NetworkError('Received malformed response.', request);
-            }
-            return response.data;
-        } catch (error) {
-            if (has(error, 'data.message')) {
-                throw new NetworkError(error.data.message + '.', request);
-            } else {
-                throw error;
-            }
+
+        const response = await this.request<PmapiContextResponse>(request);
+        if (!has(response.data, 'context')) {
+            throw new GenericError('Received malformed response.');
         }
+        return response.data;
     }
 
     async metric(url: string, params: PmapiMetricRequest): Promise<PmapiMetricResponse> {
@@ -81,15 +77,14 @@ export class PmApiService {
         try {
             const response = await this.request<PmapiMetricResponse>(request);
             if (!has(response.data, 'metrics')) {
-                throw new NetworkError('Received malformed response.', request);
+                throw new GenericError('Received malformed response.');
             }
             return response.data;
         } catch (error) {
-            if (has(error, 'data.message') && error.data.message.includes('Unknown metric name')) {
+            if (error instanceof NetworkError && error.data?.message?.includes('Unknown metric name')) {
                 return { metrics: [] };
-            } else {
-                throw error;
             }
+            throw error;
         }
     }
 
@@ -102,15 +97,14 @@ export class PmApiService {
         try {
             const response = await this.request<PmapiIndomResponse>(request);
             if (!has(response.data, 'instances')) {
-                throw new NetworkError('Received malformed response.', request);
+                throw new GenericError('Received malformed response.');
             }
             return response.data;
         } catch (error) {
-            if (has(error, 'data.message') && error.data.message.includes('metric has null indom')) {
-                throw new NoIndomError(params.name);
-            } else {
-                throw error;
+            if (error instanceof NetworkError && error.data?.message?.includes('metric has null indom')) {
+                throw new NoIndomError(params.name, error);
             }
+            throw error;
         }
     }
 
@@ -124,7 +118,7 @@ export class PmApiService {
         };
         const response = await this.request<PmapiFetchResponse>(request);
         if (!has(response.data, 'timestamp')) {
-            throw new NetworkError('Received malformed response.', request);
+            throw new GenericError('Received malformed response.');
         }
         return response.data;
     }
@@ -139,18 +133,16 @@ export class PmApiService {
             const response = await this.request<PmapiStoreResponse>(request);
             return response.data;
         } catch (error) {
-            if (has(error, 'data.message') && error.data.message.includes('failed to lookup metric')) {
-                throw new MetricNotFoundError(params.name);
-            } else if (
-                has(error, 'data.message') &&
-                error.data.message.includes('No permission to perform requested operation')
-            ) {
-                throw new PermissionError(params.name);
-            } else if (has(error, 'data.message') && error.data.message.includes('Bad input')) {
-                return { success: false };
-            } else {
-                throw error;
+            if (error instanceof NetworkError) {
+                if (error.data?.message?.includes('failed to lookup metric')) {
+                    throw new MetricNotFoundError(params.name, error);
+                } else if (error.data?.message?.includes('No permission to perform requested operation')) {
+                    throw new PermissionError(params.name, error);
+                } else if (error.data?.message?.includes('Bad input')) {
+                    return { success: false };
+                }
             }
+            throw error;
         }
     }
 
@@ -164,15 +156,16 @@ export class PmApiService {
             const response = await this.request<PmapiDeriveResponse>(request);
             return response.data;
         } catch (error) {
-            if (has(error, 'data.message') && error.data.message.includes('Duplicate derived metric name')) {
-                return { success: true };
-            } else if (has(error, 'data.message') && error.data.message.includes('Semantic Error')) {
-                throw new MetricSemanticError(params.expr);
-            } else if (has(error, 'data.message') && error.data.message.includes('Syntax Error')) {
-                throw new MetricSyntaxError(params.expr);
-            } else {
-                throw error;
+            if (error instanceof NetworkError) {
+                if (error.data?.message?.includes('Duplicate derived metric name')) {
+                    return { success: true };
+                } else if (error.data?.message?.includes('Semantic Error')) {
+                    throw new MetricSemanticError(params.expr, error);
+                } else if (error.data?.message?.includes('Syntax Error')) {
+                    throw new MetricSyntaxError(params.expr, error);
+                }
             }
+            throw error;
         }
     }
 
