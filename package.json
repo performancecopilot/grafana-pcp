@@ -18,10 +18,10 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.12.1",
-    "@grafana/data": "^7.3.5",
-    "@grafana/runtime": "^7.3.5",
-    "@grafana/toolkit": "^7.3.5",
-    "@grafana/ui": "^7.3.5",
+    "@grafana/data": "^7.3.6",
+    "@grafana/runtime": "^7.3.6",
+    "@grafana/toolkit": "^7.3.6",
+    "@grafana/ui": "^7.3.6",
     "@types/blueimp-md5": "^2.7.0",
     "@types/d3-selection": "^1.4.2",
     "@types/enzyme": "^3.10.5",
@@ -73,6 +73,7 @@
     "redux-thunk": "^2.3.0"
   },
   "resolutions": {
-    "monaco-editor": "0.20.0"
+    "monaco-editor": "0.20.0",
+    "rxjs": "6.6.2"
   }
 }
