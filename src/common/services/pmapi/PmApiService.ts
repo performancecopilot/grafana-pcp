@@ -3,6 +3,7 @@ import { defaults, has } from 'lodash';
 import { DefaultRequestOptions, getRequestOptions, timeout, TimeoutError } from '../../../common/utils';
 import { GenericError, NetworkError } from '../../types/errors';
 import {
+    DuplicateDerivedMetricNameError,
     MetricNotFoundError,
     MetricSemanticError,
     MetricSyntaxError,
@@ -158,7 +159,7 @@ export class PmApiService {
         } catch (error) {
             if (error instanceof NetworkError) {
                 if (error.data?.message?.includes('Duplicate per-context derived metric name')) {
-                    return { success: true };
+                    throw new DuplicateDerivedMetricNameError(params.name);
                 } else if (error.data?.message?.includes('Semantic Error')) {
                     throw new MetricSemanticError(params.expr, error);
                 } else if (error.data?.message?.includes('Syntax Error')) {

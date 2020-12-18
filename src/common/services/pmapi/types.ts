@@ -103,7 +103,6 @@ export interface PmapiChildrenResponse {
 export class MetricNotFoundError extends GenericError {
     constructor(readonly metric: string, err?: GenericError) {
         super(`Cannot find metric ${metric}. Please check if the PMDA is enabled.`, err);
-        this.metric = metric;
         Object.setPrototypeOf(this, new.target.prototype);
     }
 }
@@ -111,7 +110,6 @@ export class MetricNotFoundError extends GenericError {
 export class NoIndomError extends GenericError {
     constructor(readonly metric: string, err?: GenericError) {
         super(`Metric ${metric} has no instance domain.`, err);
-        this.metric = metric;
         Object.setPrototypeOf(this, new.target.prototype);
     }
 }
@@ -119,7 +117,6 @@ export class NoIndomError extends GenericError {
 export class MetricSemanticError extends GenericError {
     constructor(readonly expr: string, err?: GenericError) {
         super(`Semantic error in '${expr}' definition.`, err);
-        this.expr = expr;
         Object.setPrototypeOf(this, new.target.prototype);
     }
 }
@@ -132,10 +129,16 @@ export class MetricSyntaxError extends GenericError {
     }
 }
 
+export class DuplicateDerivedMetricNameError extends GenericError {
+    constructor(readonly metric: string, err?: GenericError) {
+        super(`Duplicate derived metric name ${metric}`, err);
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
+}
+
 export class PermissionError extends GenericError {
     constructor(readonly metric: string, err?: GenericError) {
         super(`Insufficient permissions to store metric ${metric}. Please check the PMDA configuration.`, err);
-        this.metric = metric;
         Object.setPrototypeOf(this, new.target.prototype);
     }
 }

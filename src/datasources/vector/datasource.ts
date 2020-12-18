@@ -3,7 +3,7 @@ import { getTemplateSrv } from '@grafana/runtime';
 import md5 from 'blueimp-md5';
 import { defaultsDeep, keyBy, uniqBy } from 'lodash';
 import { getLogger } from 'loglevel';
-import { InstanceId } from '../../common/services/pmapi/types';
+import { DuplicateDerivedMetricNameError, InstanceId } from '../../common/services/pmapi/types';
 import { SeriesId, SeriesLabelsItemResponse } from '../../common/services/pmseries/types';
 import { GenericError } from '../../common/types/errors';
 import { Dict } from '../../common/types/utils';
@@ -82,13 +82,24 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
 
     async registerDerivedMetric(endpoint: EndpointWithCtx, expr: string): Promise<string> {
         const name = this.computeDerivedMetricName(expr);
-        const result = await this.pmApiService.derive(endpoint.url, {
-            context: endpoint.context.context,
-            expr,
-            name,
-        });
-        if (!result.success) {
-            throw new GenericError('Unknown error while registering derived metrics. Please look in the pmproxy logs.');
+        try {
+            const result = await this.pmApiService.derive(endpoint.url, {
+                context: endpoint.context.context,
+                expr,
+                name,
+            });
+            if (!result.success) {
+                throw new GenericError(
+                    'Unknown error while registering derived metrics. Please look in the pmproxy logs.'
+                );
+            }
+        } catch (error) {
+            if (error instanceof DuplicateDerivedMetricNameError) {
+                // happens if the same derived metric is used in two panels/targets
+                // can be ignored
+            } else {
+                throw error;
+            }
         }
         return name;
     }
