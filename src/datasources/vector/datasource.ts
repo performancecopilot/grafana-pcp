@@ -17,7 +17,6 @@ const log = getLogger('datasource');
 
 export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptions> {
     poller: Poller;
-    derivedMetrics: Map<string, string>;
 
     constructor(readonly instanceSettings: DataSourceInstanceSettings<VectorOptions>) {
         super(instanceSettings, Config.defaults, Config.apiTimeoutMs);
@@ -32,7 +31,6 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
                 redisBackfill: this.redisBackfill.bind(this),
             },
         });
-        this.derivedMetrics = new Map<string, string>();
 
         document.addEventListener('visibilitychange', () => {
             this.poller.setPageVisibility(!document.hidden);
@@ -92,18 +90,12 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
         if (!result.success) {
             throw new GenericError('Unknown error while registering derived metrics. Please look in the pmproxy logs.');
         }
-
-        this.derivedMetrics.set(expr, name);
         return name;
     }
 
     async registerTarget(endpoint: EndpointWithCtx, target: Target<VectorTargetData>): Promise<string[]> {
         const isDerivedMetric = this.isDerivedMetric(target.query.expr);
         if (isDerivedMetric) {
-            const key = this.derivedMetrics.get(target.query.expr);
-            if (key) {
-                return [key];
-            }
             return [await this.registerDerivedMetric(endpoint, target.query.expr)];
         } else {
             return [target.query.expr];

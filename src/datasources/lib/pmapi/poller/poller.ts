@@ -140,6 +140,13 @@ export class Poller {
                     .registerTarget(endpoint, target)
                     .then(metricNames => (target.metricNames = metricNames))
                     .catch(error => {
+                        // if context expires during the registerTarget hook,
+                        // do not attach the error to the target
+                        // rethrow so it will be handled in pollEndpointAndHandleContextTimeout()
+                        if (this.isContextHasExpiredError(error)) {
+                            throw error;
+                        }
+
                         target.state = TargetState.ERROR;
                         target.errors.push(error);
                     })
@@ -222,6 +229,7 @@ export class Poller {
         const additionalMetricNamesToPoll = uniq(endpoint.additionalMetricsToPoll.map(amp => amp.name));
         metricsToPoll.push(...additionalMetricNamesToPoll);
 
+        log.trace('fetching metrics', metricsToPoll);
         const valuesResponse = await this.pmApiService.fetch(endpoint.url, {
             context: endpoint.context!.context,
             names: metricsToPoll,
@@ -262,22 +270,32 @@ export class Poller {
         );
     }
 
+    isContextHasExpiredError(error: Error) {
+        return (
+            error instanceof NetworkError &&
+            (error.data?.message?.includes('unknown context identifier') ||
+                error.data?.message?.includes('expired context identifier'))
+        );
+    }
+
     async pollEndpointAndHandleContextTimeout(endpoint: Endpoint) {
         try {
             await this.pollEndpoint(endpoint);
             // clean endpoint errors only if we have a successful poll
             endpoint.errors = [];
         } catch (error) {
-            if (
-                error instanceof NetworkError &&
-                (error.data?.message?.includes('unknown context identifier') ||
-                    error.data?.message?.includes('expired context identifier'))
-            ) {
-                log.debug('context expired. requesting a new context');
+            if (this.isContextHasExpiredError(error)) {
+                log.debug('context expired. requesting a new context and resetting state of all targets to PENDING');
                 endpoint.context = await this.pmApiService.createContext(endpoint.url, {
                     hostspec: endpoint.hostspec,
                     polltimeout: Math.round((this.state.refreshIntervalMs + this.config.gracePeriodMs) / 1000),
                 });
+
+                // reset targets after context expired (e.g. derived metrics)
+                for (const target of endpoint.targets) {
+                    target.state = TargetState.PENDING;
+                }
+
                 await this.pollEndpoint(endpoint);
             } else {
                 throw error;

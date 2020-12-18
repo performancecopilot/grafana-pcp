@@ -63,7 +63,8 @@ export class ScriptManager {
             if (error instanceof PermissionError) {
                 throw new GenericError(
                     "You don't have permission to register bpftrace scripts. " +
-                        'Please check the bpftrace PMDA configuration (bpftrace.conf) and the datasource authentication settings.'
+                        'Please check the bpftrace PMDA configuration (bpftrace.conf) and the datasource authentication settings.',
+                    error
                 );
             } else {
                 throw error;

@@ -206,7 +206,6 @@ describe('PCP Vector', () => {
 
         expect(spy).toBeCalledTimes(1);
         expect(spy.mock.calls[0][1]).toMatchObject({ name: datasource.computeDerivedMetricName(expr) });
-        expect(datasource.derivedMetrics.has(expr)).toBe(true);
     });
 
     it('should request registration of derived metric', async () => {
@@ -223,16 +222,6 @@ describe('PCP Vector', () => {
         expect(resultRegistered).toEqual([metricName]);
         expect(createDerivedSpy).toBeCalledTimes(1);
         expect(registerDeriverMetricSpy).toBeCalledTimes(1);
-        expect(datasource.derivedMetrics.size).toBe(1);
-        expect(datasource.derivedMetrics.has(expr)).toBe(true);
-
-        // will skip registering derived metric, since we already did so
-        const resultRegistrationSkipped = await datasource.registerTarget(endpointMock, targetMock);
-        expect(resultRegistrationSkipped).toEqual([metricName]);
-        expect(createDerivedSpy).toBeCalledTimes(1);
-        expect(registerDeriverMetricSpy).toBeCalledTimes(1);
-        expect(datasource.derivedMetrics.size).toBe(1);
-        expect(datasource.derivedMetrics.has(expr)).toBe(true);
     });
 
     it.skip('redisBackfill hook should request series api for backfilling and populate metric values', async () => {

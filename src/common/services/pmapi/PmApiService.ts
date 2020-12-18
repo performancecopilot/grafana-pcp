@@ -157,7 +157,7 @@ export class PmApiService {
             return response.data;
         } catch (error) {
             if (error instanceof NetworkError) {
-                if (error.data?.message?.includes('Duplicate derived metric name')) {
+                if (error.data?.message?.includes('Duplicate per-context derived metric name')) {
                     return { success: true };
                 } else if (error.data?.message?.includes('Semantic Error')) {
                     throw new MetricSemanticError(params.expr, error);
