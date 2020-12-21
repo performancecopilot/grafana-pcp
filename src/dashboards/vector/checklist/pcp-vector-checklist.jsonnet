@@ -43,7 +43,7 @@ checklist.dashboard.new(node)
     title='Storage Utilization [%]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
-      metric='diskbusy',
+      metric='disk.dm.avactive',
       operator='>',
       value=0.85,
     ),
