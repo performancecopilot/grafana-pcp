@@ -7,6 +7,8 @@
 - **redis, vector**: show error messages returned by the REST API
 - **vector, bpftrace**: fix error messages regarding missing metrics
 - **vector**: register derived metrics for every context
+- **vector**: handle missing metric metadata responses
+- **checklist**: fix metric name in storage warning dialog
 - **test**: fix PCP Redis datasource test on 32bit architectures
 - **build**: update dependencies
 
