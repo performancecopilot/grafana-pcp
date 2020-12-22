@@ -1,6 +1,6 @@
 # Change Log
 
-## 3.0.1 (unreleased)
+## 3.0.1 (2020-12-22)
 
 ### Enhancements / Bug Fixes
 - **redis**: add auto-completions for new pmseries(1) language functions
