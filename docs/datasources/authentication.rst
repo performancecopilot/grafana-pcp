@@ -46,11 +46,11 @@ Make sure that the permissions of the user database are correct (readable only b
     $ sudo chown root:pcp /etc/pcp/passwd.db
     $ sudo chmod 640 /etc/pcp/passwd.db
 
-Finally, restart pmcd:
+Finally, restart pmcd and pmproxy:
 
 .. code-block:: console
 
-    $ sudo systemctl restart pmcd
+    $ sudo systemctl restart pmcd pmproxy
 
 Test Authentication
 -------------------
