@@ -80,7 +80,15 @@ export class PmApiService {
             if (!has(response.data, 'metrics')) {
                 throw new GenericError('Received malformed response.');
             }
-            return response.data;
+
+            // if multiple metrics are requested and one if them is not found
+            // the non existing one will be returned as
+            // {"name": "metric.name", "message": "Unknown metric name", "success": false}
+            const metricResponse = response.data;
+            metricResponse.metrics = metricResponse.metrics.filter(
+                metadata => !('success' in metadata) || (metadata as any).success
+            );
+            return metricResponse;
         } catch (error) {
             if (error instanceof NetworkError && error.data?.message?.includes('Unknown metric name')) {
                 return { metrics: [] };
