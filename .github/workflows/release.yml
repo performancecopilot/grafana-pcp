@@ -17,17 +17,28 @@ jobs:
       with:
         node-version: 12
 
-    - name: Installing jsonnet and jsonnet-bundler
+    - name: Installing jsonnet, jsonnet-bundler and grafana/plugin-validator
       run: |
-        go get github.com/google/go-jsonnet/cmd/jsonnet
-        go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
+        GO111MODULE=off go get github.com/google/go-jsonnet/cmd/jsonnet
+        GO111MODULE=off go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
+        GO111MODULE=off go get github.com/grafana/plugin-validator/cmd/plugincheck
         echo "$HOME/go/bin" >> $GITHUB_PATH
 
     - name: Install dependencies
       run: make deps
 
-    - name: Build plugin
+    - name: Test backend
+      run: make test-backend
+
+    - name: Test frontend & Build plugin
       run: make dist
+
+    - name: Check if package version and git tag matches
+      run: |
+        if [ "v$(jq -r '.info.version' dist/plugin.json)" != "${GITHUB_REF#refs/*/}" ]; then
+          echo "Plugin version doesn't match git tag"
+          exit 1
+        fi
 
     - name: Sign plugin
       run: make sign

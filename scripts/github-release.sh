@@ -23,6 +23,9 @@ zip "${GRAFANA_PLUGIN_ARTIFACT}" "${GRAFANA_PLUGIN_ID}" -r
 md5sum "${GRAFANA_PLUGIN_ARTIFACT}" > "${GRAFANA_PLUGIN_ARTIFACT_CHECKSUM}"
 GRAFANA_PLUGIN_CHECKSUM=$(cut -d' ' -f1 "${GRAFANA_PLUGIN_ARTIFACT_CHECKSUM}")
 
+# grafana/plugin-validator
+plugincheck "${GRAFANA_PLUGIN_ARTIFACT}"
+
 hub release create \
     -m "grafana-pcp v${GRAFANA_PLUGIN_VERSION}" \
     -m "${RELEASE_NOTES}" \
