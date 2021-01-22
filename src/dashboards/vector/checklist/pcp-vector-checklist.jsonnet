@@ -43,7 +43,7 @@ checklist.dashboard.new(node)
     title='Storage Utilization [%]',
     datasource='$datasource',
     threshold=notifyGraph.threshold.new(
-      metric='disk.dm.avactive',
+      metric='disk.dev.avactive',
       operator='>',
       value=0.85,
     ),
@@ -52,7 +52,7 @@ checklist.dashboard.new(node)
       warning='Excessive waiting for storage.',
       metrics=[
         notifyGraph.metric.new(
-          'disk.dm.avactive', 'per-device-mapper device count of active time'
+          'disk.dev.avactive', 'per-disk count of active time'
         )
       ],
       urls=['https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html-single/Performance_Tuning_Guide/index.html#chap-Red_Hat_Enterprise_Linux-Performance_Tuning_Guide-Storage_and_File_Systems'],
@@ -61,7 +61,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-storage')],
     ),
   ).addTargets([
-    { expr: 'disk.dm.avactive', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'disk.dev.avactive', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 3,

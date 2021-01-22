@@ -2,6 +2,7 @@
 
 ## 3.0.2 (unreleased)
 
+- **checklist**: replace the storage metrics `disk.dm.*` with `disk.dev.*` (enables usage without device mapper)
 
 ## 3.0.1 (2020-12-22)
 
