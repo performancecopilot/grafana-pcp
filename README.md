@@ -7,9 +7,9 @@
 It presents a unifying abstraction for all of the performance data in a system, and many tools for interrogating, retrieving and processing that data.
 
 [![Vector Overview](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/vector-overview.png)](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/vector-overview.png)
+[![Vector Containers](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/vector-containers.png)](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/vector-containers.png)
 [![bpftrace Flame Graph](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/bpftrace-flame-graph.png)](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/bpftrace-flame-graph.png)
 [![Vector metrics autocompletion](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/vector-metric-autocompletion.png)](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/vector-metric-autocompletion.png)
-[![bpftrace probe autocompletion](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/bpftrace-probe-autocompletion.png)](https://raw.githubusercontent.com/performancecopilot/grafana-pcp/master/src/img/screenshots/bpftrace-probe-autocompletion.png)
 [more screenshots](https://github.com/performancecopilot/grafana-pcp/tree/master/src/img/screenshots)
 
 ## Features

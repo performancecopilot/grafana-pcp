@@ -67,6 +67,7 @@ Getting started
    :hidden:
 
    guides/multiple-vector-hosts.rst
+   guides/containers.rst
 
 .. toctree::
    :hidden:

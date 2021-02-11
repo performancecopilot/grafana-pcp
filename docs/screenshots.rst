@@ -6,6 +6,8 @@ PCP Vector
 
 .. image:: ../src/img/screenshots/vector-overview.png
   :width: 700
+.. image:: ../src/img/screenshots/vector-containers.png
+  :width: 700
 .. image:: ../src/img/screenshots/vector-checklist.png
   :width: 700
 .. image:: ../src/img/screenshots/vector-metric-autocompletion.png
