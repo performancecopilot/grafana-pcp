@@ -2,6 +2,9 @@
 
 ## 3.0.3 (unreleased)
 
+- **test**: fix e2e tests by using another CSS selector
+- **chore**: update dependencies
+- **docs**: add container guide and screenshot
 
 ## 3.0.2 (2021-01-22)
 
