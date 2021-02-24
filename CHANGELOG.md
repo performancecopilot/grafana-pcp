@@ -1,6 +1,6 @@
 # Change Log
 
-## 3.0.3 (unreleased)
+## 3.0.3 (2021-02-24)
 
 - **test**: fix e2e tests by using another CSS selector
 - **chore**: update dependencies
