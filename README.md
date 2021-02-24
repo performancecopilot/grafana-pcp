@@ -16,7 +16,7 @@ It presents a unifying abstraction for all of the performance data in a system, 
 * analysis of historical PCP metrics using [pmseries](https://man7.org/linux/man-pages/man1/pmseries.1.html) query language
 * analysis of real-time PCP metrics using [pmwebapi](https://man7.org/linux/man-pages/man3/pmwebapi.3.html) live services
 * enhanced Berkeley Packet Filter (eBPF) tracing using [bpftrace](https://github.com/iovisor/bpftrace/blob/master/README.md) scripts
-* dashboards for detecting potential performance issues and show possible solutions with the checklist dashboards, using the [USE method](http://www.brendangregg.com/usemethod.html) [2]
+* dashboards for detecting potential performance issues and showing possible solutions using the Utilization Saturation and Errors (USE) method [2]
 * full-text search in metric names, descriptions, instances [1]
 * support for [Grafana Alerting](https://grafana.com/docs/grafana/latest/alerting/create-alerts/) [1]
 * support for [derived metrics](https://man7.org/linux/man-pages/man3/pmregisterderived.3.html#DESCRIPTION) (allows the usage of arithmetic operators and statistical functions inside a query) [2]
