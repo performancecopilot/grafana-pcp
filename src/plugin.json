@@ -20,11 +20,11 @@
             },
             {
                 "name": "License",
-                "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/LICENSE"
+                "url": "https://github.com/performancecopilot/grafana-pcp/blob/main/LICENSE"
             },
             {
                 "name": "Notice",
-                "url": "https://github.com/performancecopilot/grafana-pcp/blob/master/NOTICE"
+                "url": "https://github.com/performancecopilot/grafana-pcp/blob/main/NOTICE"
             }
         ],
         "screenshots": [
