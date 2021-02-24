@@ -40,10 +40,10 @@ jobs:
           exit 1
         fi
 
-    #- name: Sign plugin
-    #  run: make sign
-    #  env:
-    #    GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
+    - name: Sign plugin
+      run: make sign
+      env:
+        GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
 
     - name: Create GitHub release
       run: scripts/github-release.sh
