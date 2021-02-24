@@ -32,12 +32,15 @@ describe('setup grafana-pcp', () => {
 
         // new datasource settings
         await page.type('input[placeholder="http://localhost:44322"]', 'http://localhost:44322');
-        await page.click('button[type=submit]');
-        await page.waitFor(1000);
+        await Promise.all([
+            page.waitForTimeout(1000), // page.waitForNavigation({ waitUntil: 'networkidle0' }),
+            page.click('button[type=submit]'),
+        ]);
 
         // new datasource saved
-        const alert = await page.$('.alert-title');
-        await expect(alert).toMatch("http://localhost:44322/series/ping");
-        await expect(alert).toMatch("connection refused");
+        const alerts = await page.$$('div[aria-label*="Alert"]'); // datasource saved (top right) & datasource health test (bottom) alerts
+        const datasourceHealthAlert = alerts[alerts.length-1];
+        await expect(datasourceHealthAlert).toMatch("http://localhost:44322/series/ping");
+        await expect(datasourceHealthAlert).toMatch("connection refused");
     });
 });
