@@ -51,4 +51,4 @@ Variable        Description
 More Information
 ----------------
 
-`bpftrace PMDA README <https://github.com/performancecopilot/pcp/blob/master/src/pmdas/bpftrace/README.md>`_
+`bpftrace PMDA README <https://github.com/performancecopilot/pcp/blob/main/src/pmdas/bpftrace/README.md>`_
