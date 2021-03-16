@@ -1,2 +1,2 @@
+sphinx-rtd-theme>=0.5.1
 recommonmark
-sphinx-rtd-theme
