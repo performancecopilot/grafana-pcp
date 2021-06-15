@@ -58,7 +58,8 @@ function timeUtilizationConversion(frame: MutableDataFrame, divisor: number) {
 
         field.config.unit = 'percentunit';
         for (let i = 0; i < field.values.length; i++) {
-            field.values.set(i, field.values.get(i) / divisor);
+            const val = field.values.get(i);
+            field.values.set(i, val === MISSING_VALUE ? MISSING_VALUE : val / divisor);
         }
     }
 }

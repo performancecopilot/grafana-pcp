@@ -163,7 +163,7 @@ export class SearchPage extends React.Component<SearchPageProps, {}> {
                 }
                 return (
                     <VerticalGroup spacing="lg">
-                        <h4>Results for '{query.pattern}':</h4>
+                        <h4>Results for &quot;{query.pattern}&quot;:</h4>
                         <p>There are no results.</p>
                     </VerticalGroup>
                 );

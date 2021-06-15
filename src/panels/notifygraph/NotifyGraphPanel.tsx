@@ -84,6 +84,7 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
                             <VerticalGroup spacing="md">
                                 {meta.parents.map(parent => (
                                     <Button
+                                        key={parent.uid}
                                         variant="link"
                                         title={parent.title}
                                         onClick={() => navigateDashboard(parent.uid)}
@@ -100,6 +101,7 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
                             <VerticalGroup spacing="md">
                                 {meta.children.map(child => (
                                     <Button
+                                        key={child.uid}
                                         variant="link"
                                         title={child.title}
                                         onClick={() => navigateDashboard(child.uid)}
@@ -133,7 +135,7 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
                             </h4>
                             <ul>
                                 {meta.metrics.map(metric => (
-                                    <li>
+                                    <li key={metric.name}>
                                         {/* Rerender caused by prop change seem to force hide the Tooltip unfortunately */}
                                         {metric.title ? (
                                             // <Tooltip content={metric.title} theme="info">
@@ -158,7 +160,7 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
                             </h4>
                             <ul>
                                 {meta.derived.map(metric => (
-                                    <li>{metric}</li>
+                                    <li key={metric}>{metric}</li>
                                 ))}
                             </ul>
                         </VerticalGroup>
@@ -171,7 +173,7 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
                             </h4>
                             <ul>
                                 {meta.urls.map(url => (
-                                    <li>
+                                    <li key={url}>
                                         <a href={url} target="_blank" rel="noreferrer">
                                             {url}
                                         </a>
@@ -187,8 +189,8 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
                                 Troubleshooting
                             </h4>
                             <ul>
-                                {meta.issues.map(issue => (
-                                    <li dangerouslySetInnerHTML={{ __html: issue }}></li>
+                                {meta.issues.map((issue, i) => (
+                                    <li key={i} dangerouslySetInnerHTML={{ __html: issue }}></li>
                                 ))}
                             </ul>
                         </VerticalGroup>
@@ -227,7 +229,7 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
                             </h4>
                             <ul>
                                 {meta.urls.map(url => (
-                                    <li>
+                                    <li key={url}>
                                         <a href={url} target="_blank" rel="noreferrer">
                                             {url}
                                         </a>
@@ -316,12 +318,12 @@ export class NotifyGraphPanel extends React.PureComponent<NotifyGraphPanelProps,
 
         const { legend, graph, threshold, meta } = options;
 
-        const { isLegendVisible, displayMode, placement } = legend;
+        const { displayMode, placement } = legend;
         const { lineWidth, showBars, showLines, showPoints, isStacked } = graph;
 
         const graphProps: GraphWithLegendProps = {
-            isLegendVisible,
-            displayMode,
+            //isLegendVisible,
+            legendDisplayMode: displayMode,
             lineWidth,
             showBars,
             showLines,

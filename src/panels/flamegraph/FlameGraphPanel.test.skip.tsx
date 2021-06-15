@@ -58,7 +58,7 @@ describe('FlameGraphPanel', () => {
             panel
                 .render()
                 .find('title')
-                .map((_, elem) => elem.firstChild.data)
+                .map((_, elem) => (elem as cheerio.TagElement).firstChild?.data)
                 .toArray()
         ).toMatchInlineSnapshot(`
             Array [
@@ -99,6 +99,7 @@ function mountPanel(data: PanelData) {
             onChangeTimeRange={() => {}}
             renderCounter={1}
             title="Panel"
+            eventBus={{} as any}
         />
     );
 }

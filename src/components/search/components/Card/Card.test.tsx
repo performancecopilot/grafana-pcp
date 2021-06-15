@@ -18,7 +18,7 @@ describe('<Card/>', () => {
     test('should have default background "strong"', () => {
         const card = shallow(
             <Card theme={theme}>
-                <p>Default "strong"</p>
+                <p>Default &quot;strong&quot;</p>
             </Card>
         );
         expect(card.render().prop('data-test')).toBe('strong');

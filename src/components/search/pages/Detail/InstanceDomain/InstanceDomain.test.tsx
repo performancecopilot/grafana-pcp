@@ -106,9 +106,7 @@ describe('Detail Page <InstanceDomainPage/>', () => {
         const bookmarkButton = wrapper.find('[data-test="bookmark-button"]');
         bookmarkButton.simulate('click');
         const indom = (instanceDomainDetailProps.indom.data as IndomEntity).indom;
-        const bookmarkCallback: jest.Mock<
-            typeof instanceDomainDetailProps.onBookmark
-        > = instanceDomainDetailProps.onBookmark as any;
+        const bookmarkCallback: jest.Mock<typeof instanceDomainDetailProps.onBookmark> = instanceDomainDetailProps.onBookmark as any;
         expect(bookmarkCallback.mock.calls[0][0]).toEqual({ id: indom.name, type: EntityType.InstanceDomain });
         expect(bookmarkCallback).toHaveBeenCalled();
     });
@@ -119,9 +117,7 @@ describe('Detail Page <InstanceDomainPage/>', () => {
         const unbookmarkButton = wrapper.find('[data-test="unbookmark-button"]');
         unbookmarkButton.simulate('click');
         const indom = (instanceDomainDetailProps.indom.data as IndomEntity).indom;
-        const unbookmarkCallback: jest.Mock<
-            typeof instanceDomainDetailProps.onBookmark
-        > = instanceDomainDetailProps.onUnbookmark as any;
+        const unbookmarkCallback: jest.Mock<typeof instanceDomainDetailProps.onBookmark> = instanceDomainDetailProps.onUnbookmark as any;
         expect(unbookmarkCallback.mock.calls[0][0]).toEqual({ id: indom.name, type: EntityType.InstanceDomain });
         expect(unbookmarkCallback).toHaveBeenCalled();
     });

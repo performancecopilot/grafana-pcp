@@ -45,7 +45,7 @@ class EntityService {
                                       ...(entitySeries[val][0].labels ? { labels: entitySeries[val][0].labels } : {}),
                                   },
                               ]
-                            : {}),
+                            : []),
                     ];
                 },
                 []

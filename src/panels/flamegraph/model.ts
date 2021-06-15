@@ -1,4 +1,4 @@
-import { FieldType, getTimeField, PanelData } from '@grafana/data';
+import { FieldType, getTimeField, MISSING_VALUE, PanelData } from '@grafana/data';
 import { StackFrame } from 'd3-flame-graph';
 import { Options } from './types';
 
@@ -59,7 +59,10 @@ export function generateFlameGraphModel(panelData: PanelData, options: Options):
         // sum all rates in the selected time frame
         let count = 0;
         for (let i = 0; i < field.values.length; i++) {
-            count += field.values.get(i);
+            const value = field.values.get(i);
+            if (value !== MISSING_VALUE) {
+                count += value;
+            }
         }
         if (count < options.minSamples) {
             continue;

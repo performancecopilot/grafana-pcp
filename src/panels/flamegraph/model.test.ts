@@ -13,11 +13,13 @@ describe('Model', () => {
                         { name: 'Time', type: FieldType.time, values: [1, 2, 3] },
                         {
                             name: '\n    write+24\n    0x3266377830202020\n',
+                            type: FieldType.number,
                             config: { custom: { instance: { name: '\n    write+24\n    0x3266377830202020\n' } } },
                             values: [MISSING_VALUE, 2],
                         },
                         {
                             name: '\n    write+24\n    0x3266377830202020\n    0x123',
+                            type: FieldType.number,
                             config: {
                                 custom: { instance: { name: '\n    write+24\n    0x3266377830202020\n    0x123' } },
                             },
@@ -25,11 +27,13 @@ describe('Model', () => {
                         },
                         {
                             name: '\n    writev+24\n    0x400007ffd\n',
+                            type: FieldType.number,
                             config: { custom: { instance: { name: '\n    writev+24\n    0x400007ffd\n' } } },
                             values: [MISSING_VALUE, MISSING_VALUE, 4],
                         },
                         {
                             name: '\n    zmalloc_get_rss+20\n',
+                            type: FieldType.number,
                             config: { custom: { instance: { name: '\n    zmalloc_get_rss+20\n' } } },
                             values: [5],
                         },
@@ -100,6 +104,7 @@ describe('Model', () => {
                         { name: 'Time', type: FieldType.time, values: [1, 2] },
                         {
                             name: 'swapper/2,\n    write+24\n    0x3266377830202020\n',
+                            type: FieldType.number,
                             config: {
                                 custom: { instance: { name: 'swapper/2,\n    write+24\n    0x3266377830202020\n' } },
                             },
@@ -107,6 +112,7 @@ describe('Model', () => {
                         },
                         {
                             name: 'Xorg,\n    read+24\n    0x123\n    0x456',
+                            type: FieldType.number,
                             config: { custom: { instance: { name: 'Xorg,\n    read+24\n    0x123\n    0x456' } } },
                             values: [3],
                         },

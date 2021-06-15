@@ -52,7 +52,7 @@ describe('field transformations', () => {
                   "name": "cgroup.cpu.stat.usage",
                   "type": "number",
                   "values": Array [
-                    0,
+                    undefined,
                     1,
                     0.5,
                   ],

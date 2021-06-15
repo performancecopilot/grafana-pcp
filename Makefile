@@ -86,15 +86,14 @@ test: test-frontend test-backend ## Run all tests
 
 ##@ E2E tests
 
-test-e2e-container:
-	podman build -t grafana-pcp-e2e .
+test-e2e-build-container:
+	podman image exists grafana-pcp-e2e || podman build -t grafana-pcp-e2e .
+
+test-e2e-start-container: test-e2e-build-container
 	-podman rm -f grafana-pcp-e2e
 	podman run -d -p 3001:3000 --name grafana-pcp-e2e grafana-pcp-e2e
 
-test-e2e: test-e2e-container ## Run End-to-End tests in a new container
-	GRAFANA_URL="http://127.0.0.1:3001" node_modules/jest/bin/jest.js --config jest.config.e2e.js --runInBand
-
-test-e2e-existing: ## Run End-to-End tests in an existing container
+test-e2e: test-e2e-start-container ## Run End-to-End tests in a new container (requires test-e2e-start-container)
 	GRAFANA_URL="http://127.0.0.1:3001" node_modules/jest/bin/jest.js --config jest.config.e2e.js --runInBand
 
 

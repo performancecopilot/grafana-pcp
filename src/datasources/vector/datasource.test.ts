@@ -91,7 +91,7 @@ describe('PCP Vector', () => {
                   "name": "disk.dev.read[nvme0n1]",
                   "type": "number",
                   "values": Array [
-                    null,
+                    undefined,
                     100,
                   ],
                 },
@@ -111,7 +111,7 @@ describe('PCP Vector', () => {
                   "name": "disk.dev.read[sda]",
                   "type": "number",
                   "values": Array [
-                    null,
+                    undefined,
                     0,
                   ],
                 },

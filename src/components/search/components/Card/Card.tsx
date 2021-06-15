@@ -1,6 +1,6 @@
 import { Themeable, withTheme } from '@grafana/ui';
 import React from 'react';
-import { cardContainer } from './styles';
+import { getCardStyles } from './styles';
 
 export interface CardBasicProps {
     background?: 'weak' | 'strong';
@@ -8,10 +8,12 @@ export interface CardBasicProps {
 
 export type CardProps = Themeable & CardBasicProps;
 
-export const Card: React.FC<CardProps> = props => {
+export const Card: React.FC<CardProps> = (props: React.PropsWithChildren<CardProps>) => {
     const background = props.background ?? 'strong';
+    const styles = getCardStyles(props.theme, background);
+
     return (
-        <div className={cardContainer(props.theme, background)} data-test={background}>
+        <div className={styles.container} data-test={background}>
             {props.children}
         </div>
     );

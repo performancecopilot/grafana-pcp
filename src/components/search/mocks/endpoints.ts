@@ -25,7 +25,7 @@ export const querySearchEndpoint = (
 export const metricFetchEndpoint = (metricId: string): Promise<PmApiMetricMetricResponse> => {
     return new Promise<PmApiMetricMetricResponse>((resolve, reject) => {
         setTimeout(() => {
-            resolve(detailEntities.find(x => x.metrics.some(m => m.name === metricId))?.metrics[0]);
+            resolve(detailEntities.find(x => x.metrics.some(m => m.name === metricId))!.metrics[0]);
         }, 1000);
     });
 };
@@ -43,7 +43,7 @@ export const autocompleteFetchEndpoint = (query: string): Promise<AutocompleteRe
 export const indomFetchEndpoint = (indom: string): Promise<PmApiIndomEndpointResponse> => {
     return new Promise<PmApiIndomEndpointResponse>((resolve, reject) => {
         setTimeout(() => {
-            resolve(indomEntities.find(x => x.indom === indom));
+            resolve(indomEntities.find(x => x.indom === indom)!);
         }, 1000);
     });
 };

@@ -100,7 +100,7 @@ describe('PCP BPFtrace', () => {
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[0-0]",
                   "type": "number",
                   "values": Array [
-                    null,
+                    undefined,
                     7814,
                   ],
                 },
@@ -119,7 +119,7 @@ describe('PCP BPFtrace', () => {
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[1-1]",
                   "type": "number",
                   "values": Array [
-                    null,
+                    undefined,
                     7841,
                   ],
                 },
@@ -138,7 +138,7 @@ describe('PCP BPFtrace', () => {
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[2-2]",
                   "type": "number",
                   "values": Array [
-                    null,
+                    undefined,
                     7024,
                   ],
                 },
@@ -157,7 +157,7 @@ describe('PCP BPFtrace', () => {
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[3-3]",
                   "type": "number",
                   "values": Array [
-                    null,
+                    undefined,
                     6902,
                   ],
                 },
@@ -176,7 +176,7 @@ describe('PCP BPFtrace', () => {
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[4-4]",
                   "type": "number",
                   "values": Array [
-                    null,
+                    undefined,
                     6784,
                   ],
                 },
@@ -195,7 +195,7 @@ describe('PCP BPFtrace', () => {
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[5-5]",
                   "type": "number",
                   "values": Array [
-                    null,
+                    undefined,
                     7354,
                   ],
                 },
@@ -214,7 +214,7 @@ describe('PCP BPFtrace', () => {
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[6-6]",
                   "type": "number",
                   "values": Array [
-                    null,
+                    undefined,
                     6943,
                   ],
                 },
@@ -233,7 +233,7 @@ describe('PCP BPFtrace', () => {
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[7-7]",
                   "type": "number",
                   "values": Array [
-                    null,
+                    undefined,
                     6817,
                   ],
                 },
