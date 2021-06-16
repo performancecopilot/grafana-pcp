@@ -247,10 +247,9 @@ export class BPFtraceLanguageDefinition implements MonacoLanguageDefinition {
         }
 
         // Monaco performance degrades significantly with a big number of autocompletion items (~172343 probes)
-        const completions = [
-            ...this.staticProbeCompletions,
-            ...this.dynamicProbeCompletions[endpointId]!,
-        ].filter(completion => (completion.label as string).includes(token.value));
+        const completions = [...this.staticProbeCompletions, ...this.dynamicProbeCompletions[endpointId]!].filter(
+            completion => (completion.label as string).includes(token.value)
+        );
 
         if (completions.length < 100) {
             return { suggestions: completions, incomplete: false };

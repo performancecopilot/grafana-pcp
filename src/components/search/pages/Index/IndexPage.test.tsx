@@ -115,7 +115,8 @@ describe('<IndexPage/>', () => {
         const searchHistoryList = wrapper.find('[data-test="search-history-list"]');
         const props: SearchHistoryListProps = searchHistoryList.props() as any;
         props.onClearSearchHistoryClick();
-        const clearSearchHistory: jest.Mock<ClearSearchHistoryActionCreator> = mockReduxDispatchProps.clearSearchHistory as any;
+        const clearSearchHistory: jest.Mock<ClearSearchHistoryActionCreator> =
+            mockReduxDispatchProps.clearSearchHistory as any;
         expect(clearSearchHistory).toHaveBeenCalled();
     });
 });

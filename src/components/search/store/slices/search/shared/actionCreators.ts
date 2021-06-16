@@ -23,87 +23,83 @@ export type QuerySearchActionCreator = (
     query: SearchQuery
 ) => ThunkAction<Promise<void>, RootState, Services, QuerySearchAction>;
 
-export const querySearch: QuerySearchActionCreator = query => async (
-    dispatch: ThunkDispatch<{}, {}, QuerySearchAction>,
-    getState,
-    { searchService }
-): Promise<void> => {
-    dispatch({
-        type: SET_VIEW,
-        payload: ViewState.Search,
-    });
-    dispatch({
-        type: LOAD_RESULT_INIT,
-    });
-
-    const limit = Config.RESULTS_PER_PAGE;
-    const offset = (query.pageNum - 1) * limit;
-
-    dispatch({
-        type: SET_QUERY,
-        payload: query,
-    });
-
-    try {
+export const querySearch: QuerySearchActionCreator =
+    query =>
+    async (dispatch: ThunkDispatch<{}, {}, QuerySearchAction>, getState, { searchService }): Promise<void> => {
         dispatch({
-            type: LOAD_RESULT_PENDING,
+            type: SET_VIEW,
+            payload: ViewState.Search,
         });
-        const { pattern, entityFlags } = query;
-        const response = await searchService.text({
-            query: pattern,
-            type: entityFlags,
-            limit,
-            offset,
-            highlight: [TextItemResponseField.Oneline, TextItemResponseField.Helptext, TextItemResponseField.Name],
-        });
-        const result: ResultData = {
-            data: response,
-        };
         dispatch({
-            type: LOAD_RESULT_SUCCESS,
-            payload: result,
+            type: LOAD_RESULT_INIT,
         });
-    } catch (error) {
-        dispatch({
-            type: LOAD_RESULT_ERROR,
-            error,
-        });
-        return;
-    }
 
-    // Now check if we should update search history
-    if (query.pageNum === 1) {
-        const { history } = getState().search;
-        if (!history.some(record => record.pattern === query.pattern && record.entityFlags === query.entityFlags)) {
+        const limit = Config.RESULTS_PER_PAGE;
+        const offset = (query.pageNum - 1) * limit;
+
+        dispatch({
+            type: SET_QUERY,
+            payload: query,
+        });
+
+        try {
             dispatch({
-                type: ADD_HISTORY,
-                payload: query,
+                type: LOAD_RESULT_PENDING,
             });
+            const { pattern, entityFlags } = query;
+            const response = await searchService.text({
+                query: pattern,
+                type: entityFlags,
+                limit,
+                offset,
+                highlight: [TextItemResponseField.Oneline, TextItemResponseField.Helptext, TextItemResponseField.Name],
+            });
+            const result: ResultData = {
+                data: response,
+            };
+            dispatch({
+                type: LOAD_RESULT_SUCCESS,
+                payload: result,
+            });
+        } catch (error) {
+            dispatch({
+                type: LOAD_RESULT_ERROR,
+                error,
+            });
+            return;
         }
-    }
-};
+
+        // Now check if we should update search history
+        if (query.pageNum === 1) {
+            const { history } = getState().search;
+            if (!history.some(record => record.pattern === query.pattern && record.entityFlags === query.entityFlags)) {
+                dispatch({
+                    type: ADD_HISTORY,
+                    payload: query,
+                });
+            }
+        }
+    };
 
 type ClearSearchAction = SetQueryAction | ViewAction;
 
 export type ClearSearchActionCreator = () => ThunkAction<void, RootState, {}, ClearSearchAction>;
 
-export const clearSearch: ClearSearchActionCreator = () => (
-    dispatch: ThunkDispatch<{}, {}, ClearSearchAction>,
-    getState
-) => {
-    const currentState = getState();
-    dispatch({
-        type: SET_QUERY,
-        payload: {
-            ...currentState.search.query,
-            pattern: '',
-        },
-    });
-    dispatch({
-        type: SET_VIEW,
-        payload: ViewState.Index,
-    });
-};
+export const clearSearch: ClearSearchActionCreator =
+    () => (dispatch: ThunkDispatch<{}, {}, ClearSearchAction>, getState) => {
+        const currentState = getState();
+        dispatch({
+            type: SET_QUERY,
+            payload: {
+                ...currentState.search.query,
+                pattern: '',
+            },
+        });
+        dispatch({
+            type: SET_VIEW,
+            payload: ViewState.Index,
+        });
+    };
 
 type OpenDetailAction = EntityAction | ViewAction;
 
@@ -112,23 +108,22 @@ export type OpenDetailActionCreator = (
     type: EntityType
 ) => ThunkAction<Promise<void>, {}, Services, OpenDetailAction>;
 
-export const openDetail: OpenDetailActionCreator = (id, type) => async (
-    dispatch: ThunkDispatch<{}, Services, OpenDetailAction>,
-    {}
-): Promise<void> => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    dispatch({
-        type: SET_VIEW,
-        payload: ViewState.Detail,
-    });
-    switch (type) {
-        case EntityType.Metric: {
-            return dispatch(loadMetric(id)).then(metricName => {
-                return dispatch(loadMetricSiblings(metricName));
-            });
+export const openDetail: OpenDetailActionCreator =
+    (id, type) =>
+    async (dispatch: ThunkDispatch<{}, Services, OpenDetailAction>, {}): Promise<void> => {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        dispatch({
+            type: SET_VIEW,
+            payload: ViewState.Detail,
+        });
+        switch (type) {
+            case EntityType.Metric: {
+                return dispatch(loadMetric(id)).then(metricName => {
+                    return dispatch(loadMetricSiblings(metricName));
+                });
+            }
+            case EntityType.InstanceDomain: {
+                return dispatch(loadIndom(id));
+            }
         }
-        case EntityType.InstanceDomain: {
-            return dispatch(loadIndom(id));
-        }
-    }
-};
+    };

@@ -259,15 +259,8 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
     }
 
     render() {
-        const {
-            onSubmit,
-            metricFlag,
-            instancesFlag,
-            instanceDomainsFlag,
-            setEntityFlag,
-            renderSearchInput,
-            state,
-        } = this;
+        const { onSubmit, metricFlag, instancesFlag, instanceDomainsFlag, setEntityFlag, renderSearchInput, state } =
+            this;
         return (
             <form className={searchContainer} onSubmit={onSubmit} data-test="form">
                 <VerticalGroup spacing="sm">

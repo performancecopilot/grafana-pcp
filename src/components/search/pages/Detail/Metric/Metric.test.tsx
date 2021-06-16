@@ -125,7 +125,8 @@ describe('Detail Page <MetricDetailpage/>', () => {
         const unbookmarkButton = wrapper.find('[data-test="unbookmark-button"]');
         unbookmarkButton.simulate('click');
         const metricName = (metricDetailProps.metric.data as MetricEntity).name;
-        const unbookmarkCallback: jest.Mock<typeof metricDetailProps.onUnbookmark> = metricDetailProps.onUnbookmark as any;
+        const unbookmarkCallback: jest.Mock<typeof metricDetailProps.onUnbookmark> =
+            metricDetailProps.onUnbookmark as any;
         expect(unbookmarkCallback.mock.calls[0][0]).toEqual({ id: metricName, type: EntityType.Metric });
         expect(unbookmarkCallback).toHaveBeenCalled();
     });

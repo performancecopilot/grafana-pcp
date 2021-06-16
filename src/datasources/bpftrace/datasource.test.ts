@@ -321,8 +321,7 @@ const scriptRegisterResponse = {
                         persistent: false,
                         created_at: '2020-11-12T15:42:39.804277',
                         last_accessed_at: '2020-11-12T15:42:39.804284',
-                        code:
-                            '/*\n * cpuwalk\tSample which CPUs are executing processes.\n *\t\tFor Linux, uses bpftrace and eBPF.\n *\n * USAGE: cpuwalk.bt\n *\n * This is a bpftrace version of the DTraceToolkit tool of the same name.\n *\n * Copyright 2018 Netflix, Inc.\n * Licensed under the Apache License, Version 2.0 (the "License")\n *\n * 08-Sep-2018\tBrendan Gregg\tCreated this.\n */\n\nprofile:hz:99\n/pid/\n{\n\t@cpu = lhist(cpu, 0, 1000, 1);\n}',
+                        code: '/*\n * cpuwalk\tSample which CPUs are executing processes.\n *\t\tFor Linux, uses bpftrace and eBPF.\n *\n * USAGE: cpuwalk.bt\n *\n * This is a bpftrace version of the DTraceToolkit tool of the same name.\n *\n * Copyright 2018 Netflix, Inc.\n * Licensed under the Apache License, Version 2.0 (the "License")\n *\n * 08-Sep-2018\tBrendan Gregg\tCreated this.\n */\n\nprofile:hz:99\n/pid/\n{\n\t@cpu = lhist(cpu, 0, 1000, 1);\n}',
                         metadata: {
                             name: null,
                             include: null,
@@ -417,8 +416,7 @@ const fetchResponse = {
                             persistent: false,
                             created_at: '2020-11-12T15:42:39.804277',
                             last_accessed_at: '2020-11-12T15:42:39.804284',
-                            code:
-                                '/*\n * cpuwalk\tSample which CPUs are executing processes.\n *\t\tFor Linux, uses bpftrace and eBPF.\n *\n * USAGE: cpuwalk.bt\n *\n * This is a bpftrace version of the DTraceToolkit tool of the same name.\n *\n * Copyright 2018 Netflix, Inc.\n * Licensed under the Apache License, Version 2.0 (the "License")\n *\n * 08-Sep-2018\tBrendan Gregg\tCreated this.\n */\n\nprofile:hz:99\n/pid/\n{\n\t@cpu = lhist(cpu, 0, 1000, 1);\n}',
+                            code: '/*\n * cpuwalk\tSample which CPUs are executing processes.\n *\t\tFor Linux, uses bpftrace and eBPF.\n *\n * USAGE: cpuwalk.bt\n *\n * This is a bpftrace version of the DTraceToolkit tool of the same name.\n *\n * Copyright 2018 Netflix, Inc.\n * Licensed under the Apache License, Version 2.0 (the "License")\n *\n * 08-Sep-2018\tBrendan Gregg\tCreated this.\n */\n\nprofile:hz:99\n/pid/\n{\n\t@cpu = lhist(cpu, 0, 1000, 1);\n}',
                             metadata: {
                                 name: null,
                                 include: null,
@@ -590,8 +588,7 @@ const fetchResponse2 = {
                             persistent: false,
                             created_at: '2020-11-12T15:42:39.804277',
                             last_accessed_at: '2020-11-12T15:42:39.804284',
-                            code:
-                                '/*\n * cpuwalk\tSample which CPUs are executing processes.\n *\t\tFor Linux, uses bpftrace and eBPF.\n *\n * USAGE: cpuwalk.bt\n *\n * This is a bpftrace version of the DTraceToolkit tool of the same name.\n *\n * Copyright 2018 Netflix, Inc.\n * Licensed under the Apache License, Version 2.0 (the "License")\n *\n * 08-Sep-2018\tBrendan Gregg\tCreated this.\n */\n\nprofile:hz:99\n/pid/\n{\n\t@cpu = lhist(cpu, 0, 1000, 1);\n}',
+                            code: '/*\n * cpuwalk\tSample which CPUs are executing processes.\n *\t\tFor Linux, uses bpftrace and eBPF.\n *\n * USAGE: cpuwalk.bt\n *\n * This is a bpftrace version of the DTraceToolkit tool of the same name.\n *\n * Copyright 2018 Netflix, Inc.\n * Licensed under the Apache License, Version 2.0 (the "License")\n *\n * 08-Sep-2018\tBrendan Gregg\tCreated this.\n */\n\nprofile:hz:99\n/pid/\n{\n\t@cpu = lhist(cpu, 0, 1000, 1);\n}',
                             metadata: {
                                 name: null,
                                 include: null,
