@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/api/pmseries"
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/stretchr/testify/require"
 )
 
 type pmseriesAPIMock struct {
@@ -81,7 +81,7 @@ func query(s *Service, sid string) (map[string]*Series, error) {
 }
 
 func TestSeriesService(t *testing.T) {
-	Convey("Concurrent access", t, func() {
+	t.Run("Concurrent access", func(t *testing.T) {
 		api := &pmseriesAPIMock{}
 		s := NewSeriesService(api)
 
@@ -91,6 +91,6 @@ func TestSeriesService(t *testing.T) {
 
 		time.Sleep(1 * time.Second)
 		metricsCalls := atomic.LoadUint32(&api.metricsCalls)
-		So(metricsCalls, ShouldEqual, 5)
+		require.Equal(t, uint32(5), metricsCalls)
 	})
 }

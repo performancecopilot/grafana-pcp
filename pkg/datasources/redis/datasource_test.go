@@ -10,15 +10,15 @@ import (
 
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/api/pmseries"
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/test/fixtures/pmseriesf"
+	"github.com/stretchr/testify/require"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/resource"
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/series"
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestDatasource(t *testing.T) {
-	Convey("empty query", t, func() {
+	t.Run("empty query", func(t *testing.T) {
 		datasource := NewDatasource()
 		pluginCtx := backend.PluginContext{
 			OrgID: 1,
@@ -42,34 +42,34 @@ func TestDatasource(t *testing.T) {
 			},
 		})
 
-		So(err, ShouldBeNil)
-		So(response.Responses["A"].Frames, ShouldBeEmpty)
+		require.NoError(t, err)
+		require.Empty(t, response.Responses["A"].Frames)
 	})
 
-	Convey("query disk.dev.read{hostname==\"localhost\"}, perform rate conversion and return the result", t, func(c C) {
+	t.Run("query disk.dev.read{hostname==\"localhost\"}, perform rate conversion and return the result", func(t *testing.T) {
 		handler := http.NewServeMux()
 		handler.HandleFunc("/series/query", func(writer http.ResponseWriter, request *http.Request) {
-			c.So(request.URL.Query().Get("expr"), ShouldEqual, `disk.dev.read{hostname=="localhost"}`)
+			require.Equal(t, `disk.dev.read{hostname=="localhost"}`, request.URL.Query().Get("expr"))
 			response, _ := json.Marshal(pmseriesf.Query([]string{"f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9"}))
 			writer.Write(response)
 		})
 		handler.HandleFunc("/series/metrics", func(writer http.ResponseWriter, request *http.Request) {
-			c.So(request.URL.Query().Get("series"), ShouldEqual, "f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9")
+			require.Equal(t, "f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9", request.URL.Query().Get("series"))
 			response, _ := json.Marshal(pmseriesf.Metrics([]string{"f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9"}))
 			writer.Write(response)
 		})
 		handler.HandleFunc("/series/descs", func(writer http.ResponseWriter, request *http.Request) {
-			c.So(request.URL.Query().Get("series"), ShouldEqual, "f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9")
+			require.Equal(t, "f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9", request.URL.Query().Get("series"))
 			response, _ := json.Marshal(pmseriesf.Descs([]string{"f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9"}))
 			writer.Write(response)
 		})
 		handler.HandleFunc("/series/values", func(writer http.ResponseWriter, request *http.Request) {
-			c.So(request.URL.Query().Get("series"), ShouldEqual, "f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9")
+			require.Equal(t, "f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9", request.URL.Query().Get("series"))
 			response, _ := json.Marshal(pmseriesf.Values([]string{"f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9"}))
 			writer.Write(response)
 		})
 		handler.HandleFunc("/series/instances", func(writer http.ResponseWriter, request *http.Request) {
-			c.So(request.URL.Query().Get("series"), ShouldEqual, "f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9")
+			require.Equal(t, "f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9", request.URL.Query().Get("series"))
 			response, _ := json.Marshal(pmseriesf.Instances([]string{"f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9"}))
 			writer.Write(response)
 		})
@@ -103,14 +103,16 @@ func TestDatasource(t *testing.T) {
 			},
 		})
 
-		So(err, ShouldBeNil)
-		So(response.Responses["A"].Frames, ShouldHaveLength, 1)
-		So(response.Responses["A"].Frames[0].Fields, ShouldHaveLength, 3)
-		So(response.Responses["A"].Frames[0].Fields[0].Len(), ShouldEqual, 1) // it's a counter metric with two values
-		So(response.Responses["A"].Frames[0].Fields[0].At(0).(time.Time).UnixNano(), ShouldEqual, int64(1599320692309872128))
-		So(response.Responses["A"].Frames[0].Fields[1].Name, ShouldEqual, "disk.dev.read[nvme0n1]")
-		So(*response.Responses["A"].Frames[0].Fields[1].At(0).(*float64), ShouldEqual, 200)
-		So(response.Responses["A"].Frames[0].Fields[2].Name, ShouldEqual, "disk.dev.read[sda]")
-		So(*response.Responses["A"].Frames[0].Fields[2].At(0).(*float64), ShouldEqual, 300)
+		require.NoError(t, err)
+		require.Len(t, response.Responses["A"].Frames, 1)
+
+		frame := response.Responses["A"].Frames[0]
+		require.Len(t, frame.Fields, 3)
+		require.Equal(t, 1, frame.Fields[0].Len()) // it's a counter metric with two values
+		require.Equal(t, int64(1599320692309872128), frame.Fields[0].At(0).(time.Time).UnixNano())
+		require.Equal(t, "disk.dev.read[nvme0n1]", frame.Fields[1].Name)
+		require.Equal(t, float64(200), *frame.Fields[1].At(0).(*float64))
+		require.Equal(t, "disk.dev.read[sda]", frame.Fields[2].Name)
+		require.Equal(t, float64(300), *frame.Fields[2].At(0).(*float64))
 	})
 }
