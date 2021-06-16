@@ -7,12 +7,15 @@ describe('setup grafana-pcp', () => {
         await page.setViewport({ width: 1920, height: 1080 });
     });
 
+    // sometimes the second test is started while the first test is still running
+    // seems to be fixed in jest v27, however @grafana/toolkit depends on v26.
+
     it('should install grafana-pcp', async () => {
         // plugin page, not enabled
         await page.goto(`${GRAFANA_URL}/plugins/performancecopilot-pcp-app/`);
         await page.waitForSelector('button');
         await Promise.all([
-            page.waitForNavigation({ waitUntil: 'networkidle0' }),
+            page.waitForNavigation({ waitUntil: 'networkidle2' }),
             page.click('button'),
         ]);
 
@@ -26,7 +29,7 @@ describe('setup grafana-pcp', () => {
         await page.goto(`${GRAFANA_URL}/datasources/new`);
         await page.waitForSelector('div[aria-label*="PCP Redis"]');
         await Promise.all([
-            page.waitForNavigation({ waitUntil: 'networkidle0' }),
+            page.waitForNavigation({ waitUntil: 'networkidle2' }),
             page.click('div[aria-label*="PCP Redis"]'),
         ]);
 
@@ -39,7 +42,7 @@ describe('setup grafana-pcp', () => {
 
         // new datasource saved
         const alerts = await page.$$('div[aria-label*="Alert"]'); // datasource saved (top right) & datasource health test (bottom) alerts
-        const datasourceHealthAlert = alerts[alerts.length-1];
+        const datasourceHealthAlert = alerts[alerts.length - 1];
         await expect(datasourceHealthAlert).toMatch("http://localhost:44322/series/ping");
         await expect(datasourceHealthAlert).toMatch("connection refused");
     });
