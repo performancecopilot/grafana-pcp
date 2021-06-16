@@ -1,5 +1,10 @@
 # Change Log
 
+## 3.0.4 (unreleased)
+
+- **chore**: update dependencies
+- **test**: replace convey with testify for the Go tests
+
 ## 3.0.3 (2021-02-24)
 
 - **test**: fix e2e tests by using another CSS selector
