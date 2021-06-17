@@ -19,7 +19,9 @@ import { MinimalPmapiQuery, PmapiDefaultOptions, PmapiOptions, PmapiQuery } from
 const log = getLogger('datasource_base');
 
 export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends PmapiOptions> extends DataSourceApi<Q, O> {
+    /** URL as specified in the datasource settings page (can be undefined) */
     url?: string;
+    /** hostspec as specified in the datasource settings page, or default hostspec */
     hostspec: string;
     retentionTimeMs: number;
     pmApiService: PmApiService;
@@ -33,8 +35,19 @@ export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends Pmap
     ) {
         super(instanceSettings);
         this.url = instanceSettings.url;
-        this.hostspec = instanceSettings.jsonData.hostspec ?? defaults.hostspec;
-        this.retentionTimeMs = interval_to_ms(instanceSettings.jsonData.retentionTime ?? defaults.retentionTime);
+
+        if (isBlank(instanceSettings.jsonData.hostspec)) {
+            this.hostspec = defaults.hostspec;
+        } else {
+            this.hostspec = instanceSettings.jsonData.hostspec!;
+        }
+
+        if (isBlank(instanceSettings.jsonData.retentionTime)) {
+            this.retentionTimeMs = interval_to_ms(defaults.retentionTime);
+        } else {
+            this.retentionTimeMs = interval_to_ms(instanceSettings.jsonData.retentionTime!);
+        }
+
         this.pmApiService = new PmApiService(getBackendSrv(), {
             dsInstanceSettings: instanceSettings,
             timeoutMs: apiTimeoutMs,
@@ -54,30 +67,48 @@ export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends Pmap
     }
 
     getUrlAndHostspec(query?: Q, scopedVars: ScopedVars = {}): { url: string; hostspec: string } {
-        const url = getTemplateSrv().replace(query?.url ?? this.url ?? '', scopedVars);
-        const orInTheQueryErrorText = query ? ' or in the query editor' : '';
+        let url: string | undefined;
+        let hostspec: string | undefined;
 
-        if (this.url?.startsWith('/api/datasources/proxy') && !isBlank(query?.url)) {
-            // Grafana will send additional x-grafana headers, which make the CORS request fail
-            throw new GenericError(
-                'Please set the access mode to Browser in the datasource settings when using a custom URL for this panel.'
-            );
+        // evaluate query settings first
+        if (query) {
+            if (!isBlank(query.url)) {
+                url = getTemplateSrv().replace(query.url);
+
+                if (this.url?.startsWith('/api/datasources/proxy') && !isBlank(url)) {
+                    // Grafana will send additional x-grafana headers to every request in browser mode, which make the CORS request fail
+                    throw new GenericError(
+                        'Please set the access mode to Browser in the datasource settings when using a custom pmproxy URL for this panel.'
+                    );
+                }
+            }
+            if (!isBlank(query.hostspec)) {
+                hostspec = getTemplateSrv().replace(query.hostspec);
+            }
         }
 
+        // if query is not defined (e.g. it's a dashboard variable query (metricFindQuery))
+        // or the url/hostspec of it evaluates to a blank string, use the datasource settings
+        if (isBlank(url)) {
+            url = this.url;
+        }
+        if (isBlank(hostspec)) {
+            hostspec = this.hostspec;
+        }
+
+        const orInTheQueryErrorText = query ? ' or in the query editor' : '';
         if (isBlank(url)) {
             throw new GenericError(
                 `Please specify a connection URL in the datasource settings${orInTheQueryErrorText}.`
             );
         }
-
-        const hostspec = getTemplateSrv().replace(query?.hostspec ?? this.hostspec, scopedVars);
         if (isBlank(hostspec)) {
             throw new GenericError(
                 `Please specify a host specification in the datasource settings${orInTheQueryErrorText}.`
             );
         }
 
-        return { url, hostspec };
+        return { url: url!, hostspec: hostspec! };
     }
 
     async metricFindQuery(query: string): Promise<MetricFindValue[]> {

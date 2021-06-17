@@ -31,7 +31,7 @@ describe('PCP BPFtrace', () => {
     });
 
     it('should register a script and return the data', async () => {
-        const queries = [
+        const targets = [
             {
                 refId: 'A',
                 expr: '...cpuwalk...',
@@ -39,7 +39,7 @@ describe('PCP BPFtrace', () => {
             },
         ];
 
-        let response = await datasource.query(grafana.dataQueryRequest(queries));
+        let response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toEqual({ data: [] });
 
         mockNextResponses([
@@ -57,7 +57,7 @@ describe('PCP BPFtrace', () => {
         mockNextResponses([fetchResponse2]);
         await datasource.poller.poll();
 
-        response = await datasource.query(grafana.dataQueryRequest(queries));
+        response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect({ fields: response.data[0].fields }).toMatchInlineSnapshot(
             {
                 fields: [
@@ -245,14 +245,14 @@ describe('PCP BPFtrace', () => {
             Array [
               Object {
                 "params": Object {
-                  "hostspec": "127.0.0.1",
+                  "hostspec": "pcp://127.0.0.1",
                   "polltimeout": 11,
                 },
                 "url": "http://localhost:1234/pmapi/context",
               },
               Object {
                 "params": Object {
-                  "hostspec": "127.0.0.1",
+                  "hostspec": "pcp://127.0.0.1",
                   "polltimeout": 30,
                 },
                 "url": "http://localhost:1234/pmapi/context",

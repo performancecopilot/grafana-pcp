@@ -12,7 +12,7 @@ jest.mock('@grafana/runtime', () => ({
     ...jest.requireActual<object>('@grafana/runtime'),
     getBackendSrv: () => backendSrvMock,
     getTemplateSrv: () => ({
-        replace: (x: string) => x,
+        replace: (x: string) => x.replace('$empty_dashboard_var', ''),
     }),
 }));
 
@@ -33,8 +33,8 @@ describe('PCP Vector', () => {
     });
 
     it('should poll disk.dev.read, perform rate conversion and return the result', async () => {
-        const queries = [ds.query()];
-        let response = await datasource.query(grafana.dataQueryRequest(queries));
+        const targets = [ds.query()];
+        let response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toEqual({ data: [] });
 
         mockNextResponses([
@@ -57,7 +57,7 @@ describe('PCP Vector', () => {
         ]);
         await datasource.poller.poll();
 
-        response = await datasource.query(grafana.dataQueryRequest(queries));
+        response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect({ fields: response.data[0].fields }).toMatchInlineSnapshot(
             {
                 fields: [{}, { config: { custom: expect.anything() } }, { config: { custom: expect.anything() } }],
@@ -123,7 +123,7 @@ describe('PCP Vector', () => {
             Array [
               Object {
                 "params": Object {
-                  "hostspec": "127.0.0.1",
+                  "hostspec": "pcp://127.0.0.1",
                   "polltimeout": 11,
                 },
                 "url": "http://localhost:1234/pmapi/context",
@@ -267,8 +267,8 @@ describe('PCP Vector', () => {
     });
 
     it.skip('redisBackfill hook should use panel url', async () => {
-        const queries = [ds.query({ expr: 'kernel.all.sysfork', url: 'http://panel_url:1234' })];
-        let response = await datasource.query(grafana.dataQueryRequest(queries));
+        const targets = [ds.query({ expr: 'kernel.all.sysfork', url: 'http://panel_url:1234' })];
+        let response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toEqual({ data: [] });
 
         mockNextResponses([
@@ -281,7 +281,7 @@ describe('PCP Vector', () => {
         ]);
         await datasource.poller.poll();
 
-        response = await datasource.query(grafana.dataQueryRequest(queries));
+        response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect({ fields: response.data[0].fields }).toMatchInlineSnapshot(
             { fields: [{}, { config: { custom: expect.anything() } }] },
 
@@ -325,7 +325,7 @@ describe('PCP Vector', () => {
             Array [
               Object {
                 "params": Object {
-                  "hostspec": "127.0.0.1",
+                  "hostspec": "pcp://127.0.0.1",
                   "polltimeout": 11,
                 },
                 "url": "http://panel_url:1234/pmapi/context",
@@ -380,7 +380,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
         const datasource = new PCPVectorDataSource(instanceSettings as any);
         const targets = [{ refId: 'A', expr: 'mem.util.free', format: TargetFormat.TimeSeries }];
 
-        let response = await datasource.query(grafana.dataQueryRequest(targets));
+        let response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toEqual({ data: [] });
 
         mockNextResponses([
@@ -391,7 +391,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
         ]);
         await datasource.poller.poll();
 
-        response = await datasource.query(grafana.dataQueryRequest(targets));
+        response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toMatchObject({
             data: [{ fields: [{ values: { buffer: [10000] } }, { values: { buffer: [1000] } }] }],
         });
@@ -434,7 +434,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
             { refId: 'A', expr: 'mem.util.free', format: TargetFormat.TimeSeries, url: 'http://panel_host:8080' },
         ];
 
-        let response = await datasource.query(grafana.dataQueryRequest(targets));
+        let response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toEqual({ data: [] });
 
         mockNextResponses([
@@ -445,7 +445,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
         ]);
         await datasource.poller.poll();
 
-        response = await datasource.query(grafana.dataQueryRequest(targets));
+        response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toMatchObject({
             data: [{ fields: [{ values: { buffer: [10000] } }, { values: { buffer: [1000] } }] }],
         });
@@ -493,7 +493,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
             },
         ];
 
-        let response = await datasource.query(grafana.dataQueryRequest(targets));
+        let response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toEqual({ data: [] });
 
         mockNextResponses([
@@ -504,7 +504,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
         ]);
         await datasource.poller.poll();
 
-        response = await datasource.query(grafana.dataQueryRequest(targets));
+        response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toMatchObject({
             data: [{ fields: [{ values: { buffer: [10000] } }, { values: { buffer: [1000] } }] }],
         });
@@ -553,7 +553,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
             },
         ];
 
-        let response = await datasource.query(grafana.dataQueryRequest(targets));
+        let response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toEqual({ data: [] });
 
         mockNextResponses([
@@ -564,7 +564,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
         ]);
         await datasource.poller.poll();
 
-        response = await datasource.query(grafana.dataQueryRequest(targets));
+        response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toMatchObject({
             data: [{ fields: [{ values: { buffer: [10000] } }, { values: { buffer: [1000] } }] }],
         });
@@ -590,6 +590,65 @@ describe('PCP Vector: overridden url and hostspec', () => {
                   "names": "mem.util.free",
                 },
                 "url": "http://panel_host:8080/pmapi/fetch",
+              },
+            ]
+        `);
+    });
+
+    it('should use datasource url if overwritten url is blank', async () => {
+        const instanceSettings = {
+            url: 'http://settings_host:1234',
+            jsonData: {
+                hostspec: 'pcp://settings_hostspec:4321',
+            },
+        };
+        const datasource = new PCPVectorDataSource(instanceSettings as any);
+        const targets = [
+            {
+                refId: 'A',
+                expr: 'mem.util.free',
+                format: TargetFormat.TimeSeries,
+                url: '$empty_dashboard_var',
+            },
+        ];
+
+        let response = await datasource.query(grafana.dataQueryRequest({ targets }));
+        expect(response).toEqual({ data: [] });
+
+        mockNextResponses([
+            pmapi.context(),
+            //pmseries.ping(false),
+            pmapi.metric(['mem.util.free']),
+            pmapi.fetch('mem.util.free', 10, [[null, 1000]]),
+        ]);
+        await datasource.poller.poll();
+
+        response = await datasource.query(grafana.dataQueryRequest({ targets }));
+        expect(response).toMatchObject({
+            data: [{ fields: [{ values: { buffer: [10000] } }, { values: { buffer: [1000] } }] }],
+        });
+        expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "params": Object {
+                  "hostspec": "pcp://settings_hostspec:4321",
+                  "polltimeout": 11,
+                },
+                "url": "http://settings_host:1234/pmapi/context",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "mem.util.free",
+                },
+                "url": "http://settings_host:1234/pmapi/metric",
+              },
+              Object {
+                "params": Object {
+                  "context": 123,
+                  "names": "mem.util.free",
+                },
+                "url": "http://settings_host:1234/pmapi/fetch",
               },
             ]
         `);

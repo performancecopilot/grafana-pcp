@@ -5,7 +5,7 @@ import { processQueries } from './data_processor';
 describe('data processor', () => {
     it('should create a dataframe and handle missing frames and backward counters', () => {
         const target = poller.target({ query: { expr: 'disk.dev.read' } });
-        const dataQueryRequest = grafana.dataQueryRequest([target.query]); // request data between 10-20s
+        const dataQueryRequest = grafana.dataQueryRequest({ targets: [target.query] }); // request data between 10-20s
 
         const values = [
             {
@@ -266,7 +266,7 @@ describe('data processor', () => {
         };
 
         const endpoint = poller.endpoint({ metrics: [metricA, metricB], targets: [targetA, targetB] });
-        const dataQueryRequest = grafana.dataQueryRequest([targetA.query, targetB.query]);
+        const dataQueryRequest = grafana.dataQueryRequest({ targets: [targetA.query, targetB.query] });
 
         const result = processQueries(
             dataQueryRequest,
@@ -359,7 +359,7 @@ describe('data processor', () => {
         };
 
         const endpoint = poller.endpoint({ metrics: [metric], targets: [target] });
-        const dataQueryRequest = grafana.dataQueryRequest([target.query]);
+        const dataQueryRequest = grafana.dataQueryRequest({ targets: [target.query] });
         const result = processQueries(dataQueryRequest, [{ endpoint, query: target.query, metrics: [metric] }], 1);
         expect(result[0].fields).toMatchInlineSnapshot(`
             Array [

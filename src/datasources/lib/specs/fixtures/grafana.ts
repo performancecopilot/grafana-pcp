@@ -1,5 +1,7 @@
 import { DataQuery, DataQueryRequest, dateTimeParse, TimeRange } from '@grafana/data';
 import { FetchResponse } from '@grafana/runtime';
+import { defaultsDeep } from 'lodash';
+import { DeepPartial } from 'utility-types';
 
 export function timeRange(): TimeRange {
     return {
@@ -12,8 +14,8 @@ export function timeRange(): TimeRange {
     };
 }
 
-export function dataQueryRequest<Q extends DataQuery>(queries: Q[] = []): DataQueryRequest<Q> {
-    return {
+export function dataQueryRequest<Q extends DataQuery>(props?: DeepPartial<DataQueryRequest<Q>>): DataQueryRequest<Q> {
+    return defaultsDeep({}, props, {
         app: 'dashboard',
         dashboardId: 1,
         panelId: 2,
@@ -24,8 +26,8 @@ export function dataQueryRequest<Q extends DataQuery>(queries: Q[] = []): DataQu
         timezone: '',
         range: timeRange(),
         scopedVars: {},
-        targets: queries,
-    };
+        targets: [],
+    });
 }
 
 export function response<T>(data: T): FetchResponse<T> {
