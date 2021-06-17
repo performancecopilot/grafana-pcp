@@ -9,7 +9,6 @@ grafana.dashboard.new(
   timepicker=grafana.timepicker.new(
     refresh_intervals=['1s', '2s', '5s', '10s'],
   ),
-  editable=true,
 )
 .addTemplate(
   grafana.template.datasource(

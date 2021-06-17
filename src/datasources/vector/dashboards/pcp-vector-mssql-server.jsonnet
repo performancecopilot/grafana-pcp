@@ -6,7 +6,6 @@ grafana.dashboard.new(
   time_from='now-5m',
   time_to='now',
   refresh='5s',
-  editable=true,
 )
 .addTemplate(
   grafana.template.datasource(

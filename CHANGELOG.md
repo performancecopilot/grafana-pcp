@@ -3,6 +3,7 @@
 ## 3.1.0 (unreleased)
 
 - **dashboards**: PCP Vector Host Overview: add pmproxy URL and hostspec variables
+- **dashboards**: mark all dashboards as readonly
 - **vector, bpftrace**: use `pcp://127.0.0.1` as default hostspec (no functional change)
 - **chore**: update dependencies
 - **test**: replace convey with testify for the Go tests
