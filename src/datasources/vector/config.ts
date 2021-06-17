@@ -12,7 +12,7 @@ export const Config = {
     gracePeriodMs: 10000,
 
     defaults: {
-        hostspec: '127.0.0.1',
+        hostspec: 'pcp://127.0.0.1',
         retentionTime: '30m',
     },
 };
