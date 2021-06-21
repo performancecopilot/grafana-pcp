@@ -8,23 +8,14 @@ export const graphWrapper = css`
     height: 100%;
 `;
 
-export const infoBox = (theme: GrafanaTheme) => css`
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 11;
-    border-color: ${theme.colors.formInputBorderInvalid};
-`;
-
-export const infoBoxTogglesContainer = css`
+export const buttons = css`
     position: absolute;
     right: 0;
     top: 0;
     z-index: 11;
 `;
 
-export const infoBoxToggle = (theme: GrafanaTheme) => css`
+export const button = (theme: GrafanaTheme) => css`
     padding: 6px;
     box-sizing: content-box;
     border-radius: 50%;
@@ -36,7 +27,7 @@ export const infoBoxToggle = (theme: GrafanaTheme) => css`
     }
 `;
 
-export const infoBoxIssueToggle = (theme: GrafanaTheme) => css`
+export const warningButton = (theme: GrafanaTheme) => css`
     color: ${theme.colors.formInputBorderInvalid};
 
     &:hover {
@@ -48,7 +39,7 @@ export const infoBoxIssueToggle = (theme: GrafanaTheme) => css`
     }
 `;
 
-export const infoBoxInfoToggle = (theme: GrafanaTheme) => css`
+export const infoButton = (theme: GrafanaTheme) => css`
     color: ${theme.colors.formInputText};
 
     &:hover {

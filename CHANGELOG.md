@@ -2,6 +2,7 @@
 
 ## 3.1.0 (unreleased)
 
+- **checklist**: use new GraphNG component, show units in graphs, update help texts
 - **dashboards**: PCP Vector Host Overview: add pmproxy URL and hostspec variables
 - **dashboards**: mark all dashboards as readonly
 - **vector, bpftrace**: use `pcp://127.0.0.1` as default hostspec (no functional change)

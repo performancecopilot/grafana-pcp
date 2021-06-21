@@ -70,15 +70,15 @@
         },
         {
             "type": "panel",
-            "name": "Flame Graph"
+            "name": "PCP Flame Graph"
         },
         {
             "type": "panel",
-            "name": "Notify Graph"
+            "name": "PCP Troubleshooting Panel"
         },
         {
             "type": "panel",
-            "name": "Breadcrumbs panel"
+            "name": "PCP Breadcrumbs panel"
         },
         {
             "type": "dashboard",

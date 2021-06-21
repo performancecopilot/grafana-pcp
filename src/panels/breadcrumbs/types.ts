@@ -8,5 +8,4 @@ export interface LinkItem {
 
 export interface Options {
     items: LinkItem[][];
-    scripted: boolean;
 }

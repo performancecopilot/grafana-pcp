@@ -66,7 +66,7 @@ export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & 
     renderNotUsable(width: number, height: number) {
         return (
             <div className={notUsableContainer(width, height)}>
-                <p>PCP Breadcrumbs panel is not intended for use in user defined dashboards.</p>
+                <p>The PCP Breadcrumbs panel is not intended for use in user defined dashboards.</p>
             </div>
         );
     }
@@ -74,7 +74,7 @@ export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & 
         const { renderBreadcrumbLink, renderBreadcrumbSelect, renderNotUsable, props } = this;
         const { theme, options, width, height } = props;
 
-        if (!options.scripted) {
+        if (!options.items) {
             return renderNotUsable(width, height);
         }
 

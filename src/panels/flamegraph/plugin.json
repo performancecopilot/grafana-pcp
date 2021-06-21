@@ -1,6 +1,6 @@
 {
     "type": "panel",
-    "name": "Flame Graph",
+    "name": "PCP Flame Graph",
     "id": "pcp-flamegraph-panel",
     "info": {
         "description": "Grafana Panel for displaying Flame Graphs",

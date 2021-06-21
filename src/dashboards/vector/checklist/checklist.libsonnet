@@ -1,5 +1,5 @@
-local grafana = import 'grafonnet/grafana.libsonnet';
 local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
+local grafana = import 'grafonnet/grafana.libsonnet';
 
 {
   /**
@@ -135,8 +135,8 @@ local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
           node.parents,
           x.uid
         ),
-        self.nodes
-      );
+      self.nodes
+    );
     if std.length(parents) == 0 then
       []
     else
@@ -172,7 +172,7 @@ local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
    */
   getPathToRoot(node, includeSiblings=false, markPath=true)::
     std.map(
-      function (node_list)
+      function(node_list)
         std.map(
           self.pluckParents,
           node_list
@@ -183,7 +183,7 @@ local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
             std.map(
               function(target_node)
                 self.getSiblingNodes(
-                  target_node +
+                  target_node
                   {
                     [if markPath then 'active']: true,
                   }
@@ -207,7 +207,7 @@ local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
    * @param markSelf Mark provided node with current attribute
    */
   getNavigation(node, markSelf=true)::
-    local origin = if markSelf then node + { current: true } else node;
+    local origin = if markSelf then node { current: true } else node;
     local pathToRoot = self.getPathToRoot(origin, includeSiblings=true, markPath=true);
     local children = self.getChildrenNodes(origin);
     if std.length(children) == 0 then
@@ -216,7 +216,7 @@ local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
       pathToRoot + [children],
 
   dashboard: {
-    new (node)::
+    new(node)::
       grafana.dashboard.new(
         node.title,
         uid=node.uid,
@@ -244,6 +244,6 @@ local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
           w: 24,
           h: 2,
         },
-      )
-  }
+      ),
+  },
 }

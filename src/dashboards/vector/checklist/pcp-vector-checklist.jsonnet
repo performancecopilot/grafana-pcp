@@ -1,6 +1,8 @@
-local grafana = import 'grafonnet/grafana.libsonnet';
-local notifyGraph = import '_notifygraphpanel.libsonnet';
+# Based on Will Cohen's PCP checklist dashboard
+
 local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
+local troubleshootingPanel = import '_troubleshootingpanel.libsonnet';
+local grafana = import 'grafonnet/grafana.libsonnet';
 
 local checklist = import 'checklist.libsonnet';
 local node = checklist.getNodeByUid('pcp-vector-checklist');
@@ -8,55 +10,62 @@ local parents = checklist.getParentNodes(node);
 
 checklist.dashboard.new(node)
 .addPanel(
-  notifyGraph.panel.new(
-    title='CPU Utilization [%]',
+  troubleshootingPanel.panel.new(
+    title='CPU Utilization',
     datasource='$datasource',
-    threshold=notifyGraph.threshold.new(
-      metric='kernel.percpu.cpu.util.all',
-      operator='>',
-      value=0.85,
-    ),
-    meta=notifyGraph.meta.new(
+    unit='percentunit',
+    troubleshooting=troubleshootingPanel.troubleshooting.new(
       name='CPU',
       warning='The speed of the CPU is limiting performance.',
       metrics=[
-        notifyGraph.metric.new(
+        troubleshootingPanel.metric.new(
           'kernel.percpu.cpu.idle', 'percpu idle CPU time metric from /proc/stat'
-        )
+        ),
       ],
-      derived=['kernel.percpu.cpu.util.all = 1 - rate(kernel.percpu.cpu.idle)'],
+      derivedMetrics=[
+        troubleshootingPanel.derivedMetric.new(
+          'kernel.percpu.cpu.util.all',
+          '1 - rate(kernel.percpu.cpu.idle)'
+        ),
+      ],
+      predicate=troubleshootingPanel.predicate.new(
+        metric='kernel.percpu.cpu.util.all',
+        operator='>',
+        value=0.85,
+      ),
       urls=['https://access.redhat.com/articles/767563#cpu'],
       parents=parents,
       children=[checklist.getNodeByUid('pcp-vector-checklist-cpu')],
     ),
   ).addTargets([
-    { name: 'kernel.percpu.cpu.util.all', expr: '1 - rate(kernel.percpu.cpu.idle)', format: 'time_series', legendFormat: '$instance' },
+    { expr: '1 - rate(kernel.percpu.cpu.idle)', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 3,
     w: 12,
-    h: 9
+    h: 9,
   },
 )
 .addPanel(
-  notifyGraph.panel.new(
-    title='Storage Utilization [%]',
+  troubleshootingPanel.panel.new(
+    title='Storage Utilization',
     datasource='$datasource',
-    threshold=notifyGraph.threshold.new(
-      metric='disk.dev.avactive',
-      operator='>',
-      value=0.85,
-    ),
-    meta=notifyGraph.meta.new(
+    unit='percentunit',
+    troubleshooting=troubleshootingPanel.troubleshooting.new(
       name='Storage',
       warning='Excessive waiting for storage.',
+      description='Storage devices have queues for the IO requests for the device.  When the queue is empty the device is idle.  As the device utilization increases the amount of idle time drops and the avactive time increases. If the utilization is excessive and the device becomes saturated the time required to service IO request can become excessive.',
       metrics=[
-        notifyGraph.metric.new(
+        troubleshootingPanel.metric.new(
           'disk.dev.avactive', 'per-disk count of active time'
-        )
+        ),
       ],
+      predicate=troubleshootingPanel.predicate.new(
+        metric='disk.dev.avactive',
+        operator='>',
+        value=0.85,
+      ),
       urls=['https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html-single/Performance_Tuning_Guide/index.html#chap-Red_Hat_Enterprise_Linux-Performance_Tuning_Guide-Storage_and_File_Systems'],
-      details='Storage devices have queues for the IO requests for the device.  When the queue is empty the device is idle.  As the device utilization increases the amount of idle time drops and the avactive time increases. If the utilization is excessive and the device becomes saturated the time required to service IO request can become excessive.',
       parents=parents,
       children=[checklist.getNodeByUid('pcp-vector-checklist-storage')],
     ),
@@ -66,113 +75,131 @@ checklist.dashboard.new(node)
     x: 12,
     y: 3,
     w: 12,
-    h: 9
+    h: 9,
   },
 )
 .addPanel(
-  notifyGraph.panel.new(
-    title='Memory Utilization [%]',
+  troubleshootingPanel.panel.new(
+    title='Memory Utilization',
     datasource='$datasource',
-    threshold=notifyGraph.threshold.new(
-      metric='mem.ratio.available',
-      operator='<',
-      value=0.10,
-    ),
-    meta=notifyGraph.meta.new(
+    unit='percentunit',
+    troubleshooting=troubleshootingPanel.troubleshooting.new(
       name='Memory',
       warning='Running low on available memory.',
+      description='When there is little memory available the system will need to free up space when additional memory is requested.  The memory can be freed by removing cached files, flushing files to disk, and paging sections of memory to swap on storage devices.',
       metrics=[
-        notifyGraph.metric.new(
+        troubleshootingPanel.metric.new(
           'mem.util.available',
           'available memory from /proc/meminfo',
         ),
-        notifyGraph.metric.new(
+        troubleshootingPanel.metric.new(
           'mem.physmem',
           'total system memory metric reported by /proc/meminfo',
         ),
       ],
-      derived=['mem.ratio.available = mem.util.available / mem.physmem'],
+      derivedMetrics=[
+        troubleshootingPanel.derivedMetric.new(
+          'mem.ratio.available',
+          'mem.util.available / mem.physmem'
+        ),
+      ],
+      predicate=troubleshootingPanel.predicate.new(
+        metric='mem.ratio.available',
+        operator='<',
+        value=0.10,
+      ),
       urls=['https://access.redhat.com/articles/781733'],
-      details='When there is little memory available the system will need to free up space when additional memory is requested.  The memory can be freed by removing cached files, flushing files to disk, and paging sections of memory to swap on storage devices.',
       parents=parents,
       children=[checklist.getNodeByUid('pcp-vector-checklist-memory')],
     ),
   ).addTargets([
-    { name: 'mem.ratio.available', expr: 'mem.util.available / mem.physmem', format: 'time_series', legendFormat: '$expr' },
+    { expr: 'mem.util.available / mem.physmem', format: 'time_series', legendFormat: '$expr' },
   ]), gridPos={
     x: 0,
     y: 13,
     w: 24,
-    h: 9
+    h: 9,
   },
 )
 .addPanel(
-  notifyGraph.panel.new(
-    title='Network TX Utilization [%]',
+  troubleshootingPanel.panel.new(
+    title='Network TX Utilization',
     datasource='$datasource',
-    threshold=notifyGraph.threshold.new(
-      metric='network_tx_bandwidth',
-      operator='>',
-      value=0.85,
-    ),
-    meta=notifyGraph.meta.new(
+    unit='percentunit',
+    troubleshooting=troubleshootingPanel.troubleshooting.new(
       name='Network TX',
       warning='Overly high ammount of network traffic sent.',
       metrics=[
-        notifyGraph.metric.new(
+        troubleshootingPanel.metric.new(
           'network.interface.out.bytes',
           'network send bytes from /proc/net/dev per network interface',
         ),
-        notifyGraph.metric.new(
+        troubleshootingPanel.metric.new(
           'network.interface.baudrate',
           'interface speed in bytes per second',
         ),
       ],
-      derived=['network_tx_bandwidth = rate(network.interface.out.bytes) / network.interface.baudrate'],
+      derivedMetrics=[
+        troubleshootingPanel.derivedMetric.new(
+          'network_tx_bandwidth',
+          'rate(network.interface.out.bytes) / network.interface.baudrate'
+        ),
+      ],
+      predicate=troubleshootingPanel.predicate.new(
+        metric='network_tx_bandwidth',
+        operator='>',
+        value=0.85,
+      ),
       parents=parents,
-      children=[checklist.getNodeByUid('pcp-vector-checklist-network')],
+      children=[checklist.getNodeByUid('pcp-vector-checklist-network-tx')],
     ),
   ).addTargets([
-    { name: 'network_tx_bandwidth', expr: 'rate(network.interface.out.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'rate(network.interface.out.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 0,
     y: 23,
     w: 12,
-    h: 9
+    h: 9,
   },
 )
 .addPanel(
-  notifyGraph.panel.new(
-    title='Network RX Utilization [%]',
+  troubleshootingPanel.panel.new(
+    title='Network RX Utilization',
     datasource='$datasource',
-    threshold=notifyGraph.threshold.new(
-      metric='network_rx_bandwidth',
-      operator='>',
-      value=0.85,
-    ),
-    meta=notifyGraph.meta.new(
+    unit='percentunit',
+    troubleshooting=troubleshootingPanel.troubleshooting.new(
       name='Network RX',
       warning='Overly high ammount of network traffic received.',
       metrics=[
-        notifyGraph.metric.new(
+        troubleshootingPanel.metric.new(
           'network.interface.in.bytes',
           'network recv read bytes from /proc/net/dev per network interface',
         ),
-        notifyGraph.metric.new(
+        troubleshootingPanel.metric.new(
           'network.interface.baudrate',
           'interface speed in bytes per second',
         ),
       ],
-      derived=['network_rx_bandwidth = rate(network.interface.in.bytes) / network.interface.baudrate'],
+      derivedMetrics=[
+        troubleshootingPanel.derivedMetric.new(
+          'network_rx_bandwidth',
+          'rate(network.interface.in.bytes) / network.interface.baudrate'
+        ),
+      ],
+      predicate=troubleshootingPanel.predicate.new(
+        metric='network_rx_bandwidth',
+        operator='>',
+        value=0.85,
+      ),
       parents=parents,
-      children=[checklist.getNodeByUid('pcp-vector-checklist-network')],
+      children=[checklist.getNodeByUid('pcp-vector-checklist-network-rx')],
     ),
   ).addTargets([
-    { name: 'network_rx_bandwidth', expr: 'rate(network.interface.in.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance' }
+    { expr: 'rate(network.interface.in.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance' },
   ]), gridPos={
     x: 12,
     y: 23,
     w: 12,
-    h: 9
+    h: 9,
   },
 )
