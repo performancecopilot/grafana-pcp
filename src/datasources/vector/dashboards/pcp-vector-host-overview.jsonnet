@@ -23,14 +23,14 @@ grafana.dashboard.new(
     'url',
     label='URL',
   ) + {
-    description: 'overwrite pmproxy URL (example: http://127.0.0.1:44322)'
+    description: 'overwrite pmproxy URL (example: http://127.0.0.1:44322)',
   }
 )
 .addTemplate(
   grafana.template.text(
     'hostspec',
   ) + {
-    description: 'overwrite PCP host specification (example: pcp://127.0.0.1:44321)'
+    description: 'overwrite PCP host specification (example: pcp://127.0.0.1:44321)',
   }
 )
 
@@ -54,7 +54,7 @@ grafana.dashboard.new(
   )
   .addTargets([
     { expr: 'kernel.cpu.util.user', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
-    { expr: 'kernel.cpu.util.sys',  format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'kernel.cpu.util.sys', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 1,
@@ -91,15 +91,15 @@ grafana.dashboard.new(
     stack=true,
   )
   .addTargets([
-    { expr: 'mem.util.free',   format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'mem.util.free', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
     { expr: 'mem.util.cached', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
-    { expr: 'mem.physmem',     format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'mem.physmem', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ])
   .addSeriesOverride({
-    "alias": "/physmem/",
-    "fill": 0,
-    "linewidth": 2,
-    "stack": false
+    alias: '/physmem/',
+    fill: 0,
+    linewidth: 2,
+    stack: false,
   }), gridPos={
     x: 0,
     y: 8,
@@ -143,7 +143,7 @@ grafana.dashboard.new(
     max=1,
   )
   .addTargets([
-      { expr: 'kernel.percpu.cpu.user', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'kernel.percpu.cpu.user', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 16,
@@ -160,7 +160,7 @@ grafana.dashboard.new(
     max=1,
   )
   .addTargets([
-      { expr: 'kernel.percpu.cpu.sys', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'kernel.percpu.cpu.sys', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 16,
@@ -177,7 +177,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'kernel.cpu.util.user', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'kernel.cpu.util.user', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 23,
@@ -194,7 +194,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'kernel.cpu.util.sys', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'kernel.cpu.util.sys', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 6,
     y: 23,
@@ -211,7 +211,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'kernel.cpu.util.intr', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'kernel.cpu.util.intr', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 23,
@@ -228,7 +228,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'kernel.cpu.util.wait', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'kernel.cpu.util.wait', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 18,
     y: 23,
@@ -256,7 +256,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'kernel.all.pswitch', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'kernel.all.pswitch', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 31,
@@ -274,7 +274,7 @@ grafana.dashboard.new(
     staircase=true,
   )
   .addTargets([
-      { expr: 'kernel.all.runnable', format: 'time_series' , legendFormat: '$metric', url: '$url', hostspec: '$hostspec'},
+    { expr: 'kernel.all.runnable', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 31,
@@ -302,7 +302,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.util.used', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'mem.util.used', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 39,
@@ -319,7 +319,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.util.cached', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'mem.util.cached', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 8,
     y: 39,
@@ -336,7 +336,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.util.free', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'mem.util.free', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 16,
     y: 39,
@@ -353,7 +353,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.vmstat.pgfault', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'mem.vmstat.pgfault', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 46,
@@ -370,7 +370,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.vmstat.pgmajfault', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'mem.vmstat.pgmajfault', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 46,
@@ -396,7 +396,7 @@ grafana.dashboard.new(
     format='Bps',
   )
   .addTargets([
-      { expr: 'network.interface.in.bytes', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.interface.in.bytes', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 54,
@@ -411,7 +411,7 @@ grafana.dashboard.new(
     format='Bps',
   )
   .addTargets([
-      { expr: 'network.interface.out.bytes', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.interface.out.bytes', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 54,
@@ -428,7 +428,7 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.interface.in.drops', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.interface.in.drops', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 61,
@@ -445,7 +445,7 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.interface.out.drops', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.interface.out.drops', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 61,
@@ -462,7 +462,7 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.interface.in.packets', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.interface.in.packets', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 68,
@@ -479,7 +479,7 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.interface.out.packets', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.interface.out.packets', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 68,
@@ -507,9 +507,9 @@ grafana.dashboard.new(
     stack=true,
   )
   .addTargets([
-      { expr: 'network.tcpconn.time_wait',   format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
-      { expr: 'network.tcpconn.established', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
-      { expr: 'network.tcpconn.close_wait',  format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.tcpconn.time_wait', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.tcpconn.established', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.tcpconn.close_wait', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 76,
@@ -526,7 +526,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'network.tcp.timeouts', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.tcp.timeouts', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 83,
@@ -543,7 +543,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'network.tcpconn.close_wait', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.tcpconn.close_wait', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 6,
     y: 83,
@@ -560,7 +560,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'network.tcpconn.time_wait', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.tcpconn.time_wait', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 83,
@@ -577,7 +577,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'network.tcpconn.established', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.tcpconn.established', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 18,
     y: 83,
@@ -594,8 +594,8 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.tcp.listendrops',     format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
-      { expr: 'network.tcp.listenoverflows', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.tcp.listendrops', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.tcp.listenoverflows', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 90,
@@ -612,10 +612,10 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.tcp.retranssegs',      format: 'time_series', legendFormat: '$metric0', url: '$url', hostspec: '$hostspec' },
-      { expr: 'network.tcp.fastretrans',      format: 'time_series', legendFormat: '$metric0', url: '$url', hostspec: '$hostspec' },
-      { expr: 'network.tcp.slowstartretrans', format: 'time_series', legendFormat: '$metric0', url: '$url', hostspec: '$hostspec' },
-      { expr: 'network.tcp.synretrans',       format: 'time_series', legendFormat: '$metric0', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.tcp.retranssegs', format: 'time_series', legendFormat: '$metric0', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.tcp.fastretrans', format: 'time_series', legendFormat: '$metric0', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.tcp.slowstartretrans', format: 'time_series', legendFormat: '$metric0', url: '$url', hostspec: '$hostspec' },
+    { expr: 'network.tcp.synretrans', format: 'time_series', legendFormat: '$metric0', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 90,
@@ -642,8 +642,8 @@ grafana.dashboard.new(
     min=0,
   )
   .addTargets([
-      { expr: 'disk.dev.read_rawactive',  format: 'time_series', legendFormat: 'read $instance',  url: '$url', hostspec: '$hostspec' },
-      { expr: 'disk.dev.write_rawactive', format: 'time_series', legendFormat: 'write $instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'disk.dev.read_rawactive', format: 'time_series', legendFormat: 'read $instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'disk.dev.write_rawactive', format: 'time_series', legendFormat: 'write $instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 98,
@@ -659,8 +659,8 @@ grafana.dashboard.new(
     min=0,
   )
   .addTargets([
-      { expr: 'disk.dev.read',  format: 'time_series',  legendFormat: 'read $instance',  url: '$url', hostspec: '$hostspec' },
-      { expr: 'disk.dev.write', format: 'time_series',  legendFormat: 'write $instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'disk.dev.read', format: 'time_series', legendFormat: 'read $instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'disk.dev.write', format: 'time_series', legendFormat: 'write $instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 98,
@@ -676,8 +676,8 @@ grafana.dashboard.new(
     min=0,
   )
   .addTargets([
-      { expr: 'disk.dev.read_bytes',  format: 'time_series',  legendFormat: 'read $instance',  url: '$url', hostspec: '$hostspec' },
-      { expr: 'disk.dev.write_bytes', format: 'time_series',  legendFormat: 'write $instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'disk.dev.read_bytes', format: 'time_series', legendFormat: 'read $instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'disk.dev.write_bytes', format: 'time_series', legendFormat: 'write $instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 105,
@@ -694,7 +694,7 @@ grafana.dashboard.new(
     max=1,
   )
   .addTargets([
-      { expr: 'disk.dev.avactive', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
+    { expr: 'disk.dev.avactive', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 105,

@@ -68,10 +68,10 @@ grafana.dashboard.new(
     { expr: 'mem.physmem{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
   ])
   .addSeriesOverride({
-    "alias": "/physmem/",
-    "fill": 0,
-    "linewidth": 2,
-    "stack": false
+    alias: '/physmem/',
+    fill: 0,
+    linewidth: 2,
+    stack: false,
   }), gridPos={
     x: 12,
     y: 1,
@@ -99,7 +99,7 @@ grafana.dashboard.new(
     max=1,
   )
   .addTargets([
-      { expr: 'kernel.percpu.cpu.user{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
+    { expr: 'kernel.percpu.cpu.user{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 9,
@@ -116,7 +116,7 @@ grafana.dashboard.new(
     max=1,
   )
   .addTargets([
-      { expr: 'kernel.percpu.cpu.sys{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
+    { expr: 'kernel.percpu.cpu.sys{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 9,
@@ -144,7 +144,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'kernel.all.pswitch{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
+    { expr: 'kernel.all.pswitch{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 17,
@@ -162,7 +162,7 @@ grafana.dashboard.new(
     staircase=true,
   )
   .addTargets([
-      { expr: 'kernel.all.runnable{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
+    { expr: 'kernel.all.runnable{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 17,
@@ -190,7 +190,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.util.used{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
+    { expr: 'mem.util.used{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 25,
@@ -207,7 +207,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.util.cached{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
+    { expr: 'mem.util.cached{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
   ]), gridPos={
     x: 8,
     y: 25,
@@ -224,7 +224,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.util.free{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
+    { expr: 'mem.util.free{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
   ]), gridPos={
     x: 16,
     y: 25,
@@ -241,7 +241,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.vmstat.pgfault{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
+    { expr: 'mem.vmstat.pgfault{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 32,
@@ -258,7 +258,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'mem.vmstat.pgmajfault{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
+    { expr: 'mem.vmstat.pgmajfault{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 32,
@@ -284,7 +284,7 @@ grafana.dashboard.new(
     format='Bps',
   )
   .addTargets([
-      { expr: 'network.interface.in.bytes{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
+    { expr: 'network.interface.in.bytes{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 40,
@@ -299,7 +299,7 @@ grafana.dashboard.new(
     format='Bps',
   )
   .addTargets([
-      { expr: 'network.interface.out.bytes{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
+    { expr: 'network.interface.out.bytes{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 40,
@@ -316,7 +316,7 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.interface.in.drops{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
+    { expr: 'network.interface.in.drops{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 47,
@@ -333,7 +333,7 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.interface.out.drops{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
+    { expr: 'network.interface.out.drops{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 47,
@@ -350,7 +350,7 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.interface.in.packets{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
+    { expr: 'network.interface.in.packets{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 54,
@@ -367,7 +367,7 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.interface.out.packets{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
+    { expr: 'network.interface.out.packets{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 54,
@@ -395,7 +395,7 @@ grafana.dashboard.new(
     legend_show=false,
   )
   .addTargets([
-      { expr: 'network.tcp.timeouts{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
+    { expr: 'network.tcp.timeouts{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 62,
@@ -412,8 +412,8 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.tcp.listendrops{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
-      { expr: 'network.tcp.listenoverflows{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
+    { expr: 'network.tcp.listendrops{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
+    { expr: 'network.tcp.listenoverflows{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 62,
@@ -430,10 +430,10 @@ grafana.dashboard.new(
     decimals=0,
   )
   .addTargets([
-      { expr: 'network.tcp.retranssegs{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
-      { expr: 'network.tcp.fastretrans{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
-      { expr: 'network.tcp.slowstartretrans{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
-      { expr: 'network.tcp.synretrans{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
+    { expr: 'network.tcp.retranssegs{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
+    { expr: 'network.tcp.fastretrans{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
+    { expr: 'network.tcp.slowstartretrans{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
+    { expr: 'network.tcp.synretrans{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 69,
@@ -460,8 +460,8 @@ grafana.dashboard.new(
     min=0,
   )
   .addTargets([
-      { expr: 'disk.dev.read_rawactive{hostname == "$host"}', legendFormat: 'read $instance', format: 'time_series' },
-      { expr: 'disk.dev.write_rawactive{hostname == "$host"}', legendFormat: 'write $instance', format: 'time_series' },
+    { expr: 'disk.dev.read_rawactive{hostname == "$host"}', legendFormat: 'read $instance', format: 'time_series' },
+    { expr: 'disk.dev.write_rawactive{hostname == "$host"}', legendFormat: 'write $instance', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 77,
@@ -476,8 +476,8 @@ grafana.dashboard.new(
     format='iops',
   )
   .addTargets([
-      { expr: 'disk.dev.read{hostname == "$host"}', legendFormat: 'read $instance', format: 'time_series' },
-      { expr: 'disk.dev.write{hostname == "$host"}', legendFormat: 'write $instance', format: 'time_series' },
+    { expr: 'disk.dev.read{hostname == "$host"}', legendFormat: 'read $instance', format: 'time_series' },
+    { expr: 'disk.dev.write{hostname == "$host"}', legendFormat: 'write $instance', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 77,
@@ -492,8 +492,8 @@ grafana.dashboard.new(
     format='KiBs',
   )
   .addTargets([
-      { expr: 'disk.dev.read_bytes{hostname == "$host"}', legendFormat: 'read $instance', format: 'time_series' },
-      { expr: 'disk.dev.write_bytes{hostname == "$host"}', legendFormat: 'write $instance', format: 'time_series' },
+    { expr: 'disk.dev.read_bytes{hostname == "$host"}', legendFormat: 'read $instance', format: 'time_series' },
+    { expr: 'disk.dev.write_bytes{hostname == "$host"}', legendFormat: 'write $instance', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 84,
@@ -510,7 +510,7 @@ grafana.dashboard.new(
     max=1,
   )
   .addTargets([
-      { expr: 'disk.dev.avactive{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
+    { expr: 'disk.dev.avactive{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
   ]), gridPos={
     x: 12,
     y: 84,

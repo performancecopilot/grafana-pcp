@@ -195,7 +195,7 @@ grafana.dashboard.new(
     styles=null,
   )
   .addTargets([
-      { expr: importstr 'tools/tcplife.bt', format: 'csv_table' },
+    { expr: importstr 'tools/tcplife.bt', format: 'csv_table' },
   ]), gridPos={
     x: 0,
     y: 39,
@@ -210,14 +210,14 @@ grafana.dashboard.new(
     styles=null,
   )
   .addTargets([
-      { expr: importstr 'tools/tcpaccept.bt', format: 'csv_table' },
+    { expr: importstr 'tools/tcpaccept.bt', format: 'csv_table' },
   ]) + {
-    "options": {
-      "sortBy": [{
-        "desc": true,
-        "displayName": "TIME"
-      }]
-    }
+    options: {
+      sortBy: [{
+        desc: true,
+        displayName: 'TIME',
+      }],
+    },
   }, gridPos={
     x: 0,
     y: 47,
@@ -232,14 +232,14 @@ grafana.dashboard.new(
     styles=null,
   )
   .addTargets([
-      { expr: importstr 'tools/tcpconnect.bt', format: 'csv_table' },
+    { expr: importstr 'tools/tcpconnect.bt', format: 'csv_table' },
   ]) + {
-    "options": {
-      "sortBy": [{
-        "desc": true,
-        "displayName": "TIME"
-      }]
-    }
+    options: {
+      sortBy: [{
+        desc: true,
+        displayName: 'TIME',
+      }],
+    },
   }, gridPos={
     x: 12,
     y: 47,
@@ -254,14 +254,14 @@ grafana.dashboard.new(
     styles=null,
   )
   .addTargets([
-      { expr: importstr 'tools/tcpdrop.bt', format: 'csv_table' },
+    { expr: importstr 'tools/tcpdrop.bt', format: 'csv_table' },
   ]) + {
-    "options": {
-      "sortBy": [{
-        "desc": true,
-        "displayName": "TIME"
-      }]
-    }
+    options: {
+      sortBy: [{
+        desc: true,
+        displayName: 'TIME',
+      }],
+    },
   }, gridPos={
     x: 0,
     y: 55,
@@ -276,14 +276,14 @@ grafana.dashboard.new(
     styles=null,
   )
   .addTargets([
-      { expr: importstr 'tools/tcpretrans.bt', format: 'csv_table' },
+    { expr: importstr 'tools/tcpretrans.bt', format: 'csv_table' },
   ]) + {
-    "options": {
-      "sortBy": [{
-        "desc": true,
-        "displayName": "TIME"
-      }]
-    }
+    options: {
+      sortBy: [{
+        desc: true,
+        displayName: 'TIME',
+      }],
+    },
   }, gridPos={
     x: 12,
     y: 55,

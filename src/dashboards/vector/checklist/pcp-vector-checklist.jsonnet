@@ -1,4 +1,4 @@
-# Based on Will Cohen's PCP checklist dashboard
+// Based on Will Cohen's PCP checklist dashboard
 
 local breadcrumbsPanel = import '_breadcrumbspanel.libsonnet';
 local troubleshootingPanel = import '_troubleshootingpanel.libsonnet';

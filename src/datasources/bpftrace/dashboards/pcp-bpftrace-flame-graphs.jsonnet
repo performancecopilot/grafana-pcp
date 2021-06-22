@@ -3,7 +3,7 @@ local grafana = import 'grafonnet/grafana.libsonnet';
 local flameGraph(
   title,
   datasource=null,
-) = {
+      ) = {
   title: title,
   type: 'pcp-flamegraph-panel',
   datasource: datasource,

@@ -75,25 +75,25 @@ grafana.dashboard.new(
     styles=null,
   )
   .addTargets([
-      { expr: 'bcc.proc.io.net.tcptop.pid', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcptop.comm', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcptop.laddr', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcptop.lport', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcptop.daddr', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcptop.dport', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcptop.rx', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcptop.tx', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcptop.pid', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcptop.comm', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcptop.laddr', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcptop.lport', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcptop.daddr', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcptop.dport', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcptop.rx', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcptop.tx', format: 'metrics_table' },
   ]) +
   {
-    "transformations": [{
-      "id": "organize",
-      "options": {
-        "excludeByName": {
-          "instance": true
+    transformations: [{
+      id: 'organize',
+      options: {
+        excludeByName: {
+          instance: true,
         },
-        "indexByName": {},
-        "renameByName": {}
-      }
+        indexByName: {},
+        renameByName: {},
+      },
     }],
   }, gridPos={
     x: 0,
@@ -109,26 +109,26 @@ grafana.dashboard.new(
     styles=null,
   )
   .addTargets([
-      { expr: 'bcc.proc.io.net.tcp.pid', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.comm', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.laddr', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.lport', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.daddr', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.dport', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.rx', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.tx', format: 'metrics_table' },
-      { expr: 'bcc.proc.io.net.tcp.duration', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcp.pid', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcp.comm', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcp.laddr', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcp.lport', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcp.daddr', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcp.dport', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcp.rx', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcp.tx', format: 'metrics_table' },
+    { expr: 'bcc.proc.io.net.tcp.duration', format: 'metrics_table' },
   ]) +
   {
-    "transformations": [{
-      "id": "organize",
-      "options": {
-        "excludeByName": {
-          "instance": true
+    transformations: [{
+      id: 'organize',
+      options: {
+        excludeByName: {
+          instance: true,
         },
-        "indexByName": {},
-        "renameByName": {}
-      }
+        indexByName: {},
+        renameByName: {},
+      },
     }],
   }, gridPos={
     x: 0,
