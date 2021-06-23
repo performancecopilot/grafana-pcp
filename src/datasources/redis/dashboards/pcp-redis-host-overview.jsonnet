@@ -12,7 +12,6 @@ grafana.dashboard.new(
     'datasource',
     'pcp-redis-datasource',
     'PCP Redis',
-    hide='value',
   )
 )
 .addTemplate(

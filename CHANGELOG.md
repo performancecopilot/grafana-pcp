@@ -6,6 +6,7 @@
 - **all**: replace Angular.js based config component with React, ensure Grafana 8.0 compatibility
 - **dashboards**: PCP Vector Host Overview: add pmproxy URL and hostspec variables
 - **dashboards**: mark all dashboards as readonly
+- **dashboards**: show datasource field on all dashboards
 - **vector, bpftrace**: use `pcp://127.0.0.1` as default hostspec (no functional change)
 - **chore**: update dependencies
 - **test**: replace convey with testify for the Go tests

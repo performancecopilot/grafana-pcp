@@ -32,7 +32,6 @@ grafana.dashboard.new(
     'bpftrace_datasource',
     'pcp-bpftrace-datasource',
     'PCP bpftrace',
-    hide='value',
   )
 )
 .addTemplate(
@@ -40,7 +39,6 @@ grafana.dashboard.new(
     'vector_datasource',
     'pcp-vector-datasource',
     'PCP Vector',
-    hide='value',
   )
 )
 .addPanel(

@@ -15,7 +15,6 @@ grafana.dashboard.new(
     'datasource',
     'pcp-bpftrace-datasource',
     'PCP bpftrace',
-    hide='value',
   )
 )
 .addPanel(

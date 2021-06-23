@@ -15,7 +15,6 @@ grafana.dashboard.new(
     'datasource',
     'pcp-vector-datasource',
     'PCP Vector',
-    hide='value',
   )
 )
 .addTemplate(

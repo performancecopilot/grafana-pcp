@@ -233,7 +233,6 @@ local grafana = import 'grafonnet/grafana.libsonnet';
           'datasource',
           'pcp-vector-datasource',
           'PCP Vector',
-          hide='value',
         )
       )
       .addPanel(
