@@ -1,9 +1,8 @@
 import { AppPlugin } from '@grafana/data';
-import { PCPAppConfigCtrl } from './components/appconfig/config';
+import { AppConfig } from './components/appconfig/config';
+import { AppSettings } from './components/appconfig/types';
 import { Search } from './components/search/Search';
 
-export { PCPAppConfigCtrl as ConfigCtrl };
-
-class CustomApp extends AppPlugin<{}> {}
-
-export const plugin = new CustomApp().setRootPage(Search);
+export const plugin = new AppPlugin<AppSettings>()
+    .addConfigPage({ id: 'config', title: 'Config', icon: 'cog', body: AppConfig })
+    .setRootPage(Search);

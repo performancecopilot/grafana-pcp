@@ -96,6 +96,7 @@ test-e2e: test-e2e-start-container ## Run End-to-End tests
 test-e2e-ui: test-e2e-start-container ## Run End-to-End tests with a browser UI
 	GRAFANA_URL="http://127.0.0.1:3001" HEADLESS=false node_modules/.bin/jest --config jest.config.e2e.js --runInBand
 
+
 ##@ Helpers
 
 sign: ## Sign the plugin
