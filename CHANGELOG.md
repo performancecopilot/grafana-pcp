@@ -4,7 +4,7 @@
 
 - **checklist**: use new GraphNG component, show units in graphs, update help texts
 - **all**: replace Angular.js based config component with React, ensure Grafana 8.0 compatibility
-- **dashboards**: PCP Vector Host Overview: add pmproxy URL and hostspec variables
+- **dashboards**: add pmproxy URL and hostspec variables to PCP Vector Host Overview and PCP checklist dashboards
 - **dashboards**: mark all dashboards as readonly
 - **dashboards**: show datasource field on all dashboards
 - **vector, bpftrace**: use `pcp://127.0.0.1` as default hostspec (no functional change)

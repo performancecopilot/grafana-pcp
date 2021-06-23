@@ -34,7 +34,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: 'mem.util.free / mem.physmem', format: 'time_series', legendFormat: '$expr' },
+    { expr: 'mem.util.free / mem.physmem', format: 'time_series', legendFormat: '$expr', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -69,7 +69,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: 'mem.numa.util.free / mem.numa.util.total', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'mem.numa.util.free / mem.numa.util.total', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 3,

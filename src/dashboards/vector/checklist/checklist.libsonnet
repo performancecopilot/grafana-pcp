@@ -235,6 +235,21 @@ local grafana = import 'grafonnet/grafana.libsonnet';
           'PCP Vector',
         )
       )
+      .addTemplate(
+        grafana.template.text(
+          'url',
+          label='URL',
+        ) + {
+          description: 'overwrite pmproxy URL (example: http://127.0.0.1:44322)',
+        }
+      )
+      .addTemplate(
+        grafana.template.text(
+          'hostspec',
+        ) + {
+          description: 'overwrite PCP host specification (example: pcp://127.0.0.1:44321)',
+        }
+      )
       .addPanel(
         breadcrumbsPanel.new()
         .addItems($.getNavigation(node)), gridPos={

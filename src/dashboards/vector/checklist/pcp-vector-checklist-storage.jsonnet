@@ -30,7 +30,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: 'disk.dev.total', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'disk.dev.total', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -71,7 +71,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: 'delta(disk.dev.total_bytes) / delta(disk.dev.total)', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'delta(disk.dev.total_bytes) / delta(disk.dev.total)', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 3,

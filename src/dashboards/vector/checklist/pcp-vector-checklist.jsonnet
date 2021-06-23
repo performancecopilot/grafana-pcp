@@ -38,7 +38,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-cpu')],
     ),
   ).addTargets([
-    { expr: '1 - rate(kernel.percpu.cpu.idle)', format: 'time_series', legendFormat: '$instance' },
+    { expr: '1 - rate(kernel.percpu.cpu.idle)', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -70,7 +70,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-storage')],
     ),
   ).addTargets([
-    { expr: 'disk.dev.avactive', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'disk.dev.avactive', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 3,
@@ -113,7 +113,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-memory')],
     ),
   ).addTargets([
-    { expr: 'mem.util.available / mem.physmem', format: 'time_series', legendFormat: '$expr' },
+    { expr: 'mem.util.available / mem.physmem', format: 'time_series', legendFormat: '$expr', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 13,
@@ -154,7 +154,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-network-tx')],
     ),
   ).addTargets([
-    { expr: 'rate(network.interface.out.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'rate(network.interface.out.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 23,
@@ -195,7 +195,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-network-rx')],
     ),
   ).addTargets([
-    { expr: 'rate(network.interface.in.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'rate(network.interface.in.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 23,

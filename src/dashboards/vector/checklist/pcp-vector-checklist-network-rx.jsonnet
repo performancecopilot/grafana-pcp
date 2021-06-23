@@ -31,7 +31,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: 'network.interface.in.drops', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'network.interface.in.drops', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -62,7 +62,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: 'network.interface.in.errors', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'network.interface.in.errors', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 13,
@@ -93,7 +93,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: 'network.softnet.dropped', format: 'time_series', legendFormat: '$expr' },
+    { expr: 'network.softnet.dropped', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 13,
@@ -124,7 +124,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: 'network.softnet.time_squeeze', format: 'time_series', legendFormat: '$expr' },
+    { expr: 'network.softnet.time_squeeze', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 23,

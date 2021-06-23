@@ -31,7 +31,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-cpu-user')],
     ),
   ).addTargets([
-    { expr: 'kernel.percpu.cpu.user', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'kernel.percpu.cpu.user', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -63,7 +63,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-cpu-sys')],
     ),
   ).addTargets([
-    { expr: 'kernel.percpu.cpu.sys', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'kernel.percpu.cpu.sys', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 3,
@@ -100,7 +100,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: 'rate(hotproc.psinfo.utime) + rate(hotproc.psinfo.stime)', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'rate(hotproc.psinfo.utime) + rate(hotproc.psinfo.stime)', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 13,

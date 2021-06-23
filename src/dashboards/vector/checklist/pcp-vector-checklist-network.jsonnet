@@ -40,7 +40,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-network-tx')],
     ),
   ).addTargets([
-    { expr: 'rate(network.interface.out.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'rate(network.interface.out.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -81,7 +81,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-network-rx')],
     ),
   ).addTargets([
-    { expr: 'rate(network.interface.in.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance' },
+    { expr: 'rate(network.interface.in.bytes) / network.interface.baudrate', format: 'time_series', legendFormat: '$instance', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 3,

@@ -31,7 +31,7 @@ checklist.dashboard.new(node)
       children=[checklist.getNodeByUid('pcp-vector-checklist-memory-swap')],
     ),
   ).addTargets([
-    { expr: 'swap.pagesout', format: 'time_series', legendFormat: '$expr' },
+    { expr: 'swap.pagesout', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 3,
@@ -82,7 +82,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: '(rate(mem.vmstat.pgsteal_direct) + rate(mem.vmstat.pgsteal_kswapd)) / (rate(mem.vmstat.pgscan_direct) + rate(mem.vmstat.pgscan_kswapd))', format: 'time_series', legendFormat: '$expr' },
+    { expr: '(rate(mem.vmstat.pgsteal_direct) + rate(mem.vmstat.pgsteal_kswapd)) / (rate(mem.vmstat.pgscan_direct) + rate(mem.vmstat.pgscan_kswapd))', format: 'time_series', legendFormat: '$expr', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 3,
@@ -116,9 +116,9 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: 'mem.vmstat.thp_collapse_alloc', format: 'time_series', legendFormat: '$metric' },
-    { expr: 'mem.vmstat.thp_fault_alloc', format: 'time_series', legendFormat: '$metric' },
-    { expr: 'mem.vmstat.thp_fault_fallback', format: 'time_series', legendFormat: '$metric' },
+    { expr: 'mem.vmstat.thp_collapse_alloc', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'mem.vmstat.thp_fault_alloc', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
+    { expr: 'mem.vmstat.thp_fault_fallback', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 0,
     y: 13,
@@ -145,7 +145,7 @@ checklist.dashboard.new(node)
       parents=parents,
     ),
   ).addTargets([
-    { expr: 'mem.vmstat.thp_split', format: 'time_series', legendFormat: '$metric' },
+    { expr: 'mem.vmstat.thp_split', format: 'time_series', legendFormat: '$metric', url: '$url', hostspec: '$hostspec' },
   ]), gridPos={
     x: 12,
     y: 13,
