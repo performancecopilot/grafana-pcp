@@ -96,7 +96,7 @@ checklist.dashboard.new(node)
         ),
       ],
       urls=['https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html-single/Virtualization_Tuning_and_Optimization_Guide/index.html'],
-      notes='To enable metric collection for this panel, please configure the hotproc.control.config setting. It can be set with <code>sudo pmstore hotproc.control.config \'(fname=="ksmd" && cpuburn > 0.10)\'</code> Note: There can only be one hotproc predicate at a time.',
+      notes="To enable metric collection for this panel, please configure the hotproc.control.config setting. It can be set with: <code>sudo pmstore hotproc.control.config '(fname==\"ksmd\" && cpuburn > 0.10)'</code> Note: There can only be one hotproc predicate at a time.",
       parents=parents,
     ),
   ).addTargets([

@@ -102,6 +102,9 @@ test-e2e-ui: test-e2e-start-container ## Run End-to-End tests with a browser UI
 sign: ## Sign the plugin
 	yarn run sign
 
+jsonnetfmt: ## Run jsonnetfmt on all jsonnet files
+	jsonnetfmt -i $$(find . -name '*.jsonnet')
+
 clean: ## Clean all artifacts
 	rm -rf node_modules "$(JSONNET_VENDOR_DIR)" dist
 

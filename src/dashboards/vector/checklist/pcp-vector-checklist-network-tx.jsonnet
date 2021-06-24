@@ -27,7 +27,7 @@ checklist.dashboard.new(node)
         value=0.01
       ),
       urls=['https://access.redhat.com/solutions/21301'],
-      notes="The URL mentions comparing the current ring buffer size to the max allowed and increase the ring buffer size, but PCP doesn't have metrics to provide ring buffer info, a 1% packet drop threshold might be too high.",
+      notes="The URL mentions comparing the current ring buffer size to the max allowed and increase the ring buffer size, but PCP doesn't have metrics to provide ring buffer info. A 1% packet drop threshold might be too high.",
       parents=parents,
     ),
   ).addTargets([
