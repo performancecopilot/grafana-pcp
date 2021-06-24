@@ -3,10 +3,11 @@
 ## 3.1.0 (unreleased)
 
 - **checklist**: use new GraphNG component, show units in graphs, update help texts
-- **all**: replace Angular.js based config component with React, ensure Grafana 8.0 compatibility
+- **all**: ensure Grafana 8.0 compatibility by replacing Angular.js based plugin config component with React
 - **dashboards**: add pmproxy URL and hostspec variables to PCP Vector Host Overview and PCP checklist dashboards
-- **dashboards**: mark all dashboards as readonly
 - **dashboards**: show datasource field on all dashboards
+- **dashboards**: mark all dashboards as readonly
+- **bpftrace**: fix bpftrace error messages (don't append errors indefinitely)
 - **vector, bpftrace**: use `pcp://127.0.0.1` as default hostspec (no functional change)
 - **chore**: update dependencies
 - **test**: replace convey with testify for the Go tests

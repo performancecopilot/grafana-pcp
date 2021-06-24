@@ -76,6 +76,10 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
         return !/^[a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z][a-zA-Z0-9_]+)*$/.test(expr);
     }
 
+    /**
+     * create a valid PCP metric name of a derived metric expression
+     * should return the same name for the same expression
+     */
     computeDerivedMetricName(expr: string): string {
         return `derived_${md5(expr)}`;
     }

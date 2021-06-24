@@ -63,7 +63,7 @@ export interface Target<T = any> {
     targetId: string;
     state: TargetState;
     query: PmapiQuery;
-    /** valid PCP metric names (can be a derived metric, e.g. derived_xxx) */
+    /** valid PCP metric names (can be a derived metric, e.g. derived_xxx), or multiple PCP metric names for bpftrace */
     metricNames: MetricName[];
     errors: any[];
     lastActiveMs: number;
