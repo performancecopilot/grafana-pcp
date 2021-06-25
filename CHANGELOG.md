@@ -1,6 +1,6 @@
 # Change Log
 
-## 3.1.0 (unreleased)
+## 3.1.0 (2021-06-25)
 
 - **checklist**: use new GraphNG component, show units in graphs, update help texts
 - **all**: ensure Grafana 8.0 compatibility by replacing Angular.js based plugin config component with React
@@ -12,15 +12,18 @@
 - **chore**: update dependencies
 - **test**: replace convey with testify for the Go tests
 
+
 ## 3.0.3 (2021-02-24)
 
 - **test**: fix e2e tests by using another CSS selector
 - **chore**: update dependencies
 - **docs**: add container guide and screenshot
 
+
 ## 3.0.2 (2021-01-22)
 
 - **checklist**: replace the storage metrics `disk.dm.*` with `disk.dev.*` (enables usage without device mapper)
+
 
 ## 3.0.1 (2020-12-22)
 
