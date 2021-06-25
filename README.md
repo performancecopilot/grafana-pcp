@@ -18,7 +18,7 @@ It presents a unifying abstraction for all of the performance data in a system, 
 * enhanced Berkeley Packet Filter (eBPF) tracing using [bpftrace](https://github.com/iovisor/bpftrace/blob/master/README.md) scripts
 * dashboards for detecting potential performance issues and showing possible solutions using the Utilization Saturation and Errors (USE) method [2]
 * full-text search in metric names, descriptions, instances [1]
-* support for [Grafana Alerting](https://grafana.com/docs/grafana/latest/alerting/create-alerts/) [1]
+* support for [Grafana Alerting](https://grafana.com/docs/grafana/latest/alerting/) [1]
 * support for [derived metrics](https://man7.org/linux/man-pages/man3/pmregisterderived.3.html#DESCRIPTION) (allows the usage of arithmetic operators and statistical functions inside a query) [2]
 * automated configuration of metric units [1,2,3]
 * automatic rate and time utilization conversion

@@ -14,10 +14,12 @@ jobs:
 
     - name: Installing jsonnet, jsonnet-bundler and grafana/plugin-validator
       run: |
-        GO111MODULE=off go get github.com/google/go-jsonnet/cmd/jsonnet
-        GO111MODULE=off go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
-        GO111MODULE=off go get github.com/grafana/plugin-validator/cmd/plugincheck
+        go get github.com/google/go-jsonnet/cmd/jsonnet
+        go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
+        go get github.com/grafana/plugin-validator/cmd/plugincheck
         echo "$HOME/go/bin" >> $GITHUB_PATH
+      env:
+        GO111MODULE: off
 
     - name: Install dependencies
       run: make deps
