@@ -76,7 +76,8 @@ export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends Pmap
                 url = getTemplateSrv().replace(query.url);
 
                 if (this.url?.startsWith('/api/datasources/proxy') && !isBlank(url)) {
-                    // Grafana will send additional x-grafana headers to every request in browser mode, which make the CORS request fail
+                    // Grafana will send additional x-grafana headers to every request
+                    // when in server mode, which make the CORS request fail
                     throw new GenericError(
                         'Please set the access mode to Browser in the datasource settings when using a custom pmproxy URL for this panel.'
                     );
