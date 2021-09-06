@@ -57,7 +57,7 @@ export class PmseriesLanguageDefiniton implements MonacoLanguageDefinition {
 
             comparisonOperators: ['==', '!=', '~~', '=~', '!~', ':', '<', '>', '<=', '>='],
             logicalOperators: ['&&', '||', ','],
-            symbols: /[=!~:<>=&|,]+/,
+            symbols: /[=!~:<>&|,]+/,
 
             tokenizer: {
                 root: [
