@@ -36,7 +36,6 @@ grafana.dashboard.new(
     dataFormat='tsbuckets',
     yBucketBound='upper',
     yAxis_format='µs',
-    hideZeroBuckets=true,
     cards_cardPadding=0,
   )
   .addTargets([
@@ -55,7 +54,6 @@ grafana.dashboard.new(
     dataFormat='tsbuckets',
     yBucketBound='upper',
     yAxis_format='µs',
-    hideZeroBuckets=true,
     cards_cardPadding=0,
   )
   .addTargets([
