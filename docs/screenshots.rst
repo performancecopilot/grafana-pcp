@@ -6,11 +6,19 @@ PCP Vector
 
 .. image:: ../src/img/screenshots/vector-overview.png
   :width: 700
+.. image:: ../src/img/screenshots/vector-metric-autocompletion.png
+  :width: 700
+
+Vector dashboards
+~~~~~~~~~~~~~~~~~
+
 .. image:: ../src/img/screenshots/vector-containers.png
   :width: 700
-.. image:: ../src/img/screenshots/vector-checklist.png
+.. image:: ../src/img/screenshots/vector-bcc-overview1.png
   :width: 700
-.. image:: ../src/img/screenshots/vector-metric-autocompletion.png
+.. image:: ../src/img/screenshots/vector-bcc-overview2.png
+  :width: 700
+.. image:: ../src/img/screenshots/vector-checklist.png
   :width: 700
 
 PCP bpftrace
@@ -40,7 +48,7 @@ bpftrace flame graphs
   :width: 700
 
 Metric Search
-~~~~~~~~~~~~~~~~~~~~~
+-------------
 
 .. image:: ../src/img/screenshots/search.png
   :width: 700

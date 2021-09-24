@@ -3,6 +3,7 @@
 ## 3.1.1 (unreleased)
 
 - **dashboards**: do not hide empty buckets in PCP Vector eBPF/BCC Overview dashboard
+- **docs**: add PCP Vector eBPF/BCC Overview dashboard screenshots
 
 ## 3.1.0 (2021-06-25)
 
