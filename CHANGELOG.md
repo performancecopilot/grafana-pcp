@@ -4,6 +4,7 @@
 
 - **dashboards**: do not hide empty buckets in PCP Vector eBPF/BCC Overview dashboard
 - **docs**: add PCP Vector eBPF/BCC Overview dashboard screenshots
+- **build**: add workaround to replace deprecated md4 hash algorithm with sha256 during build (md4 is unavailable in OpenSSL 3.0)
 
 ## 3.1.0 (2021-06-25)
 

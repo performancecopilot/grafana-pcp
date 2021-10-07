@@ -1,6 +1,13 @@
 const path = require('path');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
+// monkey patch crypto module to not use deprecated md4 hash algorithm,
+// which is removed in OpenSSL 3.0
+// https://github.com/webpack/webpack/issues/13572#issuecomment-923736472
+const crypto = require("crypto");
+const crypto_orig_createHash = crypto.createHash;
+crypto.createHash = algorithm => crypto_orig_createHash(algorithm == "md4" ? "sha256" : algorithm);
+
 function updateForkTsCheckerPluginSettings(plugins) {
     for (const plugin of plugins) {
         if (plugin.constructor.name === 'ForkTsCheckerWebpackPlugin') {
