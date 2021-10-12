@@ -13,9 +13,19 @@ Requisites
 
 Install the following package, which provides support for the ``scram-sha-256`` authentication method:
 
+Fedora/CentOS/RHEL
+^^^^^^^^^^^^^^^^^^
+
 .. code-block:: console
 
     $ sudo dnf install -y cyrus-sasl-scram
+
+Debian/Ubuntu
+^^^^^^^^^^^^^
+
+.. code-block:: console
+
+    $ sudo apt-get install -y libsasl2-modules-gssapi-mit
 
 Configuring PMCD
 ----------------
