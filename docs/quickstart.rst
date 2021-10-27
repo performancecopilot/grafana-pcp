@@ -6,9 +6,9 @@ Quickstart
 Installation
 ------------
 
-Please see :doc:`Installation Guide <installation>`. There is a simple method using
-package manager for Redhat-based distributions, Otherwise it can be installed from source, or
-pre-built plugin bundle from the project's github releases page, or as a container.
+Please see the :doc:`Installation Guide <installation>`. There is a simple method using the
+package manager for Red Hat-based distributions, otherwise it can be installed from source, from
+a pre-built plugin bundle from the project's GitHub releases page, or as a container.
 
 Make sure to restart Grafana server and pmproxy after installation the plugin. Eg.
 
@@ -17,10 +17,10 @@ Make sure to restart Grafana server and pmproxy after installation the plugin. E
     $ sudo systemctl restart grafana-server
     $ sudo systemctl start pmproxy
 
-Installation is not totally finished until you also enable the Performance Co-Pilot plugin via
-the Grafana Admin user's configuration.
+Installation is not finished until you also enable the Performance Co-Pilot plugin via
+the Grafana Admin configuration:
 
-Open the Grafana configuration, go to Plugins, optionally select "Applications" (not Datasources) to filter to it quickly, select *Performance Co-Pilot* and click the *Enable* button on it's page. This will make the PCP datasources and some dashboards available.
+Open the Grafana configuration, go to Plugins, select *Performance Co-Pilot* and click the *Enable* button on it's page. This will make the PCP data sources and some dashboards available.
 
 Data Sources
 ------------
@@ -32,11 +32,11 @@ Open the Grafana configuration, go to Data Sources and add the
 :doc:`datasources/bpftrace` datasources.
 
 The only required configuration field for each data source is the URL to `pmproxy`_.
-In most cases the default Redis URL of ``http://localhost:44322`` can be used.
+In most cases the default URL ``http://localhost:44322`` can be used.
 All other fields can be left to their default values.
 
 .. note::
-   Make sure the *URL* text box actually contains a value (font color should be white) and you're not just looking at the placeholder value (light grey text).
+   Make sure the *URL* text box actually contains a value (font color should be white) and you're not looking at the placeholder value (light grey text).
 
 .. note::
    The Redis and bpftrace data sources need additional configuration on the collector host.
