@@ -27,6 +27,11 @@
             "type": "dashboard",
             "name": "PCP Redis: Host Overview",
             "path": "dashboards/pcp-redis-host-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Redis: Microsoft SQL Server",
+            "path": "dashboards/pcp-redis-mssql-server.json"
         }
     ]
 }
