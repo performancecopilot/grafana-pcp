@@ -107,4 +107,6 @@ checklist.dashboard.new(node)
     w: 12,
     h: 9,
   },
-)
+) + {
+  revision: 2
+}

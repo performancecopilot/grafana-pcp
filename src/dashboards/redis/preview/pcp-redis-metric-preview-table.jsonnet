@@ -45,4 +45,6 @@ grafana.dashboard.new(
     w: 24,
     h: 20,
   }
-)
+) + {
+  revision: 2
+}

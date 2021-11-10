@@ -303,4 +303,6 @@ grafana.dashboard.new(
     w: 12,
     h: 8,
   }
-)
+) + {
+  revision: 2
+}
