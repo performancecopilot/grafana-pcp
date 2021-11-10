@@ -106,14 +106,16 @@ var pcpTimeUnits = map[string]int{
 
 func applyFieldTransformations(redisQuery *Query, desc *series.Desc, frame *data.Frame) error {
 	if desc.Semantics == "counter" {
-		err := rateConversion(frame)
-		if err != nil {
-			return err
+		if redisQuery.Options.RateConversion {
+			err := rateConversion(frame)
+			if err != nil {
+				return err
+			}
 		}
 
 		divisor, isTimeUtilization := pcpTimeUnits[desc.Units]
-		if isTimeUtilization {
-			err = timeUtilizationConversion(frame, divisor)
+		if redisQuery.Options.TimeUtilizationConversion && redisQuery.Format != Heatmap && isTimeUtilization {
+			err := timeUtilizationConversion(frame, divisor)
 			if err != nil {
 				return err
 			}

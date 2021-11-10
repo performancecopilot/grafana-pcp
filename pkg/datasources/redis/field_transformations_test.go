@@ -46,18 +46,14 @@ func InDeltaPointer(t *testing.T, expected interface{}, actual interface{}, delt
 
 func TestTransformations(t *testing.T) {
 	t.Run("Counter 1", func(t *testing.T) {
-		query := &Query{
-			Expr:         "",
-			Format:       "",
-			LegendFormat: "",
-		}
+		query := DefaultQuery()
 		desc := &series.Desc{
 			Semantics: "counter",
 		}
 		timeField := data.NewField("time", nil, []time.Time{time.Unix(1000, 0), time.Unix(1010, 0), time.Unix(1020, 0)})
 		dataField := data.NewField("data", nil, Float64P(10, 20, 40))
 		frame := data.NewFrame("", timeField, dataField)
-		err := applyFieldTransformations(query, desc, frame)
+		err := applyFieldTransformations(&query, desc, frame)
 		require.NoError(t, err)
 
 		expectedTime := []time.Time{time.Unix(1010, 0), time.Unix(1020, 0)}
@@ -71,11 +67,7 @@ func TestTransformations(t *testing.T) {
 	})
 
 	t.Run("Counter wrap", func(t *testing.T) {
-		query := &Query{
-			Expr:         "",
-			Format:       "",
-			LegendFormat: "",
-		}
+		query := DefaultQuery()
 		desc := &series.Desc{
 			Semantics: "counter",
 		}
@@ -83,7 +75,7 @@ func TestTransformations(t *testing.T) {
 		dataField1 := data.NewField("data1", nil, Float64P(10, 30, 20, 30))
 		dataField2 := data.NewField("data2", nil, Float64P(100, 300, 200, 300))
 		frame := data.NewFrame("", timeField, dataField1, dataField2)
-		err := applyFieldTransformations(query, desc, frame)
+		err := applyFieldTransformations(&query, desc, frame)
 		require.NoError(t, err)
 
 		expectedTime := []time.Time{time.Unix(1010, 0), time.Unix(1020, 0), time.Unix(1030, 0)}
@@ -100,11 +92,7 @@ func TestTransformations(t *testing.T) {
 	})
 
 	t.Run("Time Utilization", func(t *testing.T) {
-		query := &Query{
-			Expr:         "",
-			Format:       "",
-			LegendFormat: "",
-		}
+		query := DefaultQuery()
 		desc := &series.Desc{
 			Semantics: "counter",
 			Units:     "millisec",
@@ -115,11 +103,37 @@ func TestTransformations(t *testing.T) {
 			Unit: "",
 		})
 		frame := data.NewFrame("", timeField, dataField)
-		err := applyFieldTransformations(query, desc, frame)
+		err := applyFieldTransformations(&query, desc, frame)
 		require.NoError(t, err)
 
 		expectedTime := []time.Time{time.Unix(1001, 0), time.Unix(1002, 0)}
 		expectedData := Float64P(1.0/1000, 2.0/1000)
+		require.Equal(t, len(expectedTime), timeField.Len())
+		require.Equal(t, len(expectedData), dataField.Len())
+		for i := 0; i < dataField.Len(); i++ {
+			require.Equal(t, expectedTime[i], timeField.At(i))
+			InDeltaPointer(t, expectedData[i], dataField.At(i), deltaFloat)
+		}
+	})
+
+	t.Run("time based counter with time utilization conversation disabled", func(t *testing.T) {
+		query := DefaultQuery()
+		query.Options.TimeUtilizationConversion = false
+		desc := &series.Desc{
+			Semantics: "counter",
+			Units:     "millisec",
+		}
+		timeField := data.NewField("time", nil, []time.Time{time.Unix(1000, 0), time.Unix(1001, 0), time.Unix(1002, 0)})
+		dataField := data.NewField("data", nil, Float64P(10, 11, 13))
+		dataField.SetConfig(&data.FieldConfig{
+			Unit: "",
+		})
+		frame := data.NewFrame("", timeField, dataField)
+		err := applyFieldTransformations(&query, desc, frame)
+		require.NoError(t, err)
+
+		expectedTime := []time.Time{time.Unix(1001, 0), time.Unix(1002, 0)}
+		expectedData := Float64P(1.0, 2.0)
 		require.Equal(t, len(expectedTime), timeField.Len())
 		require.Equal(t, len(expectedData), dataField.Len())
 		for i := 0; i < dataField.Len(); i++ {

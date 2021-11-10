@@ -50,7 +50,7 @@ func (ds *redisDatasourceInstance) executeTimeSeriesQuery(dataQuery *backend.Dat
 func (ds *redisDatasourceInstance) handleTimeSeriesQuery(ctx context.Context, dataQuery *backend.DataQuery) backend.DataResponse {
 	response := backend.DataResponse{}
 
-	var redisQuery Query
+	redisQuery := DefaultQuery()
 	err := json.Unmarshal(dataQuery.JSON, &redisQuery)
 	if err != nil {
 		response.Error = err
