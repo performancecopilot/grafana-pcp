@@ -52,7 +52,7 @@ The `yarn package manager <https://yarnpkg.com>`_, `Go compiler <https://golang.
 .. code-block:: console
 
     $ git clone https://github.com/performancecopilot/grafana-pcp.git
-    $ make dist
+    $ make build
     $ sudo ln -s $(pwd) /var/lib/grafana/plugins
     $ sudo systemctl restart grafana-server
 

@@ -5,9 +5,9 @@ RUN apk add --no-cache make git yarn go jsonnet && \
 
 WORKDIR /usr/src/app
 COPY . /usr/src/app
-RUN make dist
+RUN make build
 
 
 FROM docker.io/grafana/grafana:7.5.8
 COPY docker/root/etc/grafana/grafana.ini /etc/grafana/grafana.ini
-COPY --from=builder /usr/src/app/dist /var/lib/grafana/plugins/grafana-pcp
+COPY --from=builder /usr/src/app/dist /var/lib/grafana/plugins/performancecopilot-pcp-app
