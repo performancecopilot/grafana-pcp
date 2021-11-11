@@ -7,19 +7,17 @@ on:
 jobs:
   release:
     name: Publish Release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout sources
       uses: actions/checkout@v2
 
-    - name: Installing jsonnet, jsonnet-bundler and grafana/plugin-validator
+    - name: Install jsonnet, jsonnet-bundler and grafana/plugin-validator
       run: |
         go get github.com/google/go-jsonnet/cmd/jsonnet
         go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
         go get github.com/grafana/plugin-validator/cmd/plugincheck
         echo "$HOME/go/bin" >> $GITHUB_PATH
-      env:
-        GO111MODULE: off
 
     - name: Install dependencies
       run: make deps
@@ -28,7 +26,7 @@ jobs:
       run: make test-backend
 
     - name: Test frontend & Build plugin
-      run: make dist
+      run: make build
 
     - name: Check if package version and git tag matches
       run: |
@@ -41,6 +39,12 @@ jobs:
       run: make sign
       env:
         GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
+
+    - name: Create plugin zip file
+      run: make zip
+
+    - name: Run linters
+      run: make lint
 
     - name: Create GitHub release
       run: scripts/github-release.sh

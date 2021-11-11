@@ -15,10 +15,11 @@ jobs:
     - name: Checkout sources
       uses: actions/checkout@v2
 
-    - name: Installing jsonnet and jsonnet-bundler
+    - name: Install jsonnet, jsonnet-bundler and grafana/plugin-validator
       run: |
         go get github.com/google/go-jsonnet/cmd/jsonnet
         go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
+        go get github.com/grafana/plugin-validator/cmd/plugincheck
         echo "$HOME/go/bin" >> $GITHUB_PATH
 
     - name: Install dependencies
@@ -28,15 +29,18 @@ jobs:
       run: make test-frontend-coverage test-backend-coverage
 
     - name: Build plugin
-      run: make dist
+      run: make build
 
-    - name: Create a zip file
-      run: |
-        mv dist performancecopilot-pcp-app
-        zip -r performancecopilot-pcp-app.zip performancecopilot-pcp-app
+    - name: Create plugin zip file
+      run: make zip
+
+    - name: Run linters
+      run: make lint
+      # ignore unsigned plugin error in CI
+      continue-on-error: true
 
     - name: Publish build artifact
       uses: actions/upload-artifact@v2
       with:
         name: build
-        path: performancecopilot-pcp-app.zip
+        path: build

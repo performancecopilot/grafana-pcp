@@ -4,6 +4,7 @@ vendor/
 vendor_jsonnet/
 
 dist/
+build/
 
 coverage/
 coverage.out
