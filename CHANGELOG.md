@@ -1,10 +1,17 @@
 # Change Log
 
-## 3.2.0 (unreleased)
+## 3.2.0 (2021-11-11)
 
+- **dashboards**: new MS SQL server dashboard for PCP Redis
 - **dashboards**: do not hide empty buckets in PCP Vector eBPF/BCC Overview dashboard
-- **docs**: add PCP Vector eBPF/BCC Overview dashboard screenshots
+- **dashboards**: set revision for all dashboards
+- **redis**: utilize query.options settings, same as PCP Vector
+- **redis**: fix metric() function to return all metric names if no parameter is specified
+- **vector**: perform rate conversion only if it's enabled in the query options (it is by default)
 - **build**: add workaround to replace deprecated md4 hash algorithm with sha256 during build (md4 is unavailable in OpenSSL 3.0)
+- **build**: update Node.js and Go dependencies, and grafonnet
+- **docs**: add PCP Vector eBPF/BCC Overview dashboard screenshots
+
 
 ## 3.1.0 (2021-06-25)
 
