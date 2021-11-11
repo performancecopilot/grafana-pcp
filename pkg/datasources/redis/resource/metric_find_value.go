@@ -13,6 +13,10 @@ var labelValuesRegex = regexp.MustCompile(`^label_values\(\s*([\w.]+)\s*\)$`)
 var labelValuesForMetricRegex = regexp.MustCompile(`^label_values\(\s*([a-zA-Z][a-zA-Z0-9._]*)\s*,\s*([a-zA-Z][a-zA-Z0-9._]*)\s*\)$`)
 
 func (rs *Service) getMetricNames(pattern string) ([]MetricFindValue, error) {
+	if pattern == "" {
+		pattern = "*"
+	}
+
 	namesResponse, err := rs.pmseriesAPI.MetricNames(pattern)
 	if err != nil {
 		return nil, err
