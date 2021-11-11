@@ -30,8 +30,13 @@ jobs:
     - name: Build plugin
       run: make dist
 
+    - name: Create a zip file
+      run: |
+        mv dist performancecopilot-pcp-app
+        zip -r performancecopilot-pcp-app.zip performancecopilot-pcp-app
+
     - name: Publish build artifact
       uses: actions/upload-artifact@v2
       with:
-        name: grafana-pcp
-        path: dist
+        name: build
+        path: performancecopilot-pcp-app.zip
