@@ -70,5 +70,5 @@ checklist.dashboard.new(node)
     h: 9,
   },
 ) + {
-  revision: 2
+  revision: 2,
 }
