@@ -11,6 +11,7 @@
 - **build**: add workaround to replace deprecated md4 hash algorithm with sha256 during build (md4 is unavailable in OpenSSL 3.0)
 - **build**: update Node.js and Go dependencies, and grafonnet
 - **build**: double-zip build artifacts in the CI workflow to preserve permissions (see [actions/upload-artifact#38](https://github.com/actions/upload-artifact/issues/38))
+- **build**: add zip Makefile target, run grafana/plugincheck in CI workflow
 - **docs**: add PCP Vector eBPF/BCC Overview dashboard screenshots
 
 
