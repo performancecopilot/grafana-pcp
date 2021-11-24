@@ -1,7 +1,9 @@
 # Change Log
 
-## 3.2.1 (unreleased)
+## 3.2.1 (2021-11-24)
 
+- **dashboards**: add note about incompatibility of checklist dashboards with Grafana v8
+- **search**: fix metric search form to make it compatible with Grafana v8
 
 ## 3.2.0 (2021-11-11)
 
