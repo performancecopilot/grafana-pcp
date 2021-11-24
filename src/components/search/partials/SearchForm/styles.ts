@@ -1,5 +1,4 @@
 import { GrafanaTheme } from '@grafana/data';
-import { getFormStyles } from '@grafana/ui';
 import { css, cx } from 'emotion';
 
 const searchContainer = css`
@@ -42,9 +41,7 @@ const autosuggestContainerOpen = css`
 `;
 
 const autosuggestInput = (theme: GrafanaTheme) => {
-    const formStyles = getFormStyles(theme, { size: 'md', variant: 'primary', invalid: false });
     return cx(
-        formStyles.input.input,
         css`
             background: transparent;
             height: ${theme.spacing.formInputHeight}px;
