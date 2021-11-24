@@ -98,4 +98,5 @@ export const notUsableContainer = (width: number, height: number) => css`
     align-items: center;
     width: ${width}px;
     height: ${height}px;
+    text-align: center;
 `;
