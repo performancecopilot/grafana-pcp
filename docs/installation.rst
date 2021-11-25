@@ -35,13 +35,21 @@ You can also run Grafana with grafana-pcp in a container, using podman or docker
 Keep in mind that with the default configuration, every container has its own isolated network, and you won't be able to reach pmproxy through localhost.
 Replace X.Y.Z with the version of grafana-pcp you wish to install.
 
-.. code-block:: console
+.. code-block:: shell
 
-    $ podman run -e GF_INSTALL_PLUGINS="https://github.com/performancecopilot/grafana-pcp/releases/download/vX.Y.Z/performancecopilot-pcp-app-X.Y.Z.zip;performancecopilot-pcp-app" -p 3000:3000 docker.io/grafana/grafana
+    $ podman run \
+        -e GF_INSTALL_PLUGINS="https://github.com/performancecopilot/grafana-pcp/releases/download/vX.Y.Z/performancecopilot-pcp-app-X.Y.Z.zip;performancecopilot-pcp-app" \
+        -e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel" \
+        -p 3000:3000 \
+        docker.io/grafana/grafana
 
-.. code-block:: console
+.. code-block:: shell
 
-    $ docker run -e GF_INSTALL_PLUGINS="https://github.com/performancecopilot/grafana-pcp/releases/download/vX.Y.Z/performancecopilot-pcp-app-X.Y.Z.zip;performancecopilot-pcp-app" -p 3000:3000 grafana/grafana
+    $ docker run \
+        -e GF_INSTALL_PLUGINS="https://github.com/performancecopilot/grafana-pcp/releases/download/vX.Y.Z/performancecopilot-pcp-app-X.Y.Z.zip;performancecopilot-pcp-app" \
+        -e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel" \
+        -p 3000:3000 \
+        grafana/grafana
 
 
 From Source

@@ -4,6 +4,7 @@
 
 - (empty)
 
+
 ## 3.2.1 (2021-11-24)
 
 - **dashboards**: add note about incompatibility of checklist dashboards with Grafana v8
