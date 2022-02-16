@@ -1,6 +1,18 @@
 Installation
 ============
 
+Minimum Software Requirements
+-----------------------------
+
+==== ===== ======= ===========
+PCP  Redis Grafana grafana-pcp
+==== ===== ======= ===========
+5.2+ 5+    7.x     3.x
+5.2+ 5+    8.x     4.x
+==== ===== ======= ===========
+
+Note: Redis is only required for the :doc:`datasources/redis` datasource.
+
 Distribution Package
 --------------------
 

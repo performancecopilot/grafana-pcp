@@ -35,4 +35,6 @@ It presents a unifying abstraction for all of the performance data in a system, 
 [2] PCP Vector
 [3] PCP bpftrace
 
+## [Installation Instructions](https://grafana-pcp.readthedocs.io/en/latest/installation.html)
+
 ## [Documentation](https://grafana-pcp.readthedocs.io)
