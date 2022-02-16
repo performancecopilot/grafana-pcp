@@ -3,6 +3,7 @@ package series
 import (
 	"fmt"
 	"math/rand"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -73,7 +74,9 @@ func (api *pmseriesAPIMock) Values(series []string, start int64, finish int64, i
 	panic("not implemented")
 }
 
-func query(s *Service, sid string) (map[string]*Series, error) {
+func query(wg *sync.WaitGroup, s *Service, sid string) (map[string]*Series, error) {
+	defer wg.Done()
+
 	fmt.Printf("sending query %s\n", sid)
 	series, err := s.GetSeries([]string{sid})
 	fmt.Printf("received series %s\n", sid)
@@ -83,14 +86,61 @@ func query(s *Service, sid string) (map[string]*Series, error) {
 func TestSeriesService(t *testing.T) {
 	t.Run("Concurrent access", func(t *testing.T) {
 		api := &pmseriesAPIMock{}
-		s := NewSeriesService(api)
+		s, _ := NewSeriesService(api, 10)
+		var wg sync.WaitGroup
 
-		for i := 0; i < 10; i++ {
-			go query(s, fmt.Sprintf("sid %d", i%5))
+		// add series to cache
+		for i := 0; i < 5; i++ {
+			wg.Add(1)
+			go query(&wg, s, fmt.Sprintf("sid %d", i))
 		}
+		// request same series
+		for i := 0; i < 5; i++ {
+			wg.Add(1)
+			go query(&wg, s, fmt.Sprintf("sid %d", i))
+		}
+		wg.Wait()
 
-		time.Sleep(1 * time.Second)
 		metricsCalls := atomic.LoadUint32(&api.metricsCalls)
 		require.Equal(t, uint32(5), metricsCalls)
+	})
+
+	t.Run("max cache size", func(t *testing.T) {
+		api := &pmseriesAPIMock{}
+		// initialize cache with max 10 items
+		s, _ := NewSeriesService(api, 10)
+		var wg sync.WaitGroup
+
+		// fill cache [0..10] (cache misses)
+		for i := 0; i < 10; i++ {
+			wg.Add(1)
+			go query(&wg, s, fmt.Sprintf("sid %d", i))
+		}
+		wg.Wait()
+		require.Equal(t, uint32(10), atomic.LoadUint32(&api.metricsCalls))
+
+		// request [0..10] (cache hits)
+		for i := 0; i < 10; i++ {
+			wg.Add(1)
+			go query(&wg, s, fmt.Sprintf("sid %d", i))
+		}
+		wg.Wait()
+		require.Equal(t, uint32(10), atomic.LoadUint32(&api.metricsCalls))
+
+		// add items [10..20] to cache (cache misses)
+		for i := 10; i < 20; i++ {
+			wg.Add(1)
+			go query(&wg, s, fmt.Sprintf("sid %d", i))
+		}
+		wg.Wait()
+		require.Equal(t, uint32(20), atomic.LoadUint32(&api.metricsCalls))
+
+		// request [0..10] (cache misses)
+		for i := 0; i < 10; i++ {
+			wg.Add(1)
+			go query(&wg, s, fmt.Sprintf("sid %d", i))
+		}
+		wg.Wait()
+		require.Equal(t, uint32(30), atomic.LoadUint32(&api.metricsCalls))
 	})
 }

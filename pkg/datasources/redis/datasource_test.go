@@ -82,10 +82,11 @@ func TestDatasource(t *testing.T) {
 		defer srv.Close()
 
 		pmseriesAPI := pmseries.NewPmseriesAPI(srv.URL, nil)
+		seriesService, _ := series.NewSeriesService(pmseriesAPI, 1024)
 		datasourceInstance := &redisDatasourceInstance{
 			pmseriesAPI:     pmseriesAPI,
 			resourceService: resource.NewResourceService(pmseriesAPI),
-			seriesService:   series.NewSeriesService(pmseriesAPI),
+			seriesService:   seriesService,
 		}
 
 		response, err := datasourceInstance.handleTimeSeriesQueries(context.Background(), &backend.QueryDataRequest{

@@ -2,7 +2,7 @@
 
 ## 4.0.0 (unreleased)
 
-- (empty)
+- **redis**: use LRU cache for series metadata
 
 
 ## 3.2.1 (2021-11-24)

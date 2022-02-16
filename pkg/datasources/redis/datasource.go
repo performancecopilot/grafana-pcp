@@ -57,12 +57,17 @@ func newDataSourceInstance(setting backend.DataSourceInstanceSettings) (instance
 			Password: "",
 		}
 	}*/
+
 	pmseriesAPI := pmseries.NewPmseriesAPI(setting.URL, basicAuthSettings)
+	seriesService, err := series.NewSeriesService(pmseriesAPI, 1024)
+	if err != nil {
+		return nil, err
+	}
 
 	return &redisDatasourceInstance{
 		pmseriesAPI:     pmseriesAPI,
 		resourceService: resource.NewResourceService(pmseriesAPI),
-		seriesService:   series.NewSeriesService(pmseriesAPI),
+		seriesService:   seriesService,
 	}, nil
 }
 
