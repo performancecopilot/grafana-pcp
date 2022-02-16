@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 
+	lru "github.com/hashicorp/golang-lru"
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/redis/api/pmseries"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
@@ -12,16 +13,21 @@ import (
 // Service retrieves and caches series
 type Service struct {
 	pmseriesAPI pmseries.API
-	mu          sync.Mutex // guards cache map
-	cache       map[string]*Series
+	mu          sync.Mutex // guards cache
+	cache       *lru.Cache
 }
 
 // NewSeriesService creates a new resource service
-func NewSeriesService(pmseriesAPI pmseries.API) *Service {
+func NewSeriesService(pmseriesAPI pmseries.API, cacheSize int) (*Service, error) {
+	cache, err := lru.New(cacheSize)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Service{
 		pmseriesAPI: pmseriesAPI,
-		cache:       map[string]*Series{},
-	}
+		cache:       cache,
+	}, nil
 }
 
 // GetSeries retrieves multiple series and caches them
@@ -38,9 +44,9 @@ func (s *Service) GetSeries(sids []string) (map[string]*Series, error) {
 	missingSeries := []string{}
 
 	for _, sid := range sids {
-		series, ok := s.cache[sid]
+		series, ok := s.cache.Get(sid)
 		if ok {
-			seriesMap[sid] = series
+			seriesMap[sid] = series.(*Series)
 		} else {
 			missingSeries = append(missingSeries, sid)
 		}
@@ -113,7 +119,7 @@ func (s *Service) GetSeries(sids []string) (map[string]*Series, error) {
 			Labels:     labels,
 			Instances:  instances,
 		}
-		s.cache[sid] = series
+		s.cache.Add(sid, series)
 		seriesMap[sid] = series
 	}
 
