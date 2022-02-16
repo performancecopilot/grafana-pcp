@@ -1,13 +1,13 @@
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { InlineFormLabel, Select } from '@grafana/ui';
 import { css, cx } from 'emotion';
-import defaults from 'lodash/defaults';
+import { defaultsDeep } from 'lodash';
 import React, { PureComponent } from 'react';
 import { isBlank } from '../../../common/utils';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
 import { TargetFormat } from '../../../datasources/lib/types';
 import { PCPRedisDataSource } from '../datasource';
-import { defaultRedisQuery, RedisOptions, RedisQuery } from '../types';
+import { defaultRedisQuery, RedisOptions, RedisQuery, RedisQueryOptions } from '../types';
 import { PmseriesLanguageDefiniton } from './PmseriesLanguageDefiniton';
 
 type Props = QueryEditorProps<PCPRedisDataSource, RedisQuery, RedisOptions>;
@@ -21,6 +21,7 @@ interface State {
     expr: string;
     format: SelectableValue<string>;
     legendFormat?: string;
+    options: RedisQueryOptions;
 }
 
 export class RedisQueryEditor extends PureComponent<Props, State> {
@@ -28,11 +29,15 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        const query = defaults(this.props.query, defaultRedisQuery);
+        const query = defaultsDeep({}, this.props.query, defaultRedisQuery);
         this.state = {
             expr: query.expr,
             format: FORMAT_OPTIONS.find(option => option.value === query.format) ?? FORMAT_OPTIONS[0],
             legendFormat: query.legendFormat,
+            options: {
+                rateConversion: query.options.rateConversion,
+                timeUtilizationConversion: query.options.rateConversion,
+            },
         };
         this.languageDefinition = new PmseriesLanguageDefiniton(this.props.datasource);
     }
@@ -50,13 +55,26 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
         this.setState({ format }, this.runQuery);
     };
 
-    runQuery = () => {
-        this.props.onChange({
+    onTimeUtilizationConversionChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+        const timeUtilizationConversion = (event.target as HTMLInputElement).checked;
+        this.setState({ options: { ...this.state.options, timeUtilizationConversion } }, this.runQuery);
+    };
+
+    getQuery = (): RedisQuery => {
+        return {
             ...this.props.query,
             expr: this.state.expr,
             format: this.state.format.value as TargetFormat,
             legendFormat: this.state.legendFormat,
-        });
+            options: {
+                rateConversion: this.state.options.rateConversion,
+                timeUtilizationConversion: this.state.options.rateConversion,
+            },
+        };
+    };
+
+    runQuery = () => {
+        this.props.onChange(this.getQuery());
         this.props.onRunQuery();
     };
 
