@@ -12,6 +12,7 @@ exemptLabels:
   - pinned
   - security
   - feature
+  - blocked
   - "[Status] Maybe Later"
 
 # Label to use when marking as stale
