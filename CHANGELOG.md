@@ -2,9 +2,15 @@
 
 ## 4.0.0 (unreleased)
 
+### Enhancements / Bug Fixes
+
 - **redis**: use LRU cache for series metadata
 - **redis**: fix label_names() function to return all label names if no parameter is specified (now the label name auto-completion in the query editor works again)
+- **redis**: remove deprecated `label_values(metric, label)` function
 - **chore**: upgrade Grafana dependencies to version 8.4.1
+
+### Removed features
+- **redis**: The `label_values(metric, label)` Grafana variable query function is now removed (was deprecated since grafana-pcp v3)
 
 
 ## 3.2.1 (2021-11-24)

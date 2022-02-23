@@ -10,7 +10,6 @@ import (
 var metricNamesRegex = regexp.MustCompile(`^metrics\(\s*([\w.*]*)\s*\)$`)
 var labelNamesRegex = regexp.MustCompile(`^label_names\(\s*([\w.]*)\s*\)$`)
 var labelValuesRegex = regexp.MustCompile(`^label_values\(\s*([\w.]+)\s*\)$`)
-var labelValuesForMetricRegex = regexp.MustCompile(`^label_values\(\s*([a-zA-Z][a-zA-Z0-9._]*)\s*,\s*([a-zA-Z][a-zA-Z0-9._]*)\s*\)$`)
 
 func (rs *Service) getMetricNames(pattern string) ([]MetricFindValue, error) {
 	if pattern == "" {
@@ -75,13 +74,6 @@ func (rs *Service) metricFindQuery(query string) ([]MetricFindValue, error) {
 	labelValuesQuery := labelValuesRegex.FindStringSubmatch(query)
 	if len(labelValuesQuery) == 2 {
 		return rs.getLabelValues(labelValuesQuery[1])
-	}
-
-	// deprecated
-	labelValuesForMetricQuery := labelValuesForMetricRegex.FindStringSubmatch(query)
-	log.DefaultLogger.Info("Using deprecated query label_values(metric, label)", "query", query)
-	if len(labelValuesForMetricQuery) == 3 {
-		return rs.getLabelValues(labelValuesForMetricQuery[2])
 	}
 
 	return []MetricFindValue{}, nil
