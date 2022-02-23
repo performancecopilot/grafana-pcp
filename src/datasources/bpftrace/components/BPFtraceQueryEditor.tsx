@@ -1,8 +1,8 @@
-import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { InlineFormLabel, Select } from '@grafana/ui';
 import { css, cx } from 'emotion';
 import { defaultsDeep } from 'lodash';
 import React, { PureComponent } from 'react';
+import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import { InlineFormLabel, Select } from '@grafana/ui';
 import { isBlank } from '../../../common/utils';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
 import { TargetFormat } from '../../../datasources/lib/types';

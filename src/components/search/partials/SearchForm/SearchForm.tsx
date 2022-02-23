@@ -1,4 +1,3 @@
-import { Button, Checkbox, HorizontalGroup, Icon, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
 import { getLogger } from 'loglevel';
 import React from 'react';
 import Autosuggest, {
@@ -10,6 +9,7 @@ import Autosuggest, {
 import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
+import { Button, Checkbox, HorizontalGroup, Icon, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
 import { AutocompleteSuggestion, SearchEntity } from '../../../../common/services/pmsearch/types';
 import withServices, { WithServicesProps } from '../../components/withServices/withServices';
 import Config from '../../config/config';

@@ -1,9 +1,9 @@
-import { AppRootProps } from '@grafana/data';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { AnyAction, Store } from 'redux';
 import { Persistor } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';
+import { AppRootProps } from '@grafana/data';
 import App from './App';
 import Loader from './components/Loader/Loader';
 import ServicesContext from './contexts/services';

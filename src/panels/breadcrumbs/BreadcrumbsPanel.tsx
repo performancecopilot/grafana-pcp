@@ -1,7 +1,7 @@
+import React from 'react';
 import { PanelProps } from '@grafana/data';
 import { getLocationSrv, LocationSrv } from '@grafana/runtime';
 import { Button, Icon, Select, Themeable, withTheme } from '@grafana/ui';
-import React from 'react';
 import {
     breadcrumbsBtn,
     breadcrumbsContainer,

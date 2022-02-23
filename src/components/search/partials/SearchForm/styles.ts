@@ -1,5 +1,5 @@
-import { GrafanaTheme } from '@grafana/data';
 import { css, cx } from 'emotion';
+import { GrafanaTheme } from '@grafana/data';
 
 const searchContainer = css`
     display: flex;

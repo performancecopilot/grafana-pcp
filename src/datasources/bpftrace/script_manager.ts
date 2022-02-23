@@ -4,6 +4,7 @@ import { PermissionError } from '../../common/services/pmapi/types';
 import { GenericError } from '../../common/types/errors';
 import { TargetFormat } from '../../datasources/lib/types';
 import { MetricType, Script } from './script';
+
 const log = getLogger('script_manager');
 
 export class ScriptManager {

@@ -1,6 +1,6 @@
-import { FieldConfigSource, FieldType, LoadingState, MISSING_VALUE, MutableDataFrame, PanelData } from '@grafana/data';
 import { mount } from 'enzyme';
 import React from 'react';
+import { FieldConfigSource, FieldType, LoadingState, MISSING_VALUE, MutableDataFrame, PanelData } from '@grafana/data';
 import { grafana } from '../../datasources/lib/specs/fixtures';
 import { FlameGraphPanel } from './FlameGraphPanel';
 import { defaults } from './types';

@@ -1,8 +1,9 @@
+import 'core-js/features/instance/replace-all';
 import { DataSourceInstanceSettings, MetricFindValue, ScopedVars, VariableModel } from '@grafana/data';
 import { DataSourceWithBackend, getTemplateSrv } from '@grafana/runtime';
-import 'core-js/features/instance/replace-all';
 import { isBlank } from '../../common/utils';
 import { RedisOptions, RedisQuery } from './types';
+
 //const log = getLogger('datasource');
 
 export class PCPRedisDataSource extends DataSourceWithBackend<RedisQuery, RedisOptions> {

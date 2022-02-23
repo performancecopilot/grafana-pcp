@@ -1,9 +1,9 @@
-import { SelectableValue } from '@grafana/data';
-import { RadioButtonGroup, VerticalGroup } from '@grafana/ui';
 import React from 'react';
 import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
+import { SelectableValue } from '@grafana/data';
+import { RadioButtonGroup, VerticalGroup } from '@grafana/ui';
 import { EntityType } from '../../../../../../common/services/pmsearch/types';
 import { MetricEntitySeries } from '../../../../models/entities/metric';
 import { RootState } from '../../../../store/reducer';

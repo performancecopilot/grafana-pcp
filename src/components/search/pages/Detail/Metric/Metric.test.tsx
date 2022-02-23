@@ -1,7 +1,7 @@
-import { GrafanaThemeType } from '@grafana/data';
-import { getTheme } from '@grafana/ui';
 import { shallow } from 'enzyme';
 import React from 'react';
+import { GrafanaThemeType } from '@grafana/data';
+import { getTheme } from '@grafana/ui';
 import { EntityType } from '../../../../../common/services/pmsearch/types';
 import { LoaderBasicProps } from '../../../components/Loader/Loader';
 import { MetricEntity } from '../../../models/entities/metric';

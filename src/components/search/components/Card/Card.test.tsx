@@ -1,7 +1,7 @@
-import { GrafanaThemeType } from '@grafana/data';
-import { getTheme } from '@grafana/ui';
 import { shallow } from 'enzyme';
 import React from 'react';
+import { GrafanaThemeType } from '@grafana/data';
+import { getTheme } from '@grafana/ui';
 import { Card } from './Card';
 
 describe('<Card/>', () => {

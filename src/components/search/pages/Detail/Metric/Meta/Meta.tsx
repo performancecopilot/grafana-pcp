@@ -1,6 +1,6 @@
-import { Button } from '@grafana/ui';
 import { css } from 'emotion';
 import React from 'react';
+import { Button } from '@grafana/ui';
 import { MetricEntityMeta } from '../../../../models/entities/metric';
 import { gridItem, gridList, gridTitle, gridValue } from '../../styles';
 

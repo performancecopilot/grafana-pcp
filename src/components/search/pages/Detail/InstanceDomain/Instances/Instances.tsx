@@ -1,6 +1,6 @@
-import { VerticalGroup } from '@grafana/ui';
 import { cx } from 'emotion';
 import React from 'react';
+import { VerticalGroup } from '@grafana/ui';
 import { IndomEntitySparseItem } from '../../../../models/entities/indom';
 import { gridItem, gridList, gridListSingleCol, gridValue } from '../../styles';
 

@@ -1,9 +1,9 @@
-import { DataSourceInstanceSettings } from '@grafana/data';
-import { BackendSrvRequest } from '@grafana/runtime';
 import { isString } from 'lodash';
 import rootLogger, { LogLevelDesc } from 'loglevel';
 import logPrefixer from 'loglevel-plugin-prefix';
 import { Required } from 'utility-types';
+import { DataSourceInstanceSettings } from '@grafana/data';
+import { BackendSrvRequest } from '@grafana/runtime';
 import { GenericError } from './types/errors';
 
 rootLogger.setDefaultLevel('INFO');

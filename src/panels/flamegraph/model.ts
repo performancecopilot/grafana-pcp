@@ -1,5 +1,5 @@
-import { FieldType, getTimeField, MISSING_VALUE, PanelData } from '@grafana/data';
 import { StackFrame } from 'd3-flame-graph';
+import { FieldType, getTimeField, MISSING_VALUE, PanelData } from '@grafana/data';
 import { Options } from './types';
 
 interface FlameGraphModel {

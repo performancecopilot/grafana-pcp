@@ -1,8 +1,8 @@
-import { DataSourceInstanceSettings, ScopedVars } from '@grafana/data';
-import { getTemplateSrv } from '@grafana/runtime';
 import md5 from 'blueimp-md5';
 import { defaultsDeep, keyBy, uniqBy } from 'lodash';
 import { getLogger } from 'loglevel';
+import { DataSourceInstanceSettings, ScopedVars } from '@grafana/data';
+import { getTemplateSrv } from '@grafana/runtime';
 import { DuplicateDerivedMetricNameError, InstanceId } from '../../common/services/pmapi/types';
 import { SeriesId, SeriesLabelsItemResponse } from '../../common/services/pmseries/types';
 import { GenericError } from '../../common/types/errors';
@@ -13,6 +13,7 @@ import { Endpoint, EndpointWithCtx, InstanceValuesSnapshot, Metric } from '../..
 import { PmapiQuery, Target } from '../../datasources/lib/pmapi/types';
 import { Config } from './config';
 import { defaultVectorQuery, VectorOptions, VectorQuery, VectorTargetData } from './types';
+
 const log = getLogger('datasource');
 
 export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptions> {

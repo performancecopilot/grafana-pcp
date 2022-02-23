@@ -1,3 +1,4 @@
+import { every, isString, mapValues } from 'lodash';
 import {
     DataFrame,
     DataQueryRequest,
@@ -12,7 +13,6 @@ import {
     ScopedVars,
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
-import { every, isString, mapValues } from 'lodash';
 import { Context, Indom, InstanceId, Metadata } from '../../../common/services/pmapi/types';
 import { GenericError } from '../../../common/types/errors';
 import { Labels, Semantics } from '../../../common/types/pcp';

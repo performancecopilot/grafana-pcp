@@ -1,7 +1,7 @@
-import { DataSourceInstanceSettings, ScopedVars } from '@grafana/data';
-import { getTemplateSrv } from '@grafana/runtime';
 import { defaultsDeep, keyBy } from 'lodash';
 import { getLogger } from 'loglevel';
+import { DataSourceInstanceSettings, ScopedVars } from '@grafana/data';
+import { getTemplateSrv } from '@grafana/runtime';
 import { GenericError } from '../../common/types/errors';
 import { DataSourceBase } from '../../datasources/lib/pmapi/datasource_base';
 import { Poller } from '../../datasources/lib/pmapi/poller/poller';

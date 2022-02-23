@@ -1,8 +1,8 @@
-import { Button, VerticalGroup } from '@grafana/ui';
 import React from 'react';
 import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
+import { Button, VerticalGroup } from '@grafana/ui';
 import { RootState } from '../../store/reducer';
 import { querySearch } from '../../store/slices/search/shared/actionCreators';
 import { setView } from '../../store/slices/search/slices/view/actionCreators';

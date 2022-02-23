@@ -1,7 +1,7 @@
-import { GrafanaThemeType } from '@grafana/data';
-import { getTheme } from '@grafana/ui';
 import { render, shallow } from 'enzyme';
 import React from 'react';
+import { GrafanaThemeType } from '@grafana/data';
+import { getTheme } from '@grafana/ui';
 import { EntityType, TextItemResponse } from '../../../../common/services/pmsearch/types';
 import { SearchResult } from './SearchResult';
 

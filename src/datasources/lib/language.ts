@@ -1,4 +1,5 @@
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
+
 // this prevents monaco from being included in the redis datasource
 // (it it already in its own chunk in vendors~monaco-editor.js)
 declare const monaco: typeof Monaco;

@@ -1,6 +1,6 @@
-import { Button, HorizontalGroup, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
 import React from 'react';
 import { connect } from 'react-redux';
+import { Button, HorizontalGroup, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
 import { EntityType } from '../../../../../common/services/pmsearch/types';
 import Card from '../../../components/Card/Card';
 import Loader from '../../../components/Loader/Loader';

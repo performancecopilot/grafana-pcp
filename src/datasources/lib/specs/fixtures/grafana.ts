@@ -1,7 +1,7 @@
-import { DataQuery, DataQueryRequest, dateTimeParse, TimeRange } from '@grafana/data';
-import { FetchResponse } from '@grafana/runtime';
 import { defaultsDeep } from 'lodash';
 import { DeepPartial } from 'utility-types';
+import { DataQuery, DataQueryRequest, dateTimeParse, TimeRange } from '@grafana/data';
+import { FetchResponse } from '@grafana/runtime';
 
 export function timeRange(): TimeRange {
     return {

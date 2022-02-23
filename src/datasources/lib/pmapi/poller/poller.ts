@@ -4,16 +4,16 @@
  * Coalesces requests of multiple metrics into a single REST API call (metadata and fetch)
  * All metric related requests happen in the background, to use the same PCP Context and fetch multiple metrics at once
  */
-
-import { DataQueryRequest } from '@grafana/data';
 import { difference, remove, uniq } from 'lodash';
 import { getLogger } from 'loglevel';
+import { DataQueryRequest } from '@grafana/data';
 import { PmApiService } from '../../../../common/services/pmapi/PmApiService';
 import { MetricNotFoundError } from '../../../../common/services/pmapi/types';
 import { PmSeriesApiService } from '../../../../common/services/pmseries/PmSeriesApiService';
 import { NetworkError } from '../../../../common/types/errors';
 import { MinimalPmapiQuery, PmapiQuery, Target, TargetState } from '../types';
 import { Endpoint, EndpointState, EndpointWithCtx, Metric, QueryResult } from './types';
+
 const log = getLogger('poller');
 
 interface PollerHooks {

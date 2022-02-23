@@ -1,8 +1,8 @@
-import { MetricFindValue } from '@grafana/data';
-import { getTemplateSrv } from '@grafana/runtime';
 import { cloneDeep, uniqueId } from 'lodash';
 import { getLogger } from 'loglevel';
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { MetricFindValue } from '@grafana/data';
+import { getTemplateSrv } from '@grafana/runtime';
 import { MonacoLanguageDefinition } from '../../../components/monaco/MonacoEditorWrapper';
 import { findToken, getTokenValues, TokenValue } from '../../lib/language';
 import { PCPRedisDataSource } from '../datasource';

@@ -1,6 +1,6 @@
-import { Spinner, Themeable, withTheme } from '@grafana/ui';
 import { css, cx } from 'emotion';
 import React from 'react';
+import { Spinner, Themeable, withTheme } from '@grafana/ui';
 import { spinner, spinnerContainer, spinnerOuter } from './styles';
 
 export interface LoaderBasicProps {

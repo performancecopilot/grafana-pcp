@@ -1,5 +1,5 @@
-import { Button, HorizontalGroup, Themeable, withTheme } from '@grafana/ui';
 import React from 'react';
+import { Button, HorizontalGroup, Themeable, withTheme } from '@grafana/ui';
 import { TextItemResponse } from '../../../../common/services/pmsearch/types';
 import Card from '../Card/Card';
 import {

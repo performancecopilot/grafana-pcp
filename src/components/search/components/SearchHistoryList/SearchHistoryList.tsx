@@ -1,6 +1,6 @@
-import { Button, VerticalGroup } from '@grafana/ui';
 import { cx } from 'emotion';
 import React from 'react';
+import { Button, VerticalGroup } from '@grafana/ui';
 import { SearchQuery } from '../../store/slices/search/shared/state';
 import { wrappedBtn } from '../../styles';
 import { SearchEntityUtil } from '../../utils/SearchEntityUtil';

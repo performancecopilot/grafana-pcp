@@ -1,7 +1,7 @@
-import { Themeable, withTheme } from '@grafana/ui';
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import React, { PureComponent } from 'react';
 import MonacoEditor, { MonacoEditorProps } from 'react-monaco-editor';
+import { Themeable, withTheme } from '@grafana/ui';
 
 export interface MonacoLanguageDefinition {
     /** unique language ID.

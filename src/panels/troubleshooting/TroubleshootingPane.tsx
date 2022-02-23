@@ -1,8 +1,8 @@
+import { cx } from 'emotion';
+import React from 'react';
 import { DataFrame, FieldType, GrafanaTheme, PanelData } from '@grafana/data';
 import { getLocationSrv } from '@grafana/runtime';
 import { Button, Icon, IconButton, Modal, useTheme, VerticalGroup } from '@grafana/ui';
-import { cx } from 'emotion';
-import React from 'react';
 import {
     button,
     buttons,

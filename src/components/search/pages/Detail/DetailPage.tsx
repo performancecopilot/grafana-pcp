@@ -1,7 +1,7 @@
-import { SelectableValue } from '@grafana/data';
-import { getLocationSrv, LocationSrv } from '@grafana/runtime';
 import React from 'react';
 import { connect } from 'react-redux';
+import { SelectableValue } from '@grafana/data';
+import { getLocationSrv, LocationSrv } from '@grafana/runtime';
 import { EntityType } from '../../../../common/services/pmsearch/types';
 import { RootState } from '../../store/reducer';
 import { addBookmark, removeBookmark } from '../../store/slices/search/slices/bookmarks/actionCreators';

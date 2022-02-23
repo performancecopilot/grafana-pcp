@@ -1,6 +1,6 @@
-import { Button, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
 import { cx } from 'emotion';
 import React from 'react';
+import { Button, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
 import { EntityType } from '../../../../common/services/pmsearch/types';
 import { BookmarkItem } from '../../store/slices/search/slices/bookmarks/state';
 import { bookmarkListBtnWithNoSpacing, bookmarkListContainer, bookmarkListContainerMultiCol } from './styles';

@@ -1,8 +1,8 @@
-import { VerticalGroup } from '@grafana/ui';
 import React from 'react';
 import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
+import { VerticalGroup } from '@grafana/ui';
 import BookmarkList from '../../components/BookmarkList/BookmarkList';
 import Card from '../../components/Card/Card';
 import SearchHistoryList from '../../components/SearchHistoryList/SearchHistoryList';

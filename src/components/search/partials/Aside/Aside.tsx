@@ -1,9 +1,9 @@
-import { Button, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
 import { cx } from 'emotion';
 import React from 'react';
 import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
+import { Button, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
 import { EntityType } from '../../../../common/services/pmsearch/types';
 import BookmarkList from '../../components/BookmarkList/BookmarkList';
 import Loader from '../../components/Loader/Loader';

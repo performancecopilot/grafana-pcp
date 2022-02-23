@@ -1,6 +1,6 @@
+import React from 'react';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { DataSourceHttpSettings } from '@grafana/ui';
-import React from 'react';
 import { RedisOptions } from '../types';
 
 export type Props = DataSourcePluginOptionsEditorProps<RedisOptions>;

@@ -1,6 +1,6 @@
-import { BackendSrv, BackendSrvRequest, FetchResponse } from '@grafana/runtime';
 import { defaults, has } from 'lodash';
 import { firstValueFrom } from 'rxjs';
+import { BackendSrv, BackendSrvRequest, FetchResponse } from '@grafana/runtime';
 import { SearchEntityUtil } from '../../../components/search/utils/SearchEntityUtil';
 import { NetworkError } from '../../types/errors';
 import { DefaultRequestOptions, getRequestOptions, timeout, TimeoutError } from '../../utils';

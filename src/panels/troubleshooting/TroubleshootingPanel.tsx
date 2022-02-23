@@ -1,8 +1,8 @@
+import React from 'react';
 import { PanelProps } from '@grafana/data';
 import { TimeSeries, TooltipPlugin, ZoomPlugin } from '@grafana/ui';
-import React from 'react';
-import { graphWrapper, notUsableContainer } from './styles';
 import { TroubleshootingPane } from './TroubleshootingPane';
+import { graphWrapper, notUsableContainer } from './styles';
 import { Options } from './types';
 
 interface Props extends PanelProps<Options> {}

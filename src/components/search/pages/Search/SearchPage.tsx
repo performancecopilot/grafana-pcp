@@ -1,9 +1,9 @@
-import { HorizontalGroup, Pagination, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
 import { getLogger } from 'loglevel';
 import React from 'react';
 import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
+import { HorizontalGroup, Pagination, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
 import { EntityType, TextItemResponse } from '../../../../common/services/pmsearch/types';
 import Loader from '../../components/Loader/Loader';
 import SearchResult from '../../components/SearchResult/SearchResult';
@@ -12,6 +12,7 @@ import { openDetail, querySearch } from '../../store/slices/search/shared/action
 import { FetchStatus } from '../../store/slices/search/shared/state';
 import { stripHtml } from '../../utils/utils';
 import { paginationContainer, searchPageElapsed, searchPageMatchesDesc } from './styles';
+
 const log = getLogger('search/SearchPage');
 
 const mapStateToProps = (state: RootState) => ({

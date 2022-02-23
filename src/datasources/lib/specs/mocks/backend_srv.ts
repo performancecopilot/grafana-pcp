@@ -1,6 +1,6 @@
-import { BackendSrv } from '@grafana/runtime';
 import { getLogger } from 'loglevel';
 import { of } from 'rxjs';
+import { BackendSrv } from '@grafana/runtime';
 import * as grafana from '../../../../datasources/lib/specs/fixtures/grafana';
 
 const backendSrvMockLogger = getLogger('backendSrvMock');

@@ -1,8 +1,8 @@
+import { css } from 'emotion';
+import React, { PureComponent } from 'react';
 import { AppPluginMeta, PluginConfigPageProps } from '@grafana/data';
 import { BackendSrv, getBackendSrv } from '@grafana/runtime';
 import { Button, Icon } from '@grafana/ui';
-import { css } from 'emotion';
-import React, { PureComponent } from 'react';
 import { AppSettings } from './types';
 
 interface Props extends PluginConfigPageProps<AppPluginMeta<AppSettings>> {}

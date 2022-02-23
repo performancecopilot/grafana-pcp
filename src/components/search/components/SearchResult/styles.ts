@@ -1,5 +1,5 @@
-import { GrafanaTheme } from '@grafana/data';
 import { css } from 'emotion';
+import { GrafanaTheme } from '@grafana/data';
 
 const searchResultItem = css`
     width: 100%;

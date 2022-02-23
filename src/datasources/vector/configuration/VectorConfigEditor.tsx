@@ -1,8 +1,9 @@
+import React, { SyntheticEvent } from 'react';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { DataSourceHttpSettings, EventsWithValidation, LegacyForms, regexValidation } from '@grafana/ui';
-import React, { SyntheticEvent } from 'react';
 import { Config } from '../config';
 import { VectorOptions } from '../types';
+
 const { Input, FormField } = LegacyForms;
 
 export type Props = DataSourcePluginOptionsEditorProps<VectorOptions>;

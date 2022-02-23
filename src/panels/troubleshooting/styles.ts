@@ -1,5 +1,5 @@
-import { GrafanaTheme } from '@grafana/data';
 import { css } from 'emotion';
+import { GrafanaTheme } from '@grafana/data';
 
 export const graphWrapper = css`
     position: relative;

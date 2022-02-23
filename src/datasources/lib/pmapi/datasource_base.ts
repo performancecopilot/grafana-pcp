@@ -1,3 +1,4 @@
+import { getLogger } from 'loglevel';
 import {
     DataQueryRequest,
     DataQueryResponse,
@@ -7,7 +8,6 @@ import {
     ScopedVars,
 } from '@grafana/data';
 import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
-import { getLogger } from 'loglevel';
 import { PmApiService } from '../../../common/services/pmapi/PmApiService';
 import { PmSeriesApiService } from '../../../common/services/pmseries/PmSeriesApiService';
 import { GenericError } from '../../../common/types/errors';
@@ -16,6 +16,7 @@ import { processQueries } from './data_processor';
 import { Poller } from './poller/poller';
 import { QueryResult } from './poller/types';
 import { MinimalPmapiQuery, PmapiDefaultOptions, PmapiOptions, PmapiQuery } from './types';
+
 const log = getLogger('datasource_base');
 
 export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends PmapiOptions> extends DataSourceApi<Q, O> {

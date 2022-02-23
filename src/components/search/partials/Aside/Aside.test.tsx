@@ -1,7 +1,7 @@
-import { GrafanaThemeType } from '@grafana/data';
-import { getTheme } from '@grafana/ui';
 import { shallow } from 'enzyme';
 import React from 'react';
+import { GrafanaThemeType } from '@grafana/data';
+import { getTheme } from '@grafana/ui';
 import { EntityType, SearchEntity } from '../../../../common/services/pmsearch/types';
 import { OpenDetailActionCreator } from '../../store/slices/search/shared/actionCreators';
 import { FetchStatus } from '../../store/slices/search/shared/state';

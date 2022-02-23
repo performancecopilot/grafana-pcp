@@ -1,5 +1,6 @@
 import { TextResponse } from '../../../../../../../common/services/pmsearch/types';
 import { FetchStatus, TrackableStatus } from '../../shared/state';
+
 export interface ResultData {
     data: TextResponse | null;
     error?: any;
