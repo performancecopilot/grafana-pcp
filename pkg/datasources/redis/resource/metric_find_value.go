@@ -30,6 +30,10 @@ func (rs *Service) getMetricNames(pattern string) ([]MetricFindValue, error) {
 }
 
 func (rs *Service) getLabelNames(pattern string) ([]MetricFindValue, error) {
+	if pattern == "" {
+		pattern = "*"
+	}
+
 	labelNamesResponse, err := rs.pmseriesAPI.LabelNames(pattern)
 	if err != nil {
 		return nil, err

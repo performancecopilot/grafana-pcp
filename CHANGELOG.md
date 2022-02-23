@@ -3,6 +3,7 @@
 ## 4.0.0 (unreleased)
 
 - **redis**: use LRU cache for series metadata
+- **redis**: fix label_names() function to return all label names if no parameter is specified (now the label name auto-completion in the query editor works again)
 - **chore**: upgrade Grafana dependencies to version 8.4.1
 
 
