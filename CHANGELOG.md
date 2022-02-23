@@ -3,6 +3,7 @@
 ## 4.0.0 (unreleased)
 
 - **redis**: use LRU cache for series metadata
+- **chore**: upgrade Grafana dependencies to version 8.4.1
 
 
 ## 3.2.1 (2021-11-24)

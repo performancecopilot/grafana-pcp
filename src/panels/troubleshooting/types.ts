@@ -1,4 +1,4 @@
-import { GraphTooltipOptions, VizLegendOptions } from '@grafana/ui';
+import { VizLegendOptions, VizTooltipOptions } from '@grafana/ui';
 
 export enum PredicateOperator {
     LesserThan = '<',
@@ -52,5 +52,5 @@ export interface TroubleshootingInfo {
 export interface Options {
     troubleshooting: TroubleshootingInfo;
     legend: VizLegendOptions;
-    tooltipOptions: GraphTooltipOptions;
+    tooltipOptions: VizTooltipOptions;
 }

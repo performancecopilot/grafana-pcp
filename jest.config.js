@@ -8,6 +8,13 @@ const standard = require('@grafana/toolkit/src/config/jest.plugin.config');
 const defaultConfig = standard.jestConfig();
 module.exports = {
     ...defaultConfig,
+    moduleNameMapper: {
+        ...defaultConfig.moduleNameMapper,
+        // workaround for:
+        // @grafana/toolkit/src/config/react-inlinesvg.tsx:5
+        // SyntaxError: Cannot use import statement outside a module
+        'react-inlinesvg': undefined,
+    },
     transformIgnorePatterns: [
         ...defaultConfig.transformIgnorePatterns,
         // required for d3-flame-graph (uses ES6 syntax)

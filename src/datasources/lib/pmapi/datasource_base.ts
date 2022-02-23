@@ -59,7 +59,7 @@ export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends Pmap
         });
     }
 
-    filterQuery(query: PmapiQuery): boolean {
+    filterPmapiQuery(query: PmapiQuery): boolean {
         // remove targets with container hostspec set to empty string
         // happens in the Vector Container Overview dashboard, when selecting "All" and no containers are present
         // $container gets replaced with "", and then PCP returns values for all cgroups
@@ -138,7 +138,7 @@ export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends Pmap
 
         const queryResults = request.targets
             .map(query => this.buildPmapiQuery(query, request.scopedVars))
-            .filter(this.filterQuery) // filter after applying template variables (maybe a template variable is empty)
+            .filter(this.filterPmapiQuery) // filter after applying template variables (maybe a template variable is empty)
             .map(query => this.poller?.query(request, query))
             .filter(result => result !== null) as QueryResult[];
         const data = processQueries(request, queryResults, this.poller.state.refreshIntervalMs / 1000);
@@ -167,7 +167,7 @@ export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends Pmap
                 status: 'success',
                 message: `Data source is working, using Performance Co-Pilot ${pmcdVersionMetric.values[0].instances[0].value}`,
             };
-        } catch (error) {
+        } catch (error: any) {
             return {
                 status: 'error',
                 message: `${error.message}. To use this data source, please configure the URL in the query editor.`,

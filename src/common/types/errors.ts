@@ -10,17 +10,10 @@ export class GenericError extends Error {
     }
 }
 
-interface FetchError {
-    config: any;
-    data: any;
-    status: number;
-    statusText: string;
-}
-
 export class NetworkError extends GenericError {
     data?: { message?: string };
 
-    constructor(error: TypeError | FetchError) {
+    constructor(error: any) {
         let message;
 
         /**

@@ -270,7 +270,7 @@ export class Poller {
         );
     }
 
-    isContextHasExpiredError(error: Error) {
+    isContextHasExpiredError(error: unknown) {
         return (
             error instanceof NetworkError &&
             (error.data?.message?.includes('unknown context identifier') ||
