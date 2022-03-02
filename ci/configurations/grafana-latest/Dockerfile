@@ -8,6 +8,6 @@ COPY . /usr/src/app
 RUN make build
 
 
-FROM docker.io/grafana/grafana:7.5.15
-COPY docker/root/etc/grafana/grafana.ini /etc/grafana/grafana.ini
+FROM docker.io/grafana/grafana
+COPY ci/configurations/grafana-8.4/grafana.ini /etc/grafana/grafana.ini
 COPY --from=builder /usr/src/app/dist /var/lib/grafana/plugins/performancecopilot-pcp-app

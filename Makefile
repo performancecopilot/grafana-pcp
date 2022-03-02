@@ -99,7 +99,7 @@ test: test-frontend test-backend ## Run all tests
 ##@ E2E tests
 
 test-e2e-build-container:
-	podman image exists grafana-pcp-e2e || podman build -t grafana-pcp-e2e .
+	podman image exists grafana-pcp-e2e || podman build -t grafana-pcp-e2e -f ci/configurations/grafana-latest/Dockerfile .
 
 test-e2e-start-container: test-e2e-build-container
 	-podman rm -f grafana-pcp-e2e

@@ -49,6 +49,6 @@ jobs:
       continue-on-error: true
 
     - name: Create GitHub release
-      run: scripts/github-release.sh
+      run: ci/scripts/github-release.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

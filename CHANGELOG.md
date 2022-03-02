@@ -10,6 +10,7 @@
 - **chore**: upgrade Grafana dependencies to version 8.4.1
 - **chore**: refactor custom Monaco languages
 - **build**: verify javascript size in Makefile
+- **ci**: move scripts and Dockerfile to ci/ directory, allow multiple configurations
 
 ### Removed features
 - **redis**: The `label_values(metric, label)` Grafana variable query function is now removed (was deprecated since grafana-pcp v3)
