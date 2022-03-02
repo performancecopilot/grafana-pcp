@@ -47,6 +47,7 @@
     "jest-date-mock": "^1.0.8",
     "jest-puppeteer": "^5.0.4",
     "prettier-plugin-organize-imports": "^2.1.0",
+    "monaco-editor-webpack-plugin": "^7.0.1",
     "puppeteer": "^10.0.0",
     "utility-types": "^3.10.0"
   },
@@ -60,7 +61,9 @@
     "loglevel": "^1.6.8",
     "loglevel-plugin-prefix": "^0.8.4",
     "memoize-one": "^5.1.1",
+    "monaco-editor": "^0.32.1",
     "react-autosuggest": "^10.0.2",
+    "react-monaco-editor": "^0.47.0",
     "react-redux": "^7.2.0",
     "react-use": "^15.3.4",
     "redux": "^4.0.5",

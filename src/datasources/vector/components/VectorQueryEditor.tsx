@@ -4,12 +4,13 @@ import React, { PureComponent } from 'react';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { InlineFormLabel, Select } from '@grafana/ui';
 import { isBlank } from '../../../common/utils';
+import { Monaco } from '../../../components/monaco';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
 import { TargetFormat } from '../../../datasources/lib/types';
 import { PmapiQueryOptions } from '../../lib/pmapi/types';
 import { PCPVectorDataSource } from '../datasource';
 import { defaultVectorQuery, VectorOptions, VectorQuery } from '../types';
-import { PmapiLanguageDefinition } from './PmapiLanguageDefiniton';
+import { registerLanguage } from './language/PmapiLanguage';
 
 type Props = QueryEditorProps<PCPVectorDataSource, VectorQuery, VectorOptions>;
 
@@ -29,8 +30,6 @@ interface State {
 }
 
 export class VectorQueryEditor extends PureComponent<Props, State> {
-    languageDefinition: PmapiLanguageDefinition;
-
     constructor(props: Props) {
         super(props);
         const query = defaultsDeep({}, this.props.query, defaultVectorQuery);
@@ -45,7 +44,6 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
             url: query.url,
             hostspec: query.hostspec,
         };
-        this.languageDefinition = new PmapiLanguageDefinition(this.props.datasource, this.getQuery);
     }
 
     onExprChange = (expr: string) => {
@@ -91,14 +89,26 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         this.props.onRunQuery();
     };
 
+    getLanguageId = () => {
+        // there can be multiple Monaco query editors on the same page, each with
+        // a different hostspec and therefore different completions
+        const { url, hostspec } = this.props.datasource.getUrlAndHostspec(this.getQuery());
+        return `pmapi@${url}@${hostspec}`;
+    };
+
+    onEditorWillMount = (monaco: Monaco) => {
+        registerLanguage(monaco, this.getLanguageId(), this.props.datasource, this.getQuery);
+    };
+
     render() {
         return (
             <div>
                 <MonacoEditorLazy
-                    languageDefinition={this.languageDefinition}
+                    language={this.getLanguageId()}
                     alwaysShowHelpText={true}
                     height="60px"
                     value={this.state.expr}
+                    editorWillMount={this.onEditorWillMount}
                     onBlur={this.onExprChange}
                     onSave={this.onExprChange}
                 />

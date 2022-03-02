@@ -4,11 +4,12 @@ import React, { PureComponent } from 'react';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { InlineFormLabel, Select } from '@grafana/ui';
 import { isBlank } from '../../../common/utils';
+import { Monaco } from '../../../components/monaco';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
 import { TargetFormat } from '../../../datasources/lib/types';
 import { PCPBPFtraceDataSource } from '../datasource';
 import { BPFtraceOptions, BPFtraceQuery, defaultBPFtraceQuery } from '../types';
-import { BPFtraceLanguageDefinition } from './BPFtraceLanguageDefinition';
+import { registerLanguage } from './language/BPFtraceLanguage';
 
 type Props = QueryEditorProps<PCPBPFtraceDataSource, BPFtraceQuery, BPFtraceOptions>;
 
@@ -28,7 +29,6 @@ interface State {
 }
 
 export class BPFtraceQueryEditor extends PureComponent<Props, State> {
-    languageDefinition: BPFtraceLanguageDefinition;
     // don't create this object in the render method, otherwise it causes a componentDidUpdate() everytime
     editorOptions: { lineNumbers: 'on'; folding: boolean };
 
@@ -42,7 +42,6 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
             url: query.url,
             hostspec: query.hostspec,
         };
-        this.languageDefinition = new BPFtraceLanguageDefinition(this.props.datasource, this.getQuery);
         this.editorOptions = {
             lineNumbers: 'on',
             folding: true,
@@ -88,15 +87,27 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
         this.props.onRunQuery();
     };
 
+    getLanguageId = () => {
+        // there can be multiple Monaco query editors on the same page, each with
+        // a different hostspec and therefore different completions
+        const { url, hostspec } = this.props.datasource.getUrlAndHostspec(this.getQuery());
+        return `bpftrace@${url}@${hostspec}`;
+    };
+
+    onEditorWillMount = (monaco: Monaco) => {
+        registerLanguage(monaco, this.getLanguageId(), this.props.datasource, this.getQuery);
+    };
+
     render() {
         return (
             <div>
                 <MonacoEditorLazy
-                    languageDefinition={this.languageDefinition}
+                    language={this.getLanguageId()}
                     alwaysShowHelpText={true}
                     height="300px"
                     options={this.editorOptions}
                     value={this.state.expr}
+                    editorWillMount={this.onEditorWillMount}
                     onBlur={this.onExprChange}
                     onSave={this.onExprChange}
                 />

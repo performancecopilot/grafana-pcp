@@ -1,8 +1,4 @@
-import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
-
-// this prevents monaco from being included in the redis datasource
-// (it it already in its own chunk in vendors~monaco-editor.js)
-declare const monaco: typeof Monaco;
+import { Monaco, MonacoType } from '../../components/monaco';
 
 export interface TokenValue {
     offset: number;
@@ -10,14 +6,15 @@ export interface TokenValue {
     type: string;
     value: string;
 }
-export function getTokenValues(model: Monaco.editor.ITextModel, position: Monaco.Position) {
+
+export function getTokenValues(monaco: Monaco, model: MonacoType.editor.ITextModel, position: MonacoType.Position) {
     const value = model.getValueInRange({
         startLineNumber: 0,
         startColumn: 0,
         endLineNumber: position.lineNumber,
         endColumn: model.getLineMaxColumn(position.lineNumber),
     });
-    const tokens = monaco.editor.tokenize(value, model.getModeId());
+    const tokens = monaco.editor.tokenize(value, model.getLanguageId());
 
     const tokenValues: TokenValue[] = [];
     for (let line = 0; line < tokens.length; line++) {

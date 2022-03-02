@@ -4,11 +4,12 @@ import React, { PureComponent } from 'react';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { InlineFormLabel, Select } from '@grafana/ui';
 import { isBlank } from '../../../common/utils';
+import { Monaco } from '../../../components/monaco';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
 import { TargetFormat } from '../../../datasources/lib/types';
 import { PCPRedisDataSource } from '../datasource';
 import { defaultRedisQuery, RedisOptions, RedisQuery, RedisQueryOptions } from '../types';
-import { PmseriesLanguageDefiniton } from './PmseriesLanguageDefiniton';
+import { registerLanguage } from './language/PmseriesLanguage';
 
 type Props = QueryEditorProps<PCPRedisDataSource, RedisQuery, RedisOptions>;
 
@@ -25,8 +26,6 @@ interface State {
 }
 
 export class RedisQueryEditor extends PureComponent<Props, State> {
-    languageDefinition: PmseriesLanguageDefiniton;
-
     constructor(props: Props) {
         super(props);
         const query = defaultsDeep({}, this.props.query, defaultRedisQuery);
@@ -39,7 +38,6 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
                 timeUtilizationConversion: query.options.rateConversion,
             },
         };
-        this.languageDefinition = new PmseriesLanguageDefiniton(this.props.datasource);
     }
 
     onExprChange = (expr: string) => {
@@ -78,14 +76,25 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
         this.props.onRunQuery();
     };
 
+    getLanguageId = () => {
+        // there can be multiple Monaco query editors on the same page, each with
+        // a different datasource (i.e. different pmproxy URL) and therefore different completions
+        return `pmseries${this.props.datasource.id}`;
+    };
+
+    onEditorWillMount = (monaco: Monaco) => {
+        registerLanguage(monaco, this.getLanguageId(), this.props.datasource);
+    };
+
     render() {
         return (
             <div>
                 <MonacoEditorLazy
-                    languageDefinition={this.languageDefinition}
+                    language={this.getLanguageId()}
                     alwaysShowHelpText={true}
                     height="60px"
                     value={this.state.expr}
+                    editorWillMount={this.onEditorWillMount}
                     onBlur={this.onExprChange}
                     onSave={this.onExprChange}
                 />
