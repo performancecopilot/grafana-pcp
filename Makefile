@@ -53,6 +53,9 @@ build-dashboards: $(shell find src -name '*.jsonnet' | sed -E 's@src/(.+)\.jsonn
 build-frontend: deps-frontend ## Build frontend datasources
 	yarn run build
 
+	# check for javascript greater than 1 MB
+	test $$(find dist/ -name '*.js' -size +1024k | wc -l) -eq 1 || exit 1
+
 GO_LD_FLAGS := -w -s -extldflags "-static"
 build-backend: deps-backend ## Build backend datasource
 	#mage buildAll
