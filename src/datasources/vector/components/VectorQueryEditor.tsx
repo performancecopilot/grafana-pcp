@@ -39,7 +39,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
             legendFormat: query.legendFormat,
             options: {
                 rateConversion: query.options.rateConversion,
-                timeUtilizationConversion: query.options.rateConversion,
+                timeUtilizationConversion: query.options.timeUtilizationConversion,
             },
             url: query.url,
             hostspec: query.hostspec,
@@ -69,6 +69,16 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         this.setState({ hostspec }, this.runQuery);
     };
 
+    onRateConversionChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+        const rateConversion = (event.target as HTMLInputElement).checked;
+        this.setState({ options: { ...this.state.options, rateConversion } }, this.runQuery);
+    };
+
+    onTimeUtilizationConversionChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+        const timeUtilizationConversion = (event.target as HTMLInputElement).checked;
+        this.setState({ options: { ...this.state.options, timeUtilizationConversion } }, this.runQuery);
+    };
+
     getQuery = (): VectorQuery => {
         return {
             refId: this.props.query.refId,
@@ -77,7 +87,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
             legendFormat: this.state.legendFormat,
             options: {
                 rateConversion: this.state.options.rateConversion,
-                timeUtilizationConversion: this.state.options.rateConversion,
+                timeUtilizationConversion: this.state.options.timeUtilizationConversion,
             },
             url: this.state.url,
             hostspec: this.state.hostspec,
@@ -145,6 +155,22 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
                         />
                     </InlineField>
 
+                    <InlineField label="Rate Conversion" tooltip="Counter metrics will be converted to a rate">
+                        <InlineSwitch
+                            value={this.state.options.rateConversion}
+                            onChange={this.onRateConversionChange}
+                        />
+                    </InlineField>
+
+                    <InlineField
+                        label="Time Utilization Conversion"
+                        tooltip="Time-based counter metrics will be converted to a utilization (for example kernel.all.cpu.user)"
+                    >
+                        <InlineSwitch
+                            value={this.state.options.timeUtilizationConversion}
+                            onChange={this.onTimeUtilizationConversionChange}
+                        />
+                    </InlineField>
                 </InlineFieldRow>
 
                 <InlineFieldRow>
