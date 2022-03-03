@@ -2,7 +2,7 @@ import { css, cx } from 'emotion';
 import { defaultsDeep } from 'lodash';
 import React, { PureComponent } from 'react';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { InlineFormLabel, Select } from '@grafana/ui';
+import { InlineField, InlineFieldRow, Input, Select } from '@grafana/ui';
 import { isBlank } from '../../../common/utils';
 import { Monaco } from '../../../components/monaco';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
@@ -112,35 +112,29 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
                     onSave={this.onExprChange}
                 />
 
-                <div
+                <InlineFieldRow
                     className={cx(
-                        'gf-form-inline',
                         css`
                             margin-top: 6px;
                         `
                     )}
                 >
-                    <div className="gf-form">
-                        <InlineFormLabel
-                            width={7}
-                            tooltip="Controls the name of the time series, using name or pattern. For example
+                    <InlineField
+                        label="Legend"
+                        tooltip="Controls the name of the time series, using name or pattern. For example
                             $instance will be replaced with the instance name.
                             Available variables: $metric, $metric0, $instance and $labelName."
-                        >
-                            Legend
-                        </InlineFormLabel>
-                        <input
-                            type="text"
-                            className="gf-form-input"
+                        labelWidth={7}
+                    >
+                        <Input
                             placeholder="legend format"
                             value={this.state.legendFormat}
                             onChange={this.onLegendFormatChange}
                             onBlur={this.runQuery}
                         />
-                    </div>
+                    </InlineField>
 
-                    <div className="gf-form">
-                        <div className="gf-form-label">Format</div>
+                    <InlineField label="Format">
                         <Select
                             className="width-9"
                             isSearchable={false}
@@ -148,42 +142,34 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
                             value={this.state.format}
                             onChange={this.onFormatChange}
                         />
-                    </div>
+                    </InlineField>
 
-                    <div className="gf-form">
-                        <InlineFormLabel
-                            width={5}
-                            tooltip="Override the URL to pmproxy for this panel. Useful in combination with templating."
-                        >
-                            URL
-                        </InlineFormLabel>
-                        <input
-                            type="text"
-                            className="gf-form-input"
+                    <InlineField
+                        label="URL"
+                        tooltip="Override the URL to pmproxy for this panel. Useful in combination with templating."
+                        labelWidth={10}
+                    >
+                        <Input
                             placeholder="override URL"
                             value={this.state.url}
                             onChange={this.onURLChange}
                             onBlur={this.runQuery}
                         />
-                    </div>
+                    </InlineField>
 
-                    <div className="gf-form">
-                        <InlineFormLabel
-                            width={9}
-                            tooltip="Override the host specification for this panel. Useful for monitoring remote hosts."
-                        >
-                            Host specification
-                        </InlineFormLabel>
-                        <input
-                            type="text"
-                            className="gf-form-input"
+                    <InlineField
+                        label="Host specification"
+                        tooltip="Override the host specification for this panel. Useful for monitoring remote hosts."
+                        labelWidth={18}
+                    >
+                        <Input
                             placeholder="override host specification"
                             value={this.state.hostspec}
                             onChange={this.onHostspecChange}
                             onBlur={this.runQuery}
                         />
-                    </div>
-                </div>
+                    </InlineField>
+                </InlineFieldRow>
             </div>
         );
     }

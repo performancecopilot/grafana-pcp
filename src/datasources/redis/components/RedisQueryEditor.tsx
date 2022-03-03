@@ -2,7 +2,7 @@ import { css, cx } from 'emotion';
 import { defaultsDeep } from 'lodash';
 import React, { PureComponent } from 'react';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { InlineFormLabel, Select } from '@grafana/ui';
+import { Select, InlineFieldRow, InlineField, InlineSwitch, Input } from '@grafana/ui';
 import { isBlank } from '../../../common/utils';
 import { Monaco } from '../../../components/monaco';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
@@ -99,35 +99,29 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
                     onSave={this.onExprChange}
                 />
 
-                <div
+                <InlineFieldRow
                     className={cx(
-                        'gf-form-inline',
                         css`
                             margin-top: 6px;
                         `
                     )}
                 >
-                    <div className="gf-form">
-                        <InlineFormLabel
-                            width={7}
-                            tooltip="Controls the name of the time series, using name or pattern. For example
+                    <InlineField
+                        label="Legend"
+                        tooltip="Controls the name of the time series, using name or pattern. For example
                             $instance will be replaced with the instance name.
                             Available variables: $metric, $metric0, $instance and $labelName."
-                        >
-                            Legend
-                        </InlineFormLabel>
-                        <input
-                            type="text"
-                            className="gf-form-input"
+                        labelWidth={14}
+                    >
+                        <Input
                             placeholder="legend format"
                             value={this.state.legendFormat}
                             onChange={this.onLegendFormatChange}
                             onBlur={this.runQuery}
                         />
-                    </div>
+                    </InlineField>
 
-                    <div className="gf-form">
-                        <div className="gf-form-label">Format</div>
+                    <InlineField label="Format">
                         <Select
                             className="width-9"
                             isSearchable={false}
@@ -135,8 +129,8 @@ export class RedisQueryEditor extends PureComponent<Props, State> {
                             value={this.state.format}
                             onChange={this.onFormatChange}
                         />
-                    </div>
-                </div>
+                    </InlineField>
+                </InlineFieldRow>
             </div>
         );
     }

@@ -10,6 +10,7 @@
 - **bpftrace**: disable scrolling beyond last line in query editor
 - **chore**: upgrade Grafana dependencies to version 8.4.1
 - **chore**: refactor custom Monaco languages
+- **chore**: use new @grafana/ui form components in query editor
 - **build**: verify javascript size in Makefile
 - **ci**: move scripts and Dockerfile to ci/ directory, allow multiple configurations
 
