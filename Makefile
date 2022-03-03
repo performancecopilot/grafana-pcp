@@ -6,6 +6,7 @@ GRAFANA_PLUGIN_ID := $(shell jq -r '.id' src/plugin.json)
 GRAFANA_PLUGIN_VERSION := $(shell jq -r '.version' package.json)
 GRAFANA_PLUGIN_ARTIFACT := $(GRAFANA_PLUGIN_ID)-$(GRAFANA_PLUGIN_VERSION).zip
 GRAFANA_PLUGIN_ARTIFACT_CHECKSUM := $(GRAFANA_PLUGIN_ARTIFACT).md5
+GRAFANA_IMAGE := docker.io/grafana/grafana
 
 
 ##@ Dependencies
@@ -96,20 +97,29 @@ test-backend-coverage: deps-backend ## Run backend tests with coverage
 test: test-frontend test-backend ## Run all tests
 
 
-##@ E2E tests
+##@ UI tests
 
-test-e2e-build-container:
-	podman image exists grafana-pcp-e2e || podman build -t grafana-pcp-e2e -f ci/configurations/grafana-latest/Dockerfile .
+test-ui-start-pod: ## Start PCP and Redis in a pod
+	-podman pod rm -f grafana-pcp-tests
+	podman pod create --name grafana-pcp-tests -p 3001:3000
+	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-pcp -d --systemd always quay.io/performancecopilot/pcp
+	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-redis -d docker.io/library/redis:6
 
-test-e2e-start-container: test-e2e-build-container
-	-podman rm -f grafana-pcp-e2e
-	podman run -d -p 3001:3000 --name grafana-pcp-e2e grafana-pcp-e2e
+test-ui-start-grafana-dist: ## Start Grafana with grafana-pcp from the dist/ folder
+	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-grafana -d --replace \
+		-e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel" \
+		-v $$(pwd)/dist:/var/lib/grafana/plugins/performancecopilot-pcp-app \
+		$(GRAFANA_IMAGE)
 
-test-e2e: test-e2e-start-container ## Run End-to-End tests
-	GRAFANA_URL="http://127.0.0.1:3001" node_modules/.bin/jest --config jest.config.e2e.js --runInBand
+test-ui-start-grafana-build: ## Start Grafana with grafana-pcp from build/performancecopilot-pcp-app-*.zip
+	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-grafana -d --replace \
+		-e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel" \
+		-e GF_INSTALL_PLUGINS="/tmp/plugin.zip;performancecopilot-pcp-app" \
+		-v $$(pwd)/build/$$(basename build/performancecopilot-pcp-app-*.zip):/tmp/plugin.zip \
+		$(GRAFANA_IMAGE)
 
-test-e2e-ui: test-e2e-start-container ## Run End-to-End tests with a browser UI
-	GRAFANA_URL="http://127.0.0.1:3001" HEADLESS=false node_modules/.bin/jest --config jest.config.e2e.js --runInBand
+test-ui: test-ui-start-pod ## Run Cypress UI tests
+	CYPRESS_BASE_URL="http://127.0.0.1:3001" RESET_GRAFANA_CMD="make test-ui-start-grafana-dist" yarn cypress:open
 
 
 ##@ Helpers
@@ -120,7 +130,7 @@ sign: ## Sign the plugin
 jsonnetfmt: ## Run jsonnetfmt on all jsonnet files
 	jsonnetfmt -i $$(find . -name '*.jsonnet')
 
-lint: ## Run Grafana plugincheck on the plugin zip file
+plugincheck: ## Run Grafana plugincheck on the plugin zip file
 	plugincheck build/*.zip
 
 clean: ## Clean all artifacts

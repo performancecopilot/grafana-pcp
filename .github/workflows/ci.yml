@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout sources
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Install jsonnet, jsonnet-bundler and grafana/plugin-validator
       run: |
@@ -40,7 +40,51 @@ jobs:
       continue-on-error: true
 
     - name: Publish build artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: build
         path: build
+
+  uitests:
+    name: 'UI Tests (${{ matrix.grafana_image }})'
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        grafana_image: ['grafana:latest', 'grafana:8.4.3']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download the build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: build
+
+      - name: Start PCP and Redis in a pod
+        run: |
+          # workaround required on GitHub Actions to allow running systemd in rootless containers
+          # https://github.com/actions/virtual-environments/issues/3536
+          # https://github.com/ansible-community/molecule/discussions/3155
+          loginctl enable-linger $(whoami)
+
+          make test-ui-start-pod
+
+      - name: Run UI Tests
+        uses: cypress-io/github-action@v2
+        with:
+          browser: chrome
+        env:
+          CYPRESS_BASE_URL: http://127.0.0.1:3001
+          RESET_GRAFANA_CMD: make GRAFANA_IMAGE=docker.io/grafana/${{ matrix.grafana_image }} test-ui-start-grafana-build
+
+      - name: Publish screenshots and videos from UI tests
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress
+          path: |
+            cypress/screenshots
+            cypress/videos
