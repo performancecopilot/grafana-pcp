@@ -9,6 +9,7 @@
 - **redis**: fix label_names() function to return all label names if no parameter is specified (now the label name auto-completion in the query editor works again)
 - **redis**: remove deprecated `label_values(metric, label)` function
 - **bpftrace**: disable scrolling beyond last line in query editor
+- **checklist**: fix dashboard link in navigation bar
 - **chore**: upgrade Grafana dependencies to version 8.4.1
 - **chore**: refactor custom Monaco languages
 - **chore**: use new @grafana/ui form components in query editor

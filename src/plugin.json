@@ -94,6 +94,7 @@
             "type": "dashboard",
             "name": "PCP Vector Checklist",
             "path": "dashboards/vector/checklist/pcp-vector-checklist.json",
+            "uid": "pcp-vector-checklist",
             "addToNav": true
         },
         {
