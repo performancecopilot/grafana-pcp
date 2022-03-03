@@ -7,6 +7,7 @@
 - **redis**: use LRU cache for series metadata
 - **redis**: fix label_names() function to return all label names if no parameter is specified (now the label name auto-completion in the query editor works again)
 - **redis**: remove deprecated `label_values(metric, label)` function
+- **bpftrace**: disable scrolling beyond last line in query editor
 - **chore**: upgrade Grafana dependencies to version 8.4.1
 - **chore**: refactor custom Monaco languages
 - **build**: verify javascript size in Makefile

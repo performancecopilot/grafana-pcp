@@ -52,6 +52,7 @@ class MonacoEditorWrapper extends PureComponent<Props> {
                 folding: false, // space between line number and code
                 lineDecorationsWidth: 5, // space between line number and code
                 overviewRulerBorder: false, // right border
+                scrollBeyondLastLine: false,
                 ...this.props.options,
             },
         };
