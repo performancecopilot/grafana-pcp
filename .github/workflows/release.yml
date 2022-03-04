@@ -22,11 +22,10 @@ jobs:
     - name: Install dependencies
       run: make deps
 
-    - name: Test backend
-      run: make test-backend
-
-    - name: Test frontend & Build plugin
-      run: make build
+    - name: Test & Build plugin
+      run: |
+        make test-backend
+        make build # also runs frontend tests
 
     - name: Check if package version and git tag matches
       run: |
@@ -43,8 +42,8 @@ jobs:
     - name: Create plugin zip file
       run: make zip
 
-    - name: Run linters
-      run: make lint
+    - name: Run plugincheck
+      run: make plugincheck
       # ignore unsigned plugin error
       continue-on-error: true
 

@@ -34,8 +34,8 @@ jobs:
     - name: Create plugin zip file
       run: make zip
 
-    - name: Run linters
-      run: make lint
+    - name: Run plugincheck
+      run: make plugincheck
       # ignore unsigned plugin error in CI
       continue-on-error: true
 

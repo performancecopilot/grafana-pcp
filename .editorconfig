@@ -12,7 +12,7 @@ max_line_length = 120
 [*.{js,ts,tsx,scss}]
 quote_type = single
 
-[*.{jsonnet,libsonnet}]
+[*.{yml,jsonnet,libsonnet}]
 indent_size = 2
 
 [Makefile]

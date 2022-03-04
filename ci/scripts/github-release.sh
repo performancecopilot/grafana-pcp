@@ -6,12 +6,9 @@
 #
 
 GRAFANA_PLUGIN_ID="$(jq -r '.id' dist/plugin.json)"
-GRAFANA_PLUGIN_TYPE="$(jq -r '.type' dist/plugin.json)"
 GRAFANA_PLUGIN_VERSION="$(jq -r '.info.version' dist/plugin.json)"
-GRAFANA_PLUGIN_SHA="$(git rev-parse HEAD)"
 GRAFANA_PLUGIN_ARTIFACT="${GRAFANA_PLUGIN_ID}-${GRAFANA_PLUGIN_VERSION}.zip"
 GRAFANA_PLUGIN_ARTIFACT_CHECKSUM="${GRAFANA_PLUGIN_ARTIFACT}.md5"
-GRAFANA_PLUGIN_CHECKSUM=$(cut -d' ' -f1 "build/${GRAFANA_PLUGIN_ARTIFACT_CHECKSUM}")
 
 RELEASE_NOTES=$(awk '/^## / {s++} s == 1 {print}' CHANGELOG.md)
 PRERELEASE_ARG=""
@@ -26,23 +23,3 @@ hub release create \
     -a "build/${GRAFANA_PLUGIN_ARTIFACT_CHECKSUM}" \
     $PRERELEASE_ARG \
     "v${GRAFANA_PLUGIN_VERSION}"
-
-echo Publish your plugin to grafana.com/plugins by opening a PR to https://github.com/grafana/grafana-plugin-repository with the following entry:
-jq <<EOF
-{
-    "id": "${GRAFANA_PLUGIN_ID}",
-    "type": "${GRAFANA_PLUGIN_TYPE}",
-    "url": "https://github.com/${GITHUB_REPOSITORY}",
-    "versions": [{
-        "version": "${GRAFANA_PLUGIN_VERSION}",
-        "commit": "${GRAFANA_PLUGIN_SHA}",
-        "url": "https://github.com/${GITHUB_REPOSITORY}",
-        "download": {
-            "any": {
-                "url": "https://github.com/${GITHUB_REPOSITORY}/releases/download/v${GRAFANA_PLUGIN_VERSION}/${GRAFANA_PLUGIN_ARTIFACT}",
-                "md5": "${GRAFANA_PLUGIN_CHECKSUM}"
-            }
-        }
-    }]
-}
-EOF
