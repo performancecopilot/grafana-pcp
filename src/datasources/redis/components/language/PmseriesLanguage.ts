@@ -8,6 +8,13 @@ const languageConfiguration: MonacoType.languages.LanguageConfiguration = {
         { open: '{', close: '}' },
         { open: '"', close: '"' },
     ],
+
+    // Monaco's autocompletion replace the current "word" when selecting a suggestion
+    // i.e. when typing disk.dev.write_bytes, then removing _bytes and selecting disk.dev.write_rawactive,
+    // it should replace the entire metric name; otherwise the editor contains 'disk.dev.disk.dev.write_rawactive'
+    //
+    // a word in our case is the entire metric name, i.e. including dots
+    wordPattern: /[^\`\~\!\@\#\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\<\>\/\?\s]+/g, // the default separators except `.`
 };
 
 const languageDefinition: MonacoType.languages.IMonarchLanguage = {

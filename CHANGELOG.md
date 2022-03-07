@@ -14,7 +14,8 @@
 - **chore**: refactor custom Monaco languages
 - **chore**: use new @grafana/ui form components in query editor
 - **build**: verify javascript size in Makefile
-- **ci**: move scripts and Dockerfile to ci/ directory, allow multiple configurations
+- **test**: add datasource, metric auto-completion and import dashboard tests
+- **ci**: switch e2e tests to cypress, use matrix configuration to run them with multiple Grafana versions
 
 ### Removed features
 - **redis**: The `label_values(metric, label)` Grafana variable query function is now removed (was deprecated since grafana-pcp v3)
