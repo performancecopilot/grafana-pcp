@@ -31,7 +31,7 @@
     "@types/jest": "^26.0.5",
     "@types/lodash": "^4.14.178",
     "@types/memoize-one": "^5.1.2",
-    "@types/react-autosuggest": "^9.3.14",
+    "@types/react-autosuggest": "^10.1.5",
     "@types/react-redux": "^7.1.9",
     "@types/redux": "^3.6.0",
     "@types/redux-persist": "^4.3.1",
