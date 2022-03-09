@@ -25,7 +25,7 @@
     "@grafana/ui": "^8.4.1",
     "@trivago/prettier-plugin-sort-imports": "^3.2.0",
     "@types/blueimp-md5": "^2.7.0",
-    "@types/d3-selection": "^2.0.0",
+    "@types/d3-selection": "^3.0.2",
     "@types/enzyme": "^3.10.5",
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/jest": "^26.0.5",

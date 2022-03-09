@@ -2375,10 +2375,10 @@
   dependencies:
     "@types/d3-color" "^1"
 
-"@types/d3-selection@^2.0.0":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@types/d3-selection/-/d3-selection-2.0.1.tgz#bc2816c96faff285d204dda72b79734d4f37d583"
-  integrity sha512-3mhtPnGE+c71rl/T5HMy+ykg7migAZ4T6gzU0HxpgBFKcasBrSnwRbYV1/UZR6o5fkpySxhWxAhd7yhjj8jL7g==
+"@types/d3-selection@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@types/d3-selection/-/d3-selection-3.0.2.tgz#23e48a285b24063630bbe312cc0cfe2276de4a59"
+  integrity sha512-d29EDd0iUBrRoKhPndhDY6U/PYxOWqgIZwKTooy2UkBfU7TNZNpRho0yLWPxlatQrFWk2mnTu71IZQ4+LRgKlQ==
 
 "@types/enzyme-adapter-react-16@^1.0.6":
   version "1.0.6"
