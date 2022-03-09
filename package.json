@@ -23,8 +23,6 @@
     "@grafana/runtime": "^8.4.1",
     "@grafana/toolkit": "^8.4.1",
     "@grafana/ui": "^8.4.1",
-    "@testing-library/jest-dom": "5.4.0",
-    "@testing-library/react": "^10.0.2",
     "@trivago/prettier-plugin-sort-imports": "^3.2.0",
     "@types/blueimp-md5": "^2.7.0",
     "@types/d3-selection": "^2.0.0",
