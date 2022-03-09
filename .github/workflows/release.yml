@@ -43,9 +43,8 @@ jobs:
       run: make zip
 
     - name: Run plugincheck
-      run: make plugincheck
       # ignore unsigned plugin error
-      continue-on-error: true
+      run: make plugincheck || true
 
     - name: Create GitHub release
       run: ci/scripts/github-release.sh

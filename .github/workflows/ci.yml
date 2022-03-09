@@ -35,9 +35,8 @@ jobs:
       run: make zip
 
     - name: Run plugincheck
-      run: make plugincheck
       # ignore unsigned plugin error in CI
-      continue-on-error: true
+      run: make plugincheck || true
 
     - name: Publish build artifact
       uses: actions/upload-artifact@v3
