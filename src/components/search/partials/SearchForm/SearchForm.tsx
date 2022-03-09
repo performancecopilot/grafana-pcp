@@ -1,6 +1,7 @@
 import { getLogger } from 'loglevel';
 import React from 'react';
 import Autosuggest, {
+    ChangeEvent,
     RenderSuggestionParams,
     SuggestionSelectedEventData,
     SuggestionsFetchRequestedParams,
@@ -165,12 +166,12 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
         }
     }
 
-    onInputChange(e: React.FormEvent<HTMLInputElement>) {
+    onInputChange(event: React.FormEvent<HTMLElement>, params: ChangeEvent) {
         this.setState(
             {
                 query: {
                     ...this.state.query,
-                    pattern: e.currentTarget.value,
+                    pattern: params.newValue,
                 },
             },
             this.checkQueryValidity
