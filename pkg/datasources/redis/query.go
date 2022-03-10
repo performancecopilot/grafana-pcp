@@ -11,6 +11,24 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 )
 
+// The PCP Redis datasource executes the following HTTP requests to gather the required data for a time series query:
+//
+// (1) `/series/query?expr=...` to get a list of series ids
+// (2) `/series/metrics?series=...` to get the metric names of each series
+// (3) `/series/descs?series=...` to get the metric unit and semantics of each series
+// (4) for metrics without instances: `/series/labels?series=...` to get labels of each series
+// (5) `/series/values?series=...&start=...&finish=...&interval=...` to get the metric and instance values
+// (6) for metrics with instances: `/series/instances?series=...` to get the instance names
+// (7) for metrics with instances: `/series/labels?series=...` to get labels of each instance
+//
+// Overall, that's 5 (or 6) HTTP requests for the initial query.
+// Most metadata can be cached, therefore subsequent queries (same query with a different timeframe) can skip requests
+// 2-4 and 6-7 in case there is no new series or new instance involved (depends on the timeframe; series and instances
+// can appear and disappear).
+//
+// When a pmseries query matches many series (e.g. many hosts) or series with many instances, the list of series ids
+// can get quite long, too long to fit into an URL. Therefore the list of series ids is sent in the request body of a
+// POST request, even though it should be (semantically) a GET request.
 func (ds *redisDatasourceInstance) executeTimeSeriesQuery(dataQuery *backend.DataQuery, redisQuery *Query) (data.Frames, error) {
 	if redisQuery.Expr == "" {
 		return data.Frames{}, nil
