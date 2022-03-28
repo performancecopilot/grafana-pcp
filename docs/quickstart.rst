@@ -35,6 +35,9 @@ The only required configuration field for each data source is the URL to `pmprox
 In most cases the default URL ``http://localhost:44322`` can be used.
 All other fields can be left to their default values.
 
+Each data source includes one or more pre-defined dashboards.
+You can import them by navigating to the *Dashboards* tab on top of the settings and clicking the *Import* button next to the dashboard name.
+
 .. note::
    Make sure the *URL* text box actually contains a value (font color should be white) and you're not looking at the placeholder value (light grey text).
 
@@ -45,6 +48,6 @@ All other fields can be left to their default values.
 Dashboards
 ----------
 
-After installing grafana-pcp and configuring the data sources, you're ready to open the pre-installed dashboards or create new ones.
-Each data source comes with a few pre-installed dashboards, showing most of the respective functionality.
+After installing grafana-pcp and configuring the data sources, you're ready to open the pre-defined dashboards (see above) or create new ones.
+Each data source comes with a few pre-defined dashboards, showing most of the respective functionality.
 Further information on each data source and the functionality can be found in the :doc:`Data Sources <datasources/index>` section.
