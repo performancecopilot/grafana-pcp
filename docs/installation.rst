@@ -37,6 +37,7 @@ Replace X.Y.Z with the version of grafana-pcp you wish to install.
 
     $ wget https://github.com/performancecopilot/grafana-pcp/releases/download/vX.Y.Z/performancecopilot-pcp-app-X.Y.Z.zip
     $ sudo unzip -d /var/lib/grafana/plugins performancecopilot-pcp-app-X.Y.Z.zip
+    $ sudo sed -i 's/;allow_loading_unsigned_plugins =/allow_loading_unsigned_plugins = performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel/' /etc/grafana/grafana.ini
     $ sudo systemctl restart grafana-server
 
 
@@ -74,6 +75,7 @@ The `yarn package manager <https://yarnpkg.com>`_, `Go compiler <https://golang.
     $ git clone https://github.com/performancecopilot/grafana-pcp.git
     $ make build
     $ sudo ln -s $(pwd) /var/lib/grafana/plugins
+    $ sudo sed -i 's/;allow_loading_unsigned_plugins =/allow_loading_unsigned_plugins = performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel/' /etc/grafana/grafana.ini
     $ sudo systemctl restart grafana-server
 
 To list all available Makefile targets, run ``make help``.
