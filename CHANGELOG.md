@@ -11,7 +11,7 @@
 - **redis**: fix network error for metrics with many series
 - **bpftrace**: disable scrolling beyond last line in query editor
 - **checklist**: fix dashboard link in navigation bar
-- **chore**: upgrade Grafana dependencies to version 8.4.1
+- **chore**: upgrade Grafana dependencies to version 8.5.6
 - **chore**: refactor custom Monaco languages
 - **chore**: use new @grafana/ui form components in query editor
 - **build**: verify javascript size in Makefile
