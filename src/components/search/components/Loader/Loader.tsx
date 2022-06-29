@@ -6,6 +6,7 @@ import { spinner, spinnerContainer, spinnerOuter } from './styles';
 export interface LoaderBasicProps {
     loaded: boolean;
     boundedContainer?: boolean;
+    children?: React.ReactNode;
 }
 
 export type LoaderProps = Themeable & LoaderBasicProps;
