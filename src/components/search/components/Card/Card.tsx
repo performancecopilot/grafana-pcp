@@ -4,6 +4,7 @@ import { getCardStyles } from './styles';
 
 export interface CardBasicProps {
     background?: 'weak' | 'strong';
+    children?: React.ReactNode;
 }
 
 export type CardProps = Themeable & CardBasicProps;
