@@ -59,8 +59,8 @@ func (api *pmseriesAPI) doRequest(path string, params url.Values, response inter
 	if len(absURL)+1+len(paramsEncoded) < 8192 {
 		req, err = http.NewRequest("GET", absURL, nil)
 		if err != nil {
-			log.DefaultLogger.Error("Network Error", "url", absURL, "err", err)
-			return fmt.Errorf("error creating a network request for '%s': %w", absURL, err)
+			log.DefaultLogger.Error("error creating a HTTP GET request", "url", absURL, "err", err)
+			return fmt.Errorf("error creating a HTTP GET request for '%s': %w", absURL, err)
 		}
 		req.URL.RawQuery = paramsEncoded
 	} else {
@@ -68,8 +68,8 @@ func (api *pmseriesAPI) doRequest(path string, params url.Values, response inter
 		// https://github.com/performancecopilot/pcp/commit/87564eb9907ba6ca517d18c31c32591b64659c10
 		req, err = http.NewRequest("POST", absURL, strings.NewReader(paramsEncoded))
 		if err != nil {
-			log.DefaultLogger.Error("Network Error", "url", absURL, "params", paramsEncoded, "err", err)
-			return fmt.Errorf("error creating a network request for '%s': %w", absURL, err)
+			log.DefaultLogger.Error("error creating a HTTP POST request", "url", absURL, "params", paramsEncoded, "err", err)
+			return fmt.Errorf("error creating a HTTP POST request for '%s': %w", absURL, err)
 		}
 	}
 	if api.basicAuth != nil {
@@ -77,10 +77,10 @@ func (api *pmseriesAPI) doRequest(path string, params url.Values, response inter
 	}
 
 	// send HTTP request
-	log.DefaultLogger.Debug("HTTP Request", "url", req.URL.String())
+	log.DefaultLogger.Debug("sending pmproxy REST API request", "url", req.URL.String(), "method", req.Method, "params", paramsEncoded)
 	resp, err := api.client.Do(req)
 	if err != nil {
-		log.DefaultLogger.Error("Network Error", "url", req.URL.String(), "params", paramsEncoded, "err", err)
+		log.DefaultLogger.Error("error sending pmproxy REST API request", "url", req.URL.String(), "params", paramsEncoded, "err", err)
 
 		var urlError *url.Error
 		if errors.As(err, &urlError) {
@@ -99,7 +99,7 @@ func (api *pmseriesAPI) doRequest(path string, params url.Values, response inter
 			return fmt.Errorf("cannot read HTTP response: %w", err)
 		}
 		bodyStr := string(bodyBytes)
-		log.DefaultLogger.Error("Received HTTP Error Response", "url", req.URL.String(), "code", resp.StatusCode, "params", paramsEncoded, "data", bodyStr)
+		log.DefaultLogger.Error("received a HTTP error response from pmproxy", "url", req.URL.String(), "code", resp.StatusCode, "params", paramsEncoded, "data", bodyStr)
 
 		var genericErrorResponse GenericErrorResponse
 		err = json.Unmarshal(bodyBytes, &genericErrorResponse)
@@ -112,10 +112,10 @@ func (api *pmseriesAPI) doRequest(path string, params url.Values, response inter
 	// HTTP request was successful, 200 status code
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
-		log.DefaultLogger.Error("Cannot unmarshal response", "url", req.URL.String(), "code", resp.StatusCode, "params", paramsEncoded, "err", err)
-		return fmt.Errorf("cannot unmarshal response: %w", err)
+		log.DefaultLogger.Error("cannot unmarshal response from pmproxy", "url", req.URL.String(), "code", resp.StatusCode, "params", paramsEncoded, "err", err)
+		return fmt.Errorf("cannot unmarshal response from pmproxy: %w", err)
 	}
-	//log.DefaultLogger.Debug("HTTP response", "url", req.URL.String(), "code", resp.StatusCode, "response", response)
+	//log.DefaultLogger.Debug("received a response from pmproxy", "url", req.URL.String(), "code", resp.StatusCode, "response", response)
 	return nil
 }
 
