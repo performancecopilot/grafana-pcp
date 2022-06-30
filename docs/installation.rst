@@ -37,7 +37,6 @@ Replace X.Y.Z with the version of grafana-pcp you wish to install.
 
     $ wget https://github.com/performancecopilot/grafana-pcp/releases/download/vX.Y.Z/performancecopilot-pcp-app-X.Y.Z.zip
     $ sudo unzip -d /var/lib/grafana/plugins performancecopilot-pcp-app-X.Y.Z.zip
-    $ sudo sed -i 's/;allow_loading_unsigned_plugins =/allow_loading_unsigned_plugins = performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel/' /etc/grafana/grafana.ini
     $ sudo systemctl restart grafana-server
 
 
@@ -52,7 +51,6 @@ Replace X.Y.Z with the version of grafana-pcp you wish to install.
 
     $ podman run \
         -e GF_INSTALL_PLUGINS="https://github.com/performancecopilot/grafana-pcp/releases/download/vX.Y.Z/performancecopilot-pcp-app-X.Y.Z.zip;performancecopilot-pcp-app" \
-        -e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel" \
         -p 3000:3000 \
         docker.io/grafana/grafana
 
@@ -60,7 +58,6 @@ Replace X.Y.Z with the version of grafana-pcp you wish to install.
 
     $ docker run \
         -e GF_INSTALL_PLUGINS="https://github.com/performancecopilot/grafana-pcp/releases/download/vX.Y.Z/performancecopilot-pcp-app-X.Y.Z.zip;performancecopilot-pcp-app" \
-        -e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel" \
         -p 3000:3000 \
         grafana/grafana
 
@@ -75,7 +72,7 @@ The `yarn package manager <https://yarnpkg.com>`_, `Go compiler <https://golang.
     $ git clone https://github.com/performancecopilot/grafana-pcp.git
     $ make build
     $ sudo ln -s $(pwd) /var/lib/grafana/plugins
-    $ sudo sed -i 's/;allow_loading_unsigned_plugins =/allow_loading_unsigned_plugins = performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel/' /etc/grafana/grafana.ini
+    $ sudo sed -i 's/;allow_loading_unsigned_plugins =/allow_loading_unsigned_plugins = performancecopilot-pcp-app,performancecopilot-redis-datasource,performancecopilot-vector-datasource,performancecopilot-bpftrace-datasource,performancecopilot-flamegraph-panel,performancecopilot-breadcrumbs-panel,performancecopilot-troubleshooting-panel/' /etc/grafana/grafana.ini
     $ sudo systemctl restart grafana-server
 
 To list all available Makefile targets, run ``make help``.

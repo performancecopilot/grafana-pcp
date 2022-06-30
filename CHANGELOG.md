@@ -2,13 +2,28 @@
 
 ## 5.0.0 (2022-06-30)
 
+### Important: Upgrade instructions
+Due to a breaking change (see section below), the following instructions are required before upgrading to grafana-pcp v5:
+* Go to Configuration -> Data sources and delete any PCP Redis, PCP Vector or PCP bpftrace data sources
+* Go to Configuration -> Plugins, select the Performance Co-Pilot app and click the Disable button
+* Go to Dashboards -> Browse and delete any remaining dashboards installed by grafana-pcp
+* If you installed grafana-pcp through the RPM package, open the `/etc/grafana/grafana.ini` configuration file and update the following setting: `allow_loading_unsigned_plugins = performancecopilot-pcp-app,performancecopilot-redis-datasource,performancecopilot-vector-datasource,performancecopilot-bpftrace-datasource,performancecopilot-flamegraph-panel,performancecopilot-breadcrumbs-panel,performancecopilot-troubleshooting-panel`
+* Perform the upgrade to grafana-pcp v5
+* Enable the plugin, setup all data sources and import all dashboards again
+* If you have custom dashboards, update all panels with the correct data source
+
+### Enhancements / Bug Fixes
+- **all**: rename plugin IDs from `pcp-*-*` to `performancecopilot-*-*`
 - **all**: remove `window.setGrafanaPcpLogLevel()` debug function
 - **chore**: remove deprecated `dependencies.grafanaVersion` field from plugin metadata
+
+### Breaking Changes
+- the internal plugin IDs of the data source and panel plugins were renamed from `pcp-X-Y` to `performancecopilot-X-Y`, for example `pcp-redis-datasource` was renamed to `performancecopilot-redis-datasource` in order to conform to the Grafana plugin id naming conventions
+
 
 ## 4.0.0 (2022-06-29)
 
 ### Enhancements / Bug Fixes
-
 - **redis, vector**: add buttons to disable rate conversation and time utilization conversation
 - **redis**: use LRU cache for series metadata
 - **redis**: fix label_names() function to return all label names if no parameter is specified (now the label name auto-completion in the query editor works again)

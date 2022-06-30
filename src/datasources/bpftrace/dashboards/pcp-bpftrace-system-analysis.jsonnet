@@ -13,7 +13,7 @@ grafana.dashboard.new(
 .addTemplate(
   grafana.template.datasource(
     'datasource',
-    'pcp-bpftrace-datasource',
+    'performancecopilot-bpftrace-datasource',
     'PCP bpftrace',
   )
 )

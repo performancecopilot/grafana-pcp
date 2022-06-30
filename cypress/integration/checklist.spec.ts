@@ -3,7 +3,7 @@ describe('PCP Vector Checklist', () => {
         cy.task('grafana:reset');
         cy.login();
         cy.enablePlugin();
-        cy.addDatasource('pcp-vector-datasource', 'PCP Vector datasource');
+        cy.addDatasource('performancecopilot-vector-datasource', 'PCP Vector datasource');
     });
 
     beforeEach(() => {

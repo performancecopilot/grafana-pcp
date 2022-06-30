@@ -1,7 +1,7 @@
 {
     "type": "panel",
     "name": "PCP Troubleshooting Panel",
-    "id": "pcp-troubleshooting-panel",
+    "id": "performancecopilot-troubleshooting-panel",
     "info": {
         "description": "Grafana Panel for displaying time series graphs with troubleshooting information in PCP Checklist dashboards",
         "logos": {
