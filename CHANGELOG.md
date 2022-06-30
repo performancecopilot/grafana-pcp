@@ -2,6 +2,7 @@
 
 ## 5.0.0 (2022-06-30)
 
+- **chore**: remove deprecated `dependencies.grafanaVersion` field from plugin metadata
 
 ## 4.0.0 (2022-06-29)
 
