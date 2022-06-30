@@ -1,7 +1,7 @@
 {
     "type": "panel",
     "name": "PCP Breadcrumbs",
-    "id": "pcp-breadcrumbs-panel",
+    "id": "performancecopilot-breadcrumbs-panel",
     "skipDataQuery": true,
     "info": {
         "description": "Grafana Panel for displaying breadcrumbs navigation in PCP checklist overview dashboards",

@@ -13,7 +13,7 @@ grafana.dashboard.new(
 .addTemplate(
   grafana.template.datasource(
     'datasource',
-    'pcp-vector-datasource',
+    'performancecopilot-vector-datasource',
     'PCP Vector',
   )
 )

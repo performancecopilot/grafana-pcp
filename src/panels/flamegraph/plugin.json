@@ -1,7 +1,7 @@
 {
     "type": "panel",
     "name": "PCP Flame Graph",
-    "id": "pcp-flamegraph-panel",
+    "id": "performancecopilot-flamegraph-panel",
     "info": {
         "description": "Grafana Panel for displaying Flame Graphs",
         "logos": {

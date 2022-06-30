@@ -1,6 +1,6 @@
 {
     "name": "PCP Redis",
-    "id": "pcp-redis-datasource",
+    "id": "performancecopilot-redis-datasource",
     "type": "datasource",
     "category": "tsdb",
     "metrics": true,

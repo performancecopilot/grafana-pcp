@@ -5,7 +5,7 @@ local flameGraph(
   datasource=null,
       ) = {
   title: title,
-  type: 'pcp-flamegraph-panel',
+  type: 'performancecopilot-flamegraph-panel',
   datasource: datasource,
 
   _nextTarget:: 0,
@@ -30,14 +30,14 @@ grafana.dashboard.new(
 .addTemplate(
   grafana.template.datasource(
     'bpftrace_datasource',
-    'pcp-bpftrace-datasource',
+    'performancecopilot-bpftrace-datasource',
     'PCP bpftrace',
   )
 )
 .addTemplate(
   grafana.template.datasource(
     'vector_datasource',
-    'pcp-vector-datasource',
+    'performancecopilot-vector-datasource',
     'PCP Vector',
   )
 )

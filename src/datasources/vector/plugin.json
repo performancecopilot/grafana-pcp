@@ -1,6 +1,6 @@
 {
     "name": "PCP Vector",
-    "id": "pcp-vector-datasource",
+    "id": "performancecopilot-vector-datasource",
     "type": "datasource",
     "category": "tsdb",
     "metrics": true,

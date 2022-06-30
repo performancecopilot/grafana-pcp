@@ -231,7 +231,7 @@ local grafana = import 'grafonnet/grafana.libsonnet';
       .addTemplate(
         grafana.template.datasource(
           'datasource',
-          'pcp-vector-datasource',
+          'performancecopilot-vector-datasource',
           'PCP Vector',
         )
       )

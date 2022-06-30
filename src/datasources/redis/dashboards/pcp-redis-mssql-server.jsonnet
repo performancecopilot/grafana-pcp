@@ -10,7 +10,7 @@ grafana.dashboard.new(
 .addTemplate(
   grafana.template.datasource(
     'datasource',
-    'pcp-redis-datasource',
+    'performancecopilot-redis-datasource',
     'PCP Redis',
   )
 )

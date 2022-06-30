@@ -18,7 +18,7 @@
     items=[],
   ):: {
     title: title,
-    type: 'pcp-breadcrumbs-panel',
+    type: 'performancecopilot-breadcrumbs-panel',
     options: {
       items: items,
     },

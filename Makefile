@@ -107,13 +107,13 @@ test-ui-start-pod: ## Start PCP and Redis in a pod
 
 test-ui-start-grafana-dist: ## Start Grafana with grafana-pcp from the dist/ folder
 	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-grafana -d --replace \
-		-e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel" \
+		-e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,performancecopilot-redis-datasource,performancecopilot-vector-datasource,performancecopilot-bpftrace-datasource,performancecopilot-flamegraph-panel,performancecopilot-breadcrumbs-panel,performancecopilot-troubleshooting-panel" \
 		-v $$(pwd)/dist:/var/lib/grafana/plugins/performancecopilot-pcp-app \
 		$(GRAFANA_IMAGE)
 
 test-ui-start-grafana-build: ## Start Grafana with grafana-pcp from build/performancecopilot-pcp-app-*.zip
 	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-grafana -d --replace \
-		-e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel" \
+		-e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,performancecopilot-redis-datasource,performancecopilot-vector-datasource,performancecopilot-bpftrace-datasource,performancecopilot-flamegraph-panel,performancecopilot-breadcrumbs-panel,performancecopilot-troubleshooting-panel" \
 		-e GF_INSTALL_PLUGINS="/tmp/plugin.zip;performancecopilot-pcp-app" \
 		-v $$(pwd)/build/$$(basename build/performancecopilot-pcp-app-*.zip):/tmp/plugin.zip \
 		$(GRAFANA_IMAGE)

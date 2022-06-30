@@ -17,7 +17,7 @@
       unit=null
     ):: {
       title: title,
-      type: 'pcp-troubleshooting-panel',
+      type: 'performancecopilot-troubleshooting-panel',
       datasource: datasource,
       options: {
         troubleshooting: troubleshooting,
