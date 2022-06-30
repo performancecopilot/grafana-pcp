@@ -20,9 +20,9 @@ import { MinimalPmapiQuery, PmapiDefaultOptions, PmapiOptions, PmapiQuery } from
 const log = getLogger('datasource_base');
 
 export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends PmapiOptions> extends DataSourceApi<Q, O> {
-    /** URL as specified in the datasource settings page (can be undefined) */
+    /** URL as specified in the data source settings page (can be undefined) */
     url?: string;
-    /** hostspec as specified in the datasource settings page, or default hostspec */
+    /** hostspec as specified in the data source settings page, or default hostspec */
     hostspec: string;
     retentionTimeMs: number;
     pmApiService: PmApiService;
@@ -80,7 +80,7 @@ export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends Pmap
                     // Grafana will send additional x-grafana headers to every request
                     // when in server mode, which make the CORS request fail
                     throw new GenericError(
-                        'Please set the access mode to Browser in the datasource settings when using a custom pmproxy URL for this panel.'
+                        'Please set the access mode to Browser in the data source settings when using a custom pmproxy URL for this panel.'
                     );
                 }
             }
@@ -90,7 +90,7 @@ export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends Pmap
         }
 
         // if query is not defined (e.g. it's a dashboard variable query (metricFindQuery))
-        // or the url/hostspec of it evaluates to a blank string, use the datasource settings
+        // or the url/hostspec of it evaluates to a blank string, use the data source settings
         if (isBlank(url)) {
             url = this.url;
         }
@@ -101,12 +101,12 @@ export abstract class DataSourceBase<Q extends MinimalPmapiQuery, O extends Pmap
         const orInTheQueryErrorText = query ? ' or in the query editor' : '';
         if (isBlank(url)) {
             throw new GenericError(
-                `Please specify a connection URL in the datasource settings${orInTheQueryErrorText}.`
+                `Please specify a connection URL in the data source settings${orInTheQueryErrorText}.`
             );
         }
         if (isBlank(hostspec)) {
             throw new GenericError(
-                `Please specify a host specification in the datasource settings${orInTheQueryErrorText}.`
+                `Please specify a host specification in the data source settings${orInTheQueryErrorText}.`
             );
         }
 

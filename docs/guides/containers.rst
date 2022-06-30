@@ -9,7 +9,7 @@ grafana-pcp includes the following (optional) dashboards:
 * PCP Vector: Container Overview (CGroups v1)
 * PCP Vector: Container Overview (CGroups v2)
 
-You can import the corresponding dashboard on the :doc:`../datasources/vector` datasource settings page.
+You can import the corresponding dashboard on the :doc:`../datasources/vector` data source settings page.
 
 .. note::
    grafana-pcp before version 3.0.0 includes a single dashboard called **PCP Vector: Container Overview** which supports CGroups v1 only and is installed by default (i.e. no import is required).

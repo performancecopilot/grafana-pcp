@@ -31,7 +31,7 @@ export interface MinimalPmapiQuery extends DataQuery {
 
 /**
  * query filled with all default values and
- * url + hostspec set from the panel or datasource settings
+ * url + hostspec set from the panel or data source settings
  */
 export interface PmapiQuery extends MinimalPmapiQuery {
     expr: string;

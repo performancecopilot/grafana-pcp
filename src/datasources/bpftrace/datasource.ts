@@ -20,7 +20,7 @@ export class PCPBPFtraceDataSource extends DataSourceBase<BPFtraceQuery, BPFtrac
 
     constructor(readonly instanceSettings: DataSourceInstanceSettings<BPFtraceOptions>) {
         super(instanceSettings, Config.defaults, Config.apiTimeoutMs);
-        log.debug('initializate bpftrace datasource');
+        log.debug('initializate bpftrace data source');
         this.poller = new Poller(this.pmApiService, this.pmSeriesApiService, {
             retentionTimeMs: this.retentionTimeMs,
             refreshIntervalMs: this.getDashboardRefreshInterval() ?? Config.defaultRefreshIntervalMs,

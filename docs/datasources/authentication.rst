@@ -71,10 +71,10 @@ To test if the authentication is set up correctly, execute the following command
 
     $ pminfo -f -h "pcp://127.0.0.1?username=pcptestuser" disk.dev.read
 
-Configuring the Grafana Datasource
-----------------------------------
+Configuring the Grafana Data source
+-----------------------------------
 
-Go to the Grafana datasource settings, enable **Basic auth**, and enter the username and password.
+Go to the Grafana data source settings, enable **Basic auth**, and enter the username and password.
 Click the *Save & Test* button to check if the authentication is working.
 
 .. note::

@@ -16,6 +16,7 @@ Due to a breaking change (see section below), the following instructions are req
 - **all**: rename plugin IDs from `pcp-*-*` to `performancecopilot-*-*`
 - **all**: remove `window.setGrafanaPcpLogLevel()` debug function
 - **chore**: remove deprecated `dependencies.grafanaVersion` field from plugin metadata
+- **docs**: update spelling of datasource to data source
 
 ### Breaking Changes
 - the internal plugin IDs of the data source and panel plugins were renamed from `pcp-X-Y` to `performancecopilot-X-Y`, for example `pcp-redis-datasource` was renamed to `performancecopilot-redis-datasource` in order to conform to the Grafana plugin id naming conventions

@@ -1,9 +1,9 @@
-describe('PCP Redis datasource', () => {
+describe('PCP Redis data source', () => {
     before(() => {
         cy.task('grafana:reset');
         cy.login();
         cy.enablePlugin();
-        cy.addDatasource('performancecopilot-redis-datasource', 'PCP Redis datasource');
+        cy.addDatasource('performancecopilot-redis-datasource', 'PCP Redis data source');
     });
 
     beforeEach(() => {

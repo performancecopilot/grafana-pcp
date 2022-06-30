@@ -39,7 +39,7 @@ export class AppConfig extends PureComponent<Props> {
                 This app integrates metrics from Performance Co-Pilot.
                 <br />
                 <br />
-                It includes the following datasources:
+                It includes the following data sources:
                 <ul
                     className={css`
                         margin-left: 2em;
@@ -67,7 +67,7 @@ export class AppConfig extends PureComponent<Props> {
                                 color: #10a345;
                             `}
                         />{' '}
-                        Plugin enabled. Please configure the datasources now.
+                        Plugin enabled. Please configure the data sources now.
                     </div>
                 )}
                 <div className="gf-form gf-form-button-row">
