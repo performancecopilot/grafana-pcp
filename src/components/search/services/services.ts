@@ -17,7 +17,7 @@ async function getDatasourceSettings() {
     const redisDatasource = datasources.find((ds: any) => ds.type === redisPluginConfig.id);
     if (!redisDatasource) {
         throw new GenericError(
-            `Could not find any PCP Redis datasource. Please create a PCP Redis datasource before using the search feature.`
+            `Could not find any PCP Redis data source. Please create a PCP Redis data source before using the search feature.`
         );
     }
     return redisDatasource;

@@ -11,7 +11,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 )
 
-// The PCP Redis datasource executes the following HTTP requests to gather the required data for a time series query:
+// The PCP Redis data source executes the following HTTP requests to gather the required data for a time series query:
 //
 // (1) `/series/query?expr=...` to get a list of series ids
 // (2) `/series/metrics?series=...` to get the metric names of each series

@@ -13,7 +13,7 @@ describe('grafana-pcp setup', () => {
         cy.get('button').should('include.text', 'Disable');
     });
 
-    it('should setup PCP Redis datasource', () => {
+    it('should setup PCP Redis data source', () => {
         cy.visit('/datasources/new');
         cy.contains('PCP Redis').click();
         cy.get('input[placeholder="http://localhost:44322"]').type('http://localhost:44322');
@@ -21,7 +21,7 @@ describe('grafana-pcp setup', () => {
         cy.contains('Data source is working');
     });
 
-    it('should setup PCP Vector datasource', () => {
+    it('should setup PCP Vector data source', () => {
         cy.visit('/datasources/new');
         cy.contains('PCP Vector').click();
         cy.get('input[placeholder="http://localhost:44322"]').type('http://localhost:44322');
@@ -29,7 +29,7 @@ describe('grafana-pcp setup', () => {
         cy.contains('Data source is working, using Performance Co-Pilot');
     });
 
-    it('should setup PCP bpftrace datasource', () => {
+    it('should setup PCP bpftrace data source', () => {
         cy.visit('/datasources/new');
         cy.contains('PCP bpftrace').click();
         cy.get('input[placeholder="http://localhost:44322"]').type('http://localhost:44322');

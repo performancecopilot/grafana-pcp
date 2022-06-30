@@ -3,7 +3,7 @@ Copyright (c) 2019 Netflix
 Copyright (c) 2019-2021 Grafana Labs
 Copyright (c) 2019-2021 Red Hat
 
-Thanks to Jason Koch for the initial pcp-live datasource implementation and the host overview dashboard.
-The Linux BPF Pony (used for the bpftrace datasource) was created by Deirdré Straughan using General Zoi's pony creator.
+Thanks to Jason Koch for the initial pcp-live data source implementation and the host overview dashboard.
+The Linux BPF Pony (used for the bpftrace data source) was created by Deirdré Straughan using General Zoi's pony creator.
 The flamegraph panel uses d3-flame-graph, Copyright (c) 2018 Martin Spier.
 The bpftrace documentation follows the [Reference Guide](https://github.com/iovisor/bpftrace/blob/master/docs/reference_guide.md), written by bpftrace community contributors.

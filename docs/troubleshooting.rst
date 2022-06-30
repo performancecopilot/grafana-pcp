@@ -9,7 +9,7 @@ Common Problems
 HTTP Error 502: Bad Gateway, please check the datasource and pmproxy settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**When I try to add a datasource in Grafana, I get the following error:**
+**When I try to add a data source in Grafana, I get the following error:**
 **"HTTP Error 502: Bad Gateway, please check the datasource and pmproxy settings. To use this data source, please configure the URL in the query editor."**
 
 * check if pmproxy is running: ``systemctl status pmproxy``

@@ -29,7 +29,7 @@ deps: deps-dashboards deps-frontend deps-backend ## Install all dependencies
 
 ##@ Development
 
-dev-frontend: deps-frontend ## Build frontend datasources (development)
+dev-frontend: deps-frontend ## Build frontend data sources (development)
 	yarn run dev
 
 watch-frontend: deps-frontend build-dashboards ## Auto rebuilt frontend on file changes
@@ -38,7 +38,7 @@ watch-frontend: deps-frontend build-dashboards ## Auto rebuilt frontend on file 
 dev-backend: deps-backend
 	go build -race -o ./dist/datasources/redis/pcp_redis_datasource_$$(go env GOOS)_$$(go env GOARCH) -tags netgo -ldflags -w ./pkg
 
-restart-backend: ## Rebuild and restart backend datasource (as root)
+restart-backend: ## Rebuild and restart backend data source (as root)
 	sudo -u "$$(stat -c '%U' .)" make dev-backend
 	killall pcp_redis_datasource_$$(go env GOOS)_$$(go env GOARCH)
 
@@ -51,14 +51,14 @@ dist/%.json: src/%.jsonnet $(JSONNET_VENDOR_DIR)
 
 build-dashboards: $(shell find src -name '*.jsonnet' | sed -E 's@src/(.+)\.jsonnet@dist/\1.json@g') ## Build Grafana dashboards from jsonnet
 
-build-frontend: deps-frontend ## Build frontend datasources
+build-frontend: deps-frontend ## Build frontend data sources
 	yarn run build
 
 	# check for javascript greater than 1 MB
 	test $$(find dist/ -name '*.js' -size +1024k | wc -l) -eq 1 || exit 1
 
 GO_LD_FLAGS := -w -s -extldflags "-static"
-build-backend: deps-backend ## Build backend datasource
+build-backend: deps-backend ## Build backend data source
 	#mage buildAll
 	for arch in amd64 arm arm64 s390x ppc64le 386; do \
 	  CGO_ENABLED=0 GOOS=linux GOARCH=$${arch} go build -o dist/datasources/redis/pcp_redis_datasource_linux_$${arch} -ldflags '$(GO_LD_FLAGS)' ./pkg; \

@@ -29,7 +29,7 @@ Before using grafana-pcp, you need to configure the data sources.
 Open the Grafana configuration, go to Data Sources and add the
 :doc:`datasources/redis`,
 :doc:`datasources/vector` and/or
-:doc:`datasources/bpftrace` datasources.
+:doc:`datasources/bpftrace` data sources.
 
 The only required configuration field for each data source is the URL to `pmproxy`_.
 In most cases the default URL ``http://localhost:44322`` can be used.

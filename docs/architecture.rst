@@ -22,10 +22,10 @@ Dashboards
 Performance Co-Pilot metrics can be analyzed with Grafana dashboards, using the **grafana-pcp** plugin.
 There are two modes available:
 
-* historical metrics across multiple hosts using the :doc:`datasources/redis` datasource
-* live, on-host metrics using the :doc:`datasources/vector` datasource
+* historical metrics across multiple hosts using the :doc:`datasources/redis` data source
+* live, on-host metrics using the :doc:`datasources/vector` data source
 
-The :doc:`datasources/redis` datasource sends :ref:`pmseries <pmseries-query-language>` queries to **pmproxy**, which in turn queries the redis database for metrics.
-The :doc:`datasources/vector` datasource connects to **pmproxy**, which in turn requests live metrics directly from a local or remote **PMCD**. 
+The :doc:`datasources/redis` data source sends :ref:`pmseries <pmseries-query-language>` queries to **pmproxy**, which in turn queries the redis database for metrics.
+The :doc:`datasources/vector` data source connects to **pmproxy**, which in turn requests live metrics directly from a local or remote **PMCD**.
 In this case, metrics are stored temporarily in the browser, and metric values are lost when the browser tab is refreshed.
-The :doc:`PCP Redis datasource <datasources/redis>` is required for persistence.
+The :doc:`PCP Redis data source <datasources/redis>` is required for persistence.

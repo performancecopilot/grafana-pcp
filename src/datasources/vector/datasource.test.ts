@@ -370,7 +370,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
         setGlobalLogLevel('DEBUG');
     });
 
-    it('should use non-default hostspec from datasource settings', async () => {
+    it('should use non-default hostspec from data source settings', async () => {
         const instanceSettings = {
             url: 'http://settings_host:1234',
             jsonData: {
@@ -595,7 +595,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
         `);
     });
 
-    it('should use datasource url if overwritten url is blank', async () => {
+    it('should use data source url if overwritten url is blank', async () => {
         const instanceSettings = {
             url: 'http://settings_host:1234',
             jsonData: {

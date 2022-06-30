@@ -333,7 +333,7 @@ export class Poller {
 
     cleanInactiveTargets() {
         if (!this.state.pageIsVisible) {
-            // Grafana stops polling the datasource if the page is in the background
+            // Grafana stops polling the data source if the page is in the background
             // therefore do not clean inactive targets in this case
             return;
         }

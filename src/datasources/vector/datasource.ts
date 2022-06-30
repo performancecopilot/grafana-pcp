@@ -21,7 +21,7 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
 
     constructor(readonly instanceSettings: DataSourceInstanceSettings<VectorOptions>) {
         super(instanceSettings, Config.defaults, Config.apiTimeoutMs);
-        log.debug('initializate Vector datasource');
+        log.debug('initializate Vector data source');
         this.poller = new Poller(this.pmApiService, this.pmSeriesApiService, {
             retentionTimeMs: this.retentionTimeMs,
             refreshIntervalMs: this.getDashboardRefreshInterval() ?? Config.defaultRefreshIntervalMs,

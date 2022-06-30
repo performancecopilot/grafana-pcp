@@ -1,9 +1,9 @@
-describe('PCP Vector datasource', () => {
+describe('PCP Vector data source', () => {
     before(() => {
         cy.task('grafana:reset');
         cy.login();
         cy.enablePlugin();
-        cy.addDatasource('performancecopilot-vector-datasource', 'PCP Vector datasource');
+        cy.addDatasource('performancecopilot-vector-datasource', 'PCP Vector data source');
     });
 
     beforeEach(() => {
