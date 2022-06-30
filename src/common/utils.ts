@@ -16,14 +16,6 @@ export function setGlobalLogLevel(level: LogLevelDesc) {
     }
 }
 
-/**
- * set log level from the browsers javascript console
- */
-(window as any).setGrafanaPcpLogLevel = (level: LogLevelDesc) => {
-    setGlobalLogLevel(level);
-    return `grafana-pcp log level changed to ${level}`;
-};
-
 export type DefaultRequestOptions = Omit<BackendSrvRequest, 'url'>;
 export function getRequestOptions(instanceSettings: DataSourceInstanceSettings): DefaultRequestOptions {
     const defaultRequestOptions: Required<DefaultRequestOptions, 'headers'> = {
