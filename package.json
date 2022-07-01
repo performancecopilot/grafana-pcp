@@ -28,7 +28,7 @@
     "@types/d3-selection": "^2.0.0",
     "@types/enzyme": "^3.10.5",
     "@types/enzyme-adapter-react-16": "^1.0.6",
-    "@types/jest": "^26.0.5",
+    "@types/jest": "^28.1.4",
     "@types/lodash": "^4.14.178",
     "@types/memoize-one": "^5.1.2",
     "@types/react-autosuggest": "^10.1.5",
