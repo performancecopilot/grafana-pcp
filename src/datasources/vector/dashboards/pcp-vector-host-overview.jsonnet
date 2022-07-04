@@ -701,5 +701,5 @@ grafana.dashboard.new(
     h: 7,
   }
 ) + {
-  revision: 2,
+  revision: 3,
 }

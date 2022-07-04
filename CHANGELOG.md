@@ -2,6 +2,8 @@
 
 ## 5.0.1 (unreleased)
 
+* **dashboards**: bump revision of all dashboards due to the internal plugin IDs change (see below)
+
 
 ## 5.0.0 (2022-06-30)
 
