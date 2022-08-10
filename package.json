@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.12.1",
-    "@grafana/data": "^8.5.6",
+    "@grafana/data": "^9.0.7",
     "@grafana/runtime": "^8.5.6",
     "@grafana/toolkit": "^8.5.6",
     "@grafana/ui": "^8.5.6",
