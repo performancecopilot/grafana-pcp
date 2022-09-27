@@ -118,7 +118,7 @@ export class InstanceDomainDetailPage extends React.Component<InstanceDomainDeta
         if (!isBookmarked) {
             return (
                 <Button
-                    variant="link"
+                    fill="text"
                     size="md"
                     icon="star"
                     className={detailPageBtn}
@@ -159,7 +159,7 @@ export class InstanceDomainDetailPage extends React.Component<InstanceDomainDeta
                                 {data.indom.name}
                             </h2>
                             <Button
-                                variant="link"
+                                fill="text"
                                 size="md"
                                 icon="tag-alt"
                                 className={detailPageEntityType(props.theme)}

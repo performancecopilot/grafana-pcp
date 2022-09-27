@@ -7,7 +7,7 @@ import { Monaco, MonacoType } from '../../../../components/monaco';
 import { findToken, getTokenValues, TokenValue } from '../../../../datasources/lib/language';
 import { PCPVectorDataSource } from '../../datasource';
 import { VectorQuery } from '../../types';
-import * as PmapiBuiltins from './PmapiBuiltins.json';
+import PmapiBuiltins from './PmapiBuiltins.json';
 
 const log = getLogger('PmapiCompletionItemProvider');
 

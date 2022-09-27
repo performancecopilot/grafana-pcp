@@ -135,7 +135,7 @@ export class MetricDetailPage extends React.Component<MetricDetailPageProps, {}>
         if (!isBookmarked) {
             return (
                 <Button
-                    variant="link"
+                    fill="text"
                     size="md"
                     icon="star"
                     className={detailPageBtn}
@@ -170,7 +170,7 @@ export class MetricDetailPage extends React.Component<MetricDetailPageProps, {}>
         }
         return (
             <Button
-                variant="link"
+                fill="text"
                 size="md"
                 icon="chart-line"
                 className={detailPageBtn}
@@ -198,7 +198,7 @@ export class MetricDetailPage extends React.Component<MetricDetailPageProps, {}>
                                 {data.name}
                             </h2>
                             <Button
-                                variant="link"
+                                fill="text"
                                 size="md"
                                 icon="tag-alt"
                                 className={detailPageEntityType(props.theme)}

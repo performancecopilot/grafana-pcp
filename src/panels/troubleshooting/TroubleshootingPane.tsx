@@ -48,7 +48,7 @@ function renderNavigation(troubleshooting: TroubleshootingInfo, theme: GrafanaTh
                             {troubleshooting.parents!.map(parent => (
                                 <Button
                                     key={parent.uid}
-                                    variant="link"
+                                    fill="text"
                                     title={parent.title}
                                     onClick={() => navigateDashboard(parent.uid)}
                                 >
@@ -65,7 +65,7 @@ function renderNavigation(troubleshooting: TroubleshootingInfo, theme: GrafanaTh
                             {troubleshooting.children!.map(child => (
                                 <Button
                                     key={child.uid}
-                                    variant="link"
+                                    fill="text"
                                     title={child.title}
                                     onClick={() => navigateDashboard(child.uid)}
                                 >
@@ -263,7 +263,6 @@ export const TroubleshootingPane: React.FC<Props> = (props: Props) => {
         <>
             <div className={buttons}>
                 <IconButton
-                    surface="panel"
                     name="question-circle"
                     size="lg"
                     className={cx(button(theme), infoButton(theme))}
@@ -271,7 +270,6 @@ export const TroubleshootingPane: React.FC<Props> = (props: Props) => {
                 />
                 {showWarning && (
                     <IconButton
-                        surface="panel"
                         name="exclamation-triangle"
                         size="lg"
                         className={cx(button(theme), warningButton(theme))}

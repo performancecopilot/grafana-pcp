@@ -9,6 +9,7 @@ PCP  Redis Grafana grafana-pcp
 ==== ===== ======= ====================
 5.2+ 5+    7.x     3.x
 5.2+ 5+    8.x     4.x
+5.2+ 5+    9.x     5.x
 ==== ===== ======= ====================
 
 Note: Redis is only required for the :doc:`datasources/redis` data source.

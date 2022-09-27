@@ -1,7 +1,7 @@
 {
   "name": "performancecopilot-pcp-app",
   "description": "Performance Co-Pilot Grafana Plugin",
-  "version": "5.0.1",
+  "version": "5.1.0",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
     "test": "grafana-toolkit plugin:test",
@@ -19,10 +19,10 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.12.1",
-    "@grafana/data": "^8.5.6",
-    "@grafana/runtime": "^8.5.6",
-    "@grafana/toolkit": "^8.5.6",
-    "@grafana/ui": "^8.5.6",
+    "@grafana/data": "^9.0.9",
+    "@grafana/runtime": "^9.0.9",
+    "@grafana/toolkit": "^9.0.9",
+    "@grafana/ui": "^9.0.9",
     "@trivago/prettier-plugin-sort-imports": "^3.2.0",
     "@types/blueimp-md5": "^2.7.0",
     "@types/d3-selection": "^2.0.0",

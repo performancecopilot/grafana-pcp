@@ -76,7 +76,7 @@ export class Aside extends React.Component<AsideProps, {}> {
                                     <Button
                                         key={i}
                                         icon="info-circle"
-                                        variant="link"
+                                        fill="text"
                                         className={cx(asideButton, asideButtonInactive(props.theme))}
                                         data-test="sibling-link"
                                     >
@@ -87,7 +87,7 @@ export class Aside extends React.Component<AsideProps, {}> {
                                         key={i}
                                         onClick={() => onMetricClick(m)}
                                         icon="arrow-right"
-                                        variant="link"
+                                        fill="text"
                                         className={asideButton}
                                         data-test="sibling-link"
                                     >
@@ -136,7 +136,7 @@ export class Aside extends React.Component<AsideProps, {}> {
                                             key={i}
                                             onClick={() => onMetricClick(m.name as string)}
                                             icon="arrow-right"
-                                            variant="link"
+                                            fill="text"
                                             className={asideButton}
                                             data-test="sibling-link"
                                             title={m.oneline}

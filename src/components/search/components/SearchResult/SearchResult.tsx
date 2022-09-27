@@ -48,11 +48,11 @@ export class SearchResult extends React.PureComponent<SearchResultProps, {}> {
         return (
             <footer className={searchResultFooter}>
                 <HorizontalGroup spacing="lg" justify="space-between">
-                    <Button variant="link" size="md" icon="tag-alt" className={searchResultEntityType(props.theme)}>
+                    <Button fill="text" size="md" icon="tag-alt" className={searchResultEntityType(props.theme)}>
                         {props.item.type}
                     </Button>
                     <Button
-                        variant="link"
+                        fill="text"
                         size="md"
                         icon="arrow-right"
                         className={searchResultBtnWithNoSpacing}
@@ -83,7 +83,7 @@ export class SearchResult extends React.PureComponent<SearchResultProps, {}> {
                     <header className={searchResultHeader}>
                         <h4 className={searchResultTitle}>
                             <Button
-                                variant="link"
+                                fill="text"
                                 size="md"
                                 className={searchResultTitleLink(props.theme)}
                                 onClick={() => this.props.openDetail(props.item)}

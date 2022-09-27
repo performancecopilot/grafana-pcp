@@ -63,7 +63,7 @@ export class BookmarkList extends React.Component<BookmarkListProps, {}> {
                         {bookmarks.map((item, index) => (
                             <Button
                                 key={index}
-                                variant="link"
+                                fill="text"
                                 size="md"
                                 icon="star"
                                 className={bookmarkListBtnWithNoSpacing}

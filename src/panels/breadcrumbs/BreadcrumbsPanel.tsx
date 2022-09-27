@@ -37,7 +37,7 @@ export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & 
             <li className={`${breadcrumbsItem(theme)} ${hasCurrent ? breadcrumbsCurrentItem(theme) : ''}`}>
                 <Button
                     size="md"
-                    variant="link"
+                    fill="text"
                     className={breadcrumbsBtn(theme)}
                     onClick={() => navigateDashboard(item.uid)}
                     title={item.title}

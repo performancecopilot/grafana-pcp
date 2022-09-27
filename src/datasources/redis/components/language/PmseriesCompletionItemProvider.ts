@@ -5,7 +5,7 @@ import { getTemplateSrv } from '@grafana/runtime';
 import { Monaco, MonacoType } from '../../../../components/monaco';
 import { findToken, getTokenValues, TokenValue } from '../../../lib/language';
 import { PCPRedisDataSource } from '../../datasource';
-import * as PmseriesBuiltins from './PmseriesBuiltins.json';
+import PmseriesBuiltins from './PmseriesBuiltins.json';
 
 const log = getLogger('PmseriesCompletionItemProvider');
 

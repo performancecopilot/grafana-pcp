@@ -37,7 +37,7 @@ export class Meta extends React.Component<MetaProps, {}> {
                     <span className={gridValue}>
                         {onIndomClick && indom !== 'none' && indom !== '' ? (
                             <Button
-                                variant="link"
+                                fill="text"
                                 size="md"
                                 onClick={() => onIndomClick(indom)}
                                 className={css`

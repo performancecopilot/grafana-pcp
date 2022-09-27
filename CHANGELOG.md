@@ -1,8 +1,10 @@
 # Change Log
 
-## 5.0.1 (unreleased)
+## 5.1.0 (unreleased)
 
 * **dashboards**: bump revision of all dashboards due to the internal plugin IDs change (see below)
+* **build**: update to Grafana v9.0.9 and sync minimum Grafana version requirement
+* **docs**: update version compatibility table
 
 
 ## 5.0.0 (2022-06-30)

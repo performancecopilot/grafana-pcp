@@ -1,7 +1,7 @@
 import { Monaco, MonacoType } from '../../../../components/monaco';
 import { PCPBPFtraceDataSource } from '../../datasource';
 import { BPFtraceQuery } from '../../types';
-import * as BPFtraceBuiltins from './BPFtraceBuiltins.json';
+import BPFtraceBuiltins from './BPFtraceBuiltins.json';
 import { BPFtraceCompletionItemProvider } from './BPFtraceCompletionItemProvider';
 
 const languageConfiguration: MonacoType.languages.LanguageConfiguration = {

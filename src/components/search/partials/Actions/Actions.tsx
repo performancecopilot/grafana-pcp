@@ -57,7 +57,7 @@ export class Actions extends React.Component<ActionsProps, {}> {
             <VerticalGroup spacing="xs">
                 {showBackToIndexPageBtn && (
                     <Button
-                        variant="link"
+                        fill="text"
                         size="md"
                         icon="book"
                         className={actionsBtnWithNoSpacing}
@@ -69,7 +69,7 @@ export class Actions extends React.Component<ActionsProps, {}> {
                 )}
                 {showBackToPatternBtn && (
                     <Button
-                        variant="link"
+                        fill="text"
                         size="md"
                         icon="arrow-left"
                         className={actionsBtnWithNoSpacing}

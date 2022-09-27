@@ -1,7 +1,7 @@
 import { Monaco, MonacoType } from '../../../../components/monaco';
 import { PCPVectorDataSource } from '../../datasource';
 import { VectorQuery } from '../../types';
-import * as PmapiBuiltins from './PmapiBuiltins.json';
+import PmapiBuiltins from './PmapiBuiltins.json';
 import { PmapiCompletionItemProvider } from './PmapiCompletionItemProvider';
 
 const languageConfiguration: MonacoType.languages.LanguageConfiguration = {

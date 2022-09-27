@@ -70,7 +70,7 @@ export class SearchHistoryList extends React.Component<SearchHistoryListProps, {
                         {searchHistory.map((item, index) => (
                             <Button
                                 key={index}
-                                variant="link"
+                                fill="text"
                                 size="md"
                                 icon="search"
                                 className={cx(searchHistoryListBtnWithNoSpacing, wrappedBtn)}
