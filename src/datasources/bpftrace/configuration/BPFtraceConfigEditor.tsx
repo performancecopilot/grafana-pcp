@@ -42,7 +42,7 @@ export const BPFtraceConfigEditor = (props: Props) => {
                     <div className="gf-form">
                         <FormField
                             label="Host specification"
-                            labelWidth={12}
+                            labelWidth={14}
                             inputEl={
                                 <Input
                                     className="width-18"
@@ -60,7 +60,7 @@ export const BPFtraceConfigEditor = (props: Props) => {
                     <div className="gf-form">
                         <FormField
                             label="Metric values retention time"
-                            labelWidth={12}
+                            labelWidth={14}
                             inputEl={
                                 <Input
                                     className="width-6"

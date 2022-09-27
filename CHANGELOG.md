@@ -3,6 +3,7 @@
 ## 5.1.0 (unreleased)
 
 * **dashboards**: bump revision of all dashboards due to the internal plugin IDs change (see below)
+* **vector,bpftrace**: increase data source settings form column to prevent line wrap
 * **build**: update to Grafana v9.0.9 and sync minimum Grafana version requirement
 * **docs**: update version compatibility table
 
