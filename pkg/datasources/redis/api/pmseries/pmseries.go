@@ -39,14 +39,19 @@ type BasicAuthSettings struct {
 }
 
 // NewPmseriesAPI constructs a new PmseriesAPI struct
-func NewPmseriesAPI(url string, basicAuth *BasicAuthSettings) API {
+func NewPmseriesAPI(pmproxyUrl string, basicAuth *BasicAuthSettings) (API, error) {
+	_, err := url.ParseRequestURI(pmproxyUrl)
+	if err != nil {
+		return nil, fmt.Errorf("invalid URL: %w", err)
+	}
+
 	return &pmseriesAPI{
-		url:       url,
+		url:       pmproxyUrl,
 		basicAuth: basicAuth,
 		client: &http.Client{
 			Timeout: 5 * time.Second,
 		},
-	}
+	}, nil
 }
 
 func (api *pmseriesAPI) doRequest(path string, params url.Values, response interface{}) error {

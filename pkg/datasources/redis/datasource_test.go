@@ -18,7 +18,7 @@ import (
 )
 
 func TestDatasource(t *testing.T) {
-	t.Run("empty query", func(t *testing.T) {
+	t.Run("empty URL", func(t *testing.T) {
 		datasource := NewDatasource()
 		pluginCtx := backend.PluginContext{
 			OrgID: 1,
@@ -26,6 +26,24 @@ func TestDatasource(t *testing.T) {
 				Updated: time.Now(),
 			},
 			DataSourceInstanceSettings: &backend.DataSourceInstanceSettings{},
+		}
+
+		response, err := datasource.CheckHealth(context.Background(), &backend.CheckHealthRequest{
+			PluginContext: pluginCtx,
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, "invalid URL: parse \"\": empty url", response.Message)
+	})
+
+	t.Run("empty query", func(t *testing.T) {
+		datasource := NewDatasource()
+		pluginCtx := backend.PluginContext{
+			OrgID: 1,
+			AppInstanceSettings: &backend.AppInstanceSettings{
+				Updated: time.Now(),
+			},
+			DataSourceInstanceSettings: &backend.DataSourceInstanceSettings{URL: "http://localhost:44322"},
 		}
 
 		response, err := datasource.QueryData(context.Background(), &backend.QueryDataRequest{
@@ -81,7 +99,7 @@ func TestDatasource(t *testing.T) {
 		srv := httptest.NewServer(handler)
 		defer srv.Close()
 
-		pmseriesAPI := pmseries.NewPmseriesAPI(srv.URL, nil)
+		pmseriesAPI, _ := pmseries.NewPmseriesAPI(srv.URL, nil)
 		seriesService, _ := series.NewSeriesService(pmseriesAPI, 1024)
 		datasourceInstance := &redisDatasourceInstance{
 			pmseriesAPI:     pmseriesAPI,

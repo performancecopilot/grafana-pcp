@@ -58,7 +58,11 @@ func newDataSourceInstance(setting backend.DataSourceInstanceSettings) (instance
 		}
 	}*/
 
-	pmseriesAPI := pmseries.NewPmseriesAPI(setting.URL, basicAuthSettings)
+	pmseriesAPI, err := pmseries.NewPmseriesAPI(setting.URL, basicAuthSettings)
+	if err != nil {
+		return nil, err
+	}
+
 	seriesService, err := series.NewSeriesService(pmseriesAPI, 1024)
 	if err != nil {
 		return nil, err
@@ -136,5 +140,12 @@ func (ds *redisDatasource) CheckHealth(ctx context.Context, req *backend.CheckHe
 		}
 		return nil
 	})
-	return result, err
+
+	if err != nil {
+		result = &backend.CheckHealthResult{
+			Status:  backend.HealthStatusError,
+			Message: err.Error(),
+		}
+	}
+	return result, nil
 }
