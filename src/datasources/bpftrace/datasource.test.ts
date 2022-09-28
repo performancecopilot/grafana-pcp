@@ -1,4 +1,3 @@
-import { advanceTo } from 'jest-date-mock';
 import { Semantics } from '../../common/types/pcp';
 import { setGlobalLogLevel } from '../../common/utils';
 import { grafana, pmapi } from '../../datasources/lib/specs/fixtures';
@@ -20,7 +19,7 @@ describe('PCP BPFtrace', () => {
     beforeEach(() => {
         jest.resetAllMocks();
         jest.useFakeTimers();
-        advanceTo(20000);
+        jest.spyOn(Date, "now").mockImplementation(() => 20000);
         setGlobalLogLevel('DEBUG');
 
         const instanceSettings = {

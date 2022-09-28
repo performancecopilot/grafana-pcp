@@ -1,4 +1,3 @@
-import { advanceTo } from 'jest-date-mock';
 import { setGlobalLogLevel } from '../../common/utils';
 import { EndpointWithCtx } from '../../datasources/lib/pmapi/poller/types';
 import { Target } from '../../datasources/lib/pmapi/types';
@@ -22,7 +21,7 @@ describe('PCP Vector', () => {
     beforeEach(() => {
         jest.resetAllMocks();
         jest.useFakeTimers();
-        advanceTo(20000);
+        jest.spyOn(Date, "now").mockImplementation(() => 20000);
         setGlobalLogLevel('DEBUG');
 
         const instanceSettings = {
@@ -366,7 +365,7 @@ describe('PCP Vector: overridden url and hostspec', () => {
     beforeEach(() => {
         jest.resetAllMocks();
         jest.useFakeTimers();
-        advanceTo(20000);
+        jest.spyOn(Date, "now").mockImplementation(() => 20000);
         setGlobalLogLevel('DEBUG');
     });
 

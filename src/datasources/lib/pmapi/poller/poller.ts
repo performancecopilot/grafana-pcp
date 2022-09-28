@@ -338,7 +338,7 @@ export class Poller {
             return;
         }
 
-        const now = new Date().getTime();
+        const now = Date.now();
         const keepPolling = now - (this.state.refreshIntervalMs + this.config.gracePeriodMs);
         for (const endpoint of this.state.endpoints) {
             const targetsToDeregister = endpoint.targets.filter(target => target.lastActiveMs <= keepPolling);
@@ -354,7 +354,7 @@ export class Poller {
         }
 
         let cleanedSnapshots = 0;
-        const keepExpiry = new Date().getTime() - this.config.retentionTimeMs;
+        const keepExpiry = Date.now() - this.config.retentionTimeMs;
         for (const endpoint of this.state.endpoints) {
             for (const metric of endpoint.metrics) {
                 const snapshotCount = metric.values.length;
@@ -399,7 +399,7 @@ export class Poller {
         }
         this.throwBackgroundError(endpoint);
 
-        const nowMs = new Date().getTime();
+        const nowMs = Date.now();
         const targetId = `${request.dashboardId}/${request.panelId}/${query.refId}`;
         let target = endpoint.targets.find(target => target.targetId === targetId);
 
