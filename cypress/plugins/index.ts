@@ -13,7 +13,7 @@ export default (on, config) => {
             // wait until Grafana is ready
             const baseUrl = process.env['CYPRESS_BASE_URL'];
             let elapsed = 0;
-            while (elapsed < 10000) {
+            while (elapsed < 20000) {
                 try {
                     await axios.get(baseUrl, { timeout: 500 });
                     return true;

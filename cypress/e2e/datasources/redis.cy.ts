@@ -23,7 +23,7 @@ describe('PCP Redis data source', () => {
         cy.contains('Add a new panel').click();
 
         // start typing
-        cy.get('.monaco-editor textarea').type('disk.dev.', { force: true });
+        cy.get('.monaco-editor textarea').type('disk.dev.by', { force: true });
         cy.contains('disk.dev.total_bytes'); // auto-complete
 
         // click on one auto-completion entry
