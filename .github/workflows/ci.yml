@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        grafana_image: ['grafana:latest', 'grafana:8.4.3']
+        grafana_image: ['grafana:latest', 'grafana:9.0.9']
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -72,7 +72,7 @@ jobs:
           make test-ui-start-pod
 
       - name: Run UI Tests
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v4
         with:
           browser: chrome
         env:
