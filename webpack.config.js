@@ -87,7 +87,7 @@ module.exports.getWebpackConfig = (config, options) => {
         },
         module: {
             ...config.module,
-            rules: removeDataTestAttributeInProduction(options.production, excludeExtractionLoaderForMonaco(config.module.rules)),
+            rules: excludeExtractionLoaderForMonaco(config.module.rules),
         },
         plugins: [
             ...updateForkTsCheckerPluginSettings(config.plugins),
