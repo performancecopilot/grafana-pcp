@@ -41,40 +41,6 @@ function excludeExtractionLoaderForMonaco(rules) {
     return rules;
 }
 
-function removeDataTestAttributeInProduction(production, rules) {
-    if (!production)
-        return rules;
-
-    // somehow it doesn't work if this plugin is added to the existing babel-loader rule...
-    return [
-        ...rules,
-        {
-            test: /\.tsx?$/,
-            loaders: [
-                {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: [['@babel/preset-env', { modules: false }]],
-                        plugins: [
-                            ['angularjs-annotate'],
-                            ['remove-object-properties', { regexp: 'data-test' }]
-                        ],
-                        sourceMaps: true,
-                    },
-                },
-                {
-                    loader: 'ts-loader',
-                    options: {
-                        onlyCompileBundledFiles: true,
-                        transpileOnly: true,
-                    },
-                },
-            ],
-            exclude: /(node_modules)/,
-        }
-    ];
-}
-
 module.exports.getWebpackConfig = (config, options) => {
     return {
         ...config,
