@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/grafana/grafana-plugin-sdk-go v0.140.0
 	github.com/hashicorp/golang-lru v0.5.4
-	github.com/stretchr/testify v1.7.2
+	github.com/stretchr/testify v1.8.0
 )
 
 require (
