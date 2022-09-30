@@ -3,6 +3,7 @@
 ## 5.1.0 (unreleased)
 
 * **redis**: validate base URL
+* **redis**: set pmproxy API timeout to 1 minute
 * **vector,bpftrace**: increase data source settings form column to prevent line wrap
 * **dashboards**: bump revision of all dashboards due to the internal plugin IDs change (see below)
 * **build**: update dependencies, update to Grafana v9.0.9 and sync minimum Grafana version requirement

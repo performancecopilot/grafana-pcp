@@ -49,7 +49,7 @@ func NewPmseriesAPI(pmproxyUrl string, basicAuth *BasicAuthSettings) (API, error
 		url:       pmproxyUrl,
 		basicAuth: basicAuth,
 		client: &http.Client{
-			Timeout: 5 * time.Second,
+			Timeout: 1 * time.Minute,
 		},
 	}, nil
 }
