@@ -14,7 +14,7 @@ describe('PCP Redis data source', () => {
         cy.visit('/datasources');
         cy.contains('PCP Redis').click();
         cy.contains('Dashboards').click({ force: true });
-        cy.contains('td', 'PCP Redis: Host Overview').siblings().contains('Import').click();
+        cy.contains('td', 'PCP Redis: Host Overview').siblings().contains('Import').click({ force: true });
         cy.contains('Dashboard Imported');
     });
 

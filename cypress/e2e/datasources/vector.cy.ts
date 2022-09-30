@@ -14,7 +14,7 @@ describe('PCP Vector data source', () => {
         cy.visit('/datasources');
         cy.contains('PCP Vector').click();
         cy.contains('Dashboards').click({ force: true });
-        cy.contains('td', 'PCP Vector: Host Overview').siblings().contains('Import').click();
+        cy.contains('td', 'PCP Vector: Host Overview').siblings().contains('Import').click({ force: true });
         cy.contains('Dashboard Imported');
     });
 
