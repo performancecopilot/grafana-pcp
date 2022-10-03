@@ -7,7 +7,7 @@ import { MonacoEditorWrapperProps } from './MonacoEditorWrapper';
 // duplication is required to get access to the monaco object
 export const MonacoEditorLazy: React.FC<MonacoEditorWrapperProps> = props => {
     const { loading, error, value } = useAsync(async () => {
-        return await import('./MonacoEditorWrapper');
+        return await import(/* webpackChunkName: "monaco-editor" */ './MonacoEditorWrapper');
     });
 
     if (loading) {
