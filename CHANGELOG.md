@@ -1,6 +1,6 @@
 # Change Log
 
-## 5.1.0 (unreleased)
+## 5.1.0 (2022-10-25)
 
 * **redis**: validate base URL
 * **redis**: set pmproxy API timeout to 1 minute
