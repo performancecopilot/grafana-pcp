@@ -1,5 +1,10 @@
 # Change Log
 
+## 5.1.2 (unreleased)
+
+(empty)
+
+
 ## 5.1.1 (2022-10-27)
 
 * **build**: use deterministic moduleIds (webpack)
