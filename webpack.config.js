@@ -107,6 +107,7 @@ module.exports.getWebpackConfig = (config, options) => {
         optimization: {
             ...config.optimization,
             chunkIds: 'named', // required for dynamic imports in production build
+            moduleIds: 'deterministic', // required for reproducible builds
         }
     };
 };
