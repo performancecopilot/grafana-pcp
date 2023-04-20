@@ -131,7 +131,7 @@ jsonnetfmt: ## Run jsonnetfmt on all jsonnet files
 	jsonnetfmt -i $$(find . -name '*.jsonnet')
 
 plugincheck: ## Run Grafana plugincheck on the plugin zip file
-	plugincheck build/*.zip
+	plugincheck2 build/*.zip
 
 clean: ## Clean all artifacts
 	rm -rf node_modules "$(JSONNET_VENDOR_DIR)" dist build

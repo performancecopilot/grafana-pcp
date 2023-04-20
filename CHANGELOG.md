@@ -2,7 +2,7 @@
 
 ## 5.1.2 (unreleased)
 
-(empty)
+* **build**: update grafana/plugin-validator and pin nodejs version
 
 
 ## 5.1.1 (2022-10-27)
