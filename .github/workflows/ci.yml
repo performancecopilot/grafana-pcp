@@ -61,6 +61,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Setup Node.js 17
+        uses: actions/setup-node@v3
+        with:
+          node-version: 17
+
       - name: Download the build artifact
         uses: actions/download-artifact@v3
         with:
