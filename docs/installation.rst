@@ -73,7 +73,7 @@ The `yarn package manager <https://yarnpkg.com>`_, `Go compiler <https://golang.
     $ git clone https://github.com/performancecopilot/grafana-pcp.git
     $ make build
     $ sudo ln -s $(pwd) /var/lib/grafana/plugins
-    $ sudo sed -i 's/;allow_loading_unsigned_plugins =/allow_loading_unsigned_plugins = performancecopilot-pcp-app,performancecopilot-redis-datasource,performancecopilot-vector-datasource,performancecopilot-bpftrace-datasource,performancecopilot-flamegraph-panel,performancecopilot-breadcrumbs-panel,performancecopilot-troubleshooting-panel/' /etc/grafana/grafana.ini
+    $ sudo sed -i 's/;allow_loading_unsigned_plugins =/allow_loading_unsigned_plugins = performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel,performancecopilot-redis-datasource,performancecopilot-vector-datasource,performancecopilot-bpftrace-datasource,performancecopilot-flamegraph-panel,performancecopilot-breadcrumbs-panel,performancecopilot-troubleshooting-panel/' /etc/grafana/grafana.ini
     $ sudo systemctl restart grafana-server
 
 To list all available Makefile targets, run ``make help``.
