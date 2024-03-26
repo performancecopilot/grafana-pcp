@@ -20,7 +20,16 @@ describe('PCP Vector data source', () => {
 
     it('should auto-complete metric names', () => {
         cy.visit('/dashboard/new');
-        cy.contains('Add a new panel').click();
+
+        //test for Grafana 10 UI
+        cy.get('body').then(($body) => {
+            if ($body.text().search('Add a new panel') > 0) {
+              cy.contains('Add a new panel').click();
+            } else {
+              cy.contains('Add visualization').click();
+              cy.contains('PCP Vector').click();;
+            }
+        });
 
         // start typing
         cy.get('.monaco-editor').type('disk.dev.write_b');
