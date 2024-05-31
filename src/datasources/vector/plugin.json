@@ -45,6 +45,11 @@
             "type": "dashboard",
             "name": "PCP Vector: Microsoft SQL Server",
             "path": "dashboards/pcp-vector-mssql-server.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector: UWSGI Overview",
+            "path": "dashboards/pcp-vector-uwsgi-overview.json"
         }
     ]
 }

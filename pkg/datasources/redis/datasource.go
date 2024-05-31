@@ -24,7 +24,7 @@ func NewDatasource() datasource.ServeOpts {
 	mux := datasource.NewQueryTypeMux()
 	mux.HandleFunc("", func(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
 		var response *backend.QueryDataResponse
-		return response, ds.im.Do(req.PluginContext, func(dsInst *redisDatasourceInstance) error {
+		return response, ds.im.Do(ctx, req.PluginContext, func(dsInst *redisDatasourceInstance) error {
 			var err error
 			response, err = dsInst.handleTimeSeriesQueries(ctx, req)
 			return err
@@ -48,7 +48,7 @@ type redisDatasourceInstance struct {
 	seriesService   *series.Service
 }
 
-func newDataSourceInstance(setting backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
+func newDataSourceInstance(ctx context.Context, setting backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
 	var basicAuthSettings *pmseries.BasicAuthSettings
 	// enable once pmproxy /series supports authentication
 	/*if setting.BasicAuthEnabled {
@@ -91,7 +91,7 @@ func (ds *redisDatasource) CallResource(ctx context.Context, req *backend.CallRe
 	}
 
 	method := u.Path
-	return ds.im.Do(req.PluginContext, func(dsInst *redisDatasourceInstance) error {
+	return ds.im.Do(ctx, req.PluginContext, func(dsInst *redisDatasourceInstance) error {
 		status := http.StatusOK
 		result, err := dsInst.resourceService.CallResource(method, queryParams)
 		if err != nil {
@@ -119,7 +119,7 @@ func (ds *redisDatasource) CallResource(ctx context.Context, req *backend.CallRe
 // a datasource is working as expected.
 func (ds *redisDatasource) CheckHealth(ctx context.Context, req *backend.CheckHealthRequest) (*backend.CheckHealthResult, error) {
 	var result *backend.CheckHealthResult
-	err := ds.im.Do(req.PluginContext, func(dsInst *redisDatasourceInstance) error {
+	err := ds.im.Do(ctx, req.PluginContext, func(dsInst *redisDatasourceInstance) error {
 		pingResponse, err := dsInst.pmseriesAPI.Ping()
 
 		if err != nil {
