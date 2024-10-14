@@ -15,10 +15,10 @@ jobs:
     - name: Checkout sources
       uses: actions/checkout@v3
 
-    - name: Setup Node.js 17
+    - name: Setup Node.js 20
       uses: actions/setup-node@v3
       with:
-        node-version: 17
+        node-version: 20
 
     - name: Install jsonnet, jsonnet-bundler and grafana/plugin-validator
       run: |
@@ -61,10 +61,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Node.js 17
+      - name: Setup Node.js 20
         uses: actions/setup-node@v3
         with:
-          node-version: 17
+          node-version: 20
 
       - name: Download the build artifact
         uses: actions/download-artifact@v3
