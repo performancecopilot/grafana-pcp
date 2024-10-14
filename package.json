@@ -63,6 +63,9 @@
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.3.0"
   },
+  "resolutions": {
+    "eslint-plugin-jsdoc": "50.4.0"
+  },
   "engines": {
     "node": ">=14"
   }
