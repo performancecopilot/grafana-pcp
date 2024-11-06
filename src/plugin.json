@@ -51,7 +51,7 @@
     "includes": [
         {
             "type": "datasource",
-            "name": "PCP Redis"
+            "name": "PCP Valkey"
         },
         {
             "type": "datasource",
@@ -82,13 +82,13 @@
         },
         {
             "type": "dashboard",
-            "name": "PCP Redis: Metric Preview (Graph)",
-            "path": "dashboards/redis/preview/pcp-redis-metric-preview-graph.json"
+            "name": "PCP Valkey: Metric Preview (Graph)",
+            "path": "dashboards/valkey/preview/pcp-valkey-metric-preview-graph.json"
         },
         {
             "type": "dashboard",
-            "name": "PCP Redis: Metric Preview (Table)",
-            "path": "dashboards/redis/preview/pcp-redis-metric-preview-table.json"
+            "name": "PCP Valkey: Metric Preview (Table)",
+            "path": "dashboards/valkey/preview/pcp-valkey-metric-preview-table.json"
         },
         {
             "type": "dashboard",

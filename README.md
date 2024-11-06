@@ -31,7 +31,7 @@ It presents a unifying abstraction for all of the performance data in a system, 
 * support for repeated panels
 * sample dashboards for all data sources
 
-[1] PCP Redis
+[1] PCP Valkey
 [2] PCP Vector
 [3] PCP bpftrace
 

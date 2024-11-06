@@ -223,7 +223,7 @@ describe('PCP Vector', () => {
         expect(registerDeriverMetricSpy).toBeCalledTimes(1);
     });
 
-    it.skip('redisBackfill hook should request series api for backfilling and populate metric values', async () => {
+    it.skip('valkeyBackfill hook should request series api for backfilling and populate metric values', async () => {
         const targets = [
             poller.target({ query: { expr: 'disk.dev.read', refId: 'A' } }),
             poller.target({ query: { expr: 'kernel.all.sysfork', refId: 'B' } }),
@@ -236,7 +236,7 @@ describe('PCP Vector', () => {
             pmseries.instances(['disk.dev.read']),
             pmseries.labels(['disk.dev.read[sda]', 'disk.dev.read[nvme0n1]']),
         ]);
-        await datasource.redisBackfill(endpoint, targets);
+        await datasource.valkeyBackfill(endpoint, targets);
         expect(endpoint.metrics).toMatchSnapshot();
         expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
             Array [
@@ -265,7 +265,7 @@ describe('PCP Vector', () => {
         `);
     });
 
-    it.skip('redisBackfill hook should use panel url', async () => {
+    it.skip('valkeyBackfill hook should use panel url', async () => {
         const targets = [ds.query({ expr: 'kernel.all.sysfork', url: 'http://panel_url:1234' })];
         let response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toEqual({ data: [] });

@@ -192,7 +192,7 @@ describe('<DetailPage/>', () => {
             type: 'graph',
         });
         expect(locationSrvMock.update.mock.calls[0][0]).toEqual({
-            path: '/d/pcp-redis-metric-preview-graph/pcp-redis-metric-preview-graph',
+            path: '/d/pcp-valkey-metric-preview-graph/pcp-valkey-metric-preview-graph',
             query: {
                 'var-metric': id,
                 refresh: '5s',
@@ -212,7 +212,7 @@ describe('<DetailPage/>', () => {
             type: 'table',
         });
         expect(locationSrvMock.update.mock.calls[0][0]).toEqual({
-            path: '/d/pcp-redis-metric-preview-table/pcp-redis-metric-preview-table',
+            path: '/d/pcp-valkey-metric-preview-table/pcp-valkey-metric-preview-table',
             query: {
                 'var-metric': id,
                 refresh: '5s',

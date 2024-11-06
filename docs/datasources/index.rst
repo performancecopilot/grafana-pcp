@@ -3,7 +3,7 @@ Overview
 
 .. include:: ../refs.rst
 
-PCP Redis
+PCP Valkey
 ---------
 
 This data source queries the fast, scalable time series capabilities provided by the `pmseries`_ functionality.

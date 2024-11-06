@@ -46,7 +46,7 @@ export class AppConfig extends PureComponent<Props> {
                     `}
                 >
                     <li>
-                        <strong>PCP Redis</strong> for fast, scalable time series aggregation across multiple hosts
+                        <strong>PCP Valkey</strong> for fast, scalable time series aggregation across multiple hosts
                     </li>
                     <li>
                         <strong>PCP Vector</strong> for live, on-host metrics analysis, with container support

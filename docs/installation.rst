@@ -5,14 +5,14 @@ Minimum Software Requirements
 -----------------------------
 
 ==== ===== ======= ====================
-PCP  Redis Grafana grafana-pcp
+PCP  Valkey Grafana grafana-pcp
 ==== ===== ======= ====================
 5.2+ 5+    7.x     3.x
 5.2+ 5+    8.x     4.x
 5.2+ 5+    9.x     5.x
 ==== ===== ======= ====================
 
-Note: Redis is only required for the :doc:`datasources/redis` data source.
+Note: Valkey is only required for the :doc:`datasources/valkey` data source.
 
 Distribution Package
 --------------------
@@ -73,7 +73,7 @@ The `yarn package manager <https://yarnpkg.com>`_, `Go compiler <https://golang.
     $ git clone https://github.com/performancecopilot/grafana-pcp.git
     $ make build
     $ sudo ln -s $(pwd) /var/lib/grafana/plugins
-    $ sudo sed -i 's/;allow_loading_unsigned_plugins =/allow_loading_unsigned_plugins = performancecopilot-pcp-app,pcp-redis-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel,performancecopilot-redis-datasource,performancecopilot-vector-datasource,performancecopilot-bpftrace-datasource,performancecopilot-flamegraph-panel,performancecopilot-breadcrumbs-panel,performancecopilot-troubleshooting-panel/' /etc/grafana/grafana.ini
+    $ sudo sed -i 's/;allow_loading_unsigned_plugins =/allow_loading_unsigned_plugins = performancecopilot-pcp-app,pcp-valkey-datasource,pcp-vector-datasource,pcp-bpftrace-datasource,pcp-flamegraph-panel,pcp-breadcrumbs-panel,pcp-troubleshooting-panel,performancecopilot-valkey-datasource,performancecopilot-vector-datasource,performancecopilot-bpftrace-datasource,performancecopilot-flamegraph-panel,performancecopilot-breadcrumbs-panel,performancecopilot-troubleshooting-panel/' /etc/grafana/grafana.ini
     $ sudo systemctl restart grafana-server
 
 To list all available Makefile targets, run ``make help``.

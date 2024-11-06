@@ -57,7 +57,7 @@ export interface TextItemResponse {
 }
 
 export interface TextResponse {
-    total: number; // Redisearch returns total number of matching records even if results themselves are limited
+    total: number; // ValkeySearch returns total number of matching records even if results themselves are limited
     elapsed: number;
     limit: number;
     offset: number;
@@ -73,7 +73,7 @@ export interface IndomQueryParams {
 export class SearchNotAvailableError extends Error {
     constructor(message?: string) {
         super(
-            message ?? `Metric Search not available. Please install the RediSearch Redis module and restart pmproxy.`
+            message ?? `Metric Search not available. Please install the ValkeySearch Valkey module and restart pmproxy.`
         );
         Object.setPrototypeOf(this, new.target.prototype);
     }

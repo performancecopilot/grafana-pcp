@@ -1,0 +1,37 @@
+{
+    "name": "PCP Valkey",
+    "id": "performancecopilot-valkey-datasource",
+    "type": "datasource",
+    "category": "tsdb",
+    "metrics": true,
+    "alerting": true,
+    "annotations": false,
+    "tables": true,
+    "backend": true,
+    "executable": "pcp_valkey_datasource",
+    "info": {
+        "description": "fast, scalable time series aggregation across multiple hosts",
+        "logos": {
+            "small": "img/valkey.png",
+            "large": "img/valkey.png"
+        },
+        "links": [
+            {
+                "name": "GitHub",
+                "url": "https://github.com/performancecopilot/grafana-pcp"
+            }
+        ]
+    },
+    "includes": [
+        {
+            "type": "dashboard",
+            "name": "PCP Valkey: Host Overview",
+            "path": "dashboards/pcp-valkey-host-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Valkey: Microsoft SQL Server",
+            "path": "dashboards/pcp-valkey-mssql-server.json"
+        }
+    ]
+}
