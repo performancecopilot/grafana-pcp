@@ -50,6 +50,11 @@
             "type": "dashboard",
             "name": "PCP Vector: UWSGI Overview",
             "path": "dashboards/pcp-vector-uwsgi-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Vector: Top Consumers",
+            "path": "dashboards/pcp-vector-top-consumers.json"
         }
     ]
 }
