@@ -16,10 +16,10 @@ if [[ "${GRAFANA_PLUGIN_VERSION}" == *beta* ]]; then
   PRERELEASE_ARG="-p"
 fi
 
-hub release create \
-    -m "grafana-pcp v${GRAFANA_PLUGIN_VERSION}" \
-    -m "${RELEASE_NOTES}" \
-    -a "build/${GRAFANA_PLUGIN_ARTIFACT}" \
-    -a "build/${GRAFANA_PLUGIN_ARTIFACT_CHECKSUM}" \
-    $PRERELEASE_ARG \
-    "v${GRAFANA_PLUGIN_VERSION}"
+gh release create \
+    "v${GRAFANA_PLUGIN_VERSION}" \
+    -t "grafana-pcp v${GRAFANA_PLUGIN_VERSION}" \
+    -n "${RELEASE_NOTES}" \
+    "build/${GRAFANA_PLUGIN_ARTIFACT}" \
+    "build/${GRAFANA_PLUGIN_ARTIFACT_CHECKSUM}" \
+    ${PRERELEASE_ARG}
