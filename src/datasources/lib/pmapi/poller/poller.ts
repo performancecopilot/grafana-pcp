@@ -21,7 +21,7 @@ interface PollerHooks {
     registerEndpoint?: (endpoint: EndpointWithCtx) => Promise<void>;
     registerTarget: (endpoint: EndpointWithCtx, target: Target) => Promise<string[]>;
     deregisterTarget?: (target: Target) => void;
-    redisBackfill?: (endpoint: EndpointWithCtx, targets: Target[]) => Promise<void>;
+    valkeyBackfill?: (endpoint: EndpointWithCtx, targets: Target[]) => Promise<void>;
 }
 
 interface PollerConfig {
@@ -171,17 +171,17 @@ export class Poller {
             }
         }
 
-        if (endpoint.hasRedis && readyTargets.length > 0) {
+        if (endpoint.hasValkey && readyTargets.length > 0) {
             try {
-                await this.config.hooks.redisBackfill?.(endpoint, readyTargets);
+                await this.config.hooks.valkeyBackfill?.(endpoint, readyTargets);
             } catch (error) {
-                // redis backfill is entirely optional, therefore ignore any errors
-                log.error('Error in redisBackfill hook', error);
+                // valkey backfill is entirely optional, therefore ignore any errors
+                log.error('Error in valkeyBackfill hook', error);
             }
         }
     }
 
-    async endpointHasRedis(endpoint: Endpoint): Promise<boolean> {
+    async endpointHasValkey(endpoint: Endpoint): Promise<boolean> {
         // the instance id of pmseries doesn't match instance id of pmapi
         // which leads to wrong association of instance names... disable backfilling until this is solved.
         return false;
@@ -190,8 +190,8 @@ export class Poller {
             const pingRespone = await this.pmSeriesApiService.ping(endpoint.url);
             return pingRespone.success;
         } catch (error) {
-            // redis backfill is entirely optional, therefore ignore any errors
-            log.debug('Error checking if endpoint has redis', error);
+            // valkey backfill is entirely optional, therefore ignore any errors
+            log.debug('Error checking if endpoint has valkey', error);
             return false;
         }
     }
@@ -201,7 +201,7 @@ export class Poller {
             hostspec: endpoint.hostspec,
             polltimeout: Math.round((this.state.refreshIntervalMs + this.config.gracePeriodMs) / 1000),
         });
-        endpoint.hasRedis = this.config.hooks.redisBackfill && (await this.endpointHasRedis(endpoint));
+        endpoint.hasValkey = this.config.hooks.valkeyBackfill && (await this.endpointHasValkey(endpoint));
         endpoint.state = EndpointState.CONNECTED;
         await this.config.hooks.registerEndpoint?.(endpoint as EndpointWithCtx);
     }

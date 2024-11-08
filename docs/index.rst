@@ -27,7 +27,7 @@ Features
 * support for repeated panels
 * sample dashboards for all data sources
 
-[1] PCP Redis
+[1] PCP Valkey
 [2] PCP Vector
 [3] PCP bpftrace
 
@@ -58,7 +58,7 @@ Getting started
    :hidden:
 
    datasources/authentication
-   datasources/redis
+   datasources/valkey
    datasources/vector
    datasources/bpftrace
 

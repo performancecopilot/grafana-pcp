@@ -13,9 +13,9 @@ describe('grafana-pcp setup', () => {
         cy.get('button').should('include.text', 'Disable');
     });
 
-    it('should setup PCP Redis data source', () => {
+    it('should setup PCP Valkey data source', () => {
         cy.visit('/datasources/new');
-        cy.contains('PCP Redis').click();
+        cy.contains('PCP Valkey').click();
         cy.get('input[placeholder="http://localhost:44322"]').type('http://localhost:44322');
         cy.get('button[type=submit]').click();
         cy.contains('Data source is working');

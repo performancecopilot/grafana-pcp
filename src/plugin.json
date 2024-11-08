@@ -51,15 +51,18 @@
     "includes": [
         {
             "type": "datasource",
-            "name": "PCP Redis"
+            "name": "PCP Valkey",
+            "path": "datasources/valkey/plugin.json"
         },
         {
             "type": "datasource",
-            "name": "PCP Vector"
+            "name": "PCP Vector",
+            "path": "datasources/vector/plugin.json"
         },
         {
             "type": "datasource",
-            "name": "PCP bpftrace"
+            "name": "PCP bpftrace",
+            "path": "datasources/bpftrace/plugin.json"
         },
         {
             "type": "page",
@@ -70,25 +73,28 @@
         },
         {
             "type": "panel",
-            "name": "PCP Flame Graph"
+            "name": "PCP Flame Graph",
+            "path": "panels/flamegraph/plugin.json"
         },
         {
             "type": "panel",
-            "name": "PCP Troubleshooting Panel"
+            "name": "PCP Troubleshooting Panel",
+            "path": "panels/troubleshooting/plugin.json"
         },
         {
             "type": "panel",
-            "name": "PCP Breadcrumbs panel"
+            "name": "PCP Breadcrumbs panel",
+            "path": "panels/breadcrumbs/plugin.json"
         },
         {
             "type": "dashboard",
-            "name": "PCP Redis: Metric Preview (Graph)",
-            "path": "dashboards/redis/preview/pcp-redis-metric-preview-graph.json"
+            "name": "PCP Valkey: Metric Preview (Graph)",
+            "path": "dashboards/valkey/preview/pcp-valkey-metric-preview-graph.json"
         },
         {
             "type": "dashboard",
-            "name": "PCP Redis: Metric Preview (Table)",
-            "path": "dashboards/redis/preview/pcp-redis-metric-preview-table.json"
+            "name": "PCP Valkey: Metric Preview (Table)",
+            "path": "dashboards/valkey/preview/pcp-valkey-metric-preview-table.json"
         },
         {
             "type": "dashboard",

@@ -62,10 +62,10 @@ export class DetailPage extends React.Component<DetailPageProps, DetailPageState
         let path = '';
         switch (item.type) {
             case 'graph':
-                path = '/d/pcp-redis-metric-preview-graph/pcp-redis-metric-preview-graph';
+                path = '/d/pcp-valkey-metric-preview-graph/pcp-valkey-metric-preview-graph';
                 break;
             case 'table':
-                path = '/d/pcp-redis-metric-preview-table/pcp-redis-metric-preview-table';
+                path = '/d/pcp-valkey-metric-preview-table/pcp-valkey-metric-preview-table';
                 break;
             default:
                 return;

@@ -27,7 +27,7 @@ Data Sources
 
 Before using grafana-pcp, you need to configure the data sources.
 Open the Grafana configuration, go to Data Sources and add the
-:doc:`datasources/redis`,
+:doc:`datasources/valkey`,
 :doc:`datasources/vector` and/or
 :doc:`datasources/bpftrace` data sources.
 
@@ -42,8 +42,8 @@ You can import them by navigating to the *Dashboards* tab on top of the settings
    Make sure the *URL* text box actually contains a value (font color should be white) and you're not looking at the placeholder value (light grey text).
 
 .. note::
-   The Redis and bpftrace data sources need additional configuration on the collector host.
-   See :doc:`datasources/redis` and :doc:`datasources/bpftrace`.
+   The Valkey and bpftrace data sources need additional configuration on the collector host.
+   See :doc:`datasources/valkey` and :doc:`datasources/bpftrace`.
 
 Dashboards
 ----------

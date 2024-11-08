@@ -1,8 +1,20 @@
 # Change Log
 
-## 5.1.2 (unreleased)
+## 5.2.0 (2024-11-08)
 
+* **valkey**: new PCP Valkey datasource (replacement for PCP Redis)
+* **redis**: PCP Redis datasource renamed to PCP Valkey due to licensing
+* **dashboards**: new PCP Vector Top Consumers dashboard
+* **dashboards**: new PCP Vector UWSGI overview dashboard
+* **dashboards**: new PCP Prometheus Host Overview dashboard
+* **test**: update cypress tests for grafana 10
+* **docs**: update donations page link with new fiscal sponsor details
+* **docs**: add .readthedocs.yaml file to keep grafana-pcp.readthedocs.io working
+* **docs**: fix command in installation doc to allow loading unsigned plugins for both containers and from source
 * **build**: update grafana/plugin-validator and pin nodejs version
+* **build**: update Go and node dependencies
+* **ci**: update release scrip to use gh instead of deprecated hub command
+* **search**: metric search turned off until Valkey replacement arrives for RediSearch
 
 
 ## 5.1.1 (2022-10-27)

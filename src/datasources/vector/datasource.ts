@@ -29,7 +29,7 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
             hooks: {
                 queryHasChanged: this.queryHasChanged,
                 registerTarget: this.registerTarget.bind(this),
-                redisBackfill: this.redisBackfill.bind(this),
+                valkeyBackfill: this.valkeyBackfill.bind(this),
             },
         });
 
@@ -119,10 +119,10 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
     }
 
     /**
-     * try to backfill if redis is available
+     * try to backfill if valkey is available
      * Note: poller made sure that all targets belong to the same endpoint (url + hostspec)
      */
-    async redisBackfill(endpoint: Endpoint, targets: Array<Target<VectorTargetData>>) {
+    async valkeyBackfill(endpoint: Endpoint, targets: Array<Target<VectorTargetData>>) {
         const metricNames = new Set(targets.flatMap(target => target.metricNames));
 
         // split into series (metrics) with and without instance domains

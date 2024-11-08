@@ -72,7 +72,7 @@ jobs:
           name: build
           path: build
 
-      - name: Start PCP and Redis in a pod
+      - name: Start PCP and Valkey in a pod
         run: |
           # workaround required on GitHub Actions to allow running systemd in rootless containers
           # https://github.com/actions/virtual-environments/issues/3536

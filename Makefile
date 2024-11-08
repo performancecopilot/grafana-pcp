@@ -36,11 +36,11 @@ watch-frontend: deps-frontend build-dashboards ## Auto rebuilt frontend on file 
 	yarn run watch
 
 dev-backend: deps-backend
-	go build -race -o ./dist/datasources/redis/pcp_redis_datasource_$$(go env GOOS)_$$(go env GOARCH) -tags netgo -ldflags -w ./pkg
+	go build -race -o ./dist/datasources/valkey/pcp_valkey_datasource_$$(go env GOOS)_$$(go env GOARCH) -tags netgo -ldflags -w ./pkg
 
 restart-backend: ## Rebuild and restart backend data source (as root)
 	sudo -u "$$(stat -c '%U' .)" make dev-backend
-	killall pcp_redis_datasource_$$(go env GOOS)_$$(go env GOARCH)
+	killall pcp_valkey_datasource_$$(go env GOOS)_$$(go env GOARCH)
 
 
 ##@ Build
@@ -61,10 +61,10 @@ GO_LD_FLAGS := -w -s -extldflags "-static"
 build-backend: deps-backend ## Build backend data source
 	#mage buildAll
 	for arch in amd64 arm arm64 s390x ppc64le 386; do \
-	  CGO_ENABLED=0 GOOS=linux GOARCH=$${arch} go build -o dist/datasources/redis/pcp_redis_datasource_linux_$${arch} -ldflags '$(GO_LD_FLAGS)' ./pkg; \
+	  CGO_ENABLED=0 GOOS=linux GOARCH=$${arch} go build -o dist/datasources/valkey/pcp_valkey_datasource_linux_$${arch} -ldflags '$(GO_LD_FLAGS)' ./pkg; \
 	done
-	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o dist/datasources/redis/pcp_redis_datasource_darwin_amd64 -ldflags '$(GO_LD_FLAGS)' ./pkg
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o dist/datasources/redis/pcp_redis_datasource_windows_amd64.exe -ldflags '$(GO_LD_FLAGS)' ./pkg
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o dist/datasources/valkey/pcp_valkey_datasource_darwin_amd64 -ldflags '$(GO_LD_FLAGS)' ./pkg
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o dist/datasources/valkey/pcp_valkey_datasource_windows_amd64.exe -ldflags '$(GO_LD_FLAGS)' ./pkg
 
 build: build-dashboards build-frontend build-backend ## Build everything
 
@@ -99,21 +99,21 @@ test: test-frontend test-backend ## Run all tests
 
 ##@ UI tests
 
-test-ui-start-pod: ## Start PCP and Redis in a pod
+test-ui-start-pod: ## Start PCP and Valkey in a pod
 	-podman pod rm -f grafana-pcp-tests
 	podman pod create --name grafana-pcp-tests -p 3001:3000
 	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-pcp -d --systemd always quay.io/performancecopilot/pcp
-	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-redis -d docker.io/library/redis:6
+	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-valkey -d docker.io/valkey/valkey:7
 
 test-ui-start-grafana-dist: ## Start Grafana with grafana-pcp from the dist/ folder
 	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-grafana -d --replace \
-		-e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,performancecopilot-redis-datasource,performancecopilot-vector-datasource,performancecopilot-bpftrace-datasource,performancecopilot-flamegraph-panel,performancecopilot-breadcrumbs-panel,performancecopilot-troubleshooting-panel" \
+		-e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,performancecopilot-valkey-datasource,performancecopilot-vector-datasource,performancecopilot-bpftrace-datasource,performancecopilot-flamegraph-panel,performancecopilot-breadcrumbs-panel,performancecopilot-troubleshooting-panel" \
 		-v $$(pwd)/dist:/var/lib/grafana/plugins/performancecopilot-pcp-app \
 		$(GRAFANA_IMAGE)
 
 test-ui-start-grafana-build: ## Start Grafana with grafana-pcp from build/performancecopilot-pcp-app-*.zip
 	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-grafana -d --replace \
-		-e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,performancecopilot-redis-datasource,performancecopilot-vector-datasource,performancecopilot-bpftrace-datasource,performancecopilot-flamegraph-panel,performancecopilot-breadcrumbs-panel,performancecopilot-troubleshooting-panel" \
+		-e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,performancecopilot-valkey-datasource,performancecopilot-vector-datasource,performancecopilot-bpftrace-datasource,performancecopilot-flamegraph-panel,performancecopilot-breadcrumbs-panel,performancecopilot-troubleshooting-panel" \
 		-e GF_INSTALL_PLUGINS="/tmp/plugin.zip;performancecopilot-pcp-app" \
 		-v $$(pwd)/build/$$(basename build/performancecopilot-pcp-app-*.zip):/tmp/plugin.zip \
 		$(GRAFANA_IMAGE)

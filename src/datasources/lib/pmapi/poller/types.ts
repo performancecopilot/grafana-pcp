@@ -42,8 +42,8 @@ export interface Endpoint {
 
     /** context, will be created at next poll */
     context?: Context;
-    /** backfilling with redis */
-    hasRedis?: boolean;
+    /** backfilling with valkey */
+    hasValkey?: boolean;
 }
 
 export type EndpointWithCtx = Required<Endpoint, 'context'>;

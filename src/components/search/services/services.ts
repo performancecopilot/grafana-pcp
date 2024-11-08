@@ -2,7 +2,7 @@ import { getBackendSrv } from '@grafana/runtime';
 import { PmSearchApiService } from '../../../common/services/pmsearch/PmSearchApiService';
 import { PmSeriesApiService } from '../../../common/services/pmseries/PmSeriesApiService';
 import { GenericError } from '../../../common/types/errors';
-import redisPluginConfig from '../../../datasources/redis/plugin.json';
+import valkeyPluginConfig from '../../../datasources/valkey/plugin.json';
 import Config from '../config/config';
 import EntityService from './EntityDetailService';
 
@@ -14,13 +14,13 @@ export interface Services {
 
 async function getDatasourceSettings() {
     const datasources = await getBackendSrv().get('/api/datasources');
-    const redisDatasource = datasources.find((ds: any) => ds.type === redisPluginConfig.id);
-    if (!redisDatasource) {
+    const valkeyDatasource = datasources.find((ds: any) => ds.type === valkeyPluginConfig.id);
+    if (!valkeyDatasource) {
         throw new GenericError(
-            `Could not find any PCP Redis data source. Please create a PCP Redis data source before using the search feature.`
+            `Could not find any PCP Valkey data source. Please create a PCP Valkey data source before using the search feature.`
         );
     }
-    return redisDatasource;
+    return valkeyDatasource;
 }
 
 export const initServices = async (): Promise<Services> => {
