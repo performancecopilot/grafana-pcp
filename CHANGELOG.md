@@ -1,6 +1,6 @@
 # Change Log
 
-## 5.2.1 (unreleased)
+## 5.2.1 (2024-11-12)
 * **build**: update Go and node dependencies
 
 ## 5.2.0 (2024-11-08)
