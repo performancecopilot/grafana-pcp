@@ -1,5 +1,8 @@
 # Change Log
 
+## 5.2.1 (unreleased)
+* **build**: update Go and node dependencies
+
 ## 5.2.0 (2024-11-08)
 
 * **valkey**: new PCP Valkey datasource (replacement for PCP Redis)
