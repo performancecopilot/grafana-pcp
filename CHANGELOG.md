@@ -1,7 +1,15 @@
 # Change Log
 
+## 5.2.2 (2024-11-26)
+
+* **dashboards**: add configuration instructions to PCP Vector Top Consumers dashboard
+* **build**: update node dependencies
+
+
 ## 5.2.1 (2024-11-12)
+
 * **build**: update Go and node dependencies
+
 
 ## 5.2.0 (2024-11-08)
 
