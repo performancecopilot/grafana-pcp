@@ -337,6 +337,95 @@ func (ds *valkeyDatasourceInstance) transformToHeatMap(frame *data.Frame) error 
 	return nil
 }
 
+// func (ds *valkeyDatasourceInstance) transformToGeoMap(frames data.Frames) (data.Frames, error) {
+func (ds *valkeyDatasourceInstance) transformToGeoMap(frames *data.Frames) error {
+	// create a new frame as we will want to delete fields, but that is not supported
+	// create the new data frame in the proper format (time, instances, values, longitude, latitude)
+	newFrame := data.NewFrame("")
+
+	// create new timeField and add to the frame
+	newTimeField := data.NewField("time", nil, []time.Time{})
+	newFrame.Fields = append(newFrame.Fields, newTimeField)
+
+	// create new field to store the instance names and append to the new frame
+	instanceField := data.NewField("instance", nil, []*string{})
+	newFrame.Fields = append(newFrame.Fields, instanceField)
+
+	// create new field to store the values for each instance and append to the new frame
+	valueField := data.NewField("value", nil, []*float64{})
+	newFrame.Fields = append(newFrame.Fields, valueField)
+
+	// create longitudeField and append to the new frame
+	longitudeField := data.NewField("longitude", nil, []*float64{})
+	newFrame.Fields = append(newFrame.Fields, longitudeField)
+
+	// create latitudeField and append to the new frame
+	latitudeField := data.NewField("latitude", nil, []*float64{})
+	newFrame.Fields = append(newFrame.Fields, latitudeField)
+
+	// timeField to store the time value for each instance (initialize once)
+	var timeField *data.Field
+
+	// map to store the values for each instance
+	//valFields := map[int]*data.Field{}
+
+	// iterate over the frames
+	for _, frame := range *frames {
+		// map to store the values for each instance
+		valFields := map[int]*data.Field{}
+
+		// find the time field and the value fields (may be multiple for multi instance metrics)
+		for i, field := range frame.Fields {
+			if field.Type() == data.FieldTypeTime {
+				timeField = field
+				//break
+			} else {
+				valFields[i] = field
+			}
+		}
+
+		// iterate over each field in valFields
+		// each field in valFields corresponds to an instance of a multi instance metric
+		for _, field := range valFields {
+			// collect the most recent timestamp from timeField and append to newTimeField
+			newTimeField.Append(timeField.At(timeField.Len() - 1))
+
+			// collect and append the instance field
+			instance, err := convertFieldValue("string", field.Name)
+			if err != nil {
+				return err
+			}
+			instanceField.Append(instance)
+
+			// collect and append the most recent value to the valuefield
+			valFloat, _ := field.FloatAt(field.Len() - 1)
+			valueField.Append(&valFloat)
+
+			//collect and append the longitude field
+			longitude, err := convertFieldValue("float", field.Labels["longitude"])
+			if err != nil {
+				return err
+			}
+			longitudeField.Append(longitude)
+
+			//collect and append the latitude field
+			latitude, err := convertFieldValue("float", field.Labels["latitude"])
+			if err != nil {
+				return err
+			}
+			latitudeField.Append(latitude)
+
+		}
+	}
+
+	// empty frames as it holds different hosts/instances in separate frames
+	*frames = (*frames)[:0]
+
+	// populate frames with the newFrame
+	*frames = append(*frames, newFrame)
+	return nil
+}
+
 func (ds *valkeyDatasourceInstance) processQuery(valkeyQuery *Query, series map[string]*series.Series, values []pmseries.ValuesResponseItem) (data.Frames, error) {
 	frames, err := ds.createDataFrames(valkeyQuery, series, values)
 	if err != nil {
@@ -352,6 +441,12 @@ func (ds *valkeyDatasourceInstance) processQuery(valkeyQuery *Query, series map[
 			if err != nil {
 				return nil, err
 			}
+		}
+		return frames, nil
+	case Geomap:
+		err := ds.transformToGeoMap(&frames)
+		if err != nil {
+			return nil, err
 		}
 		return frames, nil
 	default:

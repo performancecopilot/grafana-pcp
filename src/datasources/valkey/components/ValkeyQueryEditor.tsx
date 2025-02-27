@@ -16,6 +16,7 @@ type Props = QueryEditorProps<PCPValkeyDataSource, ValkeyQuery, ValkeyOptions>;
 const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
     { label: 'Time series', value: TargetFormat.TimeSeries },
     { label: 'Heatmap', value: TargetFormat.Heatmap },
+    { label: 'Geomap', value: TargetFormat.Geomap },
 ];
 
 interface State {

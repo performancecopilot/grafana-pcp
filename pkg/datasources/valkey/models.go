@@ -5,6 +5,7 @@ type TargetFormat string
 const (
 	TimeSeries TargetFormat = "time_series"
 	Heatmap    TargetFormat = "heatmap"
+	Geomap     TargetFormat = "geomap"
 )
 
 // Query is a single valkey query (target)
