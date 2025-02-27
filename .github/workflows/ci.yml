@@ -44,7 +44,7 @@ jobs:
       run: make plugincheck || true
 
     - name: Publish build artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build
         path: build
@@ -67,7 +67,7 @@ jobs:
           node-version: 17
 
       - name: Download the build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: build
@@ -90,7 +90,7 @@ jobs:
           RESET_GRAFANA_CMD: make GRAFANA_IMAGE=docker.io/grafana/${{ matrix.grafana_image }} test-ui-start-grafana-build
 
       - name: Publish screenshots and videos from UI tests
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: cypress

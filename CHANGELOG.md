@@ -1,5 +1,12 @@
 # Change Log
 
+## 5.3.0 (unreleased)
+
+* **valkey**: implemented support for geomap panels for PCP Valkey
+* **build**: update Go and node dependencies
+* **ci**: update ci to use upload-artifact@v4
+
+
 ## 5.2.2 (2024-11-26)
 
 * **dashboards**: add configuration instructions to PCP Vector Top Consumers dashboard

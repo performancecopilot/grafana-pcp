@@ -46,10 +46,25 @@ If there are multiple series for a metric, all series will be shown as separate 
 For metrics with instance domains, each instance is shown as a separate target.
 If there are multiple queries defined, all values will be combined in the same graph.
 
-Table
+Heatmap
+^^^^^^^
+Transforms the data for the heatmap panel.
+Instance names have to be in the following format: ``<lower_bound>-<upper_bound>``, for example, ``512-1023`` (the bcc PMDA produces histograms in this format).
+
+**The following settings have to be set in the heatmap panel options:**
+
+============== =======================
+Setting        Value
+============== =======================
+*Format*       **Time Series Buckets**
+*Bucket bound* **Upper**
+============== =======================
+
+Geomap
 ^^^^^
-Transforms the data for the table panel.
-Two or more queries are required, and it will transform every metric into a column, and every instance into a row.
+Transforms the data for the geomap panel.
+If there are multiple series(hosts) for a metric, all series(hosts) will be shown on the map.
+If a metric has multiple instances, all instances will be shown on the map.
 The latest values of the currently selected timeframe will be displayed.
 
 Legend Format Templating
