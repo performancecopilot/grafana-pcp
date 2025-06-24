@@ -82,7 +82,7 @@
     "postcss": "^8.4.31",
     "@babel/traverse": "^7.23.2",
     "follow-redirects": "^1.15.4",
-    "axios": "^0.28.0",
+    "axios": "^0.30.0",
     "braces": "^3.0.3",
     "ws": "^7.5.10",
     "micromatch": "^4.0.8",
@@ -92,7 +92,8 @@
     "http-proxy-middleware": "^2.0.8",
     "nanoid": "^3.3.8",
     "serialize-javascript": "^6.0.2",
-    "prismjs": "^1.30.0"
+    "prismjs": "^1.30.0",
+    "@babel/runtime": "^7.26.10"
   },
   "engines": {
     "node": ">=14"
