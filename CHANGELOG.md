@@ -1,6 +1,6 @@
 # Change Log
 
-## 5.3.0 (unreleased)
+## 5.3.0 (2025-06-30)
 
 * **valkey**: implemented support for geomap panels for PCP Valkey
 * **build**: update Go and node dependencies
