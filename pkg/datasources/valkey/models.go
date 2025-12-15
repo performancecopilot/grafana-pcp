@@ -6,6 +6,7 @@ const (
 	TimeSeries TargetFormat = "time_series"
 	Heatmap    TargetFormat = "heatmap"
 	Geomap     TargetFormat = "geomap"
+	Gauge      TargetFormat = "gauge"
 )
 
 // Query is a single valkey query (target)
