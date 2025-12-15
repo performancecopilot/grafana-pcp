@@ -426,6 +426,37 @@ func (ds *valkeyDatasourceInstance) transformToGeoMap(frames *data.Frames) error
 	return nil
 }
 
+func (ds *valkeyDatasourceInstance) transformToGauge(frames *data.Frames) error {
+	var instances []string
+	var values []float64
+
+	for _, frame := range *frames {
+		for _, field := range frame.Fields[1:] {
+			custom := field.Config.Custom
+			instance, ok := custom["Instance"]
+			if !ok {
+				return fmt.Errorf("Error")
+			}
+			imap := instance.(series.Instance)
+			display := imap.Name
+			instances = append(instances, display)
+			valFloat, _ := field.FloatAt(field.Len() - 1)
+			values = append(values, valFloat)
+		}
+	}
+
+	instanceField := data.NewField("instance", nil, instances)
+	valueField := data.NewField("value", nil, values)
+
+	newFrame := data.NewFrame("metrics", instanceField, valueField)
+	// empty frames as it holds different hosts/instances in separate frames
+	*frames = (*frames)[:0]
+
+	// populate frames with the newFrame
+	*frames = append(*frames, newFrame)
+	return nil
+}
+
 func (ds *valkeyDatasourceInstance) processQuery(valkeyQuery *Query, series map[string]*series.Series, values []pmseries.ValuesResponseItem) (data.Frames, error) {
 	frames, err := ds.createDataFrames(valkeyQuery, series, values)
 	if err != nil {
@@ -445,6 +476,12 @@ func (ds *valkeyDatasourceInstance) processQuery(valkeyQuery *Query, series map[
 		return frames, nil
 	case Geomap:
 		err := ds.transformToGeoMap(&frames)
+		if err != nil {
+			return nil, err
+		}
+		return frames, nil
+	case Gauge:
+		err := ds.transformToGauge(&frames)
 		if err != nil {
 			return nil, err
 		}
