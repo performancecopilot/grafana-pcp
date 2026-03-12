@@ -8,3 +8,13 @@ build/
 
 coverage/
 coverage.out
+
+# Yarn Berry - exclude local install state but keep the release binary
+.yarn/install-state.gz
+
+# test output directories
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
