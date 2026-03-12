@@ -63,23 +63,23 @@ describe('PCP Vector', () => {
             },
 
             `
-            Object {
-              "fields": Array [
-                Object {
-                  "config": Object {},
+            {
+              "fields": [
+                {
+                  "config": {},
                   "name": "Time",
                   "type": "time",
-                  "values": Array [
+                  "values": [
                     10000,
                     11000,
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "linux",
                     "device_type": "block",
                     "domainname": "localdomain",
@@ -89,17 +89,17 @@ describe('PCP Vector', () => {
                   },
                   "name": "disk.dev.read[nvme0n1]",
                   "type": "number",
-                  "values": Array [
+                  "values": [
                     undefined,
                     100,
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "linux",
                     "device_type": "block",
                     "domainname": "localdomain",
@@ -109,7 +109,7 @@ describe('PCP Vector', () => {
                   },
                   "name": "disk.dev.read[sda]",
                   "type": "number",
-                  "values": Array [
+                  "values": [
                     undefined,
                     0,
                   ],
@@ -119,37 +119,37 @@ describe('PCP Vector', () => {
         `
         );
         expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "params": Object {
+            [
+              {
+                "params": {
                   "hostspec": "pcp://127.0.0.1",
                   "polltimeout": 11,
                 },
                 "url": "http://localhost:1234/pmapi/context",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "disk.dev.read",
                 },
                 "url": "http://localhost:1234/pmapi/metric",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "disk.dev.read",
                 },
                 "url": "http://localhost:1234/pmapi/fetch",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "name": "disk.dev.read",
                 },
                 "url": "http://localhost:1234/pmapi/indom",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "disk.dev.read",
                 },
@@ -239,9 +239,9 @@ describe('PCP Vector', () => {
         await datasource.valkeyBackfill(endpoint, targets);
         expect(endpoint.metrics).toMatchSnapshot();
         expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "params": Object {
+            [
+              {
+                "params": {
                   "finish": "now",
                   "interval": "1s",
                   "series": "73d93ee9efa086923d0c9eabc96f98f2b583b8f2,f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9",
@@ -249,14 +249,14 @@ describe('PCP Vector', () => {
                 },
                 "url": "http://fixture_url:1234/series/values",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "series": "f87250c4ea0e5eca8ff2ca3b3044ba1a6c91a3d9",
                 },
                 "url": "http://fixture_url:1234/series/instances",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "series": "0aeab8b239522ab0640577ed788cc601fc640266,7f3afb6f41e53792b18e52bcec26fdfa2899fa58",
                 },
                 "url": "http://fixture_url:1234/series/labels",
@@ -285,24 +285,24 @@ describe('PCP Vector', () => {
             { fields: [{}, { config: { custom: expect.anything() } }] },
 
             `
-            Object {
-              "fields": Array [
-                Object {
-                  "config": Object {},
+            {
+              "fields": [
+                {
+                  "config": {},
                   "name": "Time",
                   "type": "time",
-                  "values": Array [
+                  "values": [
                     10000,
                     11000,
                     12000,
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "linux",
                     "domainname": "localdomain",
                     "hostname": "dev",
@@ -310,7 +310,7 @@ describe('PCP Vector', () => {
                   },
                   "name": "kernel.all.sysfork",
                   "type": "number",
-                  "values": Array [
+                  "values": [
                     null,
                     100,
                     200,
@@ -321,27 +321,27 @@ describe('PCP Vector', () => {
         `
         );
         expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "params": Object {
+            [
+              {
+                "params": {
                   "hostspec": "pcp://127.0.0.1",
                   "polltimeout": 11,
                 },
                 "url": "http://panel_url:1234/pmapi/context",
               },
-              Object {
+              {
                 "params": undefined,
                 "url": "http://panel_url:1234/series/ping",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "kernel.all.sysfork",
                 },
                 "url": "http://panel_url:1234/pmapi/metric",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "finish": "now",
                   "interval": "1s",
                   "series": "73d93ee9efa086923d0c9eabc96f98f2b583b8f2",
@@ -349,8 +349,8 @@ describe('PCP Vector', () => {
                 },
                 "url": "http://panel_url:1234/series/values",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "kernel.all.sysfork",
                 },
@@ -392,26 +392,26 @@ describe('PCP Vector: overridden url and hostspec', () => {
 
         response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toMatchObject({
-            data: [{ fields: [{ values: { buffer: [10000] } }, { values: { buffer: [1000] } }] }],
+            data: [{ fields: [{ values: [10000] }, { values: [1000] }] }],
         });
         expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "params": Object {
+            [
+              {
+                "params": {
                   "hostspec": "pcp://settings_hostspec:4321",
                   "polltimeout": 11,
                 },
                 "url": "http://settings_host:1234/pmapi/context",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "mem.util.free",
                 },
                 "url": "http://settings_host:1234/pmapi/metric",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "mem.util.free",
                 },
@@ -446,26 +446,26 @@ describe('PCP Vector: overridden url and hostspec', () => {
 
         response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toMatchObject({
-            data: [{ fields: [{ values: { buffer: [10000] } }, { values: { buffer: [1000] } }] }],
+            data: [{ fields: [{ values: [10000] }, { values: [1000] }] }],
         });
         expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "params": Object {
+            [
+              {
+                "params": {
                   "hostspec": "pcp://settings_hostspec:4321",
                   "polltimeout": 11,
                 },
                 "url": "http://panel_host:8080/pmapi/context",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "mem.util.free",
                 },
                 "url": "http://panel_host:8080/pmapi/metric",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "mem.util.free",
                 },
@@ -505,26 +505,26 @@ describe('PCP Vector: overridden url and hostspec', () => {
 
         response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toMatchObject({
-            data: [{ fields: [{ values: { buffer: [10000] } }, { values: { buffer: [1000] } }] }],
+            data: [{ fields: [{ values: [10000] }, { values: [1000] }] }],
         });
         expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "params": Object {
+            [
+              {
+                "params": {
                   "hostspec": "pcp://panel_hostspec:44322?container=app",
                   "polltimeout": 11,
                 },
                 "url": "http://settings_host:1234/pmapi/context",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "mem.util.free",
                 },
                 "url": "http://settings_host:1234/pmapi/metric",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "mem.util.free",
                 },
@@ -565,26 +565,26 @@ describe('PCP Vector: overridden url and hostspec', () => {
 
         response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toMatchObject({
-            data: [{ fields: [{ values: { buffer: [10000] } }, { values: { buffer: [1000] } }] }],
+            data: [{ fields: [{ values: [10000] }, { values: [1000] }] }],
         });
         expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "params": Object {
+            [
+              {
+                "params": {
                   "hostspec": "pcp://panel_hostspec:44322?container=app",
                   "polltimeout": 11,
                 },
                 "url": "http://panel_host:8080/pmapi/context",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "mem.util.free",
                 },
                 "url": "http://panel_host:8080/pmapi/metric",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "mem.util.free",
                 },
@@ -624,26 +624,26 @@ describe('PCP Vector: overridden url and hostspec', () => {
 
         response = await datasource.query(grafana.dataQueryRequest({ targets }));
         expect(response).toMatchObject({
-            data: [{ fields: [{ values: { buffer: [10000] } }, { values: { buffer: [1000] } }] }],
+            data: [{ fields: [{ values: [10000] }, { values: [1000] }] }],
         });
         expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "params": Object {
+            [
+              {
+                "params": {
                   "hostspec": "pcp://settings_hostspec:4321",
                   "polltimeout": 11,
                 },
                 "url": "http://settings_host:1234/pmapi/context",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "mem.util.free",
                 },
                 "url": "http://settings_host:1234/pmapi/metric",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 123,
                   "names": "mem.util.free",
                 },

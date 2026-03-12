@@ -1,14 +1,13 @@
-import { css } from 'emotion';
-import { GrafanaTheme } from '@grafana/data';
-import { stylesFactory } from '@grafana/ui';
+import { css } from '@emotion/css';
+import { GrafanaTheme2 } from '@grafana/data';
 
-export const getCardStyles = stylesFactory((theme: GrafanaTheme, background: 'weak' | 'strong') => {
+export const getCardStyles = (theme: GrafanaTheme2, background: 'weak' | 'strong') => {
     return {
         container: css`
             width: 100%;
-            padding: ${theme.spacing.md};
-            border-radius: ${theme.border.radius.sm};
-            background: ${background === 'strong' ? theme.colors.bg2 : theme.colors.bg1};
+            padding: ${theme.spacing(2)};
+            border-radius: ${theme.shape.radius.default};
+            background: ${background === 'strong' ? theme.colors.background.secondary : theme.colors.background.primary};
         `,
     };
-});
+};

@@ -1,6 +1,7 @@
 import React from 'react';
+import { GrafanaTheme2 } from '@grafana/data';
 import { connect } from 'react-redux';
-import { Button, HorizontalGroup, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
+import { Button, Stack, useTheme2 } from '@grafana/ui';
 import { EntityType } from '../../../../../common/services/pmsearch/types';
 import Card from '../../../components/Card/Card';
 import Loader from '../../../components/Loader/Loader';
@@ -35,8 +36,7 @@ export type InstanceDomainDetailPageReduxStateProps = ReturnType<typeof mapState
 export type InstanceDomainDetailPageReduxProps = InstanceDomainDetailPageReduxStateProps;
 
 export type InstanceDomainDetailPageProps = InstanceDomainDetailPageReduxProps &
-    InstanceDomainDetailPageBasicProps &
-    Themeable;
+    InstanceDomainDetailPageBasicProps & { theme: GrafanaTheme2 };
 
 export class InstanceDomainDetailPage extends React.Component<InstanceDomainDetailPageProps, {}> {
     constructor(props: InstanceDomainDetailPageProps) {
@@ -151,7 +151,7 @@ export class InstanceDomainDetailPage extends React.Component<InstanceDomainDeta
             return <p>No indom.</p>;
         }
         return (
-            <VerticalGroup spacing="lg">
+            <Stack direction="column" gap={3}>
                 <Card background="strong">
                     <article className={detailPageItem}>
                         <header className={detailPageHeader}>
@@ -171,20 +171,20 @@ export class InstanceDomainDetailPage extends React.Component<InstanceDomainDeta
                             {renderDesc()}
                         </div>
                         <div className={detailPageActions}>
-                            <HorizontalGroup spacing="lg" justify="space-between">
+                            <Stack justifyContent="space-between" gap={3}>
                                 {renderBookmarkBtn()}
-                            </HorizontalGroup>
+                            </Stack>
                         </div>
                     </article>
                 </Card>
                 <div className={detailPageProperties}>
-                    <VerticalGroup spacing="lg">
+                    <Stack direction="column" gap={3}>
                         <Card background="weak">
                             <Instances instances={data.instances} data-test="instances" />
                         </Card>
-                    </VerticalGroup>
+                    </Stack>
                 </div>
-            </VerticalGroup>
+            </Stack>
         );
     }
 
@@ -199,4 +199,9 @@ export class InstanceDomainDetailPage extends React.Component<InstanceDomainDeta
     }
 }
 
-export default withTheme(connect(mapStateToProps, {})(InstanceDomainDetailPage));
+export default connect(mapStateToProps, {})(function InstanceDomainDetailPageWithTheme(
+    props: InstanceDomainDetailPageReduxProps & InstanceDomainDetailPageBasicProps
+) {
+    const theme = useTheme2();
+    return <InstanceDomainDetailPage {...props} theme={theme} />;
+});

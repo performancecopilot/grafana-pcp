@@ -1,4 +1,4 @@
-import { css } from 'emotion';
+import { css } from '@emotion/css';
 import React from 'react';
 import { Button } from '@grafana/ui';
 import { MetricEntityMeta } from '../../../../models/entities/metric';

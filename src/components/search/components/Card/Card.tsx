@@ -1,5 +1,6 @@
 import React from 'react';
-import { Themeable, withTheme } from '@grafana/ui';
+import { GrafanaTheme2 } from '@grafana/data';
+import { useTheme2 } from '@grafana/ui';
 import { getCardStyles } from './styles';
 
 export interface CardBasicProps {
@@ -7,7 +8,7 @@ export interface CardBasicProps {
     children?: React.ReactNode;
 }
 
-export type CardProps = Themeable & CardBasicProps;
+export type CardProps = { theme: GrafanaTheme2 } & CardBasicProps;
 
 export const Card: React.FC<CardProps> = (props: React.PropsWithChildren<CardProps>) => {
     const background = props.background ?? 'strong';
@@ -20,4 +21,7 @@ export const Card: React.FC<CardProps> = (props: React.PropsWithChildren<CardPro
     );
 };
 
-export default withTheme(Card);
+export default function CardWithTheme(props: CardBasicProps) {
+    const theme = useTheme2();
+    return <Card {...props} theme={theme} />;
+}

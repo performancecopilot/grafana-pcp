@@ -1,13 +1,40 @@
-import { shallow } from 'enzyme';
 import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { locationService } from '@grafana/runtime';
 import { EntityType } from '../../../../common/services/pmsearch/types';
-import { IndomEntity } from '../../models/entities/indom';
-import { MetricEntity } from '../../models/entities/metric';
 import { FetchStatus } from '../../store/slices/search/shared/state';
 import { InstanceDomainDetailState, MetricDetailState } from '../../store/slices/search/slices/entity/state';
 import { DetailPage, DetailPageProps, DetailPageReduxProps } from './DetailPage';
-import { InstanceDomainDetailPageBasicProps } from './InstanceDomain/InstanceDomain';
-import { MetricDetailPageBasicProps } from './Metric/Metric';
+
+jest.mock('@grafana/runtime', () => ({
+    ...jest.requireActual('@grafana/runtime'),
+    locationService: { push: jest.fn() },
+}));
+
+let capturedMetricDetailProps: any = null;
+let capturedInstanceDomainDetailProps: any = null;
+
+jest.mock('./Metric/Metric', () => {
+    const React = require('react');
+    return {
+        __esModule: true,
+        default: function MockMetricDetailPage(props: any) {
+            capturedMetricDetailProps = props;
+            return <div data-test="metric-detail" />;
+        },
+    };
+});
+
+jest.mock('./InstanceDomain/InstanceDomain', () => {
+    const React = require('react');
+    return {
+        __esModule: true,
+        default: function MockInstanceDomainDetailPage(props: any) {
+            capturedInstanceDomainDetailProps = props;
+            return <div data-test="instance-domain-detail" />;
+        },
+    };
+});
 
 describe('<DetailPage/>', () => {
     let mockReduxProps: DetailPageReduxProps;
@@ -16,6 +43,10 @@ describe('<DetailPage/>', () => {
     let detailPageProps: DetailPageProps;
 
     beforeEach(() => {
+        capturedMetricDetailProps = null;
+        capturedInstanceDomainDetailProps = null;
+        (locationService.push as jest.Mock).mockClear();
+
         instanceDomainDetailStateMock = {
             type: EntityType.InstanceDomain,
             indom: {
@@ -25,27 +56,13 @@ describe('<DetailPage/>', () => {
                         oneline: 'set of network interfaces',
                     },
                     instances: [
-                        {
-                            name: 'virbr0-nic',
-                        },
-                        {
-                            name: 'virbr0',
-                        },
-                        {
-                            name: 'wlp0s20f3',
-                        },
-                        {
-                            name: 'ens20u2',
-                        },
-                        {
-                            name: 'lo',
-                        },
-                        {
-                            name: 'veth2d4d8bb',
-                        },
-                        {
-                            name: 'docker0',
-                        },
+                        { name: 'virbr0-nic' },
+                        { name: 'virbr0' },
+                        { name: 'wlp0s20f3' },
+                        { name: 'ens20u2' },
+                        { name: 'lo' },
+                        { name: 'veth2d4d8bb' },
+                        { name: 'docker0' },
                     ],
                     metrics: [
                         {
@@ -101,122 +118,76 @@ describe('<DetailPage/>', () => {
     });
 
     test('renders without crashing', () => {
-        shallow(<DetailPage {...detailPageProps} />);
+        render(<DetailPage {...detailPageProps} />);
     });
 
     test('can render metric detail', () => {
-        const wrapper = shallow(<DetailPage {...detailPageProps} />);
-        expect(wrapper.exists('[data-test="metric-detail"]')).toBe(true);
+        render(<DetailPage {...detailPageProps} />);
+        expect(screen.getByTestId('metric-detail')).toBeInTheDocument();
     });
 
     test('can render instance domain detail', () => {
-        const wrapper = shallow(<DetailPage {...{ ...detailPageProps, entity: instanceDomainDetailStateMock }} />);
-        expect(wrapper.exists('[data-test="instance-domain-detail"]')).toBe(true);
+        render(<DetailPage {...{ ...detailPageProps, entity: instanceDomainDetailStateMock }} />);
+        expect(screen.getByTestId('instance-domain-detail')).toBeInTheDocument();
     });
 
     test('handles no data gracefully', () => {
-        shallow(<DetailPage {...{ ...detailPageProps, entity: null }} />);
+        render(<DetailPage {...{ ...detailPageProps, entity: null }} />);
     });
 
     test('can add metric bookmark', () => {
-        const wrapper = shallow<DetailPage, DetailPageProps, {}>(<DetailPage {...detailPageProps} />);
-        const metricDetail = wrapper.find('[data-test="metric-detail"]');
-        const metricDetailProps: MetricDetailPageBasicProps = metricDetail.props() as any;
-        const id = ((detailPageProps.entity as MetricDetailState).metric.data as MetricEntity).name;
-        const type = (detailPageProps.entity as MetricDetailState).type;
-        metricDetailProps.onBookmark({
-            id,
-            type,
-        });
-        const addBookmark: jest.Mock<typeof mockReduxProps.addBookmark> = mockReduxProps.addBookmark as any;
-        expect(addBookmark.mock.calls[0][0]).toEqual({ id, type });
-        expect(addBookmark).toHaveBeenCalled();
+        render(<DetailPage {...detailPageProps} />);
+        const id = (metricDetailStateMock.metric.data as any).name;
+        const type = metricDetailStateMock.type;
+        capturedMetricDetailProps.onBookmark({ id, type });
+        expect(mockReduxProps.addBookmark).toHaveBeenCalledWith({ id, type });
     });
 
     test('can add indom bookmark', () => {
-        const props = { ...detailPageProps, entity: instanceDomainDetailStateMock };
-        const wrapper = shallow<DetailPage, DetailPageProps, {}>(<DetailPage {...props} />);
-        const instanceDomainDetail = wrapper.find('[data-test="instance-domain-detail"]');
-        const instanceDomainDetailProps: InstanceDomainDetailPageBasicProps = instanceDomainDetail.props() as any;
-        const name = ((props.entity as InstanceDomainDetailState).indom.data as IndomEntity).indom.name as string;
-        const type = (props.entity as InstanceDomainDetailState).type;
-        instanceDomainDetailProps.onBookmark({
-            id: name,
-            type,
-        });
-        const addBookmark: jest.Mock<typeof mockReduxProps.addBookmark> = mockReduxProps.addBookmark as any;
-        expect(addBookmark.mock.calls[0][0]).toEqual({ id: name, type });
-        expect(addBookmark).toHaveBeenCalled();
+        render(<DetailPage {...{ ...detailPageProps, entity: instanceDomainDetailStateMock }} />);
+        const name = (instanceDomainDetailStateMock.indom.data as any).indom.name as string;
+        const type = instanceDomainDetailStateMock.type;
+        capturedInstanceDomainDetailProps.onBookmark({ id: name, type });
+        expect(mockReduxProps.addBookmark).toHaveBeenCalledWith({ id: name, type });
     });
 
     test('can remove metric bookmark', () => {
-        const wrapper = shallow<DetailPage, DetailPageProps, {}>(<DetailPage {...detailPageProps} />);
-        const metricDetail = wrapper.find('[data-test="metric-detail"]');
-        const metricDetailProps: MetricDetailPageBasicProps = metricDetail.props() as any;
-        const id = ((detailPageProps.entity as MetricDetailState).metric.data as MetricEntity).name;
-        const type = (detailPageProps.entity as MetricDetailState).type;
-        metricDetailProps.onUnbookmark({
-            id,
-            type,
-        });
-        const removeBookmark: jest.Mock<typeof mockReduxProps.removeBookmark> = mockReduxProps.removeBookmark as any;
-        expect(removeBookmark.mock.calls[0][0]).toEqual({ id, type });
-        expect(removeBookmark).toHaveBeenCalled();
+        render(<DetailPage {...detailPageProps} />);
+        const id = (metricDetailStateMock.metric.data as any).name;
+        const type = metricDetailStateMock.type;
+        capturedMetricDetailProps.onUnbookmark({ id, type });
+        expect(mockReduxProps.removeBookmark).toHaveBeenCalledWith({ id, type });
     });
 
     test('can remove indom bookmark', () => {
-        const props = { ...detailPageProps, entity: instanceDomainDetailStateMock };
-        const wrapper = shallow<DetailPage, DetailPageProps, {}>(<DetailPage {...props} />);
-        const instanceDomainDetail = wrapper.find('[data-test="instance-domain-detail"]');
-        const instanceDomainDetailProps: InstanceDomainDetailPageBasicProps = instanceDomainDetail.props() as any;
-        const name = ((props.entity as InstanceDomainDetailState).indom.data as IndomEntity).indom as string;
-        const type = (props.entity as InstanceDomainDetailState).type;
-        instanceDomainDetailProps.onUnbookmark({
-            id: name,
-            type,
-        });
-        const removeBookmark: jest.Mock<typeof mockReduxProps.removeBookmark> = mockReduxProps.removeBookmark as any;
-        expect(removeBookmark.mock.calls[0][0]).toEqual({ id: name, type });
-        expect(removeBookmark).toHaveBeenCalled();
+        render(<DetailPage {...{ ...detailPageProps, entity: instanceDomainDetailStateMock }} />);
+        const name = (instanceDomainDetailStateMock.indom.data as any).indom.name as string;
+        const type = instanceDomainDetailStateMock.type;
+        capturedInstanceDomainDetailProps.onUnbookmark({ id: name, type });
+        expect(mockReduxProps.removeBookmark).toHaveBeenCalledWith({ id: name, type });
     });
 
     test('can preview metric with graph dashboard', () => {
-        const wrapper = shallow<DetailPage, DetailPageProps, {}>(<DetailPage {...detailPageProps} />);
-        const locationSrvMock = { update: jest.fn() };
-        (wrapper.instance().locationSrv as any) = locationSrvMock;
-        const metricDetail = wrapper.find('[data-test="metric-detail"]');
-        const metricDetailProps: MetricDetailPageBasicProps = metricDetail.props() as any;
-        const id = ((detailPageProps.entity as MetricDetailState).metric.data as MetricEntity).name;
-        metricDetailProps.onPreview({
-            id,
-            type: 'graph',
-        });
-        expect(locationSrvMock.update.mock.calls[0][0]).toEqual({
-            path: '/d/pcp-valkey-metric-preview-graph/pcp-valkey-metric-preview-graph',
-            query: {
-                'var-metric': id,
-                refresh: '5s',
-            },
-        });
+        render(<DetailPage {...detailPageProps} />);
+        const id = (metricDetailStateMock.metric.data as any).name;
+        capturedMetricDetailProps.onPreview({ id, type: 'graph' });
+        const pushMock = locationService.push as jest.Mock;
+        expect(pushMock).toHaveBeenCalledTimes(1);
+        const calledUrl: string = pushMock.mock.calls[0][0];
+        expect(calledUrl).toContain('pcp-valkey-metric-preview-graph');
+        expect(calledUrl).toContain(`var-metric=${encodeURIComponent(id)}`);
+        expect(calledUrl).toContain('refresh=5s');
     });
 
     test('can preview metric with table dashboard', () => {
-        const wrapper = shallow<DetailPage, DetailPageProps, {}>(<DetailPage {...detailPageProps} />);
-        const locationSrvMock = { update: jest.fn() };
-        (wrapper.instance().locationSrv as any) = locationSrvMock;
-        const metricDetail = wrapper.find('[data-test="metric-detail"]');
-        const metricDetailProps: MetricDetailPageBasicProps = metricDetail.props() as any;
-        const id = ((detailPageProps.entity as MetricDetailState).metric.data as MetricEntity).name;
-        metricDetailProps.onPreview({
-            id,
-            type: 'table',
-        });
-        expect(locationSrvMock.update.mock.calls[0][0]).toEqual({
-            path: '/d/pcp-valkey-metric-preview-table/pcp-valkey-metric-preview-table',
-            query: {
-                'var-metric': id,
-                refresh: '5s',
-            },
-        });
+        render(<DetailPage {...detailPageProps} />);
+        const id = (metricDetailStateMock.metric.data as any).name;
+        capturedMetricDetailProps.onPreview({ id, type: 'table' });
+        const pushMock = locationService.push as jest.Mock;
+        expect(pushMock).toHaveBeenCalledTimes(1);
+        const calledUrl: string = pushMock.mock.calls[0][0];
+        expect(calledUrl).toContain('pcp-valkey-metric-preview-table');
+        expect(calledUrl).toContain(`var-metric=${encodeURIComponent(id)}`);
+        expect(calledUrl).toContain('refresh=5s');
     });
 });

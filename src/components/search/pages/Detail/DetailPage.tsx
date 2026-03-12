@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { SelectableValue } from '@grafana/data';
-import { getLocationSrv, LocationSrv } from '@grafana/runtime';
+import { locationService } from '@grafana/runtime';
 import { EntityType } from '../../../../common/services/pmsearch/types';
 import { RootState } from '../../store/reducer';
 import { addBookmark, removeBookmark } from '../../store/slices/search/slices/bookmarks/actionCreators';
@@ -39,15 +39,12 @@ interface DetailPageState {
 }
 
 export class DetailPage extends React.Component<DetailPageProps, DetailPageState> {
-    locationSrv: LocationSrv;
-
     constructor(props: DetailPageProps) {
         super(props);
         this.renderDetail = this.renderDetail.bind(this);
         this.onMetricPreview = this.onMetricPreview.bind(this);
         this.onBookmark = this.onBookmark.bind(this);
         this.onUnbookmark = this.onUnbookmark.bind(this);
-        this.locationSrv = getLocationSrv();
     }
 
     onBookmark(item: BookmarkItem) {
@@ -71,13 +68,8 @@ export class DetailPage extends React.Component<DetailPageProps, DetailPageState
                 return;
         }
 
-        this.locationSrv.update({
-            path,
-            query: {
-                'var-metric': item.id,
-                refresh: '5s',
-            },
-        });
+        const params = new URLSearchParams({ 'var-metric': item.id, refresh: '5s' });
+        locationService.push(`${path}?${params.toString()}`);
     }
 
     renderDetail() {

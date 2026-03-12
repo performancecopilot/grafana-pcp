@@ -1,9 +1,10 @@
-import { cx } from 'emotion';
+import { cx } from '@emotion/css';
 import React from 'react';
+import { GrafanaTheme2 } from '@grafana/data';
 import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { Button, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
+import { Button, Stack, useTheme2 } from '@grafana/ui';
 import { EntityType } from '../../../../common/services/pmsearch/types';
 import BookmarkList from '../../components/BookmarkList/BookmarkList';
 import Loader from '../../components/Loader/Loader';
@@ -33,7 +34,7 @@ export type AsideReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
 
 export type AsideReduxProps = AsideReduxStateProps & AsideReduxDispatchProps;
 
-export type AsideProps = AsideReduxProps & Themeable;
+export type AsideProps = AsideReduxProps & { theme: GrafanaTheme2 };
 
 export class Aside extends React.Component<AsideProps, {}> {
     constructor(props: AsideProps) {
@@ -68,9 +69,9 @@ export class Aside extends React.Component<AsideProps, {}> {
                     return;
                 }
                 return (
-                    <VerticalGroup spacing="md">
+                    <Stack direction="column" gap={2}>
                         <h4>Series of similar metrics</h4>
-                        <VerticalGroup spacing="xs">
+                        <Stack direction="column" gap={0.5}>
                             {siblings.data?.map((m, i) =>
                                 m === metric.data?.name ? (
                                     <Button
@@ -95,8 +96,8 @@ export class Aside extends React.Component<AsideProps, {}> {
                                     </Button>
                                 )
                             )}
-                        </VerticalGroup>
-                    </VerticalGroup>
+                        </Stack>
+                    </Stack>
                 );
             }
             case FetchStatus.ERROR:
@@ -126,9 +127,9 @@ export class Aside extends React.Component<AsideProps, {}> {
                     return;
                 }
                 return (
-                    <VerticalGroup spacing="md">
+                    <Stack direction="column" gap={2}>
                         <h4>Metrics in {indom.data.indom.name}</h4>
-                        <VerticalGroup spacing="xs">
+                        <Stack direction="column" gap={0.5}>
                             {indom.data.metrics.map(
                                 (m, i) =>
                                     m.name !== undefined && (
@@ -145,8 +146,8 @@ export class Aside extends React.Component<AsideProps, {}> {
                                         </Button>
                                     )
                             )}
-                        </VerticalGroup>
-                    </VerticalGroup>
+                        </Stack>
+                    </Stack>
                 );
             }
             case FetchStatus.ERROR:
@@ -175,7 +176,7 @@ export class Aside extends React.Component<AsideProps, {}> {
             }
             case ViewState.Search: {
                 return (
-                    <VerticalGroup spacing="lg">
+                    <Stack direction="column" gap={3}>
                         <BookmarkList
                             showClearBtn={false}
                             multiCol={false}
@@ -192,7 +193,7 @@ export class Aside extends React.Component<AsideProps, {}> {
                             onClearSearchHistoryClick={props.clearSearchHistory}
                             data-test="search-history-list"
                         />
-                    </VerticalGroup>
+                    </Stack>
                 );
             }
             default:
@@ -206,4 +207,7 @@ export class Aside extends React.Component<AsideProps, {}> {
     }
 }
 
-export default withTheme(connect(mapStateToProps, mapDispatchToProps)(Aside));
+export default connect(mapStateToProps, mapDispatchToProps)(function AsideWithTheme(props: AsideReduxProps) {
+    const theme = useTheme2();
+    return <Aside {...props} theme={theme} />;
+});

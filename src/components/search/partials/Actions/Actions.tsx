@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { Button, VerticalGroup } from '@grafana/ui';
+import { Button, Stack } from '@grafana/ui';
 import { RootState } from '../../store/reducer';
 import { querySearch } from '../../store/slices/search/shared/actionCreators';
 import { setView } from '../../store/slices/search/slices/view/actionCreators';
@@ -54,7 +54,7 @@ export class Actions extends React.Component<ActionsProps, {}> {
         const { openIndex, queryLatestSearch, showBackToPatternBtn, showBackToIndexPageBtn, props } = this;
         const { query } = props;
         return (
-            <VerticalGroup spacing="xs">
+            <Stack direction="column" gap={0.5}>
                 {showBackToIndexPageBtn && (
                     <Button
                         fill="text"
@@ -79,7 +79,7 @@ export class Actions extends React.Component<ActionsProps, {}> {
                         Back To Results for: <em>{query.pattern}</em>
                     </Button>
                 )}
-            </VerticalGroup>
+            </Stack>
         );
     }
 }

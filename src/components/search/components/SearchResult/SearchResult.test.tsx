@@ -1,13 +1,13 @@
-import { render, shallow } from 'enzyme';
 import React from 'react';
-import { GrafanaThemeType } from '@grafana/data';
-import { getTheme } from '@grafana/ui';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { createTheme } from '@grafana/data';
 import { EntityType, TextItemResponse } from '../../../../common/services/pmsearch/types';
 import { SearchResult } from './SearchResult';
 
 describe('<SearchResult/>', () => {
     const openDetailMock = jest.fn<void, TextItemResponse[]>(() => void 0);
-    const theme = getTheme(GrafanaThemeType.Light);
+    const theme = createTheme();
     // will test most cases with each metric type
     const metricItem: TextItemResponse = {
         name: 'statsd.settings.dropped',
@@ -38,109 +38,142 @@ describe('<SearchResult/>', () => {
     });
 
     test('renders without crashing', () => {
-        shallow(<SearchResult item={metricItem} openDetail={openDetailMock} theme={theme} />);
-        shallow(<SearchResult item={instanceItem} openDetail={openDetailMock} theme={theme} />);
-        shallow(<SearchResult item={indomItem} openDetail={openDetailMock} theme={theme} />);
+        const { unmount: u1 } = render(
+            <SearchResult item={metricItem} openDetail={openDetailMock} theme={theme} />
+        );
+        u1();
+        const { unmount: u2 } = render(
+            <SearchResult item={instanceItem} openDetail={openDetailMock} theme={theme} />
+        );
+        u2();
+        render(<SearchResult item={indomItem} openDetail={openDetailMock} theme={theme} />);
     });
 
     test('renders description', () => {
-        const onelineMetric = render(
+        const { unmount: u1 } = render(
             <SearchResult item={{ ...metricItem, helptext: '' }} openDetail={openDetailMock} theme={theme} />
         );
-        expect(onelineMetric.find('[data-test="description"]').text().length).toBeGreaterThan(0);
-        const helptextMetric = render(
+        expect(screen.getByTestId('description').textContent!.length).toBeGreaterThan(0);
+        u1();
+
+        const { unmount: u2 } = render(
             <SearchResult item={{ ...metricItem, oneline: '' }} openDetail={openDetailMock} theme={theme} />
         );
-        expect(helptextMetric.find('[data-test="description"]').text().length).toBeGreaterThan(0);
+        expect(screen.getByTestId('description').textContent!.length).toBeGreaterThan(0);
+        u2();
 
-        const onelineInstance = render(
+        const { unmount: u3 } = render(
             <SearchResult item={{ ...instanceItem, helptext: '' }} openDetail={openDetailMock} theme={theme} />
         );
-        expect(onelineInstance.find('[data-test="description"]').text().length).toBeGreaterThan(0);
-        const helptextInstance = render(
+        expect(screen.getByTestId('description').textContent!.length).toBeGreaterThan(0);
+        u3();
+
+        const { unmount: u4 } = render(
             <SearchResult item={{ ...instanceItem, oneline: '' }} openDetail={openDetailMock} theme={theme} />
         );
-        expect(helptextInstance.find('[data-test="description"]').text().length).toBeGreaterThan(0);
+        expect(screen.getByTestId('description').textContent!.length).toBeGreaterThan(0);
+        u4();
 
-        const onelineIndom = render(
+        const { unmount: u5 } = render(
             <SearchResult item={{ ...indomItem, helptext: '' }} openDetail={openDetailMock} theme={theme} />
         );
-        expect(onelineIndom.find('[data-test="description"]').text().length).toBeGreaterThan(0);
-        const helptextIndom = render(
-            <SearchResult item={{ ...indomItem, oneline: '' }} openDetail={openDetailMock} theme={theme} />
-        );
-        expect(helptextIndom.find('[data-test="description"]').text().length).toBeGreaterThan(0);
+        expect(screen.getByTestId('description').textContent!.length).toBeGreaterThan(0);
+        u5();
+
+        render(<SearchResult item={{ ...indomItem, oneline: '' }} openDetail={openDetailMock} theme={theme} />);
+        expect(screen.getByTestId('description').textContent!.length).toBeGreaterThan(0);
     });
 
     test('renders oneline by default', () => {
-        const metric = render(<SearchResult item={metricItem} openDetail={openDetailMock} theme={theme} />);
-        expect(metric.find('[data-test="description"]').text()).toBe(metricItem.oneline);
-        const instance = render(<SearchResult item={instanceItem} openDetail={openDetailMock} theme={theme} />);
-        expect(instance.find('[data-test="description"]').text()).toBe(instanceItem.oneline);
-        const indom = render(<SearchResult item={indomItem} openDetail={openDetailMock} theme={theme} />);
-        expect(indom.find('[data-test="description"]').text()).toBe(indomItem.oneline);
+        const { unmount: u1 } = render(
+            <SearchResult item={metricItem} openDetail={openDetailMock} theme={theme} />
+        );
+        expect(screen.getByTestId('description').textContent).toBe(metricItem.oneline);
+        u1();
+
+        const { unmount: u2 } = render(
+            <SearchResult item={instanceItem} openDetail={openDetailMock} theme={theme} />
+        );
+        expect(screen.getByTestId('description').textContent).toBe(instanceItem.oneline);
+        u2();
+
+        render(<SearchResult item={indomItem} openDetail={openDetailMock} theme={theme} />);
+        expect(screen.getByTestId('description').textContent).toBe(indomItem.oneline);
     });
 
     test('renders read more button', () => {
-        const metric = shallow(<SearchResult item={metricItem} openDetail={openDetailMock} theme={theme} />);
-        expect(metric.find('[data-test="read-more"]').length).toBe(1);
-        const instance = shallow(<SearchResult item={instanceItem} openDetail={openDetailMock} theme={theme} />);
-        expect(instance.find('[data-test="read-more"]').length).toBe(1);
-        const indom = shallow(<SearchResult item={indomItem} openDetail={openDetailMock} theme={theme} />);
-        expect(indom.find('[data-test="read-more"]').length).toBe(1);
+        const { unmount: u1 } = render(
+            <SearchResult item={metricItem} openDetail={openDetailMock} theme={theme} />
+        );
+        expect(screen.getByTestId('read-more')).toBeInTheDocument();
+        u1();
+
+        const { unmount: u2 } = render(
+            <SearchResult item={instanceItem} openDetail={openDetailMock} theme={theme} />
+        );
+        expect(screen.getByTestId('read-more')).toBeInTheDocument();
+        u2();
+
+        render(<SearchResult item={indomItem} openDetail={openDetailMock} theme={theme} />);
+        expect(screen.getByTestId('read-more')).toBeInTheDocument();
     });
 
-    test('can call openDetail', () => {
-        const metric = shallow(<SearchResult item={metricItem} openDetail={openDetailMock} theme={theme} />);
-        const metricReadMore = metric.find('[data-test="read-more"]');
-        metricReadMore.simulate('click');
+    test('can call openDetail', async () => {
+        const { unmount: u1 } = render(
+            <SearchResult item={metricItem} openDetail={openDetailMock} theme={theme} />
+        );
+        await userEvent.click(screen.getByTestId('read-more'));
         expect(openDetailMock.mock.calls[0][0]).toBe(metricItem);
-        const instance = shallow(<SearchResult item={instanceItem} openDetail={openDetailMock} theme={theme} />);
-        const instanceReadMore = instance.find('[data-test="read-more"]');
-        instanceReadMore.simulate('click');
+        u1();
+
+        const { unmount: u2 } = render(
+            <SearchResult item={instanceItem} openDetail={openDetailMock} theme={theme} />
+        );
+        await userEvent.click(screen.getByTestId('read-more'));
         expect(openDetailMock.mock.calls[1][0]).toBe(instanceItem);
-        const indom = shallow(<SearchResult item={indomItem} openDetail={openDetailMock} theme={theme} />);
-        const indomReadMore = indom.find('[data-test="read-more"]');
-        indomReadMore.simulate('click');
+        u2();
+
+        render(<SearchResult item={indomItem} openDetail={openDetailMock} theme={theme} />);
+        await userEvent.click(screen.getByTestId('read-more'));
         expect(openDetailMock.mock.calls[2][0]).toBe(indomItem);
         expect(openDetailMock).toHaveBeenCalledTimes(3);
     });
 
     test('supports HTML inside name', () => {
         const metricName = '<b>statsd</b>.settings.dropped';
-        const metricComponent = render(
+        const { unmount: u1 } = render(
             <SearchResult item={{ ...metricItem, name: metricName }} openDetail={openDetailMock} theme={theme} />
         );
-        expect(metricComponent.find('[data-test="name"]').html()).toBe(metricName);
+        expect(screen.getByTestId('name').innerHTML).toBe(metricName);
+        u1();
 
         const instanceName = 'cpu1';
-        const instanceComponent = render(
+        const { unmount: u2 } = render(
             <SearchResult item={{ ...instanceItem, name: instanceName }} openDetail={openDetailMock} theme={theme} />
         );
-        expect(instanceComponent.find('[data-test="name"]').html()).toBe(instanceName);
+        expect(screen.getByTestId('name').innerHTML).toBe(instanceName);
+        u2();
 
         const indomName = '60.1';
-        const indomComponent = render(
-            <SearchResult item={{ ...indomItem, name: indomName }} openDetail={openDetailMock} theme={theme} />
-        );
-        expect(indomComponent.find('[data-test="name"]').html()).toBe(indomName);
+        render(<SearchResult item={{ ...indomItem, name: indomName }} openDetail={openDetailMock} theme={theme} />);
+        expect(screen.getByTestId('name').innerHTML).toBe(indomName);
     });
 
     test('supports HTML inside description', () => {
         const oneline = '<b>test</b> highlighting';
-        const metricComponent = render(
+        const { unmount: u1 } = render(
             <SearchResult item={{ ...metricItem, oneline }} openDetail={openDetailMock} theme={theme} />
         );
-        expect(metricComponent.find('[data-test="description"] p').html()).toBe(oneline);
+        expect(screen.getByTestId('description').querySelector('p')!.innerHTML).toBe(oneline);
+        u1();
 
-        const instanceComponent = render(
+        const { unmount: u2 } = render(
             <SearchResult item={{ ...instanceItem, oneline }} openDetail={openDetailMock} theme={theme} />
         );
-        expect(instanceComponent.find('[data-test="description"] p').html()).toBe(oneline);
+        expect(screen.getByTestId('description').querySelector('p')!.innerHTML).toBe(oneline);
+        u2();
 
-        const indomComponent = render(
-            <SearchResult item={{ ...indomItem, oneline }} openDetail={openDetailMock} theme={theme} />
-        );
-        expect(indomComponent.find('[data-test="description"] p').html()).toBe(oneline);
+        render(<SearchResult item={{ ...indomItem, oneline }} openDetail={openDetailMock} theme={theme} />);
+        expect(screen.getByTestId('description').querySelector('p')!.innerHTML).toBe(oneline);
     });
 });

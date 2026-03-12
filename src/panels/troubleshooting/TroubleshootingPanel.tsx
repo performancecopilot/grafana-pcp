@@ -1,6 +1,6 @@
 import React from 'react';
 import { PanelProps } from '@grafana/data';
-import { TimeSeries, TooltipPlugin, ZoomPlugin } from '@grafana/ui';
+import { GraphNG } from '@grafana/ui';
 import { TroubleshootingPane } from './TroubleshootingPane';
 import { graphWrapper, notUsableContainer } from './styles';
 import { Options } from './types';
@@ -22,28 +22,15 @@ export const TroubleshootingPanel: React.FC<Props> = (props: Props) => {
         <div className={graphWrapper}>
             <TroubleshootingPane data={data} troubleshooting={options.troubleshooting}></TroubleshootingPane>
             {dataAvailable ? (
-                <TimeSeries
+                <GraphNG
                     frames={data.series}
                     timeRange={timeRange}
                     timeZone={timeZone}
                     width={width}
                     height={height}
                     legend={options.legend}
-                >
-                    {(config, alignedDataFrame) => {
-                        return (
-                            <>
-                                <ZoomPlugin config={config} onZoom={onChangeTimeRange} />
-                                <TooltipPlugin
-                                    config={config}
-                                    data={alignedDataFrame}
-                                    mode={options.tooltipOptions.mode}
-                                    timeZone={timeZone}
-                                />
-                            </>
-                        );
-                    }}
-                </TimeSeries>
+                    onChangeTimeRange={onChangeTimeRange}
+                />
             ) : (
                 <div className="panel-empty">
                     <p>No data to display.</p>

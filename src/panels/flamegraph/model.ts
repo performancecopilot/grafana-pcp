@@ -1,5 +1,5 @@
 import { StackFrame } from 'd3-flame-graph';
-import { FieldType, getTimeField, MISSING_VALUE, PanelData } from '@grafana/data';
+import { FieldType, MISSING_VALUE, PanelData } from '@grafana/data';
 import { Options } from './types';
 
 interface FlameGraphModel {
@@ -42,13 +42,13 @@ export function generateFlameGraphModel(panelData: PanelData, options: Options):
     }
 
     const dataFrame = panelData.series[0];
-    const { timeField } = getTimeField(dataFrame);
+    const timeField = dataFrame.fields.find(f => f.type === FieldType.time);
     if (!timeField || dataFrame.length === 0) {
         return model;
     }
 
-    model.minDate = timeField.values.get(0);
-    model.maxDate = timeField.values.get(timeField.values.length - 1);
+    model.minDate = timeField.values[0];
+    model.maxDate = timeField.values[timeField.values.length - 1];
 
     for (const field of dataFrame.fields) {
         if (field.type !== FieldType.number || !field.config.custom?.instance?.name) {
@@ -59,7 +59,7 @@ export function generateFlameGraphModel(panelData: PanelData, options: Options):
         // sum all rates in the selected time frame
         let count = 0;
         for (let i = 0; i < field.values.length; i++) {
-            const value = field.values.get(i);
+            const value = field.values[i];
             if (value !== MISSING_VALUE) {
                 count += value;
             }

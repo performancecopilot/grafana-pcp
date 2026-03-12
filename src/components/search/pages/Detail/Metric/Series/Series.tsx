@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
 import { SelectableValue } from '@grafana/data';
-import { RadioButtonGroup, VerticalGroup } from '@grafana/ui';
+import { RadioButtonGroup, Stack } from '@grafana/ui';
 import { EntityType } from '../../../../../../common/services/pmsearch/types';
 import { MetricEntitySeries } from '../../../../models/entities/metric';
 import { RootState } from '../../../../store/reducer';
@@ -90,7 +90,7 @@ export class Series extends React.Component<SeriesProps, SeriesState> {
     render() {
         const { state, renderTab, setSelected, props } = this;
         return (
-            <VerticalGroup spacing="md">
+            <Stack direction="column" gap={2}>
                 <h3 title="Series" data-test="series-name">
                     {props.series.series}
                 </h3>
@@ -106,7 +106,7 @@ export class Series extends React.Component<SeriesProps, SeriesState> {
                     />
                 </div>
                 {renderTab()}
-            </VerticalGroup>
+            </Stack>
         );
     }
 }

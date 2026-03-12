@@ -112,13 +112,13 @@ describe('data processor', () => {
                 fields: [{}, { config: { custom: expect.anything() } }, { config: { custom: expect.anything() } }],
             },
             `
-            Object {
-              "fields": Array [
-                Object {
-                  "config": Object {},
+            {
+              "fields": [
+                {
+                  "config": {},
                   "name": "Time",
                   "type": "time",
-                  "values": Array [
+                  "values": [
                     8000,
                     9000,
                     10000,
@@ -132,12 +132,12 @@ describe('data processor', () => {
                     21000,
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "linux",
                     "device_type": "block",
                     "domainname": "localdomain",
@@ -147,7 +147,7 @@ describe('data processor', () => {
                   },
                   "name": "disk.dev.read[nvme0n1]",
                   "type": "number",
-                  "values": Array [
+                  "values": [
                     undefined,
                     1,
                     1,
@@ -161,12 +161,12 @@ describe('data processor', () => {
                     0.25,
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "linux",
                     "device_type": "block",
                     "domainname": "localdomain",
@@ -176,7 +176,7 @@ describe('data processor', () => {
                   },
                   "name": "disk.dev.read[sda]",
                   "type": "number",
-                  "values": Array [
+                  "values": [
                     undefined,
                     0,
                     1,
@@ -279,45 +279,45 @@ describe('data processor', () => {
         expect({ fields: result[0].fields }).toMatchInlineSnapshot(
             { fields: [{}, { config: { custom: expect.anything() } }, { config: { custom: expect.anything() } }] },
             `
-            Object {
-              "fields": Array [
-                Object {
-                  "config": Object {},
+            {
+              "fields": [
+                {
+                  "config": {},
                   "name": "instance",
                   "type": "string",
-                  "values": Array [
+                  "values": [
                     "Inst 0",
                     "Inst 1",
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "A",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "linux",
                     "hostname": "host1",
                   },
                   "name": "some.string.A",
                   "type": "string",
-                  "values": Array [
+                  "values": [
                     "A/0/11000",
                     "A/1/11000",
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "B",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "linux",
                     "hostname": "host1",
                   },
                   "name": "some.string.B",
                   "type": "string",
-                  "values": Array [
+                  "values": [
                     "B/0/11000",
                     "B/1/11000",
                   ],
@@ -362,30 +362,30 @@ describe('data processor', () => {
         const dataQueryRequest = grafana.dataQueryRequest({ targets: [target.query] });
         const result = processQueries(dataQueryRequest, [{ endpoint, query: target.query, metrics: [metric] }], 1);
         expect(result[0].fields).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "config": Object {},
+            [
+              {
+                "config": {},
                 "name": "col1",
                 "type": "string",
-                "values": Array [
+                "values": [
                   "row1 col1",
                   "row2 col1",
                 ],
               },
-              Object {
-                "config": Object {},
+              {
+                "config": {},
                 "name": "col2",
                 "type": "string",
-                "values": Array [
+                "values": [
                   "row1 col2",
                   "row2 col2",
                 ],
               },
-              Object {
-                "config": Object {},
+              {
+                "config": {},
                 "name": "col3",
                 "type": "string",
-                "values": Array [
+                "values": [
                   "row1 col3",
                   "row2 col3",
                 ],

@@ -1,5 +1,5 @@
-import { css } from 'emotion';
-import { GrafanaTheme } from '@grafana/data';
+import { css } from '@emotion/css';
+import { GrafanaTheme2 } from '@grafana/data';
 
 const asideContainer = css`
     grid-area: aside;
@@ -10,12 +10,12 @@ const asideButton = css`
     padding-right: 0;
 `;
 
-const asideButtonInactive = (theme: GrafanaTheme) => css`
-    color: ${theme.colors.text};
+const asideButtonInactive = (theme: GrafanaTheme2) => css`
+    color: ${theme.colors.text.primary};
     cursor: default;
 
     &:hover {
-        color: ${theme.colors.text};
+        color: ${theme.colors.text.primary};
     }
 `;
 

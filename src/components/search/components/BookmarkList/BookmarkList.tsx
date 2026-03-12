@@ -1,6 +1,7 @@
-import { cx } from 'emotion';
+import { cx } from '@emotion/css';
 import React from 'react';
-import { Button, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
+import { GrafanaTheme2 } from '@grafana/data';
+import { Button, Stack, useTheme2 } from '@grafana/ui';
 import { EntityType } from '../../../../common/services/pmsearch/types';
 import { BookmarkItem } from '../../store/slices/search/slices/bookmarks/state';
 import { bookmarkListBtnWithNoSpacing, bookmarkListContainer, bookmarkListContainerMultiCol } from './styles';
@@ -13,7 +14,7 @@ export interface BookmarkListBasicProps {
     onClearBookmarksClick: () => void;
 }
 
-export type BookmarkListProps = Themeable & BookmarkListBasicProps;
+export type BookmarkListProps = { theme: GrafanaTheme2 } & BookmarkListBasicProps;
 
 export class BookmarkList extends React.Component<BookmarkListProps, {}> {
     static defaultProps: Required<Pick<BookmarkListProps, 'showClearBtn' | 'multiCol'>> = {
@@ -49,9 +50,9 @@ export class BookmarkList extends React.Component<BookmarkListProps, {}> {
         }
 
         return (
-            <VerticalGroup spacing="md">
+            <Stack direction="column" gap={2}>
                 <h4>Bookmarked Results:</h4>
-                <VerticalGroup spacing="md">
+                <Stack direction="column" gap={2}>
                     <div
                         className={
                             props.multiCol
@@ -86,10 +87,13 @@ export class BookmarkList extends React.Component<BookmarkListProps, {}> {
                             Clear Bookmarks
                         </Button>
                     )}
-                </VerticalGroup>
-            </VerticalGroup>
+                </Stack>
+            </Stack>
         );
     }
 }
 
-export default withTheme(BookmarkList);
+export default function BookmarkListWithTheme(props: BookmarkListBasicProps) {
+    const theme = useTheme2();
+    return <BookmarkList {...props} theme={theme} />;
+}

@@ -1,15 +1,14 @@
-import { shallow } from 'enzyme';
 import React from 'react';
-import { AutosuggestPropsSingleSection } from 'react-autosuggest';
-import { GrafanaThemeType } from '@grafana/data';
-import { getTheme } from '@grafana/ui';
+import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { createTheme } from '@grafana/data';
 import { PmSearchApiService } from '../../../../common/services/pmsearch/PmSearchApiService';
-import { AutocompleteSuggestion, SearchEntity } from '../../../../common/services/pmsearch/types';
+import { SearchEntity } from '../../../../common/services/pmsearch/types';
 import { PmSeriesApiService } from '../../../../common/services/pmseries/PmSeriesApiService';
 import EntityService from '../../services/EntityDetailService';
 import { Services } from '../../services/services';
 import { QuerySearchActionCreator } from '../../store/slices/search/shared/actionCreators';
-import { SearchForm, SearchFormProps, SearchFormReduxProps, SearchFormState } from './SearchForm';
+import { SearchForm, SearchFormProps, SearchFormReduxProps } from './SearchForm';
 
 jest.mock('../../../../common/services/pmsearch/PmSearchApiService');
 jest.mock('../../../../common/services/pmseries/PmSeriesApiService');
@@ -24,7 +23,7 @@ describe('<SearchForm/>', () => {
     const searchService = new PmSearchApiServiceMock(null!, null!);
     const seriesService = new PmSeriesApiServiceMock(null!, null!);
     const entityService = new EntityServiceMock(null!, null!);
-    const theme = getTheme(GrafanaThemeType.Light);
+    const theme = createTheme();
 
     const services: Services = {
         searchService,
@@ -52,73 +51,65 @@ describe('<SearchForm/>', () => {
     });
 
     test('renders without crashing', () => {
-        shallow(<SearchForm {...searchFormProps} />);
+        render(<SearchForm {...searchFormProps} />);
     });
 
     test('displays query input', () => {
-        const wrapper = shallow(<SearchForm {...searchFormProps} />);
-        expect(wrapper.exists('[data-test="query-input"]')).toBe(true);
+        render(<SearchForm {...searchFormProps} />);
+        expect(screen.getByPlaceholderText('Search Phrase')).toBeInTheDocument();
     });
 
     test('displays search entity types checkboxes', () => {
-        const wrapper = shallow(<SearchForm {...searchFormProps} />);
-        expect(wrapper.exists('[data-test="metrics-toggle"]')).toBe(true);
-        expect(wrapper.exists('[data-test="instances-toggle"]')).toBe(true);
-        expect(wrapper.exists('[data-test="indoms-toggle"]')).toBe(true);
+        render(<SearchForm {...searchFormProps} />);
+        expect(screen.getByLabelText('Metrics')).toBeInTheDocument();
+        expect(screen.getByLabelText('Instances')).toBeInTheDocument();
+        expect(screen.getByLabelText('Instance Domains')).toBeInTheDocument();
     });
 
     test('displays search submit button', () => {
-        const wrapper = shallow(<SearchForm {...searchFormProps} />);
-        expect(wrapper.exists('[data-test="submit-button"]')).toBe(true);
+        render(<SearchForm {...searchFormProps} />);
+        expect(screen.getByTestId('submit-button')).toBeInTheDocument();
     });
 
     test('updates query state when props change', () => {
-        const wrapper = shallow(<SearchForm {...searchFormProps} />);
         const newQuery = { pattern: 'statsd', entityFlags: SearchEntity.Metrics, pageNum: 1 };
-        wrapper.setProps({
-            ...searchFormProps,
-            query: newQuery,
-        });
-        const state: SearchFormState = wrapper.state() as any;
-        expect(state.query.pattern).toBe(newQuery.pattern);
-        expect(state.query.entityFlags).toBe(newQuery.entityFlags);
+        const { rerender } = render(<SearchForm {...searchFormProps} />);
+        rerender(<SearchForm {...{ ...searchFormProps, query: newQuery }} />);
+        const input = screen.getByPlaceholderText('Search Phrase') as HTMLInputElement;
+        expect(input.value).toBe(newQuery.pattern);
     });
 
-    test('suggestions can attempt to fetch items', () => {
-        const wrapper = shallow(<SearchForm {...searchFormProps} />);
-        const autosuggest = wrapper.find('[data-test="query-input"]');
-        const autosuggestProps: AutosuggestPropsSingleSection<AutocompleteSuggestion> = autosuggest.props() as any;
-        const mockQuery = { reason: 'input-changed', value: 'disk' };
-        const autocompleteMock: jest.Mock = searchFormProps.services.searchService.autocomplete as any;
+    test('suggestions can attempt to fetch items', async () => {
+        const autocompleteMock = searchFormProps.services.searchService.autocomplete as jest.Mock;
         autocompleteMock.mockReturnValue(Promise.resolve([]));
-        autosuggestProps.onSuggestionsFetchRequested({ reason: 'input-changed', value: 'disk' });
-        expect(autocompleteMock.mock.calls[0][0]).toEqual({ query: mockQuery.value });
+        render(<SearchForm {...searchFormProps} />);
+        const input = screen.getByPlaceholderText('Search Phrase');
+        await userEvent.type(input, 'disk');
         expect(autocompleteMock).toHaveBeenCalled();
+        expect(autocompleteMock).toHaveBeenCalledWith({ query: expect.stringContaining('di') });
     });
 
-    test('submiting without query pattern doesnt trigger search', () => {
-        const wrapper = shallow(<SearchForm {...searchFormProps} />);
-        const form = wrapper.find('[data-test="form"]');
-        expect(form.exists('[type="submit"][data-test="submit-button"]')).toBe(true);
-        form.simulate('submit', { preventDefault() {} });
-        const querySearch: jest.Mock<QuerySearchActionCreator> = mockReduxProps.querySearch as any;
+    test('submitting without query pattern does not trigger search', () => {
+        render(<SearchForm {...searchFormProps} />);
+        fireEvent.submit(screen.getByTestId('form'));
+        const querySearch = mockReduxProps.querySearch as jest.Mock<QuerySearchActionCreator>;
         expect(querySearch).not.toHaveBeenCalled();
     });
 
-    test('submiting triggers search', () => {
+    test('submitting triggers search', () => {
         const query = {
             ...searchFormProps.query,
             pattern: 'statsd',
             pageNum: 1,
         };
-        const wrapper = shallow(<SearchForm {...{ ...searchFormProps, query }} />);
-        const state: SearchFormState = wrapper.state() as any;
-        // have to simulate submit on form since enzyme fails to propagate button click to form submit
-        const form = wrapper.find('[data-test="form"]');
-        expect(form.exists('[type="submit"][data-test="submit-button"]')).toBe(true);
-        form.simulate('submit', { preventDefault() {} });
-        const querySearch: jest.Mock<QuerySearchActionCreator> = mockReduxProps.querySearch as any;
-        expect(querySearch.mock.calls[0][0]).toEqual({ ...state.query, pageNum: 1 });
+        render(<SearchForm {...{ ...searchFormProps, query }} />);
+        fireEvent.submit(screen.getByTestId('form'));
+        const querySearch = mockReduxProps.querySearch as jest.Mock<QuerySearchActionCreator>;
+        expect(querySearch).toHaveBeenCalledWith({
+            pattern: 'statsd',
+            entityFlags: SearchEntity.All,
+            pageNum: 1,
+        });
         expect(querySearch).toHaveBeenCalled();
     });
 });

@@ -1,4 +1,4 @@
-import { css } from 'emotion';
+import { css } from '@emotion/css';
 
 const indexPageContainer = css`
     grid-area: content;

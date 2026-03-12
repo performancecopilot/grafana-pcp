@@ -1,6 +1,6 @@
-import { cx } from 'emotion';
+import { cx } from '@emotion/css';
 import React from 'react';
-import { Button, VerticalGroup } from '@grafana/ui';
+import { Button, Stack } from '@grafana/ui';
 import { SearchQuery } from '../../store/slices/search/shared/state';
 import { wrappedBtn } from '../../styles';
 import { SearchEntityUtil } from '../../utils/SearchEntityUtil';
@@ -56,9 +56,9 @@ export class SearchHistoryList extends React.Component<SearchHistoryListProps, {
         }
 
         return (
-            <VerticalGroup spacing="md">
+            <Stack direction="column" gap={2}>
                 <h4>Search History:</h4>
-                <VerticalGroup spacing="md">
+                <Stack direction="column" gap={2}>
                     <div
                         className={
                             props.multiCol
@@ -93,8 +93,8 @@ export class SearchHistoryList extends React.Component<SearchHistoryListProps, {
                             Clear History
                         </Button>
                     )}
-                </VerticalGroup>
-            </VerticalGroup>
+                </Stack>
+            </Stack>
         );
     }
 }

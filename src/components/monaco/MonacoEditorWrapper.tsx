@@ -1,7 +1,8 @@
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import React, { PureComponent } from 'react';
 import MonacoEditor, { MonacoEditorProps } from 'react-monaco-editor';
-import { Themeable, withTheme } from '@grafana/ui';
+import { GrafanaTheme2 } from '@grafana/data';
+import { useTheme2 } from '@grafana/ui';
 
 export interface MonacoEditorWrapperProps extends Omit<MonacoEditorProps, 'theme'> {
     alwaysShowHelpText?: boolean;
@@ -10,7 +11,7 @@ export interface MonacoEditorWrapperProps extends Omit<MonacoEditorProps, 'theme
     onSave?: (value: string) => void;
 }
 
-type Props = MonacoEditorWrapperProps & Themeable;
+type Props = MonacoEditorWrapperProps & { theme: GrafanaTheme2 };
 
 /**
  * tiny wrapper to be able to lazy load monaco and access the monaco object
@@ -84,4 +85,7 @@ class MonacoEditorWrapper extends PureComponent<Props> {
     }
 }
 
-export default withTheme(MonacoEditorWrapper);
+export default function MonacoEditorWrapperWithTheme(props: MonacoEditorWrapperProps) {
+    const theme = useTheme2();
+    return <MonacoEditorWrapper {...props} theme={theme} />;
+}

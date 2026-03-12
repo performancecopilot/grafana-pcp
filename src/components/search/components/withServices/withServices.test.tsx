@@ -1,5 +1,5 @@
-import { shallow } from 'enzyme';
 import React from 'react';
+import { render } from '@testing-library/react';
 import { PmSearchApiService } from '../../../../common/services/pmsearch/PmSearchApiService';
 import { PmSeriesApiService } from '../../../../common/services/pmseries/PmSeriesApiService';
 import ServicesContext from '../../contexts/services';
@@ -35,41 +35,42 @@ describe('withServices HOC', () => {
     });
 
     test('extends wrapped component with Services and leaves other props', async () => {
+        let capturedProps: TestComponentProps | null = null;
         const TestComponent = (props: TestComponentProps) => {
+            capturedProps = props;
             return <p>Component</p>;
         };
 
         const ComponentWithServices = withServices(TestComponent);
         const testVal = 'testVal';
-        const component = shallow(<ComponentWithServices test={testVal} />, {
-            wrappingComponent: ServicesContext.Provider,
-            wrappingComponentProps: {
-                value: services,
-            },
-        });
+
+        render(
+            <ServicesContext.Provider value={services}>
+                <ComponentWithServices test={testVal} />
+            </ServicesContext.Provider>
+        );
+
         // Leaves other props
-        const props = component.dive().props() as TestComponentProps;
-        expect(props.test).toBe(testVal);
+        expect(capturedProps!.test).toBe(testVal);
 
         // Provided services have callable methods
-        // Search methods are callable
-        const searchServiceProp: jest.Mocked<PmSearchApiService> = props.services.searchService as any;
+        const searchServiceProp: jest.Mocked<PmSearchApiService> = capturedProps!.services.searchService as any;
         await searchServiceProp.text(null!);
         await searchServiceProp.autocomplete(null!);
-        // Series methods are callable
-        const seriesServiceProp: jest.Mocked<PmSeriesApiService> = props.services.seriesService as any;
+
+        const seriesServiceProp: jest.Mocked<PmSeriesApiService> = capturedProps!.services.seriesService as any;
         await seriesServiceProp.descs(null!);
         await seriesServiceProp.labels(null!);
         await seriesServiceProp.metrics(null!);
         await seriesServiceProp.query(null!);
-        // Entity methods are callable
-        const entityServiceProp: jest.Mocked<EntityService> = props.services.entityService as any;
+
+        const entityServiceProp: jest.Mocked<EntityService> = capturedProps!.services.entityService as any;
         await entityServiceProp.indom(null!);
         await entityServiceProp.metric(null!);
 
-        // Check that all of above has been called
+        // Check that all of the above has been called
         expect(searchService.text).toHaveBeenCalled();
-        expect(searchService.text).toHaveBeenCalled();
+        expect(searchService.autocomplete).toHaveBeenCalled();
         expect(seriesService.descs).toHaveBeenCalled();
         expect(seriesService.labels).toHaveBeenCalled();
         expect(seriesService.metrics).toHaveBeenCalled();

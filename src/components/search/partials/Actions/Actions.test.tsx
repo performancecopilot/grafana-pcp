@@ -1,5 +1,6 @@
-import { shallow } from 'enzyme';
 import React from 'react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { SearchEntity } from '../../../../common/services/pmsearch/types';
 import { QuerySearchActionCreator } from '../../store/slices/search/shared/actionCreators';
 import { initialQuery, QueryState } from '../../store/slices/search/slices/query/state';
@@ -37,17 +38,16 @@ describe('<Actions/>', () => {
     });
 
     test('renders without crashing', () => {
-        shallow(<Actions {...mockReduxProps} />);
+        render(<Actions {...mockReduxProps} />);
     });
 
     test('displays back to index on non-index page', () => {
-        const viewSearch: ViewState = ViewState.Search;
-        const wrapperSearch = shallow(<Actions {...{ ...mockReduxProps, view: viewSearch }} />);
-        expect(wrapperSearch.exists('[data-test="back-to-index"]')).toBe(true);
+        const { unmount } = render(<Actions {...{ ...mockReduxProps, view: ViewState.Search }} />);
+        expect(screen.getByTestId('back-to-index')).toBeInTheDocument();
+        unmount();
 
-        const viewDetail: ViewState = ViewState.Search;
-        const wrapperDetail = shallow(<Actions {...{ ...mockReduxProps, view: viewDetail }} />);
-        expect(wrapperDetail.exists('[data-test="back-to-index"]')).toBe(true);
+        render(<Actions {...{ ...mockReduxProps, view: ViewState.Detail }} />);
+        expect(screen.getByTestId('back-to-index')).toBeInTheDocument();
     });
 
     test('displays back to results on detail page, when search query is available and app is on detail page', () => {
@@ -57,32 +57,29 @@ describe('<Actions/>', () => {
             entityFlags: SearchEntity.Metrics,
         };
         const view: ViewState = ViewState.Detail;
-        const wrapper = shallow(<Actions {...{ ...mockReduxDispatchProps, query, view }} />);
-        expect(wrapper.exists('[data-test="back-to-results"]')).toBe(true);
+        render(<Actions {...{ ...mockReduxDispatchProps, query, view }} />);
+        expect(screen.getByTestId('back-to-results')).toBeInTheDocument();
     });
 
-    test('can navigate to index', () => {
-        const view: ViewState = ViewState.Search;
-        const wrapper = shallow(<Actions {...{ ...mockReduxProps, view }} />);
-        const button = wrapper.find('[data-test="back-to-index"]');
-        button.simulate('click');
-        const setView: jest.Mock<QuerySearchActionCreator> = mockReduxDispatchProps.setView as any;
+    test('can navigate to index', async () => {
+        render(<Actions {...{ ...mockReduxProps, view: ViewState.Search }} />);
+        await userEvent.click(screen.getByTestId('back-to-index'));
+        const setView = mockReduxDispatchProps.setView as jest.Mock<SetViewActionCreator>;
         expect(setView).toHaveBeenCalled();
         expect(setView.mock.calls[0][0]).toBe(ViewState.Index);
     });
 
-    test('can navigate to results', () => {
+    test('can navigate to results', async () => {
         const query: QueryState = {
             pageNum: 1,
             pattern: 'test',
             entityFlags: SearchEntity.Metrics,
         };
         const view: ViewState = ViewState.Detail;
-        const wrapper = shallow(<Actions {...{ ...mockReduxDispatchProps, query, view }} />);
-        const button = wrapper.find('[data-test="back-to-results"]');
-        button.simulate('click');
-        const setView: jest.Mock<SetViewActionCreator> = mockReduxDispatchProps.querySearch as any;
-        expect(setView).toHaveBeenCalled();
-        expect(setView.mock.calls[0][0]).toBe(query);
+        render(<Actions {...{ ...mockReduxDispatchProps, query, view }} />);
+        await userEvent.click(screen.getByTestId('back-to-results'));
+        const querySearch = mockReduxDispatchProps.querySearch as jest.Mock<QuerySearchActionCreator>;
+        expect(querySearch).toHaveBeenCalled();
+        expect(querySearch.mock.calls[0][0]).toBe(query);
     });
 });

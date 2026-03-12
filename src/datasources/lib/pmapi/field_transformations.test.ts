@@ -30,38 +30,13 @@ describe('field transformations', () => {
             'text-help': 'CPU time consumed by processes in each cgroup',
         };
         applyFieldTransformations(pmapiQuery({ format: TargetFormat.TimeSeries }), metadata, frame);
-        expect(frame).toMatchInlineSnapshot(`
-            Object {
-              "fields": Array [
-                Object {
-                  "config": Object {},
-                  "labels": undefined,
-                  "name": "Time",
-                  "type": "time",
-                  "values": Array [
-                    2000,
-                    4000,
-                    6000,
-                  ],
-                },
-                Object {
-                  "config": Object {
-                    "unit": "percentunit",
-                  },
-                  "labels": undefined,
-                  "name": "cgroup.cpu.stat.usage",
-                  "type": "number",
-                  "values": Array [
-                    undefined,
-                    1,
-                    0.5,
-                  ],
-                },
-              ],
-              "meta": undefined,
-              "name": undefined,
-              "refId": undefined,
-            }
-        `);
+        expect(frame.fields).toHaveLength(2);
+        expect(frame.fields[0]).toMatchObject({ name: 'Time', type: 'time', values: [2000, 4000, 6000] });
+        expect(frame.fields[1]).toMatchObject({
+            name: 'cgroup.cpu.stat.usage',
+            type: 'number',
+            config: { unit: 'percentunit' },
+            values: [undefined, 1, 0.5],
+        });
     });
 });

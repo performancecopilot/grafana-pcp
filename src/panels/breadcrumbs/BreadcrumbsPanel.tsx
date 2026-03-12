@@ -1,7 +1,7 @@
 import React from 'react';
-import { PanelProps } from '@grafana/data';
-import { getLocationSrv, LocationSrv } from '@grafana/runtime';
-import { Button, Icon, Select, Themeable, withTheme } from '@grafana/ui';
+import { GrafanaTheme2, PanelProps } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
+import { Button, Combobox, Icon, useTheme2 } from '@grafana/ui';
 import {
     breadcrumbsBtn,
     breadcrumbsContainer,
@@ -13,21 +13,20 @@ import {
 } from './styles';
 import { LinkItem, Options } from './types';
 
-export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & Themeable> {
-    locationSrv: LocationSrv;
-    constructor(props: PanelProps<Options> & Themeable) {
+interface BreadcrumbsPanelProps extends PanelProps<Options> {
+    theme: GrafanaTheme2;
+}
+
+export class BreadcrumbsPanel extends React.PureComponent<BreadcrumbsPanelProps> {
+    constructor(props: BreadcrumbsPanelProps) {
         super(props);
         this.navigateDashboard = this.navigateDashboard.bind(this);
         this.renderBreadcrumbLink = this.renderBreadcrumbLink.bind(this);
         this.renderBreadcrumbSelect = this.renderBreadcrumbSelect.bind(this);
         this.renderNotUsable = this.renderNotUsable.bind(this);
-        this.locationSrv = getLocationSrv();
     }
     navigateDashboard(dashboardUid: string) {
-        const path = `/d/${dashboardUid}`;
-        this.locationSrv.update({
-            path,
-        });
+        locationService.push(`/d/${dashboardUid}`);
     }
     renderBreadcrumbLink(item: LinkItem) {
         const { navigateDashboard, props } = this;
@@ -54,11 +53,11 @@ export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & 
         const hasCurrent = items.some(item => item.current);
         return (
             <li className={`${breadcrumbsItem(theme)} ${hasCurrent ? breadcrumbsCurrentItem(theme) : ''}`}>
-                <Select
+                <Combobox
                     className={breadcrumbsControl(theme)}
                     options={items.map(item => ({ value: item.uid, label: item.name }))}
                     value={selectedItem?.uid ?? ''}
-                    onChange={({ value, label }) => navigateDashboard(value as string)}
+                    onChange={({ value }) => navigateDashboard(value as string)}
                 />
             </li>
         );
@@ -104,4 +103,7 @@ export class BreadcrumbsPanel extends React.PureComponent<PanelProps<Options> & 
     }
 }
 
-export default withTheme(BreadcrumbsPanel);
+export default function BreadcrumbsPanelWithTheme(props: PanelProps<Options>) {
+    const theme = useTheme2();
+    return <BreadcrumbsPanel {...props} theme={theme} />;
+}

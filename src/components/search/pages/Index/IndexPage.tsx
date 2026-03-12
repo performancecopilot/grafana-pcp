@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { VerticalGroup } from '@grafana/ui';
+import { Stack } from '@grafana/ui';
 import BookmarkList from '../../components/BookmarkList/BookmarkList';
 import Card from '../../components/Card/Card';
 import SearchHistoryList from '../../components/SearchHistoryList/SearchHistoryList';
@@ -37,7 +37,7 @@ export class IndexPage extends React.Component<IndexPageProps, {}> {
         const { props } = this;
         return (
             <div className={indexPageContainer}>
-                <VerticalGroup spacing="lg">
+                <Stack direction="column" gap={3}>
                     <Card background="strong">
                         <BookmarkList
                             showClearBtn={true}
@@ -58,7 +58,7 @@ export class IndexPage extends React.Component<IndexPageProps, {}> {
                             data-test="search-history-list"
                         />
                     </Card>
-                </VerticalGroup>
+                </Stack>
             </div>
         );
     }

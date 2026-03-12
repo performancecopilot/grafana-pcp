@@ -1,5 +1,5 @@
-import { css } from 'emotion';
-import { GrafanaTheme } from '@grafana/data';
+import { css } from '@emotion/css';
+import { GrafanaTheme2 } from '@grafana/data';
 
 const searchResultItem = css`
     width: 100%;
@@ -28,22 +28,22 @@ const searchResultBtnWithNoSpacing = css`
     padding: 0;
 `;
 
-const searchResultEntityType = (theme: GrafanaTheme) => css`
+const searchResultEntityType = (theme: GrafanaTheme2) => css`
     padding: 0;
     cursor: default;
     pointer-events: none;
     text-transform: capitalize;
-    color: ${theme.colors.text};
+    color: ${theme.colors.text.primary};
 `;
 
-const searchResultTitleLink = (theme: GrafanaTheme) => css`
+const searchResultTitleLink = (theme: GrafanaTheme2) => css`
     padding: 0;
-    color: ${theme.colors.text};
-    font-size: ${theme.typography.heading.h4};
+    color: ${theme.colors.text.primary};
+    font-size: ${theme.typography.h4.fontSize};
     font-weight: normal;
 
     &:hover {
-        color: ${theme.colors.linkExternal};
+        color: ${theme.colors.text.link};
     }
 `;
 
