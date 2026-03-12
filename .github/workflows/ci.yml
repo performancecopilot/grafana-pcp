@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout sources
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Setup Node.js 24
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: 24
 
@@ -44,7 +44,7 @@ jobs:
       run: make plugincheck || true
 
     - name: Publish build artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: build
         path: build
@@ -59,10 +59,10 @@ jobs:
         grafana_image: ['grafana:12.4.1', 'grafana:latest']
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
 
@@ -73,7 +73,7 @@ jobs:
         run: yarn playwright install chromium --with-deps
 
       - name: Download the build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: build
           path: build
@@ -90,12 +90,23 @@ jobs:
       - name: Start Grafana
         run: make GRAFANA_IMAGE=docker.io/grafana/${{ matrix.grafana_image }} test-ui-start-grafana-build
 
+      - name: Wait for Grafana to be ready
+        run: |
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:3001/api/health && break
+            sleep 2
+          done
+
       - name: Run UI Tests
         run: BASE_URL="http://127.0.0.1:3001" yarn e2e
 
+      - name: Set artifact name
+        if: failure()
+        run: echo "ARTIFACT_NAME=playwright-$(echo '${{ matrix.grafana_image }}' | tr ':' '-')" >> $GITHUB_ENV
+
       - name: Publish Playwright test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: failure()
         with:
-          name: playwright-${{ matrix.grafana_image }}
+          name: ${{ env.ARTIFACT_NAME }}
           path: playwright-report
