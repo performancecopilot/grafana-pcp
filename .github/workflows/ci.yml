@@ -13,12 +13,12 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout sources
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
-    - name: Setup Node.js 17
-      uses: actions/setup-node@v3
+    - name: Setup Node.js 24
+      uses: actions/setup-node@v4
       with:
-        node-version: 17
+        node-version: 24
 
     - name: Install jsonnet, jsonnet-bundler and grafana/plugin-validator
       run: |
@@ -56,15 +56,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        grafana_image: ['grafana:latest', 'grafana:10.2.5', 'grafana:9.0.9']
+        grafana_image: ['grafana:12.4.1', 'grafana:latest']
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js 17
-        uses: actions/setup-node@v3
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
         with:
-          node-version: 17
+          node-version: 24
+
+      - name: Install frontend dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: yarn playwright install chromium --with-deps
 
       - name: Download the build artifact
         uses: actions/download-artifact@v4
@@ -81,19 +87,15 @@ jobs:
 
           make test-ui-start-pod
 
-      - name: Run UI Tests
-        uses: cypress-io/github-action@v4
-        with:
-          browser: chrome
-        env:
-          CYPRESS_BASE_URL: http://127.0.0.1:3001
-          RESET_GRAFANA_CMD: make GRAFANA_IMAGE=docker.io/grafana/${{ matrix.grafana_image }} test-ui-start-grafana-build
+      - name: Start Grafana
+        run: make GRAFANA_IMAGE=docker.io/grafana/${{ matrix.grafana_image }} test-ui-start-grafana-build
 
-      - name: Publish screenshots and videos from UI tests
+      - name: Run UI Tests
+        run: BASE_URL="http://127.0.0.1:3001" yarn e2e
+
+      - name: Publish Playwright test results
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: cypress
-          path: |
-            cypress/screenshots
-            cypress/videos
+          name: playwright-${{ matrix.grafana_image }}
+          path: playwright-report
