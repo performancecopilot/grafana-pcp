@@ -66,7 +66,7 @@ build-backend: deps-backend ## Build backend data source
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o dist/datasources/valkey/pcp_valkey_datasource_darwin_amd64 -ldflags '$(GO_LD_FLAGS)' ./pkg
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o dist/datasources/valkey/pcp_valkey_datasource_windows_amd64.exe -ldflags '$(GO_LD_FLAGS)' ./pkg
 
-build: build-dashboards build-frontend build-backend ## Build everything
+build: build-frontend build-backend build-dashboards ## Build everything
 
 zip:
 	rm -rf build && mkdir build
@@ -79,13 +79,13 @@ zip:
 ##@ Test
 
 test-frontend: deps-frontend ## Run frontend tests
-	yarn run test
+	yarn run test:ci
 
 test-frontend-watch: deps-frontend ## Run frontend tests (watch mode)
-	yarn run test --watch
+	yarn run test
 
 test-frontend-coverage: deps-frontend ## Run frontend tests with coverage
-	yarn run test --coverage
+	yarn run test:ci --coverage
 
 test-backend: deps-backend ## Run backend tests
 	go test -race ./pkg/...
@@ -118,8 +118,8 @@ test-ui-start-grafana-build: ## Start Grafana with grafana-pcp from build/perfor
 		-v $$(pwd)/build/$$(basename build/performancecopilot-pcp-app-*.zip):/tmp/plugin.zip \
 		$(GRAFANA_IMAGE)
 
-test-ui: test-ui-start-pod ## Run Cypress UI tests
-	CYPRESS_BASE_URL="http://127.0.0.1:3001" RESET_GRAFANA_CMD="make test-ui-start-grafana-dist" yarn cypress:open
+test-ui: test-ui-start-pod ## Run Playwright UI tests
+	BASE_URL="http://127.0.0.1:3001" yarn e2e
 
 
 ##@ Helpers
