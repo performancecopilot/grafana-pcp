@@ -1,8 +1,8 @@
-import { css, cx } from 'emotion';
+import { css, cx } from '@emotion/css';
 import { defaultsDeep } from 'lodash';
 import React, { PureComponent } from 'react';
-import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { InlineField, InlineFieldRow, InlineSwitch, Input, Select } from '@grafana/ui';
+import { QueryEditorProps } from '@grafana/data';
+import { Combobox, InlineField, InlineFieldRow, InlineSwitch, Input } from '@grafana/ui';
 import { isBlank } from '../../../common/utils';
 import { Monaco } from '../../../components/monaco';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
@@ -14,7 +14,7 @@ import { registerLanguage } from './language/PmapiLanguage';
 
 type Props = QueryEditorProps<PCPVectorDataSource, VectorQuery, VectorOptions>;
 
-const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
+const FORMAT_OPTIONS = [
     { label: 'Time series', value: TargetFormat.TimeSeries },
     { label: 'Heatmap', value: TargetFormat.Heatmap },
     { label: 'Table', value: TargetFormat.MetricsTable },
@@ -22,7 +22,7 @@ const FORMAT_OPTIONS: Array<SelectableValue<string>> = [
 
 interface State {
     expr: string;
-    format: SelectableValue<string>;
+    format: string;
     legendFormat?: string;
     options: PmapiQueryOptions;
     url?: string;
@@ -35,7 +35,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         const query = defaultsDeep({}, this.props.query, defaultVectorQuery);
         this.state = {
             expr: query.expr,
-            format: FORMAT_OPTIONS.find(option => option.value === query.format) ?? FORMAT_OPTIONS[0],
+            format: query.format ?? TargetFormat.TimeSeries,
             legendFormat: query.legendFormat,
             options: {
                 rateConversion: query.options.rateConversion,
@@ -55,8 +55,8 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         this.setState({ legendFormat }, this.runQuery);
     };
 
-    onFormatChange = (format: SelectableValue<string>) => {
-        this.setState({ format }, this.runQuery);
+    onFormatChange = (option: { value: string }) => {
+        this.setState({ format: option.value }, this.runQuery);
     };
 
     onURLChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
@@ -83,7 +83,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         return {
             refId: this.props.query.refId,
             expr: this.state.expr,
-            format: this.state.format.value as TargetFormat,
+            format: this.state.format as TargetFormat,
             legendFormat: this.state.legendFormat,
             options: {
                 rateConversion: this.state.options.rateConversion,
@@ -146,9 +146,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
                     </InlineField>
 
                     <InlineField label="Format">
-                        <Select
-                            className="width-9"
-                            isSearchable={false}
+                        <Combobox
                             options={FORMAT_OPTIONS}
                             value={this.state.format}
                             onChange={this.onFormatChange}

@@ -1,19 +1,19 @@
-import { css } from 'emotion';
-import { GrafanaTheme } from '@grafana/data';
+import { css } from '@emotion/css';
+import { GrafanaTheme2 } from '@grafana/data';
 
 const searchPageContainer = css`
     grid-area: content;
 `;
 
-const searchPageMatchesDesc = (theme: GrafanaTheme) => css`
+const searchPageMatchesDesc = (theme: GrafanaTheme2) => css`
     display: inline-block;
-    color: ${theme.colors.textSemiWeak};
+    color: ${theme.colors.text.secondary};
 `;
 
-const searchPageElapsed = (theme: GrafanaTheme) => css`
+const searchPageElapsed = (theme: GrafanaTheme2) => css`
     display: inline-block;
     font-style: italic;
-    color: ${theme.colors.textWeak};
+    color: ${theme.colors.text.secondary};
 `;
 
 const paginationContainer = css`

@@ -1,4 +1,4 @@
-import { css } from 'emotion';
+import { css } from '@emotion/css';
 import React, { PureComponent } from 'react';
 import { AppPluginMeta, PluginConfigPageProps } from '@grafana/data';
 import { BackendSrv, getBackendSrv } from '@grafana/runtime';

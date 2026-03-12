@@ -1,9 +1,10 @@
 import { getLogger } from 'loglevel';
 import React from 'react';
+import { GrafanaTheme2 } from '@grafana/data';
 import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { HorizontalGroup, Pagination, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
+import { Pagination, Stack, useTheme2 } from '@grafana/ui';
 import { EntityType, TextItemResponse } from '../../../../common/services/pmsearch/types';
 import Loader from '../../components/Loader/Loader';
 import SearchResult from '../../components/SearchResult/SearchResult';
@@ -29,7 +30,7 @@ export type SearchPageReduxDispatchProps = ReturnType<typeof mapDispatchToProps>
 
 export type SearchPageReduxProps = SearchPageReduxStateProps & SearchPageReduxDispatchProps;
 
-export type SearchPageProps = SearchPageReduxProps & Themeable;
+export type SearchPageProps = SearchPageReduxProps & { theme: GrafanaTheme2 };
 
 export class SearchPage extends React.Component<SearchPageProps, {}> {
     constructor(props: SearchPageProps) {
@@ -134,12 +135,12 @@ export class SearchPage extends React.Component<SearchPageProps, {}> {
                 }
                 if (data.results.length > 0) {
                     return (
-                        <VerticalGroup spacing="lg">
-                            <HorizontalGroup justify="space-between" spacing="md">
+                        <Stack direction="column" gap={3}>
+                            <Stack justifyContent="space-between" gap={2}>
                                 {renderMatchesDesc()}
                                 {renderSearchElapsedTime()}
-                            </HorizontalGroup>
-                            <VerticalGroup spacing="lg">
+                            </Stack>
+                            <Stack direction="column" gap={3}>
                                 {data.results.map((x, i) => (
                                     <SearchResult
                                         data-test={`search-result-${i}`}
@@ -148,25 +149,24 @@ export class SearchPage extends React.Component<SearchPageProps, {}> {
                                         openDetail={onDetailClick}
                                     />
                                 ))}
-                            </VerticalGroup>
+                            </Stack>
                             {pagesCount > 1 && (
-                                <div className={paginationContainer}>
+                                <div className={paginationContainer} data-test="pagination">
                                     <Pagination
-                                        data-test="pagination"
                                         numberOfPages={pagesCount}
                                         currentPage={currentPage}
                                         onNavigate={onPaginationClick}
                                     />
                                 </div>
                             )}
-                        </VerticalGroup>
+                        </Stack>
                     );
                 }
                 return (
-                    <VerticalGroup spacing="lg">
+                    <Stack direction="column" gap={3}>
                         <h4>Results for &quot;{query.pattern}&quot;:</h4>
                         <p>There are no results.</p>
-                    </VerticalGroup>
+                    </Stack>
                 );
             }
             case FetchStatus.ERROR: {
@@ -187,4 +187,7 @@ export class SearchPage extends React.Component<SearchPageProps, {}> {
     }
 }
 
-export default withTheme(connect(mapStateToProps, mapDispatchToProps)(SearchPage));
+export default connect(mapStateToProps, mapDispatchToProps)(function SearchPageWithTheme(props: SearchPageReduxProps) {
+    const theme = useTheme2();
+    return <SearchPage {...props} theme={theme} />;
+});

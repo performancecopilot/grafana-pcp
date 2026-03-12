@@ -1,29 +1,29 @@
-import { render, shallow } from 'enzyme';
 import React from 'react';
-import { GrafanaThemeType } from '@grafana/data';
-import { getTheme } from '@grafana/ui';
+import { render, screen } from '@testing-library/react';
+import { createTheme } from '@grafana/data';
 import { Loader } from './Loader';
 
 describe('<Loader/>', () => {
-    const theme = getTheme(GrafanaThemeType.Light);
+    const theme = createTheme();
 
     test('renders without crashing', () => {
-        shallow(<Loader loaded={false} theme={theme} />);
+        render(<Loader loaded={false} theme={theme} />);
     });
 
     test('renders loading indicator and children when loaded = false', () => {
-        const component = render(<Loader loaded={false} theme={theme} />);
-        expect(component.find('[data-test="spinner-container"]').length).toBe(1);
-        expect(component.find('[data-test="content-container"]').length).toBe(1);
+        render(<Loader loaded={false} theme={theme} />);
+        expect(screen.getByTestId('spinner-container')).toBeInTheDocument();
+        expect(screen.getByTestId('content-container')).toBeInTheDocument();
     });
 
     test('renders children only when loaded = true', () => {
         const childNode = 'Cheerio';
-        const component = render(
+        const { container } = render(
             <Loader loaded={true} theme={theme}>
                 {childNode}
             </Loader>
         );
-        expect(component.html()).toBe(childNode);
+        expect(container.textContent).toBe(childNode);
+        expect(screen.queryByTestId('spinner-container')).not.toBeInTheDocument();
     });
 });

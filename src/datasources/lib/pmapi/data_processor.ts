@@ -6,7 +6,6 @@ import {
     FieldConfig,
     FieldDTO,
     FieldType,
-    getTimeField,
     MISSING_VALUE,
     MutableDataFrame,
     MutableField,
@@ -221,20 +220,20 @@ function createDataFrame(
             instanceIdToField.set(instanceValue.instance, field);
         }
 
-        timeField.values.add(snapshot.timestampMs);
+        timeField.values.push(snapshot.timestampMs);
         for (const instanceValue of snapshot.values) {
             let field = instanceIdToField.get(instanceValue.instance)!;
             // make sure a field doesn't grow larger than the time field
             // in case an instance has two values for the same timestamp (should not happen)
             if (field.values.length < timeField.values.length) {
-                field.values.add(instanceValue.value);
+                field.values.push(instanceValue.value);
             }
         }
 
         // some instance existed previously but disappeared -> fill field with MISSING_VALUE
         for (const field of instanceIdToField.values()) {
             if (timeField.values.length > field.values.length) {
-                field.values.add(MISSING_VALUE);
+                field.values.push(MISSING_VALUE);
             }
         }
     }
@@ -261,7 +260,7 @@ function getHeatMapDisplayName(field: Field) {
 }
 
 function transformToHeatMap(frame: MutableDataFrame) {
-    const { timeField } = getTimeField(frame) as { timeField?: MutableField };
+    const timeField = frame.fields.find(f => f.type === FieldType.time) as MutableField | undefined;
     if (!timeField) {
         return;
     }
@@ -273,7 +272,7 @@ function transformToHeatMap(frame: MutableDataFrame) {
 
     for (let i = 0; i < timeField.values.length; i++) {
         // round timestamps to one second, the heatmap panel calculates the x-axis size accordingly
-        timeField.values.set(i, Math.floor(timeField.values.get(i) / 1000) * 1000);
+        timeField.values[i] = Math.floor(timeField.values[i] / 1000) * 1000;
     }
 }
 
@@ -302,7 +301,7 @@ function transformToMetricsTable(scopedVars: ScopedVars, frames: DataFrame[]) {
             continue;
         }
         for (const field of frame.fields) {
-            const lastValue = field.values.get(field.values.length - 1);
+            const lastValue = field.values[field.values.length - 1];
             if (field.type === FieldType.time || lastValue === MISSING_VALUE) {
                 continue;
             }
@@ -322,7 +321,7 @@ function transformToMetricsTable(scopedVars: ScopedVars, frames: DataFrame[]) {
      */
     for (const [instanceId, instanceName] of instanceColumn.entries()) {
         let fieldIdx = 0;
-        tableFrame.fields[fieldIdx].values.add(instanceName);
+        tableFrame.fields[fieldIdx].values.push(instanceName);
         fieldIdx++;
 
         for (const frame of frames) {
@@ -330,10 +329,10 @@ function transformToMetricsTable(scopedVars: ScopedVars, frames: DataFrame[]) {
                 field => field.type !== FieldType.time && (field.config.custom as FieldCustom).instanceId === instanceId
             );
             if (field) {
-                const lastValue = field.values.get(field.values.length - 1);
-                tableFrame.fields[fieldIdx].values.add(lastValue);
+                const lastValue = field.values[field.values.length - 1];
+                tableFrame.fields[fieldIdx].values.push(lastValue);
             } else {
-                tableFrame.fields[fieldIdx].values.add(MISSING_VALUE);
+                tableFrame.fields[fieldIdx].values.push(MISSING_VALUE);
             }
             fieldIdx++;
         }
@@ -378,7 +377,7 @@ function transformToCsvTable(frames: DataFrame[]) {
     if (frames.length === 1 && frames[0].length > 0) {
         for (const field of frames[0].fields) {
             if (field.type !== FieldType.time) {
-                const lastValue = field.values.get(field.values.length - 1);
+                const lastValue = field.values[field.values.length - 1];
                 if (isString(lastValue) && lastValue.includes(',')) {
                     tableText = lastValue;
                 }
@@ -402,7 +401,7 @@ function transformToCsvTable(frames: DataFrame[]) {
         } else {
             const row = Array.from(parseCsvLine(line));
             for (let i = 0; i < tableFrame.fields.length; i++) {
-                tableFrame.fields[i].values.add(row[i]);
+                tableFrame.fields[i].values.push(row[i]);
             }
         }
     }

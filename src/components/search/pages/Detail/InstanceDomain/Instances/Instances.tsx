@@ -1,6 +1,6 @@
-import { cx } from 'emotion';
+import { cx } from '@emotion/css';
 import React from 'react';
-import { VerticalGroup } from '@grafana/ui';
+import { Stack } from '@grafana/ui';
 import { IndomEntitySparseItem } from '../../../../models/entities/indom';
 import { gridItem, gridList, gridListSingleCol, gridValue } from '../../styles';
 
@@ -14,7 +14,7 @@ export class Instances extends React.Component<InstancesProps, {}> {
 
         if (instances.length) {
             return (
-                <VerticalGroup spacing="md">
+                <Stack direction="column" gap={2}>
                     <h3 data-test="instances">Instances:</h3>
                     <div className={cx(gridList, gridListSingleCol)}>
                         {instances.map((instance, i) => (
@@ -25,7 +25,7 @@ export class Instances extends React.Component<InstancesProps, {}> {
                             </div>
                         ))}
                     </div>
-                </VerticalGroup>
+                </Stack>
             );
         }
 

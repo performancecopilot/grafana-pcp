@@ -1,21 +1,16 @@
-import React, { SyntheticEvent } from 'react';
+import React, { SyntheticEvent, useState } from 'react';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
-import { DataSourceHttpSettings, EventsWithValidation, LegacyForms, regexValidation } from '@grafana/ui';
+import { DataSourceHttpSettings, Field, Input } from '@grafana/ui';
 import { Config } from '../config';
 import { VectorOptions } from '../types';
 
-const { Input, FormField } = LegacyForms;
-
 export type Props = DataSourcePluginOptionsEditorProps<VectorOptions>;
 
-export const timeSettingsValidationEvents = {
-    [EventsWithValidation.onBlur]: [
-        regexValidation(/^$|^\d+[hms]$/, 'Value is not valid, you can use number with time unit specifier: h, m, s'),
-    ],
-};
+const retentionTimePattern = /^$|^\d+[hms]$/;
 
 export const VectorConfigEditor = (props: Props) => {
     const { options, onOptionsChange } = props;
+    const [retentionTimeError, setRetentionTimeError] = useState('');
 
     const onOptionsChangeHandler = (optionName: string) => (eventItem: SyntheticEvent<HTMLInputElement>) => {
         onOptionsChange({
@@ -25,6 +20,16 @@ export const VectorConfigEditor = (props: Props) => {
                 [optionName]: eventItem.currentTarget.value,
             },
         });
+    };
+
+    const onRetentionTimeBlur = (eventItem: SyntheticEvent<HTMLInputElement>) => {
+        const value = eventItem.currentTarget.value;
+        if (!retentionTimePattern.test(value)) {
+            setRetentionTimeError('Value is not valid, you can use number with time unit specifier: h, m, s');
+        } else {
+            setRetentionTimeError('');
+        }
+        onOptionsChangeHandler('retentionTime')(eventItem);
     };
 
     return (
@@ -38,43 +43,30 @@ export const VectorConfigEditor = (props: Props) => {
 
             <h3 className="page-heading">Vector Settings</h3>
             <div className="gf-form-group">
-                <div className="gf-form-inline">
-                    <div className="gf-form">
-                        <FormField
-                            label="Host specification"
-                            labelWidth={14}
-                            inputEl={
-                                <Input
-                                    className="width-18"
-                                    value={options.jsonData.hostspec}
-                                    spellCheck={false}
-                                    placeholder={Config.defaults.hostspec}
-                                    onChange={onOptionsChangeHandler('hostspec')}
-                                />
-                            }
-                            tooltip="Performance Co-Pilot host specification."
-                        />
-                    </div>
-                </div>
-                <div className="gf-form-inline">
-                    <div className="gf-form">
-                        <FormField
-                            label="Metric values retention time"
-                            labelWidth={14}
-                            inputEl={
-                                <Input
-                                    className="width-6"
-                                    value={options.jsonData.retentionTime}
-                                    spellCheck={false}
-                                    placeholder={Config.defaults.retentionTime}
-                                    onChange={onOptionsChangeHandler('retentionTime')}
-                                    validationEvents={timeSettingsValidationEvents}
-                                />
-                            }
-                            tooltip="Retention time of the in-browser metric storage."
-                        />
-                    </div>
-                </div>
+                <Field label="Host specification" description="Performance Co-Pilot host specification.">
+                    <Input
+                        width={18}
+                        value={options.jsonData.hostspec}
+                        spellCheck={false}
+                        placeholder={Config.defaults.hostspec}
+                        onChange={onOptionsChangeHandler('hostspec')}
+                    />
+                </Field>
+                <Field
+                    label="Metric values retention time"
+                    description="Retention time of the in-browser metric storage."
+                    invalid={!!retentionTimeError}
+                    error={retentionTimeError}
+                >
+                    <Input
+                        width={6}
+                        value={options.jsonData.retentionTime}
+                        spellCheck={false}
+                        placeholder={Config.defaults.retentionTime}
+                        onChange={onOptionsChangeHandler('retentionTime')}
+                        onBlur={onRetentionTimeBlur}
+                    />
+                </Field>
             </div>
         </>
     );

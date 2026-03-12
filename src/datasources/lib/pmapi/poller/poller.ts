@@ -400,7 +400,7 @@ export class Poller {
         this.throwBackgroundError(endpoint);
 
         const nowMs = Date.now();
-        const targetId = `${request.dashboardId}/${request.panelId}/${query.refId}`;
+        const targetId = `${request.dashboardUID ?? (request as any).dashboardId ?? ''}/${request.panelId}/${query.refId}`;
         let target = endpoint.targets.find(target => target.targetId === targetId);
 
         if (target && !this.config.hooks.queryHasChanged(target.query, query)) {

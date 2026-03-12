@@ -1,10 +1,7 @@
-import { shallow } from 'enzyme';
 import React from 'react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { EntityType, SearchEntity } from '../../../../common/services/pmsearch/types';
-import { BookmarkListProps } from '../../components/BookmarkList/BookmarkList';
-import { SearchHistoryListProps } from '../../components/SearchHistoryList/SearchHistoryList';
-import { OpenDetailActionCreator, QuerySearchActionCreator } from '../../store/slices/search/shared/actionCreators';
-import { ClearSearchHistoryActionCreator } from '../../store/slices/search/slices/history/actionCreators';
 import {
     IndexPage,
     IndexPageProps,
@@ -60,63 +57,48 @@ describe('<IndexPage/>', () => {
     });
 
     test('renders without crashing', () => {
-        shallow(<IndexPage {...indexPageProps} />);
+        render(<IndexPage {...indexPageProps} />);
     });
 
     test('renders bookmarks', () => {
-        const wrapper = shallow(<IndexPage {...indexPageProps} />);
-        const bookmarkList = wrapper.find('[data-test="bookmark-list"]');
-        expect(bookmarkList.exists()).toBe(true);
-        const props: BookmarkListProps = bookmarkList.props() as any;
-        expect(props.bookmarks).toBe(indexPageProps.bookmarks);
+        render(<IndexPage {...indexPageProps} />);
+        const bookmarkBtns = screen.getAllByTestId('bookmark-go');
+        expect(bookmarkBtns.length).toBe(indexPageProps.bookmarks.length);
     });
 
     test('renders search history', () => {
-        const wrapper = shallow(<IndexPage {...indexPageProps} />);
-        const searchHistoryList = wrapper.find('[data-test="search-history-list"]');
-        expect(searchHistoryList.exists()).toBe(true);
-        const props: SearchHistoryListProps = searchHistoryList.props() as any;
-        expect(props.searchHistory).toBe(indexPageProps.searchHistory);
+        render(<IndexPage {...indexPageProps} />);
+        const historyBtns = screen.getAllByTestId('search-history-go');
+        expect(historyBtns.length).toBe(indexPageProps.searchHistory.length);
     });
 
-    test('can navigate to bookmark', () => {
-        const wrapper = shallow(<IndexPage {...indexPageProps} />);
-        const bookmarkList = wrapper.find('[data-test="bookmark-list"]');
-        const props: BookmarkListProps = bookmarkList.props() as any;
+    test('can navigate to bookmark', async () => {
+        render(<IndexPage {...indexPageProps} />);
         const bookmark = indexPageProps.bookmarks[0];
-        props.onBookmarkClick(bookmark.id, bookmark.type);
-        const openDetail: jest.Mock<OpenDetailActionCreator> = mockReduxDispatchProps.openDetail as any;
-        expect(openDetail).toHaveBeenCalled();
-        expect(openDetail.mock.calls[0]).toEqual([bookmark.id, bookmark.type]);
+        const bookmarkBtns = screen.getAllByTestId('bookmark-go');
+        await userEvent.click(bookmarkBtns[0]);
+        expect(mockReduxDispatchProps.openDetail).toHaveBeenCalled();
+        expect((mockReduxDispatchProps.openDetail as jest.Mock).mock.calls[0]).toEqual([bookmark.id, bookmark.type]);
     });
 
-    test('can navigate to search query', () => {
-        const wrapper = shallow(<IndexPage {...indexPageProps} />);
-        const searchHistoryList = wrapper.find('[data-test="search-history-list"]');
-        const props: SearchHistoryListProps = searchHistoryList.props() as any;
+    test('can navigate to search query', async () => {
+        render(<IndexPage {...indexPageProps} />);
         const searchHistoryItem = indexPageProps.searchHistory[0];
-        props.onSearchHistoryClick(searchHistoryItem);
-        const querySearch: jest.Mock<QuerySearchActionCreator> = mockReduxDispatchProps.querySearch as any;
-        expect(querySearch).toHaveBeenCalled();
-        expect(querySearch.mock.calls[0][0]).toBe(searchHistoryItem);
+        const historyBtns = screen.getAllByTestId('search-history-go');
+        await userEvent.click(historyBtns[0]);
+        expect(mockReduxDispatchProps.querySearch).toHaveBeenCalled();
+        expect((mockReduxDispatchProps.querySearch as jest.Mock).mock.calls[0][0]).toBe(searchHistoryItem);
     });
 
-    test('can clear bookmakrs', () => {
-        const wrapper = shallow(<IndexPage {...indexPageProps} />);
-        const bookmarkList = wrapper.find('[data-test="bookmark-list"]');
-        const props: BookmarkListProps = bookmarkList.props() as any;
-        props.onClearBookmarksClick();
-        const clearBookmarks: jest.Mock<OpenDetailActionCreator> = mockReduxDispatchProps.clearBookmarks as any;
-        expect(clearBookmarks).toHaveBeenCalled();
+    test('can clear bookmarks', async () => {
+        render(<IndexPage {...indexPageProps} />);
+        await userEvent.click(screen.getByTestId('bookmark-reset'));
+        expect(mockReduxDispatchProps.clearBookmarks).toHaveBeenCalled();
     });
 
-    test('can clear search query history', () => {
-        const wrapper = shallow(<IndexPage {...indexPageProps} />);
-        const searchHistoryList = wrapper.find('[data-test="search-history-list"]');
-        const props: SearchHistoryListProps = searchHistoryList.props() as any;
-        props.onClearSearchHistoryClick();
-        const clearSearchHistory: jest.Mock<ClearSearchHistoryActionCreator> =
-            mockReduxDispatchProps.clearSearchHistory as any;
-        expect(clearSearchHistory).toHaveBeenCalled();
+    test('can clear search query history', async () => {
+        render(<IndexPage {...indexPageProps} />);
+        await userEvent.click(screen.getByTestId('search-history-reset'));
+        expect(mockReduxDispatchProps.clearSearchHistory).toHaveBeenCalled();
     });
 });

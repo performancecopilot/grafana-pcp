@@ -17,7 +17,7 @@ export function timeRange(): TimeRange {
 export function dataQueryRequest<Q extends DataQuery>(props?: DeepPartial<DataQueryRequest<Q>>): DataQueryRequest<Q> {
     return defaultsDeep({}, props, {
         app: 'dashboard',
-        dashboardId: 1,
+        dashboardUID: 'test-dashboard',
         panelId: 2,
         requestId: '3',
         interval: '5s',

@@ -1,5 +1,5 @@
-import { css } from 'emotion';
-import { GrafanaTheme } from '@grafana/data';
+import { css } from '@emotion/css';
+import { GrafanaTheme2 } from '@grafana/data';
 
 export const graphWrapper = css`
     position: relative;
@@ -15,63 +15,63 @@ export const buttons = css`
     z-index: 11;
 `;
 
-export const button = (theme: GrafanaTheme) => css`
+export const button = (theme: GrafanaTheme2) => css`
     padding: 6px;
     box-sizing: content-box;
     border-radius: 50%;
-    background: ${theme.colors.panelBg};
+    background: ${theme.colors.background.primary};
     border: 0;
 
     & + & {
-        margin-left: ${theme.spacing.sm};
+        margin-left: ${theme.spacing(1)};
     }
 `;
 
-export const warningButton = (theme: GrafanaTheme) => css`
-    color: ${theme.colors.formInputBorderInvalid};
+export const warningButton = (theme: GrafanaTheme2) => css`
+    color: ${theme.colors.error.border};
 
     &:hover {
-        color: ${theme.colors.panelBg};
+        color: ${theme.colors.background.primary};
 
         &:before {
-            background: ${theme.colors.formInputBorderInvalid};
+            background: ${theme.colors.error.border};
         }
     }
 `;
 
-export const infoButton = (theme: GrafanaTheme) => css`
-    color: ${theme.colors.formInputText};
+export const infoButton = (theme: GrafanaTheme2) => css`
+    color: ${theme.colors.text.primary};
 
     &:hover {
-        color: ${theme.colors.panelBg};
+        color: ${theme.colors.background.primary};
 
         &:before {
-            background: ${theme.colors.formInputText};
+            background: ${theme.colors.text.primary};
         }
     }
 `;
 
-export const modalTypography = (theme: GrafanaTheme) => css`
+export const modalTypography = (theme: GrafanaTheme2) => css`
     p:last-child {
         margin-bottom: 0;
     }
 
     ul,
     li {
-        margin-left: ${theme.spacing.sm};
+        margin-left: ${theme.spacing(1)};
     }
 
     a {
-        color: ${theme.colors.linkExternal};
+        color: ${theme.colors.text.link};
     }
 `;
 
-export const modalArticleIcon = (theme: GrafanaTheme) => css`
-    margin-right: ${theme.spacing.sm};
+export const modalArticleIcon = (theme: GrafanaTheme2) => css`
+    margin-right: ${theme.spacing(1)};
 `;
 
-export const modalTooltipContent = (theme: GrafanaTheme) => css`
-    border-bottom: 1px dotted ${theme.colors.textFaint};
+export const modalTooltipContent = (theme: GrafanaTheme2) => css`
+    border-bottom: 1px dotted ${theme.colors.text.disabled};
 `;
 
 export const modalRelativesLinksContainer = css`

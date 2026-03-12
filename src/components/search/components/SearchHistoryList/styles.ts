@@ -1,4 +1,4 @@
-import { css } from 'emotion';
+import { css } from '@emotion/css';
 
 const searchHistoryListBtnWithNoSpacing = css`
     padding: 0;

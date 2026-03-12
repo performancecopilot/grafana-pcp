@@ -1,4 +1,4 @@
-import { css } from 'emotion';
+import { css } from '@emotion/css';
 
 const bookmarkListBtnWithNoSpacing = css`
     padding: 0;

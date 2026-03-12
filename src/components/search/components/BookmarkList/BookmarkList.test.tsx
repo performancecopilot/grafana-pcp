@@ -1,7 +1,7 @@
-import { shallow } from 'enzyme';
 import React from 'react';
-import { GrafanaThemeType } from '@grafana/data';
-import { getTheme } from '@grafana/ui';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { createTheme } from '@grafana/data';
 import { EntityType } from '../../../../common/services/pmsearch/types';
 import { BookmarkItem } from '../../store/slices/search/slices/bookmarks/state';
 import { BookmarkList } from './BookmarkList';
@@ -11,7 +11,7 @@ describe('<BookmarkList/>', () => {
         onBookmarkClick: () => void 0,
         onClearBookmarksClick: () => void 0,
     };
-    const theme = getTheme(GrafanaThemeType.Light);
+    const theme = createTheme();
 
     const bookmarkItems: BookmarkItem[] = [
         {
@@ -25,52 +25,50 @@ describe('<BookmarkList/>', () => {
     ];
 
     test('renders without crashing', () => {
-        shallow(<BookmarkList bookmarks={[]} {...placeholderCallbacks} theme={theme} />);
+        render(<BookmarkList bookmarks={[]} {...placeholderCallbacks} theme={theme} />);
     });
 
     test('renders multiple columns by default', () => {
-        const component = shallow(<BookmarkList bookmarks={bookmarkItems} {...placeholderCallbacks} theme={theme} />);
-        expect(component.exists('[data-test="multicol"]')).toBe(true);
+        render(<BookmarkList bookmarks={bookmarkItems} {...placeholderCallbacks} theme={theme} />);
+        expect(screen.getByTestId('multicol')).toBeInTheDocument();
     });
 
     test('items have title filled', () => {
-        const component = shallow(<BookmarkList bookmarks={bookmarkItems} {...placeholderCallbacks} theme={theme} />);
-        const buttons = component.find('[data-test="bookmark-go"]');
-        buttons.forEach(button => expect(button.prop('title')).toBeDefined());
+        render(<BookmarkList bookmarks={bookmarkItems} {...placeholderCallbacks} theme={theme} />);
+        const buttons = screen.getAllByTestId('bookmark-go');
+        buttons.forEach(button => expect(button.title).toBeTruthy());
     });
 
     test('renders clear button by default', () => {
-        const component = shallow(<BookmarkList bookmarks={bookmarkItems} {...placeholderCallbacks} theme={theme} />);
-        expect(component.exists('[data-test="bookmark-reset"]')).toBe(true);
+        render(<BookmarkList bookmarks={bookmarkItems} {...placeholderCallbacks} theme={theme} />);
+        expect(screen.getByTestId('bookmark-reset')).toBeInTheDocument();
     });
 
     test('accepts both single column and multi column prop settings', () => {
-        const singleCol = shallow(
+        const { unmount } = render(
             <BookmarkList bookmarks={bookmarkItems} multiCol={false} {...placeholderCallbacks} theme={theme} />
         );
-        expect(singleCol.exists('[data-test="singlecol"]')).toBe(true);
+        expect(screen.getByTestId('singlecol')).toBeInTheDocument();
+        unmount();
 
-        const multiCol = shallow(
-            <BookmarkList bookmarks={bookmarkItems} multiCol={true} {...placeholderCallbacks} theme={theme} />
-        );
-        expect(multiCol.exists('[data-test="multicol"]')).toBe(true);
+        render(<BookmarkList bookmarks={bookmarkItems} multiCol={true} {...placeholderCallbacks} theme={theme} />);
+        expect(screen.getByTestId('multicol')).toBeInTheDocument();
     });
 
     test('accepts conditional showing of clear button', () => {
-        const hasClear = shallow(
+        const { unmount } = render(
             <BookmarkList bookmarks={bookmarkItems} showClearBtn={true} {...placeholderCallbacks} theme={theme} />
         );
-        expect(hasClear.exists('[data-test="bookmark-reset"]')).toBe(true);
+        expect(screen.getByTestId('bookmark-reset')).toBeInTheDocument();
+        unmount();
 
-        const lacksClear = shallow(
-            <BookmarkList bookmarks={bookmarkItems} showClearBtn={false} {...placeholderCallbacks} theme={theme} />
-        );
-        expect(lacksClear.exists('[data-test="bookmark-reset"]')).toBe(false);
+        render(<BookmarkList bookmarks={bookmarkItems} showClearBtn={false} {...placeholderCallbacks} theme={theme} />);
+        expect(screen.queryByTestId('bookmark-reset')).not.toBeInTheDocument();
     });
 
-    test('calls onBookmarkClick properly', () => {
-        const onBookmarkClickMock = jest.fn(() => void 0);
-        const component = shallow(
+    test('calls onBookmarkClick properly', async () => {
+        const onBookmarkClickMock = jest.fn();
+        render(
             <BookmarkList
                 bookmarks={bookmarkItems}
                 {...placeholderCallbacks}
@@ -78,14 +76,16 @@ describe('<BookmarkList/>', () => {
                 theme={theme}
             />
         );
-        const buttons = component.find('[data-test="bookmark-go"]');
-        buttons.forEach(button => button.simulate('click'));
+        const buttons = screen.getAllByTestId('bookmark-go');
+        for (const button of buttons) {
+            await userEvent.click(button);
+        }
         expect(onBookmarkClickMock).toHaveBeenCalledTimes(bookmarkItems.length);
     });
 
-    test('calls onClearBookmarksClick properly', () => {
-        const onClearBookmarksClickMock = jest.fn(() => void 0);
-        const component = shallow(
+    test('calls onClearBookmarksClick properly', async () => {
+        const onClearBookmarksClickMock = jest.fn();
+        render(
             <BookmarkList
                 bookmarks={bookmarkItems}
                 {...placeholderCallbacks}
@@ -93,18 +93,17 @@ describe('<BookmarkList/>', () => {
                 theme={theme}
             />
         );
-        const button = component.find('[data-test="bookmark-reset"]');
-        button.simulate('click');
+        await userEvent.click(screen.getByTestId('bookmark-reset'));
         expect(onClearBookmarksClickMock).toHaveBeenCalled();
     });
 
     test('renders passed all bookmarks items', () => {
-        const component = shallow(<BookmarkList bookmarks={bookmarkItems} {...placeholderCallbacks} theme={theme} />);
-        expect(component.find('[data-test="bookmark-go"]').length).toBe(bookmarkItems.length);
+        render(<BookmarkList bookmarks={bookmarkItems} {...placeholderCallbacks} theme={theme} />);
+        expect(screen.getAllByTestId('bookmark-go').length).toBe(bookmarkItems.length);
     });
 
     test('handles no bookmarks items', () => {
-        const component = shallow(<BookmarkList bookmarks={[]} {...placeholderCallbacks} theme={theme} />);
-        expect(component.exists('[data-test="bookmark-go"]')).toBe(false);
+        render(<BookmarkList bookmarks={[]} {...placeholderCallbacks} theme={theme} />);
+        expect(screen.queryByTestId('bookmark-go')).not.toBeInTheDocument();
     });
 });

@@ -1,8 +1,8 @@
-import { cx } from 'emotion';
+import { cx } from '@emotion/css';
 import React from 'react';
-import { DataFrame, FieldType, GrafanaTheme, PanelData } from '@grafana/data';
-import { getLocationSrv } from '@grafana/runtime';
-import { Button, Icon, IconButton, Modal, useTheme, VerticalGroup } from '@grafana/ui';
+import { DataFrame, FieldType, GrafanaTheme2, PanelData } from '@grafana/data';
+import { locationService } from '@grafana/runtime';
+import { Button, Icon, IconButton, Modal, Stack, useTheme2 } from '@grafana/ui';
 import {
     button,
     buttons,
@@ -23,20 +23,17 @@ interface Props {
 }
 
 function navigateDashboard(dashboardUid: string) {
-    const path = `/d/${dashboardUid}`;
-    getLocationSrv().update({
-        path,
-    });
+    locationService.push(`/d/${dashboardUid}`);
 }
 
-function renderNavigation(troubleshooting: TroubleshootingInfo, theme: GrafanaTheme) {
+function renderNavigation(troubleshooting: TroubleshootingInfo, theme: GrafanaTheme2) {
     const hasParents = troubleshooting.parents && troubleshooting.parents.length > 0;
     const hasChildren = troubleshooting.children && troubleshooting.children.length > 0;
     if (!hasChildren && !hasParents) {
         return;
     }
     return (
-        <VerticalGroup spacing="md">
+        <Stack direction="column" gap={2}>
             <h4>
                 <Icon name="chart-line" className={modalArticleIcon(theme)} />
                 Related dashboards
@@ -44,7 +41,7 @@ function renderNavigation(troubleshooting: TroubleshootingInfo, theme: GrafanaTh
             <div className={modalRelativesLinksContainer}>
                 {hasParents && (
                     <div className={modalParentsLinks}>
-                        <VerticalGroup spacing="md">
+                        <Stack direction="column" gap={2}>
                             {troubleshooting.parents!.map(parent => (
                                 <Button
                                     key={parent.uid}
@@ -56,12 +53,12 @@ function renderNavigation(troubleshooting: TroubleshootingInfo, theme: GrafanaTh
                                     {parent.name}
                                 </Button>
                             ))}
-                        </VerticalGroup>
+                        </Stack>
                     </div>
                 )}
                 {hasChildren && (
                     <div className={modalChildrenLinks}>
-                        <VerticalGroup spacing="md">
+                        <Stack direction="column" gap={2}>
                             {troubleshooting.children!.map(child => (
                                 <Button
                                     key={child.uid}
@@ -73,24 +70,24 @@ function renderNavigation(troubleshooting: TroubleshootingInfo, theme: GrafanaTh
                                     <Icon name="angle-right" />
                                 </Button>
                             ))}
-                        </VerticalGroup>
+                        </Stack>
                     </div>
                 )}
             </div>
-        </VerticalGroup>
+        </Stack>
     );
 }
 
-function renderInfoModal(troubleshooting: TroubleshootingInfo, theme: GrafanaTheme) {
+function renderInfoModal(troubleshooting: TroubleshootingInfo, theme: GrafanaTheme2) {
     const hasMetrics = troubleshooting.metrics.length > 0;
     const hasDerived = troubleshooting.derivedMetrics && troubleshooting.derivedMetrics.length > 0;
     const hasUrls = troubleshooting.urls && troubleshooting.urls.length > 0;
 
     return (
         <div className={modalTypography(theme)}>
-            <VerticalGroup spacing="lg">
+            <Stack direction="column" gap={3}>
                 {hasMetrics && (
-                    <VerticalGroup spacing="md">
+                    <Stack direction="column" gap={2}>
                         <h4>
                             <Icon name="database" className={modalArticleIcon(theme)} />
                             PCP metrics
@@ -98,11 +95,7 @@ function renderInfoModal(troubleshooting: TroubleshootingInfo, theme: GrafanaThe
                         <ul>
                             {troubleshooting.metrics.map(metric => (
                                 <li key={metric.name}>
-                                    {/* Rerender caused by prop change seem to force hide the Tooltip unfortunately */}
                                     {metric.helptext ? (
-                                        // <Tooltip content={metric.title} theme="info">
-                                        //     <span className={modalTooltipContent(theme)}>{metric.name}</span>
-                                        // </Tooltip>
                                         <span className={modalTooltipContent(theme)} title={metric.helptext}>
                                             {metric.name}
                                         </span>
@@ -112,10 +105,10 @@ function renderInfoModal(troubleshooting: TroubleshootingInfo, theme: GrafanaThe
                                 </li>
                             ))}
                         </ul>
-                    </VerticalGroup>
+                    </Stack>
                 )}
                 {hasDerived && (
-                    <VerticalGroup spacing="md">
+                    <Stack direction="column" gap={2}>
                         <h4>
                             <Icon name="database" className={modalArticleIcon(theme)} />
                             Derived PCP metrics
@@ -127,10 +120,10 @@ function renderInfoModal(troubleshooting: TroubleshootingInfo, theme: GrafanaThe
                                 </li>
                             ))}
                         </ul>
-                    </VerticalGroup>
+                    </Stack>
                 )}
                 {hasUrls && (
-                    <VerticalGroup spacing="md">
+                    <Stack direction="column" gap={2}>
                         <h4>
                             <Icon name="file-alt" className={modalArticleIcon(theme)} />
                             Further reading
@@ -144,19 +137,19 @@ function renderInfoModal(troubleshooting: TroubleshootingInfo, theme: GrafanaThe
                                 </li>
                             ))}
                         </ul>
-                    </VerticalGroup>
+                    </Stack>
                 )}
                 {troubleshooting.notes && (
-                    <VerticalGroup spacing="md">
+                    <Stack direction="column" gap={2}>
                         <h4>
                             <Icon name="question-circle" className={modalArticleIcon(theme)} />
                             Notes
                         </h4>
                         <span dangerouslySetInnerHTML={{ __html: troubleshooting.notes }} />
-                    </VerticalGroup>
+                    </Stack>
                 )}
                 {renderNavigation(troubleshooting, theme)}
-            </VerticalGroup>
+            </Stack>
         </div>
     );
 }
@@ -172,27 +165,27 @@ function predicateDescription(predicate: Predicate) {
     );
 }
 
-function renderWarningModal(troubleshooting: TroubleshootingInfo, theme: GrafanaTheme) {
+function renderWarningModal(troubleshooting: TroubleshootingInfo, theme: GrafanaTheme2) {
     const hasUrls = troubleshooting.urls && troubleshooting.urls.length > 0;
 
     return (
         <div className={modalTypography(theme)}>
-            <VerticalGroup spacing="lg">
-                <VerticalGroup spacing="md">
+            <Stack direction="column" gap={3}>
+                <Stack direction="column" gap={2}>
                     <h2>{troubleshooting.warning}</h2>
                     {troubleshooting.description && <p>{troubleshooting.description}</p>}
-                </VerticalGroup>
+                </Stack>
                 {troubleshooting.predicate && (
-                    <VerticalGroup spacing="md">
+                    <Stack direction="column" gap={2}>
                         <h4>
                             <Icon name="question-circle" className={modalArticleIcon(theme)} />
                             Why is this warning shown?
                         </h4>
                         {predicateDescription(troubleshooting.predicate)}
-                    </VerticalGroup>
+                    </Stack>
                 )}
                 {hasUrls && (
-                    <VerticalGroup spacing="md">
+                    <Stack direction="column" gap={2}>
                         <h4>
                             <Icon name="search" className={modalArticleIcon(theme)} />
                             Troubleshooting
@@ -206,10 +199,10 @@ function renderWarningModal(troubleshooting: TroubleshootingInfo, theme: Grafana
                                 </li>
                             ))}
                         </ul>
-                    </VerticalGroup>
+                    </Stack>
                 )}
                 {renderNavigation(troubleshooting, theme)}
-            </VerticalGroup>
+            </Stack>
         </div>
     );
 }
@@ -234,7 +227,7 @@ function evaluatePredicate(series: DataFrame[], predicate: Predicate) {
             }
 
             for (let i = 0; i < field.values.length; i++) {
-                if (predicateFn(field.values.get(i))) {
+                if (predicateFn(field.values[i])) {
                     return true;
                 }
             }
@@ -255,7 +248,7 @@ function modalHeader(title: string) {
 
 export const TroubleshootingPane: React.FC<Props> = (props: Props) => {
     const { data, troubleshooting } = props;
-    const theme = useTheme();
+    const theme = useTheme2();
     const [openedModal, openModal] = React.useState('');
     const showWarning = troubleshooting.predicate ? evaluatePredicate(data.series, troubleshooting.predicate) : false;
 

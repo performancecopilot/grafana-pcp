@@ -1,9 +1,8 @@
-import { shallow } from 'enzyme';
 import React from 'react';
-import { GrafanaThemeType } from '@grafana/data';
-import { getTheme } from '@grafana/ui';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { createTheme } from '@grafana/data';
 import { EntityType } from '../../../../../common/services/pmsearch/types';
-import { LoaderBasicProps } from '../../../components/Loader/Loader';
 import { IndomEntity } from '../../../models/entities/indom';
 import { FetchStatus } from '../../../store/slices/search/shared/state';
 import {
@@ -12,14 +11,13 @@ import {
     InstanceDomainDetailPageProps,
     InstanceDomainDetailPageReduxProps,
 } from './InstanceDomain';
-import { InstancesProps } from './Instances/Instances';
 
 describe('Detail Page <InstanceDomainPage/>', () => {
     let mockReduxProps: InstanceDomainDetailPageReduxProps;
     let instanceDomainDetailEntityProps: InstanceDomainDetailPageBasicProps;
     let instanceDomainDetailProps: InstanceDomainDetailPageProps;
 
-    const theme = getTheme(GrafanaThemeType.Light);
+    const theme = createTheme();
 
     beforeEach(() => {
         mockReduxProps = {
@@ -45,27 +43,13 @@ describe('Detail Page <InstanceDomainPage/>', () => {
                         helptext: 'example helptext that may not really exist',
                     },
                     instances: [
-                        {
-                            name: 'virbr0-nic',
-                        },
-                        {
-                            name: 'virbr0',
-                        },
-                        {
-                            name: 'wlp0s20f3',
-                        },
-                        {
-                            name: 'ens20u2',
-                        },
-                        {
-                            name: 'lo',
-                        },
-                        {
-                            name: 'veth2d4d8bb',
-                        },
-                        {
-                            name: 'docker0',
-                        },
+                        { name: 'virbr0-nic' },
+                        { name: 'virbr0' },
+                        { name: 'wlp0s20f3' },
+                        { name: 'ens20u2' },
+                        { name: 'lo' },
+                        { name: 'veth2d4d8bb' },
+                        { name: 'docker0' },
                     ],
                     metrics: [
                         {
@@ -85,106 +69,91 @@ describe('Detail Page <InstanceDomainPage/>', () => {
     });
 
     test('renders without crashing', () => {
-        shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        render(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
     });
 
     test('displays bookmark button when instance domain is not bookmarked', () => {
         // default props does not contain metric that is bookmarked in items mock
-        const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
-        expect(wrapper.exists('[data-test="bookmark-button"]')).toBe(true);
+        render(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        expect(screen.getByTestId('bookmark-button')).toBeInTheDocument();
     });
 
     test('displays unbookmark button when instance domain is bookmarked', () => {
-        // this metric is not in bookmarked items mock
         (instanceDomainDetailProps.indom.data as IndomEntity).indom.name = '60.2';
-        const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
-        expect(wrapper.exists('[data-test="unbookmark-button"]')).toBe(true);
+        render(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        expect(screen.getByTestId('unbookmark-button')).toBeInTheDocument();
     });
 
-    test('can trigger bookmark', () => {
-        const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
-        const bookmarkButton = wrapper.find('[data-test="bookmark-button"]');
-        bookmarkButton.simulate('click');
+    test('can trigger bookmark', async () => {
+        render(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        await userEvent.click(screen.getByTestId('bookmark-button'));
         const indom = (instanceDomainDetailProps.indom.data as IndomEntity).indom;
-        const bookmarkCallback: jest.Mock<typeof instanceDomainDetailProps.onBookmark> =
-            instanceDomainDetailProps.onBookmark as any;
+        const bookmarkCallback = instanceDomainDetailProps.onBookmark as jest.Mock;
         expect(bookmarkCallback.mock.calls[0][0]).toEqual({ id: indom.name, type: EntityType.InstanceDomain });
         expect(bookmarkCallback).toHaveBeenCalled();
     });
 
-    test('can trigger unbookmark', () => {
+    test('can trigger unbookmark', async () => {
         (instanceDomainDetailProps.indom.data as IndomEntity).indom.name = '60.2';
-        const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
-        const unbookmarkButton = wrapper.find('[data-test="unbookmark-button"]');
-        unbookmarkButton.simulate('click');
+        render(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        await userEvent.click(screen.getByTestId('unbookmark-button'));
         const indom = (instanceDomainDetailProps.indom.data as IndomEntity).indom;
-        const unbookmarkCallback: jest.Mock<typeof instanceDomainDetailProps.onBookmark> =
-            instanceDomainDetailProps.onUnbookmark as any;
+        const unbookmarkCallback = instanceDomainDetailProps.onUnbookmark as jest.Mock;
         expect(unbookmarkCallback.mock.calls[0][0]).toEqual({ id: indom.name, type: EntityType.InstanceDomain });
         expect(unbookmarkCallback).toHaveBeenCalled();
     });
 
     test('displays title', () => {
-        const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
-        const title = wrapper.find('[data-test="title"]');
-        expect(title.exists()).toBe(true);
-        expect(title.text()).toBe(instanceDomainDetailProps.indom.data?.indom.name);
+        render(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        const title = screen.getByTestId('title');
+        expect(title).toBeInTheDocument();
+        expect(title.textContent).toBe(instanceDomainDetailProps.indom.data?.indom.name);
     });
 
     test('displays description', () => {
-        const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
-        const description = wrapper.find('[data-test="description"]');
-        expect(description.exists()).toBe(true);
+        render(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        expect(screen.getByTestId('description')).toBeInTheDocument();
     });
 
     test('displays instances', () => {
-        const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
-        const instances = wrapper.find('[data-test="instances"]');
-        expect(instances.exists()).toBe(true);
+        render(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        expect(screen.getByTestId('instances')).toBeInTheDocument();
     });
 
-    test('description priortizes long help text', () => {
-        const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
-        const description = wrapper.find('[data-test="description"]');
-        expect(description.text()).toBe(
-            instanceDomainDetailProps.indom.data ? instanceDomainDetailProps.indom.data.indom.helptext : ''
-        );
+    test('description prioritizes long help text', () => {
+        render(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        const description = screen.getByTestId('description');
+        expect(description.textContent).toBe(instanceDomainDetailProps.indom.data?.indom.helptext);
     });
 
     test('description falls back to oneline help when long help text is not available', () => {
         (instanceDomainDetailProps.indom.data as IndomEntity).indom.helptext = '';
-        const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
-        const description = wrapper.find('[data-test="description"]');
-        expect(description.text()).toBe(
-            instanceDomainDetailProps.indom.data ? instanceDomainDetailProps.indom.data.indom.oneline : ''
-        );
+        render(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        const description = screen.getByTestId('description');
+        expect(description.textContent).toBe(instanceDomainDetailProps.indom.data?.indom.oneline);
     });
 
     test('renders instances', () => {
-        const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
-        const instances = wrapper.find('[data-test="instances"]');
-        const instancesProps = instances.props() as InstancesProps;
-        expect(instances.exists()).toBe(true);
-        expect(instancesProps.instances).toBe(instanceDomainDetailProps.indom.data?.instances);
+        render(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        const instances = instanceDomainDetailProps.indom.data?.instances ?? [];
+        instances.forEach(instance => {
+            expect(screen.getByTestId(`instance-${instance.name}`)).toBeInTheDocument();
+        });
     });
 
     test('handles lack of instance domain data gracefully', () => {
         instanceDomainDetailProps.indom.data = null;
-        shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        render(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
     });
 
     test('shows loader when instance domain is being loaded', () => {
         instanceDomainDetailProps.indom.status = FetchStatus.PENDING;
-        const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
-        const loader = wrapper.find('[data-test="loader"]');
-        const loaderProps: LoaderBasicProps = loader.props() as any;
-        expect(loaderProps.loaded).toBe(false);
+        render(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        expect(screen.getByTestId('spinner-container')).toBeInTheDocument();
     });
 
     test('shows loader when instance domain is loaded', () => {
-        const wrapper = shallow(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
-        const loader = wrapper.find('[data-test="loader"]');
-        const loaderProps: LoaderBasicProps = loader.props() as any;
-        expect(loaderProps.loaded).toBe(true);
+        render(<InstanceDomainDetailPage {...instanceDomainDetailProps} />);
+        expect(screen.queryByTestId('spinner-container')).not.toBeInTheDocument();
     });
 });

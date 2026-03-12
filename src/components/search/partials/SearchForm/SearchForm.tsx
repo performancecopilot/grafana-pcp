@@ -7,10 +7,11 @@ import Autosuggest, {
     SuggestionsFetchRequestedParams,
     Theme,
 } from 'react-autosuggest';
+import { GrafanaTheme2 } from '@grafana/data';
 import { connect } from 'react-redux';
 import { AnyAction, bindActionCreators } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { Button, Checkbox, HorizontalGroup, Icon, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
+import { Button, Checkbox, Stack, Icon, useTheme2 } from '@grafana/ui';
 import { AutocompleteSuggestion, SearchEntity } from '../../../../common/services/pmsearch/types';
 import withServices, { WithServicesProps } from '../../components/withServices/withServices';
 import Config from '../../config/config';
@@ -54,7 +55,7 @@ export type SearchFormReduxDispatchProps = ReturnType<typeof mapDispatchToProps>
 
 export type SearchFormReduxProps = SearchFormReduxStateProps & SearchFormReduxDispatchProps;
 
-export type SearchFormProps = SearchFormReduxProps & WithServicesProps & Themeable;
+export type SearchFormProps = SearchFormReduxProps & WithServicesProps & { theme: GrafanaTheme2 };
 
 export interface SearchFormState {
     valid: boolean;
@@ -264,7 +265,7 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
             this;
         return (
             <form className={searchContainer} onSubmit={onSubmit} data-test="form">
-                <VerticalGroup spacing="sm">
+                <Stack direction="column" gap={1}>
                     <div className={searchFormGroup}>
                         <div className={searchBlockWrapper}>{renderSearchInput()}</div>
                         <Button
@@ -279,7 +280,7 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
                         </Button>
                     </div>
                     <div className={searchFormGroup}>
-                        <HorizontalGroup spacing="lg">
+                        <Stack gap={3}>
                             <Checkbox
                                 value={metricFlag}
                                 onChange={() => setEntityFlag(SearchEntity.Metrics)}
@@ -298,12 +299,17 @@ export class SearchForm extends React.Component<SearchFormProps, SearchFormState
                                 label="Instance Domains"
                                 data-test="indoms-toggle"
                             />
-                        </HorizontalGroup>
+                        </Stack>
                     </div>
-                </VerticalGroup>
+                </Stack>
             </form>
         );
     }
 }
 
-export default withTheme(withServices(connect(mapStateToProps, mapDispatchToProps)(SearchForm)));
+export default withServices(connect(mapStateToProps, mapDispatchToProps)(function SearchFormWithTheme(
+    props: SearchFormReduxProps & WithServicesProps
+) {
+    const theme = useTheme2();
+    return <SearchForm {...props} theme={theme} />;
+}));

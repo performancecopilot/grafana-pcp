@@ -1,5 +1,5 @@
-import { shallow } from 'enzyme';
 import React from 'react';
+import { render, screen } from '@testing-library/react';
 import { Labels, LabelsProps } from './Labels';
 
 describe('Metric <Labels/>', () => {
@@ -19,14 +19,14 @@ describe('Metric <Labels/>', () => {
     });
 
     test('renders without crashing', () => {
-        shallow(<Labels {...labelsProps} />);
+        render(<Labels {...labelsProps} />);
     });
 
     test('displays arbitrary labels', () => {
-        const wrapper = shallow(<Labels {...labelsProps} />);
+        render(<Labels {...labelsProps} />);
         Object.entries(labelsProps.labels).forEach(([key, value]) => {
-            expect(wrapper.exists(`[data-test="${key}"]`)).toBe(true);
-            expect(wrapper.find(`[data-test="${key}-value"]`).text()).toBe(value.toString());
+            expect(screen.getByTestId(key)).toBeInTheDocument();
+            expect(screen.getByTestId(`${key}-value`).textContent).toBe(value.toString());
         });
     });
 });

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, HorizontalGroup, Themeable, withTheme } from '@grafana/ui';
+import { GrafanaTheme2 } from '@grafana/data';
+import { Button, Stack, useTheme2 } from '@grafana/ui';
 import { TextItemResponse } from '../../../../common/services/pmsearch/types';
 import Card from '../Card/Card';
 import {
@@ -13,7 +14,7 @@ import {
     searchResultTitleLink,
 } from './styles';
 
-export type SearchResultProps = Themeable & {
+export type SearchResultProps = { theme: GrafanaTheme2 } & {
     item: TextItemResponse;
     openDetail: (entity: TextItemResponse) => void;
 };
@@ -47,7 +48,7 @@ export class SearchResult extends React.PureComponent<SearchResultProps, {}> {
         const { props } = this;
         return (
             <footer className={searchResultFooter}>
-                <HorizontalGroup spacing="lg" justify="space-between">
+                <Stack justifyContent="space-between" gap={3}>
                     <Button fill="text" size="md" icon="tag-alt" className={searchResultEntityType(props.theme)}>
                         {props.item.type}
                     </Button>
@@ -61,7 +62,7 @@ export class SearchResult extends React.PureComponent<SearchResultProps, {}> {
                     >
                         Read More
                     </Button>
-                </HorizontalGroup>
+                </Stack>
             </footer>
         );
     }
@@ -100,4 +101,7 @@ export class SearchResult extends React.PureComponent<SearchResultProps, {}> {
     }
 }
 
-export default withTheme(SearchResult);
+export default function SearchResultWithTheme(props: { item: TextItemResponse; openDetail: (entity: TextItemResponse) => void }) {
+    const theme = useTheme2();
+    return <SearchResult {...props} theme={theme} />;
+}

@@ -1,9 +1,14 @@
-import { shallow } from 'enzyme';
 import React from 'react';
-import { GrafanaThemeType } from '@grafana/data';
-import { getTheme } from '@grafana/ui';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { createTheme } from '@grafana/data';
+
+// Series is a Redux-connected component; mock it to avoid needing a store
+jest.mock('./Series/Series', () => ({
+    __esModule: true,
+    default: () => <div data-test="series-name" />,
+}));
 import { EntityType } from '../../../../../common/services/pmsearch/types';
-import { LoaderBasicProps } from '../../../components/Loader/Loader';
 import { MetricEntity } from '../../../models/entities/metric';
 import { FetchStatus } from '../../../store/slices/search/shared/state';
 import {
@@ -17,7 +22,7 @@ describe('Detail Page <MetricDetailpage/>', () => {
     let mockReduxProps: MetricDetailPageReduxProps;
     let metricDetailEntityProps: MetricDetailPageBasicProps;
     let metricDetailProps: MetricDetailPageProps;
-    const theme = getTheme(GrafanaThemeType.Light);
+    const theme = createTheme();
 
     beforeEach(() => {
         mockReduxProps = {
@@ -66,131 +71,120 @@ describe('Detail Page <MetricDetailpage/>', () => {
     });
 
     test('renders without crashing', () => {
-        shallow(<MetricDetailPage {...metricDetailProps} />);
+        render(<MetricDetailPage {...metricDetailProps} />);
     });
 
     test('displays preview button', () => {
-        const wrapper = shallow(<MetricDetailPage {...metricDetailProps} />);
-        expect(wrapper.exists('[data-test="preview-button"]')).toBe(true);
+        render(<MetricDetailPage {...metricDetailProps} />);
+        expect(screen.getByTestId('preview-button')).toBeInTheDocument();
     });
 
-    test('can trigger preview with table dashboard for string metric type', () => {
+    test('can trigger preview with table dashboard for string metric type', async () => {
         (metricDetailProps.metric.data as MetricEntity).series[0].meta.type = 'string';
-        const wrapper = shallow(<MetricDetailPage {...metricDetailProps} />);
-        const previewButton = wrapper.find('[data-test="preview-button"]');
-        previewButton.simulate('click');
+        render(<MetricDetailPage {...metricDetailProps} />);
+        await userEvent.click(screen.getByTestId('preview-button'));
         const metricName = (metricDetailProps.metric.data as MetricEntity).name;
-        const previewCallback: jest.Mock<typeof metricDetailProps.onPreview> = metricDetailProps.onPreview as any;
+        const previewCallback = metricDetailProps.onPreview as jest.Mock;
         expect(previewCallback.mock.calls[0][0]).toEqual({ id: metricName, type: 'table' });
         expect(previewCallback).toHaveBeenCalled();
     });
 
-    test('can trigger preview with graph dashboard for non-string metric type', () => {
+    test('can trigger preview with graph dashboard for non-string metric type', async () => {
         (metricDetailProps.metric.data as MetricEntity).series[0].meta.type = 'u64';
-        const wrapper = shallow(<MetricDetailPage {...metricDetailProps} />);
-        const previewButton = wrapper.find('[data-test="preview-button"]');
-        previewButton.simulate('click');
+        render(<MetricDetailPage {...metricDetailProps} />);
+        await userEvent.click(screen.getByTestId('preview-button'));
         const metricName = (metricDetailProps.metric.data as MetricEntity).name;
-        const previewCallback: jest.Mock<typeof metricDetailProps.onPreview> = metricDetailProps.onPreview as any;
+        const previewCallback = metricDetailProps.onPreview as jest.Mock;
         expect(previewCallback.mock.calls[0][0]).toEqual({ id: metricName, type: 'graph' });
         expect(previewCallback).toHaveBeenCalled();
     });
 
     test('displays bookmark button when metric is not bookmarked', () => {
         // default props does not contain metric that is bookmarked in items mock
-        const wrapper = shallow(<MetricDetailPage {...metricDetailProps} />);
-        expect(wrapper.exists('[data-test="bookmark-button"]')).toBe(true);
+        render(<MetricDetailPage {...metricDetailProps} />);
+        expect(screen.getByTestId('bookmark-button')).toBeInTheDocument();
     });
 
     test('displays unbookmark button when metric is bookmarked', () => {
-        // this metric is not in bookmarked items mock
         (metricDetailProps.metric.data as MetricEntity).name = 'statsd.pmda.received';
-        const wrapper = shallow(<MetricDetailPage {...metricDetailProps} />);
-        expect(wrapper.exists('[data-test="unbookmark-button"]')).toBe(true);
+        render(<MetricDetailPage {...metricDetailProps} />);
+        expect(screen.getByTestId('unbookmark-button')).toBeInTheDocument();
     });
 
-    test('can trigger bookmark', () => {
-        const wrapper = shallow(<MetricDetailPage {...metricDetailProps} />);
-        const bookmarkButton = wrapper.find('[data-test="bookmark-button"]');
-        bookmarkButton.simulate('click');
+    test('can trigger bookmark', async () => {
+        render(<MetricDetailPage {...metricDetailProps} />);
+        await userEvent.click(screen.getByTestId('bookmark-button'));
         const metricName = (metricDetailProps.metric.data as MetricEntity).name;
-        const bookmarkCallback: jest.Mock<typeof metricDetailProps.onBookmark> = metricDetailProps.onBookmark as any;
+        const bookmarkCallback = metricDetailProps.onBookmark as jest.Mock;
         expect(bookmarkCallback.mock.calls[0][0]).toEqual({ id: metricName, type: EntityType.Metric });
         expect(bookmarkCallback).toHaveBeenCalled();
     });
 
-    test('can trigger unbookmark', () => {
+    test('can trigger unbookmark', async () => {
         (metricDetailProps.metric.data as MetricEntity).name = 'statsd.pmda.received';
-        const wrapper = shallow(<MetricDetailPage {...metricDetailProps} />);
-        const unbookmarkButton = wrapper.find('[data-test="unbookmark-button"]');
-        unbookmarkButton.simulate('click');
+        render(<MetricDetailPage {...metricDetailProps} />);
+        await userEvent.click(screen.getByTestId('unbookmark-button'));
         const metricName = (metricDetailProps.metric.data as MetricEntity).name;
-        const unbookmarkCallback: jest.Mock<typeof metricDetailProps.onUnbookmark> =
-            metricDetailProps.onUnbookmark as any;
+        const unbookmarkCallback = metricDetailProps.onUnbookmark as jest.Mock;
         expect(unbookmarkCallback.mock.calls[0][0]).toEqual({ id: metricName, type: EntityType.Metric });
         expect(unbookmarkCallback).toHaveBeenCalled();
     });
 
     test('displays title', () => {
-        const wrapper = shallow(<MetricDetailPage {...metricDetailProps} />);
-        const title = wrapper.find('[data-test="title"]');
-        expect(title.exists()).toBe(true);
-        expect(title.text()).toBe(metricDetailProps.metric.data?.name);
+        render(<MetricDetailPage {...metricDetailProps} />);
+        const title = screen.getByTestId('title');
+        expect(title).toBeInTheDocument();
+        expect(title.textContent).toBe(metricDetailProps.metric.data?.name);
     });
 
     test('displays description', () => {
-        const wrapper = shallow(<MetricDetailPage {...metricDetailProps} />);
-        const description = wrapper.find('[data-test="description"]');
-        expect(description.exists());
+        render(<MetricDetailPage {...metricDetailProps} />);
+        expect(screen.getByTestId('description')).toBeInTheDocument();
     });
 
     test('description prioritizes long help text', () => {
-        const wrapper = shallow(<MetricDetailPage {...metricDetailProps} />);
-        const description = wrapper.find('[data-test="description"]');
-        expect(description.text()).toBe(metricDetailProps.metric.data?.help);
+        render(<MetricDetailPage {...metricDetailProps} />);
+        const description = screen.getByTestId('description');
+        expect(description.textContent).toBe(metricDetailProps.metric.data?.help);
     });
 
     test('description falls back to oneline help when long help text is not available', () => {
         (metricDetailProps.metric.data as MetricEntity).help = '';
-        const wrapper = shallow(<MetricDetailPage {...metricDetailProps} />);
-        const description = wrapper.find('[data-test="description"]');
-        expect(description.text()).toBe(metricDetailProps.metric.data?.oneline);
+        render(<MetricDetailPage {...metricDetailProps} />);
+        const description = screen.getByTestId('description');
+        expect(description.textContent).toBe(metricDetailProps.metric.data?.oneline);
     });
 
     test('displays series', () => {
-        const wrapper = shallow(<MetricDetailPage {...metricDetailProps} />);
-        const series = wrapper.find('[data-test="series"]');
-        expect(series.length).toBe(metricDetailProps.metric.data?.series.length);
+        render(<MetricDetailPage {...metricDetailProps} />);
+        const seriesElements = screen.getAllByTestId('series-name');
+        expect(seriesElements.length).toBe(metricDetailProps.metric.data?.series.length);
     });
 
     test('handles lack of metric data gracefully', () => {
         metricDetailProps.metric.data = null;
-        shallow(<MetricDetailPage {...metricDetailProps} />);
+        render(<MetricDetailPage {...metricDetailProps} />);
     });
 
     test('handles error while fetching metric data gracefully', () => {
         metricDetailProps.metric.data = null;
         metricDetailProps.metric.status = FetchStatus.ERROR;
-        shallow(<MetricDetailPage {...metricDetailProps} />);
+        render(<MetricDetailPage {...metricDetailProps} />);
     });
 
     test('handles lack of series gracefully', () => {
         (metricDetailProps.metric.data as MetricEntity).series = [];
-        shallow(<MetricDetailPage {...metricDetailProps} />);
+        render(<MetricDetailPage {...metricDetailProps} />);
     });
 
     test('shows loader when metric is being loaded', () => {
         metricDetailProps.metric.status = FetchStatus.PENDING;
-        const wrapper = shallow(<MetricDetailPage {...metricDetailProps} />);
-        const loader = wrapper.find('[data-test="loader"]');
-        const loaderProps: LoaderBasicProps = loader.props() as any;
-        expect(loaderProps.loaded).toBe(false);
+        render(<MetricDetailPage {...metricDetailProps} />);
+        expect(screen.getByTestId('spinner-container')).toBeInTheDocument();
     });
 
     test('hides loader when metric is loaded', () => {
-        const wrapper = shallow(<MetricDetailPage {...metricDetailProps} />);
-        const loader = wrapper.find('[data-test="loader"]');
-        const loaderProps: LoaderBasicProps = loader.props() as any;
-        expect(loaderProps.loaded).toBe(true);
+        render(<MetricDetailPage {...metricDetailProps} />);
+        expect(screen.queryByTestId('spinner-container')).not.toBeInTheDocument();
     });
 });

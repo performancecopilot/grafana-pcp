@@ -1,4 +1,4 @@
-import { FieldType, getTimeField, MISSING_VALUE, MutableDataFrame, MutableField } from '@grafana/data';
+import { FieldType, MISSING_VALUE, MutableDataFrame, MutableField } from '@grafana/data';
 import { Metadata } from '../../../common/services/pmapi/types';
 import { Semantics } from '../../../common/types/pcp';
 import { Dict } from '../../../common/types/utils';
@@ -6,8 +6,8 @@ import { TargetFormat } from '../types';
 import { PmapiQuery } from './types';
 
 function fieldSetRate(field: MutableField, idx: number, deltaSec: number, discreteValues: boolean) {
-    const curVal = field.values.get(idx);
-    const prevVal = field.values.get(idx - 1);
+    const curVal = field.values[idx];
+    const prevVal = field.values[idx - 1];
     if (curVal !== MISSING_VALUE && prevVal !== MISSING_VALUE) {
         const diff = curVal - prevVal;
         if (diff >= 0) {
@@ -17,7 +17,7 @@ function fieldSetRate(field: MutableField, idx: number, deltaSec: number, discre
             } else {
                 rate = diff / deltaSec;
             }
-            field.values.set(idx, rate);
+            field.values[idx] = rate;
             return;
         }
     }
@@ -25,11 +25,11 @@ function fieldSetRate(field: MutableField, idx: number, deltaSec: number, discre
     // either one value is nil or counter wrapped
     // we don't know if the counter wrapped multiple times,
     // so let's set the field to nil
-    field.values.set(idx, MISSING_VALUE);
+    field.values[idx] = MISSING_VALUE;
 }
 
 function rateConversion(frame: MutableDataFrame, discreteValues = false) {
-    const { timeField } = getTimeField(frame);
+    const timeField = frame.fields.find(f => f.type === FieldType.time);
     if (!timeField || timeField.values.length === 0) {
         return;
     }
@@ -41,13 +41,13 @@ function rateConversion(frame: MutableDataFrame, discreteValues = false) {
 
         // start at the end, otherwise we'd calculate the current rate with the previous rate instead of the raw counter value
         for (let i = field.values.length - 1; i >= 1; i--) {
-            const deltaSec = (timeField.values.get(i) - timeField.values.get(i - 1)) / 1000;
+            const deltaSec = (timeField.values[i] - timeField.values[i - 1]) / 1000;
             fieldSetRate(field, i, deltaSec, discreteValues);
         }
-        field.values.set(0, MISSING_VALUE);
+        field.values[0] = MISSING_VALUE;
     }
     // do *not* set time field to MISSING_VALUE, otherwise it gets converted to 0, which is "out of range"
-    // timeField.values.set(0, MISSING_VALUE);
+    // timeField.values[0] = MISSING_VALUE;
 }
 
 function timeUtilizationConversion(frame: MutableDataFrame, divisor: number) {
@@ -58,8 +58,8 @@ function timeUtilizationConversion(frame: MutableDataFrame, divisor: number) {
 
         field.config.unit = 'percentunit';
         for (let i = 0; i < field.values.length; i++) {
-            const val = field.values.get(i);
-            field.values.set(i, val === MISSING_VALUE ? MISSING_VALUE : val / divisor);
+            const val = field.values[i];
+            field.values[i] = val === MISSING_VALUE ? MISSING_VALUE : val / divisor;
         }
     }
 }

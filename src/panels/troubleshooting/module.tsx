@@ -1,5 +1,6 @@
 import { FieldColorModeId, FieldConfigProperty, PanelPlugin } from '@grafana/data';
-import { GraphFieldConfig, graphFieldOptions, LegendDisplayMode, PointVisibility } from '@grafana/ui';
+import { LegendDisplayMode } from '@grafana/ui';
+import { GraphFieldConfig, VisibilityMode } from '@grafana/schema';
 import { TroubleshootingPanel } from './TroubleshootingPanel';
 import { Options } from './types';
 
@@ -32,9 +33,13 @@ export const plugin = new PanelPlugin<Options, GraphFieldConfig>(Troubleshooting
                 .addRadio({
                     path: 'showPoints',
                     name: 'Show points',
-                    defaultValue: PointVisibility.Never,
+                    defaultValue: VisibilityMode.Never,
                     settings: {
-                        options: graphFieldOptions.showPoints,
+                        options: [
+                            { value: VisibilityMode.Auto, label: 'Auto' },
+                            { value: VisibilityMode.Always, label: 'Always' },
+                            { value: VisibilityMode.Never, label: 'Never' },
+                        ],
                     },
                 })
                 .addSliderInput({

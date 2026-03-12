@@ -73,23 +73,23 @@ describe('PCP BPFtrace', () => {
             },
 
             `
-            Object {
-              "fields": Array [
-                Object {
-                  "config": Object {},
+            {
+              "fields": [
+                {
+                  "config": {},
                   "name": "Time",
                   "type": "time",
-                  "values": Array [
+                  "values": [
                     10000,
                     11000,
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "0",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
                     "hostname": "dev",
@@ -98,17 +98,17 @@ describe('PCP BPFtrace', () => {
                   },
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[0-0]",
                   "type": "number",
-                  "values": Array [
+                  "values": [
                     undefined,
                     7814,
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "1",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
                     "hostname": "dev",
@@ -117,17 +117,17 @@ describe('PCP BPFtrace', () => {
                   },
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[1-1]",
                   "type": "number",
-                  "values": Array [
+                  "values": [
                     undefined,
                     7841,
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "2",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
                     "hostname": "dev",
@@ -136,17 +136,17 @@ describe('PCP BPFtrace', () => {
                   },
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[2-2]",
                   "type": "number",
-                  "values": Array [
+                  "values": [
                     undefined,
                     7024,
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "3",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
                     "hostname": "dev",
@@ -155,17 +155,17 @@ describe('PCP BPFtrace', () => {
                   },
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[3-3]",
                   "type": "number",
-                  "values": Array [
+                  "values": [
                     undefined,
                     6902,
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "4",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
                     "hostname": "dev",
@@ -174,17 +174,17 @@ describe('PCP BPFtrace', () => {
                   },
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[4-4]",
                   "type": "number",
-                  "values": Array [
+                  "values": [
                     undefined,
                     6784,
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "5",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
                     "hostname": "dev",
@@ -193,17 +193,17 @@ describe('PCP BPFtrace', () => {
                   },
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[5-5]",
                   "type": "number",
-                  "values": Array [
+                  "values": [
                     undefined,
                     7354,
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "6",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
                     "hostname": "dev",
@@ -212,17 +212,17 @@ describe('PCP BPFtrace', () => {
                   },
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[6-6]",
                   "type": "number",
-                  "values": Array [
+                  "values": [
                     undefined,
                     6943,
                   ],
                 },
-                Object {
-                  "config": Object {
+                {
+                  "config": {
                     "custom": Anything,
                     "displayNameFromDS": "7",
                   },
-                  "labels": Object {
+                  "labels": {
                     "agent": "bpftrace",
                     "domainname": "localdomain",
                     "hostname": "dev",
@@ -231,7 +231,7 @@ describe('PCP BPFtrace', () => {
                   },
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu[7-7]",
                   "type": "number",
-                  "values": Array [
+                  "values": [
                     undefined,
                     6817,
                   ],
@@ -241,59 +241,59 @@ describe('PCP BPFtrace', () => {
         `
         );
         expect(backendSrvMock.fetch.mock.calls.map(([{ url, params }]) => ({ url, params }))).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "params": Object {
+            [
+              {
+                "params": {
                   "hostspec": "pcp://127.0.0.1",
                   "polltimeout": 11,
                 },
                 "url": "http://localhost:1234/pmapi/context",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "hostspec": "pcp://127.0.0.1",
                   "polltimeout": 30,
                 },
                 "url": "http://localhost:1234/pmapi/context",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 2,
                   "name": "bpftrace.control.register",
                   "value": "...cpuwalk...",
                 },
                 "url": "http://localhost:1234/pmapi/store",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 2,
                   "names": "bpftrace.control.register",
                 },
                 "url": "http://localhost:1234/pmapi/fetch",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 1,
                   "names": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu",
                 },
                 "url": "http://localhost:1234/pmapi/metric",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 1,
                   "names": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu,bpftrace.info.scripts_json",
                 },
                 "url": "http://localhost:1234/pmapi/fetch",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 1,
                   "name": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu",
                 },
                 "url": "http://localhost:1234/pmapi/indom",
               },
-              Object {
-                "params": Object {
+              {
+                "params": {
                   "context": 1,
                   "names": "bpftrace.scripts.sce2abad9ff87465582cfd5945b375205.data.cpu,bpftrace.info.scripts_json",
                 },

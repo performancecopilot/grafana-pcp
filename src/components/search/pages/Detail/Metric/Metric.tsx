@@ -1,6 +1,7 @@
 import React from 'react';
+import { GrafanaTheme2 } from '@grafana/data';
 import { connect } from 'react-redux';
-import { Button, HorizontalGroup, Themeable, VerticalGroup, withTheme } from '@grafana/ui';
+import { Button, Stack, useTheme2 } from '@grafana/ui';
 import { EntityType } from '../../../../../common/services/pmsearch/types';
 import Card from '../../../components/Card/Card';
 import Loader from '../../../components/Loader/Loader';
@@ -40,7 +41,7 @@ export type MetricDetailPageReduxStateProps = ReturnType<typeof mapStateToProps>
 
 export type MetricDetailPageReduxProps = MetricDetailPageReduxStateProps;
 
-export type MetricDetailPageProps = MetricDetailPageReduxProps & MetricDetailPageBasicProps & Themeable;
+export type MetricDetailPageProps = MetricDetailPageReduxProps & MetricDetailPageBasicProps & { theme: GrafanaTheme2 };
 
 export class MetricDetailPage extends React.Component<MetricDetailPageProps, {}> {
     constructor(props: MetricDetailPageProps) {
@@ -190,7 +191,7 @@ export class MetricDetailPage extends React.Component<MetricDetailPageProps, {}>
             return <p>No metric.</p>;
         }
         return (
-            <VerticalGroup spacing="lg">
+            <Stack direction="column" gap={3}>
                 <Card background="strong">
                     <article className={detailPageItem}>
                         <header className={detailPageHeader}>
@@ -210,23 +211,23 @@ export class MetricDetailPage extends React.Component<MetricDetailPageProps, {}>
                             {renderDesc()}
                         </div>
                         <div className={detailPageActions}>
-                            <HorizontalGroup spacing="lg" justify="space-between">
+                            <Stack justifyContent="space-between" gap={3}>
                                 {renderPreviewBtn()}
                                 {renderBookmarkBtn()}
-                            </HorizontalGroup>
+                            </Stack>
                         </div>
                     </article>
                 </Card>
                 <div className={detailPageProperties}>
-                    <VerticalGroup spacing="lg">
+                    <Stack direction="column" gap={3}>
                         {data.series.map((series, i) => (
                             <Card background="weak" key={i}>
                                 <Series series={series} data-test="series" />
                             </Card>
                         ))}
-                    </VerticalGroup>
+                    </Stack>
                 </div>
-            </VerticalGroup>
+            </Stack>
         );
     }
 
@@ -241,4 +242,9 @@ export class MetricDetailPage extends React.Component<MetricDetailPageProps, {}>
     }
 }
 
-export default withTheme(connect(mapStateToProps, {})(MetricDetailPage));
+export default connect(mapStateToProps, {})(function MetricDetailPageWithTheme(
+    props: MetricDetailPageReduxProps & MetricDetailPageBasicProps
+) {
+    const theme = useTheme2();
+    return <MetricDetailPage {...props} theme={theme} />;
+});

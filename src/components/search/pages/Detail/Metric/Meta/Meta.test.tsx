@@ -1,5 +1,5 @@
-import { shallow } from 'enzyme';
 import React from 'react';
+import { render, screen } from '@testing-library/react';
 import { Meta, MetaProps } from './Meta';
 
 describe('Metric <Meta/>', () => {
@@ -20,36 +20,36 @@ describe('Metric <Meta/>', () => {
     });
 
     test('renders without crashing', () => {
-        shallow(<Meta {...metaProps} />);
+        render(<Meta {...metaProps} />);
     });
 
     test('displays pmid', () => {
-        const wrapper = shallow(<Meta {...metaProps} />);
-        expect(wrapper.exists('[data-test="pmid"]')).toBe(true);
+        render(<Meta {...metaProps} />);
+        expect(screen.getByTestId('pmid')).toBeInTheDocument();
     });
 
     test('displays type', () => {
-        const wrapper = shallow(<Meta {...metaProps} />);
-        expect(wrapper.exists('[data-test="type"]')).toBe(true);
+        render(<Meta {...metaProps} />);
+        expect(screen.getByTestId('type')).toBeInTheDocument();
     });
 
     test('displays semantics', () => {
-        const wrapper = shallow(<Meta {...metaProps} />);
-        expect(wrapper.exists('[data-test="semantics"]')).toBe(true);
+        render(<Meta {...metaProps} />);
+        expect(screen.getByTestId('semantics')).toBeInTheDocument();
     });
 
     test('displays units', () => {
-        const wrapper = shallow(<Meta {...metaProps} />);
-        expect(wrapper.exists('[data-test="units"]')).toBe(true);
+        render(<Meta {...metaProps} />);
+        expect(screen.getByTestId('units')).toBeInTheDocument();
     });
 
     test('displays indom', () => {
-        const wrapper = shallow(<Meta {...metaProps} />);
-        expect(wrapper.exists('[data-test="indom"]')).toBe(true);
+        render(<Meta {...metaProps} />);
+        expect(screen.getByTestId('indom')).toBeInTheDocument();
     });
 
     test('displays source', () => {
-        const wrapper = shallow(<Meta {...metaProps} />);
-        expect(wrapper.exists('[data-test="source"]')).toBe(true);
+        render(<Meta {...metaProps} />);
+        expect(screen.getByTestId('source')).toBeInTheDocument();
     });
 });

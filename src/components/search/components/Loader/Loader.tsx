@@ -1,6 +1,7 @@
-import { css, cx } from 'emotion';
+import { css, cx } from '@emotion/css';
 import React from 'react';
-import { Spinner, Themeable, withTheme } from '@grafana/ui';
+import { GrafanaTheme2 } from '@grafana/data';
+import { Spinner, useTheme2 } from '@grafana/ui';
 import { spinner, spinnerContainer, spinnerOuter } from './styles';
 
 export interface LoaderBasicProps {
@@ -9,7 +10,7 @@ export interface LoaderBasicProps {
     children?: React.ReactNode;
 }
 
-export type LoaderProps = Themeable & LoaderBasicProps;
+export type LoaderProps = { theme: GrafanaTheme2 } & LoaderBasicProps;
 
 export class Loader extends React.Component<LoaderProps, {}> {
     constructor(props: LoaderProps) {
@@ -28,7 +29,7 @@ export class Loader extends React.Component<LoaderProps, {}> {
                         className={cx(
                             spinner,
                             css`
-                                background-color: ${theme.colors.bg1}8f;
+                                background-color: ${theme.colors.background.primary}8f;
                             `
                         )}
                         data-test="spinner-container"
@@ -42,4 +43,7 @@ export class Loader extends React.Component<LoaderProps, {}> {
     }
 }
 
-export default withTheme(Loader);
+export default function LoaderWithTheme(props: LoaderBasicProps) {
+    const theme = useTheme2();
+    return <Loader {...props} theme={theme} />;
+}
