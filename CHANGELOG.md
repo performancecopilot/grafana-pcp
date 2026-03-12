@@ -2,7 +2,11 @@
 
 ## Next Release
 
+* **build**: update dependencies for grafana 12.4.1 (transition to grafana/create-plugin from grafana/toolkit)
 * **build**: update Go and node dependencies
+* **test**: change to playwright tests from cypress as part of move to grafana/create-plugin
+* **test**: update tests for grafana 12.4.1
+* **ci**: have ci run on grafana 12.4.1 and grafana latest
 
 ## 5.3.0 (2025-06-30)
 

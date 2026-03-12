@@ -21,6 +21,15 @@ export default defineConfig<PluginOptions>({
       testMatch: [/.*\.js/],
     },
     {
+      name: 'setup',
+      testMatch: ['**/setup.spec.ts'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'playwright/.auth/admin.json',
+      },
+      dependencies: ['auth'],
+    },
+    {
       name: 'run-tests',
       use: {
         ...devices['Desktop Chrome'],
@@ -28,7 +37,8 @@ export default defineConfig<PluginOptions>({
         // the path should not be modified
         storageState: 'playwright/.auth/admin.json',
       },
-      dependencies: ['auth'],
+      dependencies: ['auth', 'setup'],
+      testIgnore: ['**/setup.spec.ts'],
     }
   ],
 });
