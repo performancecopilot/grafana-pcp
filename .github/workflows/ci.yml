@@ -56,7 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        grafana_image: ['grafana:12.4.1', 'grafana:latest']
+        grafana_image: ['grafana:12.4.3', 'grafana:latest']
     steps:
       - name: Checkout
         uses: actions/checkout@v6
