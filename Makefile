@@ -102,7 +102,7 @@ test: test-frontend test-backend ## Run all tests
 test-ui-start-pod: ## Start PCP and Valkey in a pod
 	-podman pod rm -f grafana-pcp-tests
 	podman pod create --name grafana-pcp-tests -p 3001:3000
-	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-pcp -d --systemd always quay.io/performancecopilot/pcp
+	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-pcp -d --systemd always ghcr.io/performancecopilot/pcp
 	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-valkey -d docker.io/valkey/valkey:7
 
 test-ui-start-grafana-dist: ## Start Grafana with grafana-pcp from the dist/ folder
