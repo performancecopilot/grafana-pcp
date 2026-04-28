@@ -13,12 +13,41 @@ test.describe('PCP Valkey data source', () => {
 
   test('should auto-complete metric names', async ({ createDataSourceConfigPage, page }) => {
     const configPage = await createDataSourceConfigPage({ type: 'performancecopilot-valkey-datasource' });
-    await page.getByRole('textbox', { name: 'URL' }).fill('http://localhost:44322');
+    await page.getByPlaceholder('http://localhost:44322').fill('http://localhost:44322');
     await configPage.saveAndTest();
 
     await page.goto(`/dashboard/new-with-ds/${configPage.datasource.uid}`);
-    await page.getByRole('button', { name: 'Add visualization' }).click();
-    await page.getByRole('button', { name: new RegExp(configPage.datasource.name) }).click();
+    await page.waitForLoadState('networkidle');
+
+    // Close any dialogs that might be blocking
+    const closeButton = page.getByRole('button', { name: 'Close' });
+    try {
+      if (await closeButton.isVisible({ timeout: 1000 })) {
+        await closeButton.click();
+        await page.waitForTimeout(500);
+      }
+    } catch {
+      // No dialog present
+    }
+
+    // Grafana 13 changed the UI - try new sidebar "add panel" button first, fall back to Grafana 12
+    const addPanelGrafana13 = page.getByTestId('data-testid sidebar add new panel');
+    const addVisualizationButton = page.getByRole('button', { name: 'Add visualization' });
+
+    if (await addPanelGrafana13.isVisible({ timeout: 2000 }).catch(() => false)) {
+      // Grafana 13: click add panel, then click "Configure visualization", then select datasource
+      await addPanelGrafana13.click();
+      await page.getByRole('button', { name: 'Configure visualization' }).click();
+
+      // Select datasource from dropdown
+      const datasourcePicker = page.getByTestId('data-testid Select a data source');
+      await datasourcePicker.click();
+      await page.getByText(configPage.datasource.name).click();
+    } else {
+      // Grafana 12: click "Add visualization", then select datasource
+      await addVisualizationButton.click();
+      await page.getByRole('button', { name: new RegExp(configPage.datasource.name) }).click();
+    }
 
     const editor = page.locator('.monaco-editor textarea');
     await editor.click({ force: true });
