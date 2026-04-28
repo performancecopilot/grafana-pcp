@@ -39,10 +39,15 @@ test.describe('PCP Valkey data source', () => {
       await addPanelGrafana13.click();
       await page.getByRole('button', { name: 'Configure visualization' }).click();
 
-      // Select datasource from dropdown
+      // Select datasource from dropdown (Grafana 13 uses data-source-card)
       const datasourcePicker = page.getByTestId('data-testid Select a data source');
       await datasourcePicker.click();
-      await page.getByText(configPage.datasource.name).click();
+      // Wait for dropdown to open
+      await page.waitForTimeout(1000);
+
+      // Select the datasource by display name (use first if multiple exist)
+      const datasourceCard = page.getByTestId('data-source-card').filter({ hasText: 'PCP Valkey' }).first();
+      await datasourceCard.click();
     } else {
       // Grafana 12: click "Add visualization", then select datasource
       await addVisualizationButton.click();
