@@ -7,6 +7,7 @@
 * **test**: change to playwright tests from cypress as part of move to grafana/create-plugin
 * **test**: update tests for grafana 12.4.3 and grafana 13
 * **ci**: have ci run on grafana 12.4.3 and grafana latest
+* **misc**: add coderabbit reviews to PRs into main
 
 ## 5.3.0 (2025-06-30)
 
