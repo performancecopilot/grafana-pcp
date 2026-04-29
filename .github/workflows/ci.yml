@@ -93,16 +93,20 @@ jobs:
       - name: Wait for Grafana to be ready
         run: |
           for i in $(seq 1 30); do
-            curl -sf http://127.0.0.1:3001/api/health && break
+            if curl -sf http://127.0.0.1:3001/api/health; then
+              exit 0
+            fi
             sleep 2
           done
+          echo "Error: Grafana failed to become ready after 60 seconds"
+          exit 1
 
       - name: Run UI Tests
         run: BASE_URL="http://127.0.0.1:3001" yarn e2e
 
       - name: Set artifact name
         if: failure()
-        run: echo "ARTIFACT_NAME=playwright-$(echo '${{ matrix.grafana_image }}' | tr ':' '-')" >> $GITHUB_ENV
+        run: echo "ARTIFACT_NAME=playwright-$(echo '${{ matrix.grafana_image }}' | tr ':' '-')" >> "$GITHUB_ENV"
 
       - name: Publish Playwright test results
         uses: actions/upload-artifact@v6

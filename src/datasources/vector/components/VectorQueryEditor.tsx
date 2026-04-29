@@ -22,7 +22,7 @@ const FORMAT_OPTIONS = [
 
 interface State {
     expr: string;
-    format: string;
+    format: TargetFormat;
     legendFormat?: string;
     options: PmapiQueryOptions;
     url?: string;
@@ -35,7 +35,9 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         const query = defaultsDeep({}, this.props.query, defaultVectorQuery);
         this.state = {
             expr: query.expr,
-            format: query.format ?? TargetFormat.TimeSeries,
+            format: Object.values(TargetFormat).includes(query.format as TargetFormat)
+                ? (query.format as TargetFormat)
+                : TargetFormat.TimeSeries,
             legendFormat: query.legendFormat,
             options: {
                 rateConversion: query.options.rateConversion,
@@ -55,8 +57,9 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         this.setState({ legendFormat }, this.runQuery);
     };
 
-    onFormatChange = (option: { value: string }) => {
-        this.setState({ format: option.value }, this.runQuery);
+    onFormatChange = (option?: { value?: TargetFormat }) => {
+        const format = option?.value ?? TargetFormat.TimeSeries;
+        this.setState({ format }, this.runQuery);
     };
 
     onURLChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
@@ -83,7 +86,7 @@ export class VectorQueryEditor extends PureComponent<Props, State> {
         return {
             refId: this.props.query.refId,
             expr: this.state.expr,
-            format: this.state.format as TargetFormat,
+            format: this.state.format,
             legendFormat: this.state.legendFormat,
             options: {
                 rateConversion: this.state.options.rateConversion,

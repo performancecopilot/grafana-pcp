@@ -2821,6 +2821,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/dompurify@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "@types/dompurify@npm:3.2.0"
+  dependencies:
+    dompurify: "npm:*"
+  checksum: 10c0/e83fec586ffbb1b43f7c8479f2a99c223814d240db912d53fb126aaeea52a4091deceeb75632b5d76004d88ef0fbf444984887b121dece6fa69f4172ed4b2b07
+  languageName: node
+  linkType: hard
+
 "@types/eslint-scope@npm:^3.7.7":
   version: 3.7.7
   resolution: "@types/eslint-scope@npm:3.7.7"
@@ -5251,6 +5260,18 @@ __metadata:
   dependencies:
     webidl-conversions: "npm:^7.0.0"
   checksum: 10c0/774277cd9d4df033f852196e3c0077a34dbd15a96baa4d166e0e47138a80f4c0bdf0d94e4703e6ff5883cec56bb821a6fff84402d8a498e31de7c87eb932a294
+  languageName: node
+  linkType: hard
+
+"dompurify@npm:*, dompurify@npm:^3.4.1":
+  version: 3.4.1
+  resolution: "dompurify@npm:3.4.1"
+  dependencies:
+    "@types/trusted-types": "npm:^2.0.7"
+  dependenciesMeta:
+    "@types/trusted-types":
+      optional: true
+  checksum: 10c0/440a4246020cb54b82ef2cb66381e4d310a0c470f9994655e61b6122811f0eaa00a2f9665d2bed30ca3f58932ba7bb0d5e26fdfce61c8daf35d21a3f5a799e48
   languageName: node
   linkType: hard
 
@@ -8976,6 +8997,7 @@ __metadata:
     "@testing-library/user-event": "npm:^14.5.1"
     "@types/blueimp-md5": "npm:^2.7.0"
     "@types/d3-selection": "npm:^2.0.0"
+    "@types/dompurify": "npm:^3.2.0"
     "@types/jest": "npm:^29.5.0"
     "@types/lodash": "npm:^4.14.178"
     "@types/memoize-one": "npm:^5.1.2"
@@ -8994,6 +9016,7 @@ __metadata:
     css-loader: "npm:^7.1.0"
     d3-flame-graph: "npm:^3.1.1"
     d3-selection: "npm:^2.0.0"
+    dompurify: "npm:^3.4.1"
     eslint: "npm:^9.32.0"
     eslint-config-prettier: "npm:^10.1.0"
     eslint-plugin-jsdoc: "npm:^52.0.0"

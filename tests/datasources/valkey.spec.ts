@@ -14,7 +14,7 @@ test.describe('PCP Valkey data source', () => {
   test('should auto-complete metric names', async ({ createDataSourceConfigPage, page }) => {
     const configPage = await createDataSourceConfigPage({ type: 'performancecopilot-valkey-datasource' });
     await page.getByPlaceholder('http://localhost:44322').fill('http://localhost:44322');
-    await configPage.saveAndTest();
+    await expect(configPage.saveAndTest()).toBeOK();
 
     await page.goto(`/dashboard/new-with-ds/${configPage.datasource.uid}`);
     await page.waitForLoadState('networkidle');
@@ -42,19 +42,23 @@ test.describe('PCP Valkey data source', () => {
       // Select datasource from dropdown (Grafana 13 uses data-source-card)
       const datasourcePicker = page.getByTestId('data-testid Select a data source');
       await datasourcePicker.click();
-      // Wait for dropdown to open
-      await page.waitForTimeout(1000);
 
-      // Select the datasource by display name (use first if multiple exist)
+      // Wait for dropdown to open and datasource card to be visible
       const datasourceCard = page.getByTestId('data-source-card').filter({ hasText: 'PCP Valkey' }).first();
+      await datasourceCard.waitFor({ state: 'visible' });
       await datasourceCard.click();
     } else {
       // Grafana 12: click "Add visualization", then select datasource
       await addVisualizationButton.click();
-      await page.getByRole('button', { name: new RegExp(configPage.datasource.name) }).click();
+      await page.getByRole('button', { name: configPage.datasource.name }).click();
     }
 
     const editor = page.locator('.monaco-editor textarea');
+    await editor.waitFor({ state: 'visible' });
+
+    // Wait for datasource to be fully loaded and editor to initialize
+    await page.waitForTimeout(2000);
+
     await editor.click({ force: true });
     await editor.pressSequentially('disk.dev.by', { delay: 50 });
 

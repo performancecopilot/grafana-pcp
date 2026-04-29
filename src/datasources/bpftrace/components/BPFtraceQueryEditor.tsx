@@ -22,7 +22,7 @@ const FORMAT_OPTIONS = [
 
 interface State {
     expr: string;
-    format: string;
+    format: TargetFormat;
     legendFormat?: string;
     url?: string;
     hostspec?: string;
@@ -37,7 +37,9 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
         const query = defaultsDeep({}, this.props.query, defaultBPFtraceQuery);
         this.state = {
             expr: query.expr,
-            format: query.format ?? TargetFormat.TimeSeries,
+            format: Object.values(TargetFormat).includes(query.format as TargetFormat)
+                ? (query.format as TargetFormat)
+                : TargetFormat.TimeSeries,
             legendFormat: query.legendFormat,
             url: query.url,
             hostspec: query.hostspec,
@@ -57,8 +59,9 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
         this.setState({ legendFormat }, this.runQuery);
     };
 
-    onFormatChange = (option: { value: string }) => {
-        this.setState({ format: option.value }, this.runQuery);
+    onFormatChange = (option?: { value?: TargetFormat }) => {
+        const format = option?.value ?? TargetFormat.TimeSeries;
+        this.setState({ format }, this.runQuery);
     };
 
     onURLChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
@@ -75,7 +78,7 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
         return {
             refId: this.props.query.refId,
             expr: this.state.expr,
-            format: this.state.format as TargetFormat,
+            format: this.state.format,
             legendFormat: this.state.legendFormat,
             url: this.state.url,
             hostspec: this.state.hostspec,

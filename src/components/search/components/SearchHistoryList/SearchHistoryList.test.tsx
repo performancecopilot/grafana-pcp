@@ -41,7 +41,7 @@ describe('<SearchHistoryList/>', () => {
     test('items have title filled', () => {
         render(<SearchHistoryList searchHistory={historyItems} {...placeholderCallbacks} />);
         const buttons = screen.getAllByTestId('search-history-go');
-        buttons.forEach(button => expect(button.title).toBeDefined());
+        buttons.forEach(button => expect(button.title).toBeTruthy());
     });
 
     test('renders clear button by default', () => {
