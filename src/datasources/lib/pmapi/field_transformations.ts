@@ -42,6 +42,10 @@ function rateConversion(frame: MutableDataFrame, discreteValues = false) {
         // start at the end, otherwise we'd calculate the current rate with the previous rate instead of the raw counter value
         for (let i = field.values.length - 1; i >= 1; i--) {
             const deltaSec = (timeField.values[i] - timeField.values[i - 1]) / 1000;
+            if (!Number.isFinite(deltaSec) || deltaSec <= 0) {
+                field.values[i] = MISSING_VALUE;
+                continue;
+            }
             fieldSetRate(field, i, deltaSec, discreteValues);
         }
         field.values[0] = MISSING_VALUE;

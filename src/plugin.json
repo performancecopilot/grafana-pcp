@@ -150,7 +150,7 @@
         }
     ],
     "dependencies": {
-        "grafanaDependency": ">=12.4.2",
+        "grafanaDependency": ">=12.4.3",
         "plugins": []
     }
 }

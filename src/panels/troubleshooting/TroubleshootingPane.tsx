@@ -1,4 +1,5 @@
 import { cx } from '@emotion/css';
+import DOMPurify from 'dompurify';
 import React from 'react';
 import { DataFrame, FieldType, GrafanaTheme2, PanelData } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
@@ -145,7 +146,7 @@ function renderInfoModal(troubleshooting: TroubleshootingInfo, theme: GrafanaThe
                             <Icon name="question-circle" className={modalArticleIcon(theme)} />
                             Notes
                         </h4>
-                        <span dangerouslySetInnerHTML={{ __html: troubleshooting.notes }} />
+                        <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(troubleshooting.notes) }} />
                     </Stack>
                 )}
                 {renderNavigation(troubleshooting, theme)}

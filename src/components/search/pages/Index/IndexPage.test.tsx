@@ -87,7 +87,7 @@ describe('<IndexPage/>', () => {
         const historyBtns = screen.getAllByTestId('search-history-go');
         await userEvent.click(historyBtns[0]);
         expect(mockReduxDispatchProps.querySearch).toHaveBeenCalled();
-        expect((mockReduxDispatchProps.querySearch as jest.Mock).mock.calls[0][0]).toBe(searchHistoryItem);
+        expect((mockReduxDispatchProps.querySearch as jest.Mock).mock.calls[0][0]).toEqual(searchHistoryItem);
     });
 
     test('can clear bookmarks', async () => {
