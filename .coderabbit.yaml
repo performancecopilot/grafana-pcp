@@ -1,0 +1,9 @@
+# .coderabbit.yaml
+reviews:
+  auto_review:
+    enabled: true
+    # Only PRs targeting these branches will be reviewed automatically
+    base_branches:
+      - "main"
+    # Set to true if you want reviews to start while the PR is still a Draft
+    drafts: false
