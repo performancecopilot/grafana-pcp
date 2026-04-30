@@ -10,12 +10,17 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout sources
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
 
-    - name: Setup Node.js 17
-      uses: actions/setup-node@v3
+    - name: Setup Go
+      uses: actions/setup-go@v6
       with:
-        node-version: 17
+        go-version-file: 'go.mod'
+
+    - name: Setup Node.js 24
+      uses: actions/setup-node@v6
+      with:
+        node-version: 24
 
     - name: Install jsonnet, jsonnet-bundler and grafana/plugin-validator
       run: |
