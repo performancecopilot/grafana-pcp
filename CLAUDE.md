@@ -47,10 +47,11 @@ make test-backend-coverage         # Run backend tests with coverage
 # Run a single frontend test
 yarn test <test-file-path>
 
-# UI tests (Cypress)
+# UI tests (Playwright)
 make test-ui-start-pod             # Start PCP and Valkey in a pod
-make test-ui                       # Run Cypress UI tests interactively
-yarn cypress:open                  # Open Cypress directly
+make test-ui                       # Run Playwright UI tests
+yarn e2e                           # Run Playwright tests
+yarn e2e:open                      # Open Playwright UI
 ```
 
 ### Other Commands
@@ -132,16 +133,16 @@ Both Valkey and Vector datasources support Grafana template variables. Valkey ap
 - **bpftrace**: Full bpftrace script syntax with Monaco editor support
 
 ### Testing Strategy
-- Frontend: Jest + Enzyme for unit tests
+- Frontend: Jest for unit tests with @testing-library/react
 - Backend: Go standard testing package with race detector
-- UI: Cypress for end-to-end tests against live Grafana instance
-- CI runs tests against multiple Grafana versions (latest, 10.2.5, 9.0.9)
+- UI: Playwright for end-to-end tests against live Grafana instance
+- CI runs tests against multiple Grafana versions
 
 ### Build System
-- Frontend: `grafana-toolkit` (Grafana's official plugin build tool)
+- Frontend: Webpack with TypeScript and SWC for transpilation
 - Backend: Standard Go toolchain with cross-compilation
 - Dashboards: Jsonnet with grafonnet library
-- Uses yarn for frontend dependencies
+- Uses yarn (v4.11.0) for frontend dependencies
 
 ### Monaco Editor Integration
 bpftrace datasource uses Monaco Editor for syntax highlighting and autocompletion. The integration is in `src/components/monaco/` with lazy loading to reduce bundle size. A custom language provider (`BPFtraceLanguage.ts`) provides bpftrace-specific features.
@@ -164,4 +165,4 @@ The Vector datasource Poller maintains active connections and polls metrics. Whe
 Vector supports PCP derived metrics. If a derived metric with the same name already exists, PCP returns an error. The code handles `DuplicateDerivedMetricNameError` by reusing the existing registration.
 
 ## Node.js Version
-Requires Node.js >= 14 (see `package.json` engines field). CI uses Node.js 17.
+Requires Node.js >= 24 (see `package.json` engines field).
