@@ -1,6 +1,6 @@
 # Change Log
 
-## Next Release
+## 6.0.0 (2026-04-30)
 
 * **build**: update dependencies for grafana 12.4.3 (transition to grafana/create-plugin from grafana/toolkit)
 * **build**: update Go and node dependencies
