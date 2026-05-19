@@ -108,7 +108,7 @@ test-ui-start-pod: ## Start PCP and Valkey in a pod
 test-ui-start-grafana-dist: ## Start Grafana with grafana-pcp from the dist/ folder
 	podman run --pod grafana-pcp-tests --name grafana-pcp-tests-grafana -d --replace \
 		-e GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="performancecopilot-pcp-app,performancecopilot-valkey-datasource,performancecopilot-vector-datasource,performancecopilot-bpftrace-datasource,performancecopilot-flamegraph-panel,performancecopilot-breadcrumbs-panel,performancecopilot-troubleshooting-panel" \
-		-v $$(pwd)/dist:/var/lib/grafana/plugins/performancecopilot-pcp-app \
+		-v $$(pwd)/dist:/var/lib/grafana/plugins/performancecopilot-pcp-app:z \
 		$(GRAFANA_IMAGE)
 
 test-ui-start-grafana-build: ## Start Grafana with grafana-pcp from build/performancecopilot-pcp-app-*.zip
