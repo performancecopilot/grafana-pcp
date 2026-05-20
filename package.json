@@ -120,13 +120,15 @@
     "serialize-javascript": "^7.0.5",
     "picomatch": "^4.0.4",
     "protocol-buffers-schema": "^3.6.1",
-    "brace-expansion": "^5.0.5",
+    "brace-expansion": "^5.0.6",
     "uuid": "^14.0.0",
     "postcss": "^8.5.10",
     "yaml": "^1.10.3",
     "@tootallnate/once": "^3.0.1",
     "lodash": "^4.18.0",
-    "dompurify": "^3.4.0"
+    "dompurify": "^3.4.0",
+    "fast-uri": "^3.1.2",
+    "ip-address": "^10.1.1"
   },
   "engines": {
     "node": ">=24"
