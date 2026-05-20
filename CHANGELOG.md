@@ -1,8 +1,9 @@
 # Change Log
 
-## Next Release
+## 6.0.1 (2026-05-20)
 
 * **dashboards**: Fix troubleshooting panel breaking the PCP Vector Checklist dashboard
+* **build**: update node dependencies
 
 ## 6.0.0 (2026-04-30)
 
