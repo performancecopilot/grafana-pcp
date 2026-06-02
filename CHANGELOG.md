@@ -4,6 +4,7 @@
 
 * **ci**: bump playwright version to fix hanging ci runs
 * **build**: update node dependencies
+* **misc**: Add provisioning files
 
 ## 6.0.1 (2026-05-20)
 
