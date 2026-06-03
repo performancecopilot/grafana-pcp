@@ -1,6 +1,6 @@
 import { defaultsDeep, keyBy } from 'lodash';
 import { getLogger } from 'loglevel';
-import { DataSourceInstanceSettings, ScopedVars } from '@grafana/data';
+import { CoreApp, DataSourceInstanceSettings, ScopedVars } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { GenericError } from '../../common/types/errors';
 import { DataSourceBase } from '../../datasources/lib/pmapi/datasource_base';
@@ -37,6 +37,10 @@ export class PCPBPFtraceDataSource extends DataSourceBase<BPFtraceQuery, BPFtrac
         document.addEventListener('visibilitychange', () => {
             this.poller.setPageVisibility(!document.hidden);
         });
+    }
+
+    getDefaultQuery(_app: CoreApp): Partial<BPFtraceQuery> {
+        return defaultBPFtraceQuery;
     }
 
     buildPmapiQuery(query: BPFtraceQuery, scopedVars: ScopedVars): PmapiQuery {
