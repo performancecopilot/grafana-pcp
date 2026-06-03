@@ -1,7 +1,7 @@
 import md5 from 'blueimp-md5';
 import { defaultsDeep, keyBy, uniqBy } from 'lodash';
 import { getLogger } from 'loglevel';
-import { DataSourceInstanceSettings, ScopedVars } from '@grafana/data';
+import { CoreApp, DataSourceInstanceSettings, ScopedVars } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { DuplicateDerivedMetricNameError, InstanceId } from '../../common/services/pmapi/types';
 import { SeriesId, SeriesLabelsItemResponse } from '../../common/services/pmseries/types';
@@ -36,6 +36,10 @@ export class PCPVectorDataSource extends DataSourceBase<VectorQuery, VectorOptio
         document.addEventListener('visibilitychange', () => {
             this.poller.setPageVisibility(!document.hidden);
         });
+    }
+
+    getDefaultQuery(_app: CoreApp): Partial<VectorQuery> {
+        return defaultVectorQuery;
     }
 
     buildPmapiQuery(query: VectorQuery, scopedVars: ScopedVars): PmapiQuery {

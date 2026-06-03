@@ -1,14 +1,18 @@
 import 'core-js/features/instance/replace-all';
-import { DataSourceInstanceSettings, MetricFindValue, ScopedVars, VariableModel } from '@grafana/data';
+import { CoreApp, DataSourceInstanceSettings, MetricFindValue, ScopedVars, VariableModel } from '@grafana/data';
 import { DataSourceWithBackend, getTemplateSrv } from '@grafana/runtime';
 import { isBlank } from '../../common/utils';
-import { ValkeyOptions, ValkeyQuery } from './types';
+import { defaultValkeyQuery, ValkeyOptions, ValkeyQuery } from './types';
 
 //const log = getLogger('datasource');
 
 export class PCPValkeyDataSource extends DataSourceWithBackend<ValkeyQuery, ValkeyOptions> {
     constructor(instanceSettings: DataSourceInstanceSettings<ValkeyOptions>) {
         super(instanceSettings);
+    }
+
+    getDefaultQuery(_app: CoreApp): Partial<ValkeyQuery> {
+        return defaultValkeyQuery;
     }
 
     applyAdhocQualifiers(expr: string, variables: VariableModel[]) {
