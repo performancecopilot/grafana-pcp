@@ -1,5 +1,10 @@
 # Change Log
 
+## Next Release
+
+* **ci**: bump playwright version to fix hanging ci runs
+* **build**: update node dependencies
+
 ## 6.0.1 (2026-05-20)
 
 * **dashboards**: Fix troubleshooting panel breaking the PCP Vector Checklist dashboard
