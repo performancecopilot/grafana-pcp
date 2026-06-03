@@ -38,3 +38,5 @@ It presents a unifying abstraction for all of the performance data in a system, 
 ## [Installation Instructions](https://grafana-pcp.readthedocs.io/en/latest/installation.html)
 
 ## [Documentation](https://grafana-pcp.readthedocs.io)
+
+## [Contributing](CONTRIBUTING.md)

@@ -3,7 +3,7 @@
     "name": "Performance Co-Pilot",
     "id": "performancecopilot-pcp-app",
     "info": {
-        "description": "Performance Co-Pilot Grafana Plugin",
+        "description": "Integrates Performance Co-Pilot metrics into Grafana with real-time monitoring, historical analysis, and eBPF tracing.",
         "author": {
             "name": "Performance Co-Pilot",
             "url": "https://pcp.io"
