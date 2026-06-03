@@ -5,6 +5,8 @@
 * **ci**: bump playwright version to fix hanging ci runs
 * **build**: update node dependencies
 * **misc**: Add provisioning files
+* **misc**: Add contributing.md file
+* **misc**: Make plugin description more informative 
 * **config**: Update appconfig to be in line with plugin best practices
 * **queries**: Add default queries for the datasources
 * **vector, bpftrace**: Replace legacy CSS classes with @grafana/ui FieldSet in config editors
