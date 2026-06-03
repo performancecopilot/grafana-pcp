@@ -1,6 +1,6 @@
 import React, { SyntheticEvent, useState } from 'react';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
-import { DataSourceHttpSettings, Field, Input } from '@grafana/ui';
+import { DataSourceHttpSettings, Field, FieldSet, Input } from '@grafana/ui';
 import { Config } from '../config';
 import { BPFtraceOptions } from '../types';
 
@@ -41,8 +41,7 @@ export const BPFtraceConfigEditor = (props: Props) => {
                 onChange={onOptionsChange}
             />
 
-            <h3 className="page-heading">BPFtrace Settings</h3>
-            <div className="gf-form-group">
+            <FieldSet label="BPFtrace Settings">
                 <Field label="Host specification" description="Performance Co-Pilot host specification.">
                     <Input
                         width={18}
@@ -67,7 +66,7 @@ export const BPFtraceConfigEditor = (props: Props) => {
                         onBlur={onRetentionTimeBlur}
                     />
                 </Field>
-            </div>
+            </FieldSet>
         </>
     );
 };

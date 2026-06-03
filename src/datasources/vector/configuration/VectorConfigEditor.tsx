@@ -1,6 +1,6 @@
 import React, { SyntheticEvent, useState } from 'react';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
-import { DataSourceHttpSettings, Field, Input } from '@grafana/ui';
+import { DataSourceHttpSettings, Field, FieldSet, Input } from '@grafana/ui';
 import { Config } from '../config';
 import { VectorOptions } from '../types';
 
@@ -41,8 +41,7 @@ export const VectorConfigEditor = (props: Props) => {
                 onChange={onOptionsChange}
             />
 
-            <h3 className="page-heading">Vector Settings</h3>
-            <div className="gf-form-group">
+            <FieldSet label="Vector Settings">
                 <Field label="Host specification" description="Performance Co-Pilot host specification.">
                     <Input
                         width={18}
@@ -67,7 +66,7 @@ export const VectorConfigEditor = (props: Props) => {
                         onBlur={onRetentionTimeBlur}
                     />
                 </Field>
-            </div>
+            </FieldSet>
         </>
     );
 };
