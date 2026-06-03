@@ -1,85 +1,79 @@
 import { css } from '@emotion/css';
-import React, { PureComponent } from 'react';
+import React, { useCallback } from 'react';
 import { AppPluginMeta, PluginConfigPageProps } from '@grafana/data';
-import { BackendSrv, getBackendSrv } from '@grafana/runtime';
-import { Button, Icon } from '@grafana/ui';
+import { getBackendSrv } from '@grafana/runtime';
+import { Button, Icon, Stack, useTheme2 } from '@grafana/ui';
 import { AppSettings } from './types';
 
 interface Props extends PluginConfigPageProps<AppPluginMeta<AppSettings>> {}
 
-export class AppConfig extends PureComponent<Props> {
-    private backendSrv: BackendSrv;
+export const AppConfig = ({ plugin }: Props) => {
+    const theme = useTheme2();
+    const isEnabled = plugin.meta.enabled;
 
-    constructor(props: Props) {
-        super(props);
-        this.backendSrv = getBackendSrv();
-        this.onEnable = this.onEnable.bind(this);
-        this.onDisable = this.onDisable.bind(this);
-    }
+    const updatePluginSettings = useCallback(
+        (settings: { enabled: boolean; jsonData: any; pinned: boolean }) => {
+            return getBackendSrv().post(`/api/plugins/${plugin.meta.id}/settings`, settings);
+        },
+        [plugin.meta.id]
+    );
 
-    async updatePluginSettings(settings: { enabled: boolean; jsonData: any; pinned: boolean }) {
-        return this.backendSrv.post(`/api/plugins/${this.props.plugin.meta.id}/settings`, settings);
-    }
-
-    async onEnable() {
-        await this.updatePluginSettings({ enabled: true, jsonData: {}, pinned: true });
+    const onEnable = useCallback(async () => {
+        await updatePluginSettings({ enabled: true, jsonData: {}, pinned: true });
         window.location.reload();
-    }
+    }, [updatePluginSettings]);
 
-    async onDisable() {
-        await this.updatePluginSettings({ enabled: false, jsonData: {}, pinned: false });
+    const onDisable = useCallback(async () => {
+        await updatePluginSettings({ enabled: false, jsonData: {}, pinned: false });
         window.location.reload();
-    }
+    }, [updatePluginSettings]);
 
-    render() {
-        const isEnabled = this.props.plugin.meta.enabled;
-        return (
-            <>
-                <h2>Performance Co-Pilot App</h2>
-                This app integrates metrics from Performance Co-Pilot.
-                <br />
-                <br />
-                It includes the following data sources:
-                <ul
+    return (
+        <>
+            <h2>Performance Co-Pilot App</h2>
+            This app integrates metrics from Performance Co-Pilot.
+            <br />
+            <br />
+            It includes the following data sources:
+            <ul
+                className={css`
+                    margin-left: ${theme.spacing(4)};
+                `}
+            >
+                <li>
+                    <strong>PCP Valkey</strong> for fast, scalable time series aggregation across multiple hosts
+                </li>
+                <li>
+                    <strong>PCP Vector</strong> for live, on-host metrics analysis, with container support
+                </li>
+                <li>
+                    <strong>PCP bpftrace</strong> for system introspection using bpftrace scripts
+                </li>
+            </ul>
+            {isEnabled && (
+                <div
                     className={css`
-                        margin-left: 2em;
+                        margin-top: ${theme.spacing(3)};
                     `}
                 >
-                    <li>
-                        <strong>PCP Valkey</strong> for fast, scalable time series aggregation across multiple hosts
-                    </li>
-                    <li>
-                        <strong>PCP Vector</strong> for live, on-host metrics analysis, with container support
-                    </li>
-                    <li>
-                        <strong>PCP bpftrace</strong> for system introspection using bpftrace scripts
-                    </li>
-                </ul>
-                {isEnabled && (
-                    <div
+                    <Icon
+                        name="check"
                         className={css`
-                            margin-top: 1.5em;
+                            color: ${theme.colors.success.main};
                         `}
-                    >
-                        <Icon
-                            name="check"
-                            className={css`
-                                color: #10a345;
-                            `}
-                        />{' '}
-                        Plugin enabled. Please configure the data sources now.
-                    </div>
-                )}
-                <div className="gf-form gf-form-button-row">
-                    {isEnabled ? (
-                        <Button variant="destructive" onClick={this.onDisable}>
-                            Disable
-                        </Button>
-                    ) : (
-                        <Button onClick={this.onEnable}>Enable</Button>
-                    )}
+                    />{' '}
+                    Plugin enabled. Please configure the data sources now.
                 </div>
-            </>
-        );
-    }
-}
+            )}
+            <Stack direction="row" gap={1}>
+                {isEnabled ? (
+                    <Button variant="destructive" onClick={onDisable}>
+                        Disable
+                    </Button>
+                ) : (
+                    <Button onClick={onEnable}>Enable</Button>
+                )}
+            </Stack>
+        </>
+    );
+};

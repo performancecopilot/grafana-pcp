@@ -5,6 +5,7 @@
 * **ci**: bump playwright version to fix hanging ci runs
 * **build**: update node dependencies
 * **misc**: Add provisioning files
+* **config**: Update appconfig to be in line with plugin best practices
 
 ## 6.0.1 (2026-05-20)
 
