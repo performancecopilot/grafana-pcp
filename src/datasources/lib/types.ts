@@ -7,6 +7,8 @@ export enum TargetFormat {
     MetricsTable = 'metrics_table',
     /** bpftrace only */
     CsvTable = 'csv_table',
-    /** bpftrace only */
-    FlameGraph = 'flamegraph',
+    /** bpftrace only — deprecated, use FlameGraph instead */
+    FlameGraphLegacy = 'flamegraph',
+    /** bpftrace only — outputs nested set DataFrame for Grafana's built-in flamegraph visualization */
+    FlameGraph = 'flamegraph_grafana',
 }

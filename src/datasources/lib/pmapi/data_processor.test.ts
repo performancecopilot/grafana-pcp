@@ -1,3 +1,4 @@
+import { MISSING_VALUE } from '@grafana/data';
 import { grafana, pcp, poller } from '../specs/fixtures';
 import { TargetFormat } from '../types';
 import { processQueries } from './data_processor';
@@ -326,6 +327,122 @@ describe('data processor', () => {
             }
         `
         );
+    });
+
+    it('should transform to Grafana flamegraph nested set format', () => {
+        const target = poller.target({
+            query: { expr: 'bpftrace.scripts.test.data.root', refId: 'A', format: TargetFormat.FlameGraph },
+        });
+
+        const metric = {
+            metadata: pcp.metadata({
+                name: 'bpftrace.scripts.test.data.root',
+                type: 'u64',
+                sem: 'instant' as any,
+                units: 'count',
+            }),
+            values: [
+                {
+                    timestampMs: 10000,
+                    values: [
+                        { instance: 0, value: 5 },
+                        { instance: 1, value: 3 },
+                        { instance: 2, value: 4 },
+                    ],
+                },
+            ],
+            instanceDomain: {
+                instances: {
+                    0: { instance: 0, name: '\n    write+24\n    do_syscall_64\n', labels: {} },
+                    1: { instance: 1, name: '\n    read+24\n    do_syscall_64\n', labels: {} },
+                    2: { instance: 2, name: '\n    write+24\n    __x64_sys_write\n', labels: {} },
+                },
+                labels: {},
+            },
+        };
+
+        const endpoint = poller.endpoint({ metrics: [metric], targets: [target] });
+        const dataQueryRequest = grafana.dataQueryRequest({ targets: [target.query] });
+
+        const result = processQueries(dataQueryRequest, [{ endpoint, query: target.query, metrics: [metric] }], 1);
+        expect(result).toHaveLength(1);
+
+        const frame = result[0];
+        expect(frame.meta?.preferredVisualisationType).toBe('flamegraph');
+        expect(frame.fields).toHaveLength(4);
+
+        const levels = frame.fields[0].values;
+        const labels = frame.fields[1].values;
+        const values = frame.fields[2].values;
+        const selfs = frame.fields[3].values;
+
+        expect(labels[0]).toBe('root');
+        expect(levels[0]).toBe(0);
+        expect(values[0]).toBe(12); // 5 + 3 + 4
+        expect(selfs[0]).toBe(0);
+
+        // write+24 appears under two parents (do_syscall_64 and __x64_sys_write)
+        // but at level 1 there should be write+24 with cumulative value 9 (5+4), read+24 with 3
+        const level1Labels = labels.filter((_: string, i: number) => levels[i] === 1);
+        expect(level1Labels).toContain('write+24');
+        expect(level1Labels).toContain('read+24');
+    });
+
+    it('should apply flamegraph filtering options', () => {
+        const target = poller.target({
+            query: {
+                expr: 'bpftrace.scripts.test.data.root',
+                refId: 'A',
+                format: TargetFormat.FlameGraph,
+                flamegraphMinSamples: 4,
+                flamegraphHideUnresolved: true,
+                flamegraphHideIdle: false,
+            } as any,
+        });
+
+        const metric = {
+            metadata: pcp.metadata({
+                name: 'bpftrace.scripts.test.data.root',
+                type: 'u64',
+                sem: 'instant' as any,
+                units: 'count',
+            }),
+            values: [
+                {
+                    timestampMs: 10000,
+                    values: [
+                        { instance: 0, value: 5 },
+                        { instance: 1, value: 2 },
+                        { instance: 2, value: 6 },
+                    ],
+                },
+            ],
+            instanceDomain: {
+                instances: {
+                    0: { instance: 0, name: '\n    write+24\n', labels: {} },
+                    1: { instance: 1, name: '\n    read+24\n', labels: {} },
+                    2: { instance: 2, name: '\n    0xdeadbeef\n    write+24\n', labels: {} },
+                },
+                labels: {},
+            },
+        };
+
+        const endpoint = poller.endpoint({ metrics: [metric], targets: [target] });
+        const dataQueryRequest = grafana.dataQueryRequest({ targets: [target.query] });
+
+        const result = processQueries(dataQueryRequest, [{ endpoint, query: target.query, metrics: [metric] }], 1);
+        const labels = result[0].fields[1].values;
+        const values = result[0].fields[2].values;
+
+        // read+24 has value 2, below minSamples of 4 — should be filtered out
+        expect(labels).not.toContain('read+24');
+        // 0xdeadbeef should be filtered out (hideUnresolved)
+        expect(labels).not.toContain('0xdeadbeef');
+        // write+24 should still appear — instance 2's 0xdeadbeef is skipped, leaving write+24 as the leaf
+        // both instances (5 + 6) accumulate at the same node
+        expect(labels).toContain('write+24');
+        const writeIdx = labels.indexOf('write+24');
+        expect(values[writeIdx]).toBe(11);
     });
 
     it('should process a CSV table', () => {

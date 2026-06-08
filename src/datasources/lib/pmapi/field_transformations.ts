@@ -76,7 +76,7 @@ const PCP_TIME_UNITS: Dict<string, number> = {
 
 export function applyFieldTransformations(query: PmapiQuery, metadata: Metadata, frame: MutableDataFrame): void {
     if (metadata.sem === Semantics.Counter) {
-        const discreteValues = query.format === TargetFormat.FlameGraph;
+        const discreteValues = query.format === TargetFormat.FlameGraphLegacy || query.format === TargetFormat.FlameGraph;
         if (query.options.rateConversion) {
             rateConversion(frame, discreteValues);
         }

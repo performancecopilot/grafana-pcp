@@ -5,7 +5,11 @@ import { Script } from './script';
 
 export interface BPFtraceOptions extends PmapiOptions {}
 
-export interface BPFtraceQuery extends MinimalPmapiQuery {}
+export interface BPFtraceQuery extends MinimalPmapiQuery {
+    flamegraphMinSamples?: number;
+    flamegraphHideUnresolved?: boolean;
+    flamegraphHideIdle?: boolean;
+}
 
 export const defaultBPFtraceQuery: BPFtraceQuery & Optional<PmapiQuery, 'url' | 'hostspec'> = {
     refId: 'A',

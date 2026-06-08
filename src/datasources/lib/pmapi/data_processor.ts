@@ -408,6 +408,118 @@ function transformToCsvTable(frames: DataFrame[]) {
     return tableFrame;
 }
 
+interface StackNode {
+    name: string;
+    leafValue: number;
+    children: StackNode[];
+}
+
+function buildStackTree(
+    frames: MutableDataFrame[],
+    minSamples: number,
+    hideUnresolved: boolean,
+    hideIdle: boolean
+): StackNode {
+    const root: StackNode = { name: 'root', leafValue: 0, children: [] };
+
+    for (const frame of frames) {
+        for (const field of frame.fields) {
+            if (field.type !== FieldType.number || !field.config.custom?.instance?.name) {
+                continue;
+            }
+
+            let count = 0;
+            for (let i = 0; i < field.values.length; i++) {
+                const value = field.values[i];
+                if (value !== MISSING_VALUE) {
+                    count += value;
+                }
+            }
+            if (count < minSamples) {
+                continue;
+            }
+
+            const instanceName: string = field.config.custom.instance.name;
+            let curNode = root;
+            const stacks = instanceName.split(/[\n,]/);
+            let skip = false;
+            for (let stackFrame of stacks) {
+                stackFrame = stackFrame.trim();
+                if (!stackFrame || (hideUnresolved && stackFrame.startsWith('0x'))) {
+                    continue;
+                }
+                if (hideIdle && stackFrame.startsWith('cpuidle_enter_state+')) {
+                    skip = true;
+                    break;
+                }
+                let child = curNode.children.find(c => c.name === stackFrame);
+                if (!child) {
+                    child = { name: stackFrame, leafValue: 0, children: [] };
+                    curNode.children.push(child);
+                }
+                curNode = child;
+            }
+            if (!skip) {
+                curNode.leafValue += count;
+            }
+        }
+    }
+    return root;
+}
+
+function computeCumulativeValue(node: StackNode): number {
+    let total = node.leafValue;
+    for (const child of node.children) {
+        total += computeCumulativeValue(child);
+    }
+    return total;
+}
+
+function flattenTree(
+    node: StackNode,
+    level: number,
+    levels: number[],
+    labels: string[],
+    values: number[],
+    selfs: number[]
+) {
+    const cumulative = computeCumulativeValue(node);
+    levels.push(level);
+    labels.push(node.name);
+    values.push(cumulative);
+    selfs.push(node.leafValue);
+    for (const child of node.children) {
+        flattenTree(child, level + 1, levels, labels, values, selfs);
+    }
+}
+
+function transformToFlameGraph(frames: MutableDataFrame[], query: PmapiQuery): MutableDataFrame {
+    const minSamples = (query as any).flamegraphMinSamples ?? 1;
+    const hideUnresolved = (query as any).flamegraphHideUnresolved ?? false;
+    const hideIdle = (query as any).flamegraphHideIdle ?? false;
+
+    const root = buildStackTree(frames, minSamples, hideUnresolved, hideIdle);
+
+    const levels: number[] = [];
+    const labels: string[] = [];
+    const values: number[] = [];
+    const selfs: number[] = [];
+    flattenTree(root, 0, levels, labels, values, selfs);
+
+    const flameFrame = new MutableDataFrame({
+        fields: [
+            { name: 'level', type: FieldType.number, values: levels },
+            { name: 'label', type: FieldType.string, values: labels },
+            { name: 'value', type: FieldType.number, values: values },
+            { name: 'self', type: FieldType.number, values: selfs },
+        ],
+        meta: {
+            preferredVisualisationType: 'flamegraph',
+        },
+    });
+    return flameFrame;
+}
+
 export function processQueries(
     request: DataQueryRequest<MinimalPmapiQuery>,
     queryResults: QueryResult[],
@@ -432,8 +544,10 @@ export function processQueries(
 
     switch (format) {
         case TargetFormat.TimeSeries:
-        case TargetFormat.FlameGraph:
+        case TargetFormat.FlameGraphLegacy:
             return frames;
+        case TargetFormat.FlameGraph:
+            return [transformToFlameGraph(frames, queryResults[0].query)];
         case TargetFormat.Heatmap:
             frames.forEach(transformToHeatMap);
             return frames;
