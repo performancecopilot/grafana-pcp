@@ -2,7 +2,7 @@ import { css, cx } from '@emotion/css';
 import { defaultsDeep } from 'lodash';
 import React, { PureComponent } from 'react';
 import { QueryEditorProps } from '@grafana/data';
-import { Combobox, InlineField, InlineFieldRow, Input } from '@grafana/ui';
+import { Combobox, InlineField, InlineFieldRow, InlineSwitch, Input } from '@grafana/ui';
 import { isBlank } from '../../../common/utils';
 import { Monaco } from '../../../components/monaco';
 import { MonacoEditorLazy } from '../../../components/monaco/MonacoEditorLazy';
@@ -26,6 +26,9 @@ interface State {
     legendFormat?: string;
     url?: string;
     hostspec?: string;
+    flamegraphMinSamples: number;
+    flamegraphHideUnresolved: boolean;
+    flamegraphHideIdle: boolean;
 }
 
 export class BPFtraceQueryEditor extends PureComponent<Props, State> {
@@ -43,6 +46,9 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
             legendFormat: query.legendFormat,
             url: query.url,
             hostspec: query.hostspec,
+            flamegraphMinSamples: query.flamegraphMinSamples ?? 1,
+            flamegraphHideUnresolved: query.flamegraphHideUnresolved ?? false,
+            flamegraphHideIdle: query.flamegraphHideIdle ?? false,
         };
         this.editorOptions = {
             lineNumbers: 'on',
@@ -74,8 +80,22 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
         this.setState({ hostspec }, this.runQuery);
     };
 
+    onFlamegraphMinSamplesChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+        const n = parseInt(event.currentTarget.value, 10);
+        const flamegraphMinSamples = Math.max(1, Number.isFinite(n) ? n : 1);
+        this.setState({ flamegraphMinSamples }, this.runQuery);
+    };
+
+    onFlamegraphHideUnresolvedChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({ flamegraphHideUnresolved: event.currentTarget.checked }, this.runQuery);
+    };
+
+    onFlamegraphHideIdleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({ flamegraphHideIdle: event.currentTarget.checked }, this.runQuery);
+    };
+
     getQuery = (): BPFtraceQuery => {
-        return {
+        const query: BPFtraceQuery = {
             refId: this.props.query.refId,
             expr: this.state.expr,
             format: this.state.format,
@@ -83,6 +103,12 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
             url: this.state.url,
             hostspec: this.state.hostspec,
         };
+        if (this.state.format === TargetFormat.FlameGraph) {
+            query.flamegraphMinSamples = this.state.flamegraphMinSamples;
+            query.flamegraphHideUnresolved = this.state.flamegraphHideUnresolved;
+            query.flamegraphHideIdle = this.state.flamegraphHideIdle;
+        }
+        return query;
     };
 
     runQuery = () => {
@@ -161,7 +187,7 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
                     <InlineField
                         label="Host specification"
                         tooltip="Override the host specification for this panel. Useful for monitoring remote hosts."
-                        labelWidth={18}
+                        labelWidth={20}
                     >
                         <Input
                             placeholder="override host specification"
@@ -171,6 +197,34 @@ export class BPFtraceQueryEditor extends PureComponent<Props, State> {
                         />
                     </InlineField>
                 </InlineFieldRow>
+
+                {this.state.format === TargetFormat.FlameGraph && (
+                    <InlineFieldRow>
+                        <InlineField label="Min samples" tooltip="Minimum number of samples for a stack to be shown">
+                            <Input
+                                type="number"
+                                value={this.state.flamegraphMinSamples}
+                                onChange={this.onFlamegraphMinSamplesChange}
+                                onBlur={this.runQuery}
+                                width={8}
+                            />
+                        </InlineField>
+
+                        <InlineField label="Hide unresolved" tooltip="Hide stack frames starting with 0x">
+                            <InlineSwitch
+                                value={this.state.flamegraphHideUnresolved}
+                                onChange={this.onFlamegraphHideUnresolvedChange}
+                            />
+                        </InlineField>
+
+                        <InlineField label="Hide idle" tooltip="Hide idle CPU stacks (cpuidle_enter_state)">
+                            <InlineSwitch
+                                value={this.state.flamegraphHideIdle}
+                                onChange={this.onFlamegraphHideIdleChange}
+                            />
+                        </InlineField>
+                    </InlineFieldRow>
+                )}
             </div>
         );
     }

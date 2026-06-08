@@ -1,9 +1,9 @@
 {
     "type": "panel",
-    "name": "PCP Flame Graph",
+    "name": "PCP Flame Graph (Deprecated)",
     "id": "performancecopilot-flamegraph-panel",
     "info": {
-        "description": "Grafana Panel for displaying Flame Graphs",
+        "description": "Deprecated: use Grafana's built-in Flame Graph panel with the 'Flame Graph' format instead. This panel will be removed in a future release.",
         "logos": {
             "small": "img/flamegraph.svg",
             "large": "img/flamegraph.svg"

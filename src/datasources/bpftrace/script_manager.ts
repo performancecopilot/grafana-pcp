@@ -36,7 +36,7 @@ export class ScriptManager {
                 throw new GenericError('Please printf() a table in CSV format in the BPFtrace script.');
             }
             return [foundVar[0]];
-        } else if (format === TargetFormat.FlameGraph) {
+        } else if (format === TargetFormat.FlameGraphLegacy || format === TargetFormat.FlameGraph) {
             const foundVar = Object.entries(script.variables).find(
                 ([, varDef]) => varDef.metrictype === MetricType.Stacks
             );

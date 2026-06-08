@@ -5,8 +5,9 @@ local flameGraph(
   datasource=null,
       ) = {
   title: title,
-  type: 'performancecopilot-flamegraph-panel',
+  type: 'flamegraph',
   datasource: datasource,
+  options: {},
 
   _nextTarget:: 0,
   addTarget(target):: self {
@@ -50,7 +51,7 @@ grafana.dashboard.new(
     x: 0,
     y: 0,
     w: 24,
-    h: 2,
+    h: 3,
   }
 )
 .addPanel(
@@ -68,7 +69,7 @@ grafana.dashboard.new(
     { expr: 'kernel.cpu.util.sys', format: 'time_series' },
   ]), gridPos={
     x: 0,
-    y: 2,
+    y: 3,
     w: 24,
     h: 4,
   }
@@ -79,10 +80,10 @@ grafana.dashboard.new(
     datasource='$bpftrace_datasource',
   )
   .addTargets([
-    { expr: importstr 'tools/kstacks.bt', format: 'flamegraph' },
+    { expr: importstr 'tools/kstacks.bt', format: 'flamegraph_grafana' },
   ]), gridPos={
     x: 0,
-    y: 6,
+    y: 7,
     w: 24,
     h: 8,
   }
@@ -93,13 +94,13 @@ grafana.dashboard.new(
     datasource='$bpftrace_datasource',
   )
   .addTargets([
-    { expr: importstr 'tools/ustacks.bt', format: 'flamegraph' },
+    { expr: importstr 'tools/ustacks.bt', format: 'flamegraph_grafana' },
   ]), gridPos={
     x: 0,
-    y: 14,
+    y: 15,
     w: 24,
     h: 8,
   }
 ) + {
-  revision: 3,
+  revision: 1,
 }
