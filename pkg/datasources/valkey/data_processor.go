@@ -401,15 +401,23 @@ func (ds *valkeyDatasourceInstance) transformToGeoMap(frames *data.Frames) error
 			valFloat, _ := field.FloatAt(field.Len() - 1)
 			valueField.Append(&valFloat)
 
-			//collect and append the longitude field
-			longitude, err := convertFieldValue("float", field.Labels["longitude"])
+			longitudeLabel := field.Labels["longitude"]
+			latitudeLabel := field.Labels["latitude"]
+			if longitudeLabel == "" || latitudeLabel == "" {
+				return fmt.Errorf(
+					"metric %q is missing geolocation labels (longitude=%q, latitude=%q): "+
+						"ensure PCP geolocation labels are configured, e.g. in /etc/pcp/labels/optional/geolocate",
+					field.Name, longitudeLabel, latitudeLabel,
+				)
+			}
+
+			longitude, err := convertFieldValue("float", longitudeLabel)
 			if err != nil {
 				return err
 			}
 			longitudeField.Append(longitude)
 
-			//collect and append the latitude field
-			latitude, err := convertFieldValue("float", field.Labels["latitude"])
+			latitude, err := convertFieldValue("float", latitudeLabel)
 			if err != nil {
 				return err
 			}

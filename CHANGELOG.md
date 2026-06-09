@@ -12,6 +12,7 @@
 * **vector, bpftrace**: Replace legacy CSS classes with @grafana/ui FieldSet in config editors
 * **dashboards**: Bundled flame graph dashboards now use the built-in grafana flame graph visualization instead of the PCP Flame Graph panel plugin.
 * **flame graphs**: PCP Flame Graph panel plugin will be removed in future releases. Users should start using the built-in grafana flame graphs instead and transition any custom dashboards to use this visualization.
+* **geomaps**: Add clear error when longitude and latitude labels are missing
 
 ## 6.0.1 (2026-05-20)
 
