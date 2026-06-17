@@ -21,12 +21,3 @@ providers:
     options:
       path: /var/lib/grafana/plugins/performancecopilot-pcp-app/datasources/valkey/dashboards
 
-  - name: PCP bpftrace
-    orgId: 1
-    folder: PCP bpftrace
-    type: file
-    disableDeletion: false
-    updateIntervalSeconds: 30
-    allowUiUpdates: false
-    options:
-      path: /var/lib/grafana/plugins/performancecopilot-pcp-app/datasources/bpftrace/dashboards

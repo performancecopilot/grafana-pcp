@@ -4,7 +4,7 @@ datasources:
   - name: PCP Vector
     type: performancecopilot-vector-datasource
     access: proxy
-    url: http://localhost:44322
+    url: http://pcp:44322
     isDefault: true
     jsonData:
       hostspec: ''
@@ -13,12 +13,4 @@ datasources:
   - name: PCP Valkey
     type: performancecopilot-valkey-datasource
     access: proxy
-    url: http://localhost:44322
-
-  - name: PCP bpftrace
-    type: performancecopilot-bpftrace-datasource
-    access: proxy
-    url: http://localhost:44322
-    jsonData:
-      hostspec: ''
-      retentionTime: '5m'
+    url: http://pcp:44322

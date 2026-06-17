@@ -3,3 +3,19 @@ services:
     extends:
       file: .config/docker-compose-base.yaml
       service: grafana
+    depends_on:
+      - pcp
+      - valkey
+
+  pcp:
+    image: ghcr.io/performancecopilot/pcp
+    container_name: 'grafana-pcp-pcp'
+    privileged: true  # required: PCP container runs systemd and collects host metrics
+    depends_on:
+      - valkey
+    environment:
+      KEY_SERVERS: valkey:6379
+
+  valkey:
+    image: docker.io/valkey/valkey:8
+    container_name: 'grafana-pcp-valkey'

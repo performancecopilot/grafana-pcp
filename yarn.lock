@@ -2430,6 +2430,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@remix-run/router@npm:1.23.3":
+  version: 1.23.3
+  resolution: "@remix-run/router@npm:1.23.3"
+  checksum: 10c0/73622465dd9e9a2c5a7ced7d1151ea6e9195a8a979c99b4f70a67093eeff7f339daf03a7c6304709a9c27deb2081a8fff6737663aacb33529c1a12a0a0827a17
+  languageName: node
+  linkType: hard
+
 "@sinclair/typebox@npm:^0.27.8":
   version: 0.27.10
   resolution: "@sinclair/typebox@npm:0.27.10"
@@ -5238,15 +5245,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.4.0":
-  version: 3.4.2
-  resolution: "dompurify@npm:3.4.2"
+"dompurify@npm:^3.4.8":
+  version: 3.4.11
+  resolution: "dompurify@npm:3.4.11"
   dependencies:
     "@types/trusted-types": "npm:^2.0.7"
   dependenciesMeta:
     "@types/trusted-types":
       optional: true
-  checksum: 10c0/23ab3ab079480a49e1426c4ee7279e393913fa7f2193c4142a5be54d4163dbdd969558675876c6b8bbcbf2ad5d1bc3e00bf902acf142fff12e50274a65ae95b3
+  checksum: 10c0/31439481c7e8fc3805d40c376936fd66936620fb1b1a31a2ec097f6165412c37f2d868e082c9ceba62bb37661c1ea132a5db4d5213434317e30df68d4aca9cc9
   languageName: node
   linkType: hard
 
@@ -8438,10 +8445,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"monaco-editor@npm:^0.31.1":
-  version: 0.31.1
-  resolution: "monaco-editor@npm:0.31.1"
-  checksum: 10c0/48b738b990ad1e37f7625a1f033257f61d46ae8b06fb5f004ec00508022f1fc6c7e8265962ab090c1cdee55a3611bf412305e922bcc86d7263c7d631db94eb3c
+"monaco-editor@npm:^0.52.0":
+  version: 0.52.2
+  resolution: "monaco-editor@npm:0.52.2"
+  checksum: 10c0/5a92da64f1e2ab375c0ce99364137f794d057c97bed10ecc65a08d6e6846804b8ecbd377eacf01e498f7dfbe1b21e8be64f728256681448f0484df90e767b435
   languageName: node
   linkType: hard
 
@@ -8972,7 +8979,7 @@ __metadata:
     css-loader: "npm:^7.1.0"
     d3-flame-graph: "npm:^3.1.1"
     d3-selection: "npm:^2.0.0"
-    dompurify: "npm:^3.4.1"
+    dompurify: "npm:^3.4.8"
     eslint: "npm:^9.32.0"
     eslint-config-prettier: "npm:^10.1.0"
     eslint-plugin-jsdoc: "npm:^52.0.0"
@@ -8990,15 +8997,15 @@ __metadata:
     loglevel: "npm:^1.6.8"
     loglevel-plugin-prefix: "npm:^0.8.4"
     memoize-one: "npm:^6.0.0"
-    monaco-editor: "npm:^0.31.1"
+    monaco-editor: "npm:^0.52.0"
     monaco-editor-webpack-plugin: "npm:^7.0.1"
     prettier: "npm:^3.6.0"
     react: "npm:^18.3.0"
     react-autosuggest: "npm:^10.0.2"
     react-dom: "npm:^18.3.0"
-    react-monaco-editor: "npm:^0.47.0"
+    react-monaco-editor: "npm:^0.59.0"
     react-redux: "npm:^7.2.0"
-    react-router-dom: "npm:^6.22.0"
+    react-router-dom: "npm:^6.30.4"
     react-use: "npm:^17.3.2"
     redux: "npm:^4.0.5"
     redux-persist: "npm:^6.0.0"
@@ -9610,16 +9617,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-monaco-editor@npm:^0.47.0":
-  version: 0.47.0
-  resolution: "react-monaco-editor@npm:0.47.0"
-  dependencies:
-    prop-types: "npm:^15.8.1"
+"react-monaco-editor@npm:^0.59.0":
+  version: 0.59.0
+  resolution: "react-monaco-editor@npm:0.59.0"
   peerDependencies:
-    "@types/react": ^17.x
-    monaco-editor: ^0.31.1
-    react: ^17.x
-  checksum: 10c0/3057932b9c406944415d7b2f388a0cd44f228fb1bec0a5e06481c0c43d38651d87e43939491c3dfb4c3218ff9b397472eca3d0e2d5db90f6a7273ac3c84e184a
+    monaco-editor: ^0.52.0
+    react: ">=16.8.0 <20.0.0"
+    react-dom: ">=16.8.0 <20.0.0"
+  checksum: 10c0/173902e22b2fbc36841707a49bf20d3d5e40018eba8f3e353faaab2de039aa9183b3d4a8c660d97e140713d234835bd5f7e4da30c3f0d274290fe7c5447d8d41
   languageName: node
   linkType: hard
 
@@ -9695,16 +9700,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^6.22.0":
-  version: 6.30.3
-  resolution: "react-router-dom@npm:6.30.3"
+"react-router-dom@npm:^6.30.4":
+  version: 6.30.4
+  resolution: "react-router-dom@npm:6.30.4"
   dependencies:
-    "@remix-run/router": "npm:1.23.2"
-    react-router: "npm:6.30.3"
+    "@remix-run/router": "npm:1.23.3"
+    react-router: "npm:6.30.4"
   peerDependencies:
     react: ">=16.8"
     react-dom: ">=16.8"
-  checksum: 10c0/e8a1e13c662ed6ee71a785bd3418ba04b700bcd8aff6ea7b32524371e8abb1c85568cd4fe9b9e9d555b8101fd415f6f1796531f593da60be179ce75b37038657
+  checksum: 10c0/1b25ab26a288da852f7b58eec5c14b3f37919e6773a557cd846d3a05d7a7d890c8d49bda93c0a7f497f240df1df8b0ad50635f990aafb55f2fc545ad8269a822
   languageName: node
   linkType: hard
 
@@ -9735,6 +9740,17 @@ __metadata:
   peerDependencies:
     react: ">=16.8"
   checksum: 10c0/a0a74bf5a933cf0abd47e0eac1d3a505cd66b866e3ee8f20d8016885d3b4361ba3ba72dee026248c6125e631b191ba6ad109184c892281cea6cb747c71bf5940
+  languageName: node
+  linkType: hard
+
+"react-router@npm:6.30.4":
+  version: 6.30.4
+  resolution: "react-router@npm:6.30.4"
+  dependencies:
+    "@remix-run/router": "npm:1.23.3"
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 10c0/fb6de7d1002bcab9ea12c4072d93792eca494f1e4f30cfec334ccb6523756d23ce3e093c7c1241399296cebed94789a3fb89f96ee76004e0e746458a8f6bab33
   languageName: node
   linkType: hard
 
