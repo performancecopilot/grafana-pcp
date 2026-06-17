@@ -1,4 +1,6 @@
 import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { StandaloneServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices';
+import { IStorageService } from 'monaco-editor/esm/vs/platform/storage/common/storage';
 import React, { PureComponent } from 'react';
 import MonacoEditor, { MonacoEditorProps } from 'react-monaco-editor';
 import { GrafanaTheme2 } from '@grafana/data';
@@ -37,6 +39,15 @@ class MonacoEditorWrapper extends PureComponent<Props> {
             });
         }
 
+        if (this.props.alwaysShowHelpText) {
+            try {
+                const storageService = StandaloneServices.get(IStorageService);
+                storageService.store('expandSuggestionDocs', true, 0 /* StorageScope.PROFILE */, 0 /* StorageTarget.USER */);
+            } catch {
+                // fall through if services not yet initialized
+            }
+        }
+
         this.props.editorDidMount?.(editor, monaco);
     };
 
@@ -57,25 +68,6 @@ class MonacoEditorWrapper extends PureComponent<Props> {
                 ...this.props.options,
             },
         };
-
-        if (this.props.alwaysShowHelpText) {
-            props.overrideServices = {
-                ...props.overrideServices,
-                storageService: {
-                    get() {},
-                    getBoolean(key: string) {
-                        if (key === 'expandSuggestionDocs') {
-                            return true;
-                        }
-
-                        return false;
-                    },
-                    store() {},
-                    onWillSaveState() {},
-                    onDidChangeStorage() {},
-                },
-            };
-        }
 
         return (
             <div onBlur={this.onBlur}>

@@ -2,17 +2,25 @@
 
 ## Next Release
 
-* **ci**: bump playwright version to fix hanging ci runs
-* **build**: update node dependencies
-* **misc**: Add provisioning files
-* **misc**: Add contributing.md file
-* **misc**: Make plugin description more informative 
-* **config**: Update appconfig to be in line with plugin best practices
-* **queries**: Add default queries for the datasources
-* **vector, bpftrace**: Replace legacy CSS classes with @grafana/ui FieldSet in config editors
-* **dashboards**: Bundled flame graph dashboards now use the built-in grafana flame graph visualization instead of the PCP Flame Graph panel plugin.
-* **flame graphs**: PCP Flame Graph panel plugin will be removed in future releases. Users should start using the built-in grafana flame graphs instead and transition any custom dashboards to use this visualization.
-* **geomaps**: Add clear error when longitude and latitude labels are missing
+### Enhancements
+
+* **dashboards**: Bundled flame graph dashboards now use the built-in Grafana flame graph visualization instead of the PCP Flame Graph panel plugin.
+* **queries**: Add default queries for the datasources.
+* **geomaps**: Add clear error when longitude and latitude labels are missing. ([#238](https://github.com/performancecopilot/grafana-pcp/pull/238))
+* **vector, bpftrace**: Replace legacy CSS classes with @grafana/ui FieldSet in config editors.
+* **config**: Update app config to use function components and theme-aware colors.
+
+### Build & Maintenance
+
+* **ci**: Bump Playwright version to fix hanging CI runs.
+* **build**: Update node dependencies.
+* **misc**: Add provisioning files for development environment.
+* **misc**: Add CONTRIBUTING.md file.
+* **misc**: Make plugin description more informative.
+
+### Deprecations
+
+* **flame graphs**: PCP Flame Graph panel plugin will be removed in future releases. Users should start using the built-in Grafana flame graphs instead and transition any custom dashboards to use this visualization.
 
 ## 6.0.1 (2026-05-20)
 
