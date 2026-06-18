@@ -25,6 +25,10 @@
             {
                 "name": "Notice",
                 "url": "https://github.com/performancecopilot/grafana-pcp/blob/main/NOTICE"
+            },
+            {
+                "name": "sponsorship",
+                "url": "https://hcb.hackclub.com/pcp"
             }
         ],
         "screenshots": [
