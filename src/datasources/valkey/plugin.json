@@ -32,6 +32,16 @@
             "type": "dashboard",
             "name": "PCP Valkey: Microsoft SQL Server",
             "path": "dashboards/pcp-valkey-mssql-server.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Valkey: Nvidia GPU Overview",
+            "path": "dashboards/pcp-valkey-nvidia-overview.json"
+        },
+        {
+            "type": "dashboard",
+            "name": "PCP Valkey: vLLM Overview",
+            "path": "dashboards/pcp-valkey-vllm-overview.json"
         }
     ]
 }
