@@ -1,4 +1,4 @@
-import { test, expect } from '@grafana/plugin-e2e';
+import { test, expect, DashboardPage } from '@grafana/plugin-e2e';
 
 test.describe('PCP Valkey data source', () => {
   test('should import bundled dashboards', async ({ createDataSourceConfigPage, page }) => {
@@ -11,47 +11,21 @@ test.describe('PCP Valkey data source', () => {
     await expect(page.getByText(/[Dd]ashboard [Ii]mported/)).toBeVisible();
   });
 
-  test('should auto-complete metric names', async ({ createDataSourceConfigPage, page }) => {
+  test('should auto-complete metric names', async ({
+    createDataSourceConfigPage,
+    page,
+    selectors,
+    grafanaVersion,
+    request,
+  }, testInfo) => {
     const configPage = await createDataSourceConfigPage({ type: 'performancecopilot-valkey-datasource' });
     await page.getByPlaceholder('http://localhost:44322').fill('http://localhost:44322');
     await expect(configPage.saveAndTest()).toBeOK();
 
-    await page.goto(`/dashboard/new-with-ds/${configPage.datasource.uid}`);
-    await page.waitForLoadState('networkidle');
-
-    // Close any dialogs that might be blocking
-    const closeButton = page.getByRole('button', { name: 'Close' });
-    try {
-      if (await closeButton.isVisible({ timeout: 1000 })) {
-        await closeButton.click();
-        await page.waitForTimeout(500);
-      }
-    } catch {
-      // No dialog present
-    }
-
-    // Grafana 13 changed the UI - try new sidebar "add panel" button first, fall back to Grafana 12
-    const addPanelGrafana13 = page.getByTestId('data-testid sidebar add new panel');
-    const addVisualizationButton = page.getByRole('button', { name: 'Add visualization' });
-
-    if (await addPanelGrafana13.isVisible({ timeout: 2000 }).catch(() => false)) {
-      // Grafana 13: click add panel, then click "Configure visualization", then select datasource
-      await addPanelGrafana13.click();
-      await page.getByRole('button', { name: 'Configure visualization' }).click();
-
-      // Select datasource from dropdown (Grafana 13 uses data-source-card)
-      const datasourcePicker = page.getByTestId('data-testid Select a data source');
-      await datasourcePicker.click();
-
-      // Wait for dropdown to open and datasource card to be visible
-      const datasourceCard = page.getByTestId('data-source-card').filter({ hasText: 'PCP Valkey' }).first();
-      await datasourceCard.waitFor({ state: 'visible' });
-      await datasourceCard.click();
-    } else {
-      // Grafana 12: click "Add visualization", then select datasource
-      await addVisualizationButton.click();
-      await page.getByRole('button', { name: configPage.datasource.name }).click();
-    }
+    const dashboardPage = new DashboardPage({ page, selectors, grafanaVersion, request, testInfo });
+    await dashboardPage.goto();
+    const panelEditPage = await dashboardPage.addPanel();
+    await panelEditPage.datasource.set(configPage.datasource.name);
 
     const editor = page.locator('.monaco-editor textarea');
     await editor.waitFor({ state: 'visible' });
