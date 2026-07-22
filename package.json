@@ -116,7 +116,7 @@
     "@babel/runtime": "^7.26.10",
     "protobufjs": "^7.5.8",
     "flatted": "^3.4.2",
-    "immutable": "^5.1.5",
+    "immutable": "^5.1.9",
     "serialize-javascript": "^7.0.5",
     "picomatch": "^4.0.4",
     "protocol-buffers-schema": "^3.6.1",
