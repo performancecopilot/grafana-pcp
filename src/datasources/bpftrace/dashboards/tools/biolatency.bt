@@ -11,14 +11,14 @@
  */
 // include: @usecs
 
-kprobe:blk_account_io_start
+tracepoint:block:block_rq_issue
 {
-	@start[arg0] = nsecs;
+	@start[args->dev, args->sector] = nsecs;
 }
 
-kprobe:blk_account_io_done
-/@start[arg0]/
+tracepoint:block:block_rq_complete
+/@start[args->dev, args->sector]/
 {
-	@usecs = hist((nsecs - @start[arg0]) / 1000);
-	delete(@start[arg0]);
+	@usecs = hist((nsecs - @start[args->dev, args->sector]) / 1000);
+	delete(@start[args->dev, args->sector]);
 }
