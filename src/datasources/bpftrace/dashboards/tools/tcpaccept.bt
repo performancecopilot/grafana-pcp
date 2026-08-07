@@ -17,8 +17,17 @@
  */
 // table-retain-lines: 10
 
+#ifndef BPFTRACE_HAVE_BTF
 #include <linux/socket.h>
 #include <net/sock.h>
+#else
+/*
+ * With BTF providing types, full headers are not needed.
+ * We only need to supply the preprocessor defines used in this script.
+ */
+#define AF_INET 2
+#define AF_INET6 10
+#endif
 
 BEGIN
 {
@@ -51,7 +60,7 @@ kretprobe:inet_csk_accept
 		$qmax  = $sk->sk_max_ack_backlog;
 
 		// Destination port is big endian, it must be flipped
-		$dport = ($dport >> 8) | (($dport << 8) & 0x00FF00);
+		$dport = (uint16)(($dport >> 8) | (($dport << 8) & 0x00FF00));
 
 		time("%H:%M:%S,");
 		printf("%d,%s,", pid, comm);
