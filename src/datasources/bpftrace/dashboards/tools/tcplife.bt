@@ -15,10 +15,23 @@
 // include: @output
 // table-retain-lines: 10
 
+#ifndef BPFTRACE_HAVE_BTF
 #include <net/tcp_states.h>
 #include <net/sock.h>
 #include <linux/socket.h>
 #include <linux/tcp.h>
+#else
+/*
+ * With BTF providing types, full headers are not needed.
+ * We only need to supply the preprocessor defines used in this script.
+ */
+#define AF_INET 2
+#define AF_INET6 10
+#define TCP_SYN_SENT 2
+#define TCP_FIN_WAIT1 4
+#define TCP_CLOSE 7
+#define TCP_LAST_ACK 9
+#endif
 
 BEGIN
 {
@@ -60,7 +73,7 @@ kprobe:tcp_set_state
 		$delta_ms = (nsecs - @birth[$sk]) / 1000000;
 		$lport = $sk->__sk_common.skc_num;
 		$dport = $sk->__sk_common.skc_dport;
-		$dport = ($dport >> 8) | (($dport << 8) & 0xff00);
+		$dport = (uint16)(($dport >> 8) | (($dport << 8) & 0xff00));
 		$tp = (struct tcp_sock *)$sk;
 		$pid = @skpid[$sk];
 		$comm = @skcomm[$sk];
