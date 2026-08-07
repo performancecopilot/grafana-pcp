@@ -10,14 +10,31 @@
  * 07-Oct-2018	Brendan Gregg	Created this.
  */
 
+#ifndef BPFTRACE_HAVE_BTF
 #include <linux/sched.h>
+#endif
 
 // Until BTF is available, we'll need to declare some of this struct manually,
 // since it isn't avaible to be #included. This will need maintenance to match
 // your kernel version. It is from kernel/sched/sched.h:
+struct load_weight {
+	unsigned long weight;
+	unsigned int inv_weight;
+};
+
+#ifndef LINUX_VERSION_CODE
+#include <linux/version.h>
+#endif
+#ifndef KERNEL_VERSION
+#define KERNEL_VERSION(a, b, c) (((a) << 16) + ((b) << 8) + (c))
+#endif
+
+// runnable_weight was removed from cfs_rq in Linux 5.7.0
 struct cfs_rq_partial {
 	struct load_weight load;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 7, 0)
 	unsigned long runnable_weight;
+#endif
 	unsigned int nr_running;
 	unsigned int h_nr_running;
 };
@@ -27,6 +44,8 @@ profile:hz:99
 	$task = (struct task_struct *)curtask;
 	$my_q = (struct cfs_rq_partial *)$task->se.cfs_rq;
 	$len = $my_q->nr_running;
-	$len = $len > 0 ? $len - 1 : 0;	// subtract currently runing task
+	if ($len > 0) {
+		$len = (uint32)($len - 1);	// subtract currently running task
+	}
 	@runqlen = lhist($len, 0, 100, 1);
 }
