@@ -11,7 +11,15 @@
  */
 // include: @usecs
 
+#ifndef BPFTRACE_HAVE_BTF
 #include <linux/sched.h>
+#else
+/*
+ * With BTF providing types, full headers are not needed.
+ * We only need to supply the preprocessor defines used in this script.
+ */
+#define TASK_RUNNING 0
+#endif
 
 tracepoint:sched:sched_wakeup,
 tracepoint:sched:sched_wakeup_new
