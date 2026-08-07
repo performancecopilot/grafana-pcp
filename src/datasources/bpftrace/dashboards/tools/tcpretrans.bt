@@ -19,8 +19,17 @@
 // include: @output
 // table-retain-lines: 10
 
+#ifndef BPFTRACE_HAVE_BTF
 #include <linux/socket.h>
 #include <net/sock.h>
+#else
+/*
+ * With BTF providing types, full headers are not needed.
+ * We only need to supply the preprocessor defines used in this script.
+ */
+#define AF_INET 2
+#define AF_INET6 10
+#endif
 
 BEGIN
 {
@@ -64,7 +73,7 @@ kprobe:tcp_retransmit_skb
 		$dport = $sk->__sk_common.skc_dport;
 
 		// Destination port is big endian, it must be flipped
-		$dport = ($dport >> 8) | (($dport << 8) & 0x00FF00);
+		$dport = (uint16)(($dport >> 8) | (($dport << 8) & 0x00FF00));
 
 		$state = $sk->__sk_common.skc_state;
 		$statestr = @tcp_states[$state];
