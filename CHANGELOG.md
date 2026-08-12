@@ -1,10 +1,11 @@
 # Change Log
 
-## Next Release
+## 6.1.0 (2026-08-12)
 
 ### Enhancements
 
 * **dashboards**: Bundled flame graph dashboards now use the built-in Grafana flame graph visualization instead of the PCP Flame Graph panel plugin.
+* **dashboards, valkey**: Add new Nvidia and vLLM overview dashboard.
 * **queries**: Add default queries for the datasources.
 * **geomaps**: Add clear error when longitude and latitude labels are missing. ([#238](https://github.com/performancecopilot/grafana-pcp/pull/238))
 * **vector, bpftrace**: Replace legacy CSS classes with @grafana/ui FieldSet in config editors.
@@ -13,7 +14,7 @@
 ### Build & Maintenance
 
 * **ci**: Bump Playwright version to fix hanging CI runs.
-* **build**: Update node dependencies.
+* **build**: Update node and Go dependencies.
 * **misc**: Add provisioning files for development environment.
 * **misc**: Add CONTRIBUTING.md file.
 * **misc**: Make plugin description more informative.
