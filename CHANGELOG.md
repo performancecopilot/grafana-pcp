@@ -1,5 +1,11 @@
 # Change Log
 
+## Next Release
+
+### Build & Maintenance
+
+* **e2e**: Fix UI tests for Grafana latest.
+
 ## 6.1.0 (2026-08-12)
 
 ### Enhancements
