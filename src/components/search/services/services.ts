@@ -25,14 +25,20 @@ async function getDatasourceSettings() {
 
 export const initServices = async (): Promise<Services> => {
     const settings = await getDatasourceSettings();
+    // Route search/series requests through Grafana's datasource proxy rather than
+    // calling the datasource URL directly from the browser. This matches how the
+    // other PCP datasources reach pmproxy (server-side, so pmproxy need not be
+    // reachable from the browser and no CORS is involved) and keeps search
+    // working wherever the PCP Valkey datasource itself works.
+    const baseUrl = `/api/datasources/proxy/uid/${settings.uid}`;
     const searchService = new PmSearchApiService(getBackendSrv(), {
         dsInstanceSettings: settings,
-        baseUrl: settings.url!,
+        baseUrl,
         timeoutMs: Config.REQUEST_TIMEOUT,
     });
     const seriesService = new PmSeriesApiService(getBackendSrv(), {
         dsInstanceSettings: settings,
-        baseUrl: settings.url!,
+        baseUrl,
         timeoutMs: Config.REQUEST_TIMEOUT,
     });
     const entityService = new EntityService(searchService, seriesService);
