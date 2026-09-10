@@ -37,10 +37,57 @@ export class PmSearchApiService {
         return has(response, 'data.success') && response.data.success && Object.keys(response.data).length === 1;
     }
 
+    /**
+     * Wrap each whitespace-separated term of a query in double quotes so it is
+     * treated as a literal FTS5 phrase.
+     *
+     * WORKAROUND: pmproxy's /search endpoints pass the query string verbatim into
+     * a SQLite FTS5 `MATCH` expression (see `search_build_match` in PCP's
+     * libpcp_web/src/search.c) without quoting or escaping it. Characters that are
+     * significant to FTS5 query syntax -- notably `.` and `-`, which appear in
+     * virtually every PCP metric name (e.g. `kernel.all.load`, `disk.dev.read`) --
+     * therefore trigger an FTS5 syntax error that pmproxy reports as
+     * HTTP 400 `{"success":false}`, indistinguishable from search being
+     * unavailable. Quoting each term client-side avoids the syntax error while
+     * preserving multi-term (AND) matching.
+     *
+     * `/search/text` additionally supports `"term"*` prefix queries, so a trailing
+     * `*` is kept outside the quotes when `allowPrefix` is true. `/search/suggest`
+     * performs prefix matching itself and rejects a trailing `*` on a quoted term,
+     * so callers of that endpoint must leave `allowPrefix` false.
+     *
+     * This is a client-side workaround: if pmproxy is changed to quote/escape the
+     * query server-side (or exposes an escaping mode), it can be removed. Note the
+     * tradeoff that quoting disables raw FTS5 operators (boolean OR/AND/NOT) in the
+     * user's query -- an accepted compromise for making metric-name searches work.
+     */
+    static escapeFtsQuery(query: string, allowPrefix = false): string {
+        return query
+            .trim()
+            .split(/\s+/)
+            .map(token => {
+                const hasPrefix = allowPrefix && token.endsWith('*');
+                // strip the prefix `*` (if kept) plus any other `*`, which is not
+                // valid inside an FTS5 phrase
+                const core = (hasPrefix ? token.slice(0, -1) : token).replace(/\*/g, '');
+                if (core.length === 0) {
+                    return '';
+                }
+                // FTS5 escapes an embedded double quote by doubling it
+                const escaped = core.replace(/"/g, '""');
+                return `"${escaped}"${hasPrefix ? '*' : ''}`;
+            })
+            .filter(token => token.length > 0)
+            .join(' ');
+    }
+
     async autocomplete(params: AutocompleteQueryParams): Promise<AutocompleteResponse> {
         const request = {
             url: `${this.apiConfig.baseUrl}/search/suggest`,
-            params,
+            params: {
+                ...params,
+                query: PmSearchApiService.escapeFtsQuery(params.query),
+            },
         };
 
         try {
@@ -92,6 +139,7 @@ export class PmSearchApiService {
             url: `${this.apiConfig.baseUrl}/search/text`,
             params: {
                 ...params,
+                query: PmSearchApiService.escapeFtsQuery(params.query, true),
                 ...(params.highlight ? { highlight: params.highlight.join(',') } : {}),
                 ...(params.field ? { field: params.field.join(',') } : {}),
                 ...(params.return ? { return: params.return.join(',') } : {}),

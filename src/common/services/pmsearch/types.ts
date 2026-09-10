@@ -57,7 +57,7 @@ export interface TextItemResponse {
 }
 
 export interface TextResponse {
-    total: number; // ValkeySearch returns total number of matching records even if results themselves are limited
+    total: number; // pmproxy returns the total number of matching records even if the results themselves are limited
     elapsed: number;
     limit: number;
     offset: number;
@@ -73,7 +73,10 @@ export interface IndomQueryParams {
 export class SearchNotAvailableError extends Error {
     constructor(message?: string) {
         super(
-            message ?? `Metric Search not available. Please install the ValkeySearch Valkey module and restart pmproxy.`
+            message ??
+                `Metric search failed. Your query may contain characters that are not supported (for example "." or "-"; try separating terms with spaces), ` +
+                    `or the search backend may be unavailable. If searches consistently fail, ensure "[pmsearch] enabled = true" in pmproxy.conf ` +
+                    `and that the search index has been built (see pmsearch_daily(1)), then restart pmproxy.`
         );
         Object.setPrototypeOf(this, new.target.prototype);
     }
