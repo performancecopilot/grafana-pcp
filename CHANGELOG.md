@@ -2,6 +2,10 @@
 
 ## Next Release
 
+### Enhancements
+
+* **search**: Re-enable full-text metric search. The pmproxy search backend has been reimplemented in PCP using SQLite FTS5 (replacing the removed RediSearch backend). Requires `[pmsearch] enabled = true` in `pmproxy.conf` and a search index built by `pmsearch_daily(1)`.
+
 ### Build & Maintenance
 
 * **e2e**: Fix UI tests for Grafana latest.
