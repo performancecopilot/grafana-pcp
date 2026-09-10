@@ -71,18 +71,13 @@ grafana.dashboard.new(
   }
 )
 .addPanel(
-  grafana.gaugePanel.new(
+  grafana.graphPanel.new(
     'KV Cache Usage %',
     datasource='$datasource',
+    format='percentunit',
   )
-  .addThresholds([
-    {color: 'green', value: 0},
-    {color: 'yellow', value: 80},
-    {color: 'red', value: 90}
-  ])
   .addTargets([
-    { refId: 'A', expr: 'openmetrics.vllm.vllm.kv_cache_usage_perc{hostname == "$host"}', legendFormat: '$metric', format: 'gauge', hide: true},
-    { refId: 'B', type: 'math', expression: '$A * 100', datasource: { type: '__expr__', uid: '__expr__'} },
+    { expr: 'openmetrics.vllm.vllm.kv_cache_usage_perc{hostname == "$host"}', legendFormat: '$metric', format: 'time_series'},
   ]), gridPos={
     x: 8,
     y: 1,
@@ -133,6 +128,7 @@ grafana.dashboard.new(
     'End 2 End Latency',
     datasource='$datasource',
     decimals=2,
+    formatY1='s',
   )
   .addTargets([
     { expr: 'openmetrics.vllm.vllm.e2e_request_latency_seconds_bucket{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
@@ -160,7 +156,7 @@ grafana.dashboard.new(
     decimals=2,
   )
   .addTargets([
-    { expr: 'openmetrics.vllm.vllm.prompt_tokens_total{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
+    { expr: 'openmetrics.vllm.vllm.prompt_tokens_total{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
   ]), gridPos={
     x: 0,
     y: 22,
@@ -173,6 +169,7 @@ grafana.dashboard.new(
     'Time To First Token ',
     datasource='$datasource',
     decimals=2,
+    formatY1='s',
   )
   .addTargets([
     { expr: 'openmetrics.vllm.vllm.time_to_first_token_seconds_bucket{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
@@ -188,6 +185,7 @@ grafana.dashboard.new(
     'Request Prefill Time',
     datasource='$datasource',
     decimals=2,
+    formatY1='s',
   )
   .addTargets([
         { expr: 'openmetrics.vllm.vllm.request_prefill_time_seconds_bucket{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
@@ -213,6 +211,7 @@ grafana.dashboard.new(
     'Inter-Token Latency',
     datasource='$datasource',
     decimals=2,
+    formatY1='s',
   )
   .addTargets([
     { expr: 'openmetrics.vllm.vllm.inter_token_latency_seconds_bucket{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
@@ -228,9 +227,10 @@ grafana.dashboard.new(
     'Decode Generation Throughput',
     datasource='$datasource',
     decimals=2,
+    formatY1='req/sec',
   )
   .addTargets([
-    { expr: 'openmetrics.vllm.vllm.generation_tokens_total{hostname == "$host"}', legendFormat: '$instance', format: 'time_series' },
+    { expr: 'openmetrics.vllm.vllm.generation_tokens_total{hostname == "$host"}', legendFormat: '$metric', format: 'time_series'},
   ]), gridPos={
     x: 8,
     y: 33,
@@ -243,6 +243,7 @@ grafana.dashboard.new(
     'Request Decode Time',
     datasource='$datasource',
     decimals=2,
+    formatY1='s',
   )
   .addTargets([
     {expr: 'openmetrics.vllm.vllm.request_decode_time_seconds_bucket{hostname == "$host"}', legendFormat: '$instance', format: 'time_series',},
@@ -267,6 +268,7 @@ grafana.dashboard.new(
   grafana.graphPanel.new(
     'Request Queue Time',
     datasource='$datasource',
+    formatY1='s',
   )
   .addTargets([
     { expr: 'openmetrics.vllm.vllm.request_queue_time_seconds_bucket{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
@@ -302,40 +304,15 @@ grafana.dashboard.new(
   }
 )
 .addPanel(
-  grafana.gaugePanel.new(
-    'Prefix Cache Hits %',
+  grafana.graphPanel.new(
+    'Prefix Cache Hits ',
     datasource='$datasource',
+    formatY2='percent',
   )
-  .addThresholds([
-    {color: 'green', value: 0},
-    {color: 'yellow', value: 0.8},
-    {color: 'red', value: 0.9}
-  ])
   .addTargets([
-        { refId: 'A', expr: 'openmetrics.vllm.vllm.prefix_cache_queries_total{hostname == "$host"}', legendFormat: '$instance', format: 'time_series', hide: true },
-        { refId: 'B', expr: 'openmetrics.vllm.vllm.prefix_cache_hits_total{hostname == "$host"}', legendFormat: '$instance', format: 'time_series', hide: true },
-        { refId: 'C', type: 'math', expression: '$B / $A * 100', datasource: { type: '__expr__', uid: '__expr__'} },
-  ])
-   {
-    fieldConfig: {
-      defaults: {
-        unit: 'percentunit',
-        min: 0,
-        max: 1,
-      },
-    },
-  }
-  {
-    options: {
-      reduceOptions: {
-        value: 'calculate',
-        calcs: ['mean'],
-        values: false,
-      },
-      textMode: 'value',
-      colorMode: 'value',
-    }
-  }, gridPos={
+        {expr: 'openmetrics.vllm.vllm.prefix_cache_hits_total{hostname == "$host"}', legendFormat: '$metric', format: 'time_series'},
+        {expr: 'openmetrics.vllm.vllm.prompt_tokens_total{hostname == "$host"}', legendFormat: '$metric', format: 'time_series'},
+  ]), gridPos={
     x: 0,
     y: 55,
     w: 12,
@@ -370,6 +347,7 @@ grafana.dashboard.new(
   grafana.graphPanel.new(
     'Process Memory Usage',
     datasource='$datasource',
+    format='bytes',
   )
   .addTargets([
         { expr: 'openmetrics.vllm.process_resident_memory_bytes{hostname == "$host"}', legendFormat: '$metric', format: 'time_series' },
@@ -383,7 +361,7 @@ grafana.dashboard.new(
 )
 .addPanel(
   grafana.graphPanel.new(
-    'CPU Utilization % ',
+    'vLLM Process CPU Utilization ',
     datasource='$datasource',
   )
   .addTargets([
@@ -395,6 +373,7 @@ grafana.dashboard.new(
     h: 10,
   }
 )
+
 .addPanel(
   grafana.gaugePanel.new(
     'Open File Descriptors',
@@ -402,23 +381,14 @@ grafana.dashboard.new(
   )
   .addThresholds([
     {color: 'green', value: 0},
-    {color: 'yellow', value: 0.8},
-    {color: 'red', value: 0.9}
+    {color: 'yellow', value: 80},
+    {color: 'red', value: 90}
   ])
   .addTargets([
         { refId: 'A', expr: 'openmetrics.vllm.process_open_fds{hostname == "$host"}', legendFormat: '$instance', format: 'time_series', hide: true },
         { refId: 'B', expr: 'openmetrics.vllm.process_max_fds{hostname == "$host"}', legendFormat: '$instance', format: 'time_series', hide: true },
         { refId: 'C', type: 'math', expression: '$A / $B * 100', datasource: { type: '__expr__', uid: '__expr__'} },
   ])
-    {
-    fieldConfig: {
-      defaults: {
-        unit: 'percentunit',
-        min: 0,
-        max: 1,
-      },
-    },
-  }
   {
     options: {
       reduceOptions: {
