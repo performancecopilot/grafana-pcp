@@ -25,6 +25,7 @@ This Grafana app plugin integrates PCP metrics into Grafana, bundling three data
   - PCP Vector and PCP bpftrace connect to `pmproxy` for real-time metrics
 - **Valkey** (or Redis) with `pmlogger` archiving metrics and `pmproxy` configured to write to the key server for the PCP Valkey datasource
 - **bpftrace** installed on the monitored host for the PCP bpftrace datasource
+- For **full-text metric search**: `pmproxy` with `[pmsearch] enabled = true` and a search index built by `pmsearch_daily(1)` (SQLite-backed; requires a PCP release that includes the reimplemented search backend)
 
 ## Getting Started
 
