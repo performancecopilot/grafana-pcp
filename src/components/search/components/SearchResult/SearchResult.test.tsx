@@ -139,6 +139,33 @@ describe('<SearchResult/>', () => {
         expect(openDetailMock).toHaveBeenCalledTimes(3);
     });
 
+    test.each(['name', 'oneline', 'helptext'] as const)('sanitizes HTML in %s while preserving search highlights', field => {
+        const payload = '<b onclick="alert(1)">disk</b><img src=x onerror="alert(1)"><script>alert(1)</script><a href="javascript:alert(1)">metric</a>';
+        render(
+            <SearchResult item={{ ...metricItem, oneline: '', [field]: payload }} openDetail={openDetailMock} theme={theme} />
+        );
+
+        const content = field === 'name'
+            ? screen.getByTestId('name')
+            : screen.getByTestId('description').querySelector('p')!;
+        expect(content.innerHTML).toBe('<b>disk</b>metric');
+    });
+
+    test.each(['name', 'oneline', 'helptext'] as const)('removes ARIA and data attributes from highlights in %s', field => {
+        render(
+            <SearchResult
+                item={{ ...metricItem, oneline: '', [field]: '<b aria-label="metric" aria-hidden="true" data-test="highlight" data-metric="disk">disk</b>' }}
+                openDetail={openDetailMock}
+                theme={theme}
+            />
+        );
+
+        const content = field === 'name'
+            ? screen.getByTestId('name')
+            : screen.getByTestId('description').querySelector('p')!;
+        expect(content.innerHTML).toBe('<b>disk</b>');
+    });
+
     test('supports HTML inside name', () => {
         const metricName = '<b>statsd</b>.settings.dropped';
         const { unmount: u1 } = render(
