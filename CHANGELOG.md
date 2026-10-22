@@ -1,6 +1,6 @@
 # Change Log
 
-## Next Release
+## 6.2.0 (2026-10-26)
 
 ### Enhancements
 
@@ -9,6 +9,7 @@
 ### Build & Maintenance
 
 * **e2e**: Fix UI tests for Grafana latest.
+* **dependencies**: Update vulnerable dependencies and the Grafana Go SDK. Building the backend now requires Go 1.26.10 or newer.
 
 ## 6.1.0 (2026-08-12)
 
