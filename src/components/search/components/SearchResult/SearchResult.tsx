@@ -1,4 +1,5 @@
 import React from 'react';
+import DOMPurify from 'dompurify';
 import { GrafanaTheme2 } from '@grafana/data';
 import { Button, Stack, useTheme2 } from '@grafana/ui';
 import { TextItemResponse } from '../../../../common/services/pmsearch/types';
@@ -18,6 +19,14 @@ export type SearchResultProps = { theme: GrafanaTheme2 } & {
     item: TextItemResponse;
     openDetail: (entity: TextItemResponse) => void;
 };
+
+// pmsearch highlights matches with <b>; no other markup or attributes are needed.
+const sanitizeHighlight = (value: string) => DOMPurify.sanitize(value, {
+    ALLOWED_TAGS: ['b'],
+    ALLOWED_ATTR: [],
+    ALLOW_ARIA_ATTR: false,
+    ALLOW_DATA_ATTR: false,
+});
 
 export class SearchResult extends React.PureComponent<SearchResultProps, {}> {
     constructor(props: SearchResultProps) {
@@ -39,7 +48,7 @@ export class SearchResult extends React.PureComponent<SearchResultProps, {}> {
         }
         return (
             <div className={searchResultDescription} data-test="description">
-                <p dangerouslySetInnerHTML={{ __html: description }}></p>
+                <p dangerouslySetInnerHTML={{ __html: sanitizeHighlight(description) }}></p>
             </div>
         );
     }
@@ -70,7 +79,7 @@ export class SearchResult extends React.PureComponent<SearchResultProps, {}> {
     renderName() {
         const { item } = this.props;
         if (item.name) {
-            return <span data-test="name" dangerouslySetInnerHTML={{ __html: item.name }}></span>;
+            return <span data-test="name" dangerouslySetInnerHTML={{ __html: sanitizeHighlight(item.name) }}></span>;
         } else {
             return <span data-test="name">Name is missing.</span>;
         }

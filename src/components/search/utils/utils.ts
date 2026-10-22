@@ -1,8 +1,12 @@
-// Use only when you trust HTML source!
+import DOMPurify from 'dompurify';
+
 const stripHtml = (html: string) => {
-    const el = document.createElement('div');
-    el.innerHTML = html;
-    return el.textContent || el.innerText || '';
+    const fragment = DOMPurify.sanitize(html, {
+        ALLOWED_TAGS: [],
+        ALLOWED_ATTR: [],
+        RETURN_DOM_FRAGMENT: true,
+    });
+    return fragment.textContent || '';
 };
 
 export { stripHtml };
