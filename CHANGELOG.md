@@ -1,5 +1,11 @@
 # Change Log
 
+## 6.2.1 (2026-10-28)
+
+### Build & Maintenance
+
+* **docs**: Remove the `docs/CHANGELOG.md` symlink that blocked Grafana catalog source validation. Generate the documentation changelog from the root `CHANGELOG.md` during Sphinx builds so only one changelog needs maintenance.
+
 ## 6.2.0 (2026-10-26)
 
 ### Enhancements
