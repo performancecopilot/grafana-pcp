@@ -17,6 +17,12 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 import json
+import shutil
+from pathlib import Path
+
+# Keep the root changelog authoritative without shipping a symlink in the source.
+docs_dir = Path(__file__).resolve().parent
+shutil.copyfile(docs_dir.parent / 'CHANGELOG.md', docs_dir / 'CHANGELOG.md')
 
 # -- Project information -----------------------------------------------------
 
