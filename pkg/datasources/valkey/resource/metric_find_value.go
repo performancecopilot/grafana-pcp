@@ -1,6 +1,7 @@
 package resource
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 
@@ -11,12 +12,12 @@ var metricNamesRegex = regexp.MustCompile(`^metrics\(\s*([\w.*]*)\s*\)$`)
 var labelNamesRegex = regexp.MustCompile(`^label_names\(\s*([\w.]*)\s*\)$`)
 var labelValuesRegex = regexp.MustCompile(`^label_values\(\s*([\w.]+)\s*\)$`)
 
-func (rs *Service) getMetricNames(pattern string) ([]MetricFindValue, error) {
+func (rs *Service) getMetricNames(ctx context.Context, pattern string) ([]MetricFindValue, error) {
 	if pattern == "" {
 		pattern = "*"
 	}
 
-	namesResponse, err := rs.pmseriesAPI.MetricNames(pattern)
+	namesResponse, err := rs.pmseriesAPI.MetricNames(ctx, pattern)
 	if err != nil {
 		return nil, err
 	}
@@ -28,12 +29,12 @@ func (rs *Service) getMetricNames(pattern string) ([]MetricFindValue, error) {
 	return metricFindValues, nil
 }
 
-func (rs *Service) getLabelNames(pattern string) ([]MetricFindValue, error) {
+func (rs *Service) getLabelNames(ctx context.Context, pattern string) ([]MetricFindValue, error) {
 	if pattern == "" {
 		pattern = "*"
 	}
 
-	labelNamesResponse, err := rs.pmseriesAPI.LabelNames(pattern)
+	labelNamesResponse, err := rs.pmseriesAPI.LabelNames(ctx, pattern)
 	if err != nil {
 		return nil, err
 	}
@@ -45,8 +46,8 @@ func (rs *Service) getLabelNames(pattern string) ([]MetricFindValue, error) {
 	return ret, nil
 }
 
-func (rs *Service) getLabelValues(labelName string) ([]MetricFindValue, error) {
-	labelValuesResponse, err := rs.pmseriesAPI.LabelValues([]string{labelName})
+func (rs *Service) getLabelValues(ctx context.Context, labelName string) ([]MetricFindValue, error) {
+	labelValuesResponse, err := rs.pmseriesAPI.LabelValues(ctx, []string{labelName})
 	if err != nil {
 		return nil, err
 	}
@@ -58,22 +59,22 @@ func (rs *Service) getLabelValues(labelName string) ([]MetricFindValue, error) {
 	return ret, nil
 }
 
-func (rs *Service) metricFindQuery(query string) ([]MetricFindValue, error) {
+func (rs *Service) metricFindQuery(ctx context.Context, query string) ([]MetricFindValue, error) {
 	log.DefaultLogger.Debug("metricFindQuery", "query", query)
 
 	metricNamesQuery := metricNamesRegex.FindStringSubmatch(query)
 	if len(metricNamesQuery) == 2 {
-		return rs.getMetricNames(metricNamesQuery[1])
+		return rs.getMetricNames(ctx, metricNamesQuery[1])
 	}
 
 	labelNamesQuery := labelNamesRegex.FindStringSubmatch(query)
 	if len(labelNamesQuery) == 2 {
-		return rs.getLabelNames(labelNamesQuery[1])
+		return rs.getLabelNames(ctx, labelNamesQuery[1])
 	}
 
 	labelValuesQuery := labelValuesRegex.FindStringSubmatch(query)
 	if len(labelValuesQuery) == 2 {
-		return rs.getLabelValues(labelValuesQuery[1])
+		return rs.getLabelValues(ctx, labelValuesQuery[1])
 	}
 
 	return []MetricFindValue{}, nil

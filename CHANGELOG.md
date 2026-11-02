@@ -5,6 +5,7 @@
 ### Enhancements
 
 * **config**: Add an action to migrate PCP Redis data sources to PCP Valkey and document the upgrade steps.
+* **valkey**: Use Grafana's HTTP client settings and response limits, and cancel outgoing requests when the Grafana request is canceled. The default HTTP request timeout changes from 60 to 30 seconds; set the datasource's Timeout to 60 seconds to retain the previous timeout.
 
 ### Build & Maintenance
 
