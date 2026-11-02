@@ -8,13 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/performancecopilot/grafana-pcp/pkg/datasources/valkey/api/pmseries"
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/valkey/test/fixtures/pmseriesf"
 	"github.com/stretchr/testify/require"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/performancecopilot/grafana-pcp/pkg/datasources/valkey/resource"
-	"github.com/performancecopilot/grafana-pcp/pkg/datasources/valkey/series"
 )
 
 func TestDatasource(t *testing.T) {
@@ -99,13 +96,10 @@ func TestDatasource(t *testing.T) {
 		srv := httptest.NewServer(handler)
 		defer srv.Close()
 
-		pmseriesAPI, _ := pmseries.NewPmseriesAPI(srv.URL, nil)
-		seriesService, _ := series.NewSeriesService(pmseriesAPI, 1024)
-		datasourceInstance := &valkeyDatasourceInstance{
-			pmseriesAPI:     pmseriesAPI,
-			resourceService: resource.NewResourceService(pmseriesAPI),
-			seriesService:   seriesService,
-		}
+		instance, err := newDataSourceInstance(context.Background(), backend.DataSourceInstanceSettings{URL: srv.URL})
+		require.NoError(t, err)
+		defer instance.(*valkeyDatasourceInstance).Dispose()
+		datasourceInstance := instance.(*valkeyDatasourceInstance)
 
 		response, err := datasourceInstance.handleTimeSeriesQueries(context.Background(), &backend.QueryDataRequest{
 			//PluginContext: pluginCtx,

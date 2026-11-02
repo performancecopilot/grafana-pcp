@@ -1,6 +1,7 @@
 package series
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"sync"
@@ -16,15 +17,15 @@ type pmseriesAPIMock struct {
 	metricsCalls uint32
 }
 
-func (api *pmseriesAPIMock) Ping() (pmseries.GenericSuccessResponse, error) {
+func (api *pmseriesAPIMock) Ping(ctx context.Context) (pmseries.GenericSuccessResponse, error) {
 	panic("not implemented")
 }
 
-func (api *pmseriesAPIMock) Query(expr string) (pmseries.QueryResponse, error) {
+func (api *pmseriesAPIMock) Query(ctx context.Context, expr string) (pmseries.QueryResponse, error) {
 	panic("not implemented")
 }
 
-func (api *pmseriesAPIMock) Metrics(series []string) ([]pmseries.MetricsResponseItem, error) {
+func (api *pmseriesAPIMock) Metrics(ctx context.Context, series []string) ([]pmseries.MetricsResponseItem, error) {
 	atomic.AddUint32(&api.metricsCalls, 1)
 	time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
 
@@ -38,11 +39,11 @@ func (api *pmseriesAPIMock) Metrics(series []string) ([]pmseries.MetricsResponse
 	return m, nil
 }
 
-func (api *pmseriesAPIMock) MetricNames(match string) (pmseries.MetricNamesResponse, error) {
+func (api *pmseriesAPIMock) MetricNames(ctx context.Context, match string) (pmseries.MetricNamesResponse, error) {
 	panic("not implemented")
 }
 
-func (api *pmseriesAPIMock) Descs(series []string) ([]pmseries.DescsResponseItem, error) {
+func (api *pmseriesAPIMock) Descs(ctx context.Context, series []string) ([]pmseries.DescsResponseItem, error) {
 	time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
 
 	d := []pmseries.DescsResponseItem{}
@@ -54,23 +55,23 @@ func (api *pmseriesAPIMock) Descs(series []string) ([]pmseries.DescsResponseItem
 	return d, nil
 }
 
-func (api *pmseriesAPIMock) Instances(series []string) ([]pmseries.InstancesResponseItem, error) {
+func (api *pmseriesAPIMock) Instances(ctx context.Context, series []string) ([]pmseries.InstancesResponseItem, error) {
 	panic("not implemented")
 }
 
-func (api *pmseriesAPIMock) Labels(series []string) ([]pmseries.LabelsResponseItem, error) {
+func (api *pmseriesAPIMock) Labels(ctx context.Context, series []string) ([]pmseries.LabelsResponseItem, error) {
 	panic("not implemented")
 }
 
-func (api *pmseriesAPIMock) LabelNames(pattern string) (pmseries.LabelNamesResponse, error) {
+func (api *pmseriesAPIMock) LabelNames(ctx context.Context, pattern string) (pmseries.LabelNamesResponse, error) {
 	panic("not implemented")
 }
 
-func (api *pmseriesAPIMock) LabelValues(labelNames []string) (pmseries.LabelValuesResponse, error) {
+func (api *pmseriesAPIMock) LabelValues(ctx context.Context, labelNames []string) (pmseries.LabelValuesResponse, error) {
 	panic("not implemented")
 }
 
-func (api *pmseriesAPIMock) Values(series []string, start int64, finish int64, interval int64) ([]pmseries.ValuesResponseItem, error) {
+func (api *pmseriesAPIMock) Values(ctx context.Context, series []string, start int64, finish int64, interval int64) ([]pmseries.ValuesResponseItem, error) {
 	panic("not implemented")
 }
 
@@ -78,7 +79,7 @@ func query(wg *sync.WaitGroup, s *Service, sid string) (map[string]*Series, erro
 	defer wg.Done()
 
 	fmt.Printf("sending query %s\n", sid)
-	series, err := s.GetSeries([]string{sid})
+	series, err := s.GetSeries(context.Background(), []string{sid})
 	fmt.Printf("received series %s\n", sid)
 	return series, err
 }

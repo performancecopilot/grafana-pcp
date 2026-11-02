@@ -29,12 +29,12 @@ import (
 // When a pmseries query matches many series (e.g. many hosts) or series with many instances, the list of series ids
 // can get quite long, too long to fit into an URL. Therefore the list of series ids is sent in the request body of a
 // POST request, even though it should be (semantically) a GET request.
-func (ds *valkeyDatasourceInstance) executeTimeSeriesQuery(dataQuery *backend.DataQuery, valkeyQuery *Query) (data.Frames, error) {
+func (ds *valkeyDatasourceInstance) executeTimeSeriesQuery(ctx context.Context, dataQuery *backend.DataQuery, valkeyQuery *Query) (data.Frames, error) {
 	if valkeyQuery.Expr == "" {
 		return data.Frames{}, nil
 	}
 
-	seriesIds, err := ds.pmseriesAPI.Query(valkeyQuery.Expr)
+	seriesIds, err := ds.pmseriesAPI.Query(ctx, valkeyQuery.Expr)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (ds *valkeyDatasourceInstance) executeTimeSeriesQuery(dataQuery *backend.Da
 		return nil, fmt.Errorf("cannot find any series for query '%s'", valkeyQuery.Expr)
 	}
 
-	series, err := ds.seriesService.GetSeries(seriesIds)
+	series, err := ds.seriesService.GetSeries(ctx, seriesIds)
 	if err != nil {
 		return nil, err
 	}
@@ -53,12 +53,12 @@ func (ds *valkeyDatasourceInstance) executeTimeSeriesQuery(dataQuery *backend.Da
 	additionalTimeRange := int64(math.Max(interval, 60))             // 60s is the default sample interval of pmlogger
 	start := dataQuery.TimeRange.From.Unix() - 2*additionalTimeRange // seconds
 	finish := dataQuery.TimeRange.To.Unix() + additionalTimeRange    // seconds
-	values, err := ds.pmseriesAPI.Values(seriesIds, start, finish, int64(interval))
+	values, err := ds.pmseriesAPI.Values(ctx, seriesIds, start, finish, int64(interval))
 	if err != nil {
 		return nil, err
 	}
 
-	frames, err := ds.processQuery(valkeyQuery, series, values)
+	frames, err := ds.processQuery(ctx, valkeyQuery, series, values)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (ds *valkeyDatasourceInstance) handleTimeSeriesQuery(ctx context.Context, d
 	}
 
 	log.DefaultLogger.Debug("Query", "query", &valkeyQuery)
-	frames, err := ds.executeTimeSeriesQuery(dataQuery, &valkeyQuery)
+	frames, err := ds.executeTimeSeriesQuery(ctx, dataQuery, &valkeyQuery)
 	if err != nil {
 		response.Error = err
 	} else {

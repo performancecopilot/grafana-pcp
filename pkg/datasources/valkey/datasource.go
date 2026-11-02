@@ -8,6 +8,7 @@ import (
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
+	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/valkey/api/pmseries"
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/valkey/resource"
@@ -43,32 +44,35 @@ type valkeyDatasource struct {
 }
 
 type valkeyDatasourceInstance struct {
+	httpClient      *http.Client
 	pmseriesAPI     pmseries.API
 	resourceService *resource.Service
 	seriesService   *series.Service
 }
 
 func newDataSourceInstance(ctx context.Context, setting backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
-	var basicAuthSettings *pmseries.BasicAuthSettings
-	// enable once pmproxy /series supports authentication
-	/*if setting.BasicAuthEnabled {
-		basicAuthSettings = &pmseries.BasicAuthSettings{
-			Username: "",
-			Password: "",
-		}
-	}*/
-
-	pmseriesAPI, err := pmseries.NewPmseriesAPI(setting.URL, basicAuthSettings)
+	options, err := setting.HTTPClientOptions(ctx)
 	if err != nil {
+		return nil, err
+	}
+	client, err := httpclient.New(options)
+	if err != nil {
+		return nil, err
+	}
+	pmseriesAPI, err := pmseries.NewPmseriesAPI(setting.URL, client)
+	if err != nil {
+		client.CloseIdleConnections()
 		return nil, err
 	}
 
 	seriesService, err := series.NewSeriesService(pmseriesAPI, 1024)
 	if err != nil {
+		client.CloseIdleConnections()
 		return nil, err
 	}
 
 	return &valkeyDatasourceInstance{
+		httpClient:      client,
 		pmseriesAPI:     pmseriesAPI,
 		resourceService: resource.NewResourceService(pmseriesAPI),
 		seriesService:   seriesService,
@@ -76,7 +80,9 @@ func newDataSourceInstance(ctx context.Context, setting backend.DataSourceInstan
 }
 
 func (ds *valkeyDatasourceInstance) Dispose() {
-	// Called before creating a new instance
+	if ds.httpClient != nil {
+		ds.httpClient.CloseIdleConnections()
+	}
 }
 
 func (ds *valkeyDatasource) CallResource(ctx context.Context, req *backend.CallResourceRequest, sender backend.CallResourceResponseSender) error {
@@ -93,7 +99,7 @@ func (ds *valkeyDatasource) CallResource(ctx context.Context, req *backend.CallR
 	method := u.Path
 	return ds.im.Do(ctx, req.PluginContext, func(dsInst *valkeyDatasourceInstance) error {
 		status := http.StatusOK
-		result, err := dsInst.resourceService.CallResource(method, queryParams)
+		result, err := dsInst.resourceService.CallResource(ctx, method, queryParams)
 		if err != nil {
 			status = http.StatusInternalServerError
 			result = struct {
@@ -120,7 +126,7 @@ func (ds *valkeyDatasource) CallResource(ctx context.Context, req *backend.CallR
 func (ds *valkeyDatasource) CheckHealth(ctx context.Context, req *backend.CheckHealthRequest) (*backend.CheckHealthResult, error) {
 	var result *backend.CheckHealthResult
 	err := ds.im.Do(ctx, req.PluginContext, func(dsInst *valkeyDatasourceInstance) error {
-		pingResponse, err := dsInst.pmseriesAPI.Ping()
+		pingResponse, err := dsInst.pmseriesAPI.Ping(ctx)
 
 		if err != nil {
 			result = &backend.CheckHealthResult{

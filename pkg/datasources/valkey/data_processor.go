@@ -1,6 +1,7 @@
 package valkey
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"regexp"
@@ -197,13 +198,13 @@ func (ds *valkeyDatasourceInstance) createField(valkeyQuery *Query, series *seri
 	return field, nil
 }
 
-func (ds *valkeyDatasourceInstance) maybeRefreshInstances(series *series.Series, instanceID string) (bool, error) {
+func (ds *valkeyDatasourceInstance) maybeRefreshInstances(ctx context.Context, series *series.Series, instanceID string) (bool, error) {
 	_, ok := series.Instances[instanceID]
 	if ok {
 		return false, nil
 	}
 
-	err := ds.seriesService.RefreshInstances(series)
+	err := ds.seriesService.RefreshInstances(ctx, series)
 	if err != nil {
 		return true, err
 	}
@@ -211,7 +212,7 @@ func (ds *valkeyDatasourceInstance) maybeRefreshInstances(series *series.Series,
 
 }
 
-func (ds *valkeyDatasourceInstance) createDataFrames(valkeyQuery *Query, series map[string]*series.Series, values []pmseries.ValuesResponseItem) (data.Frames, error) {
+func (ds *valkeyDatasourceInstance) createDataFrames(ctx context.Context, valkeyQuery *Query, series map[string]*series.Series, values []pmseries.ValuesResponseItem) (data.Frames, error) {
 	frames := data.Frames{}
 
 	// values are in the format
@@ -253,7 +254,7 @@ func (ds *valkeyDatasourceInstance) createDataFrames(valkeyQuery *Query, series 
 
 					// maybe refresh instances cache
 					if series[curSeriesID].Instances != nil && !curInstancesRefreshed {
-						curInstancesRefreshed, err = ds.maybeRefreshInstances(series[curSeriesID], values[i].Instance)
+						curInstancesRefreshed, err = ds.maybeRefreshInstances(ctx, series[curSeriesID], values[i].Instance)
 						if err != nil {
 							return nil, err
 						}
@@ -465,8 +466,8 @@ func (ds *valkeyDatasourceInstance) transformToGauge(frames *data.Frames) error 
 	return nil
 }
 
-func (ds *valkeyDatasourceInstance) processQuery(valkeyQuery *Query, series map[string]*series.Series, values []pmseries.ValuesResponseItem) (data.Frames, error) {
-	frames, err := ds.createDataFrames(valkeyQuery, series, values)
+func (ds *valkeyDatasourceInstance) processQuery(ctx context.Context, valkeyQuery *Query, series map[string]*series.Series, values []pmseries.ValuesResponseItem) (data.Frames, error) {
+	frames, err := ds.createDataFrames(ctx, valkeyQuery, series, values)
 	if err != nil {
 		return nil, err
 	}

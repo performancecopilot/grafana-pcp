@@ -1,6 +1,7 @@
 package series
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
@@ -36,7 +37,7 @@ func NewSeriesService(pmseriesAPI pmseries.API, cacheSize int) (*Service, error)
 // if this isn't sufficient anymore, a solution like https://notes.shichao.io/gopl/ch9/#example-concurrent-non-blocking-cache
 // will be required - a concurrent non-blocking memoizing cache,
 // where the memoize function processes multiple keys
-func (s *Service) GetSeries(sids []string) (map[string]*Series, error) {
+func (s *Service) GetSeries(ctx context.Context, sids []string) (map[string]*Series, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -57,12 +58,12 @@ func (s *Service) GetSeries(sids []string) (map[string]*Series, error) {
 	}
 	log.DefaultLogger.Debug("Series metadata not in cache, requesting...", "series", missingSeries)
 
-	namesResponse, err := s.pmseriesAPI.Metrics(missingSeries)
+	namesResponse, err := s.pmseriesAPI.Metrics(ctx, missingSeries)
 	if err != nil {
 		return nil, err
 	}
 
-	descsResponse, err := s.pmseriesAPI.Descs(missingSeries)
+	descsResponse, err := s.pmseriesAPI.Descs(ctx, missingSeries)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +79,7 @@ func (s *Service) GetSeries(sids []string) (map[string]*Series, error) {
 	// metrics with indoms have it attached to the instance
 	var labelsResponse []pmseries.LabelsResponseItem
 	if len(seriesWithoutIndom) > 0 {
-		labelsResponse, err = s.pmseriesAPI.Labels(seriesWithoutIndom)
+		labelsResponse, err = s.pmseriesAPI.Labels(ctx, seriesWithoutIndom)
 		if err != nil {
 			return nil, err
 		}
@@ -127,11 +128,11 @@ func (s *Service) GetSeries(sids []string) (map[string]*Series, error) {
 }
 
 // RefreshInstances refreshes instances of a series
-func (s *Service) RefreshInstances(series *Series) error {
+func (s *Service) RefreshInstances(ctx context.Context, series *Series) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	instancesResponse, err := s.pmseriesAPI.Instances([]string{series.Desc.Series})
+	instancesResponse, err := s.pmseriesAPI.Instances(ctx, []string{series.Desc.Series})
 	if err != nil {
 		return err
 	}
@@ -144,7 +145,7 @@ func (s *Service) RefreshInstances(series *Series) error {
 		seriesIds = append(seriesIds, instance.Instance)
 	}
 
-	labelsResponse, err := s.pmseriesAPI.Labels(seriesIds)
+	labelsResponse, err := s.pmseriesAPI.Labels(ctx, seriesIds)
 	if err != nil {
 		return err
 	}
