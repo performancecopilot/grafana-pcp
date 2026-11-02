@@ -4,6 +4,7 @@ import { AppPluginMeta, PluginConfigPageProps } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 import { Button, Icon, Stack, useTheme2 } from '@grafana/ui';
 import { AppSettings } from './types';
+import { RedisMigration } from './RedisMigration';
 
 interface Props extends PluginConfigPageProps<AppPluginMeta<AppSettings>> {}
 
@@ -29,15 +30,24 @@ export const AppConfig = ({ plugin }: Props) => {
     }, [updatePluginSettings]);
 
     return (
-        <>
+        <div
+            className={css`
+                max-width: 900px;
+                p {
+                    margin-bottom: ${theme.spacing(2)};
+                }
+            `}
+        >
             <h2>Performance Co-Pilot App</h2>
-            This app integrates metrics from Performance Co-Pilot.
-            <br />
-            <br />
-            It includes the following data sources:
+            <p>This app integrates metrics from Performance Co-Pilot.</p>
+            <p>It includes the following data sources:</p>
             <ul
                 className={css`
-                    margin-left: ${theme.spacing(4)};
+                    margin-left: ${theme.spacing(3)};
+                    margin-bottom: ${theme.spacing(3)};
+                    li + li {
+                        margin-top: ${theme.spacing(1)};
+                    }
                 `}
             >
                 <li>
@@ -53,7 +63,7 @@ export const AppConfig = ({ plugin }: Props) => {
             {isEnabled && (
                 <div
                     className={css`
-                        margin-top: ${theme.spacing(3)};
+                        margin-bottom: ${theme.spacing(2)};
                     `}
                 >
                     <Icon
@@ -74,6 +84,15 @@ export const AppConfig = ({ plugin }: Props) => {
                     <Button onClick={onEnable}>Enable</Button>
                 )}
             </Stack>
-        </>
+            <div
+                className={css`
+                    margin-top: ${theme.spacing(2)};
+                    padding-top: ${theme.spacing(1)};
+                    border-top: 1px solid ${theme.colors.border.weak};
+                `}
+            >
+                <RedisMigration />
+            </div>
+        </div>
     );
 };
