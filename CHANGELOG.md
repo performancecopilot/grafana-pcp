@@ -2,6 +2,10 @@
 
 ## 6.2.2 (Unreleased)
 
+### Enhancements
+
+* **config**: Add an action to migrate PCP Redis data sources to PCP Valkey and document the upgrade steps.
+
 ### Build & Maintenance
 
 * **build**: Update Go dependencies.
