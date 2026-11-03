@@ -1,6 +1,6 @@
 # Change Log
 
-## 6.2.2 (Unreleased)
+## 6.2.2 (2026-11-03)
 
 ### Enhancements
 
