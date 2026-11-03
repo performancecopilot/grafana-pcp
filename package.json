@@ -1,7 +1,7 @@
 {
   "name": "performancecopilot-pcp-app",
   "description": "Performance Co-Pilot Grafana Plugin",
-  "version": "6.2.1",
+  "version": "6.2.2",
   "scripts": {
     "build": "webpack -c ./webpack.config.ts --env production",
     "dev": "webpack -c ./webpack.config.ts --env development",
