@@ -142,7 +142,7 @@ Both Valkey and Vector datasources support Grafana template variables. Valkey ap
 - Frontend: Webpack with TypeScript and SWC for transpilation
 - Backend: Standard Go toolchain with cross-compilation
 - Dashboards: Jsonnet with grafonnet library
-- Uses yarn (v4.11.0) for frontend dependencies
+- Uses yarn (v4.12.0) for frontend dependencies
 
 ### Monaco Editor Integration
 bpftrace datasource uses Monaco Editor for syntax highlighting and autocompletion. The integration is in `src/components/monaco/` with lazy loading to reduce bundle size. A custom language provider (`BPFtraceLanguage.ts`) provides bpftrace-specific features.
