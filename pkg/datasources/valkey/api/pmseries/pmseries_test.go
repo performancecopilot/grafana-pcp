@@ -3,6 +3,7 @@ package pmseries
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
+	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/config"
 	"github.com/stretchr/testify/require"
 )
@@ -115,4 +117,45 @@ func TestGrafanaResponseLimit(t *testing.T) {
 			}
 		})
 	}
+}
+
+type errorLogRecorder struct {
+	log.Logger
+	entries      []string
+	debugEntries []string
+}
+
+// Debug records debug messages for assertions about response-body logging.
+func (logger *errorLogRecorder) Debug(message string, args ...any) {
+	logger.debugEntries = append(logger.debugEntries, message+fmt.Sprint(args...))
+}
+
+// Error records error messages separately so sensitive content can be checked.
+func (logger *errorLogRecorder) Error(message string, args ...any) {
+	logger.entries = append(logger.entries, message+fmt.Sprint(args...))
+}
+
+// TestErrorResponseLogging verifies response bodies appear only in debug logs.
+func TestErrorResponseLogging(t *testing.T) {
+	logger := &errorLogRecorder{Logger: log.NewNullLogger()}
+	previousLogger := log.DefaultLogger
+	log.DefaultLogger = logger
+	t.Cleanup(func() { log.DefaultLogger = previousLogger })
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusBadGateway)
+		_, _ = io.WriteString(w, `{"message":"query rejected","private":"sensitive-response-content"}`)
+	}))
+	defer srv.Close()
+	api, err := NewPmseriesAPI(srv.URL, srv.Client())
+	require.NoError(t, err)
+	_, err = api.Query(context.Background(), "sensitive-query-content")
+	require.EqualError(t, err, "query rejected")
+	require.Len(t, logger.entries, 1)
+	require.Contains(t, logger.entries[0], "502")
+	require.Contains(t, logger.entries[0], "Bad Gateway")
+	require.NotContains(t, logger.entries[0], "sensitive-response-content")
+	require.NotContains(t, logger.entries[0], "query rejected")
+	require.NotContains(t, logger.entries[0], "sensitive-query-content")
+	require.Contains(t, strings.Join(logger.debugEntries, "\n"), `{"message":"query rejected","private":"sensitive-response-content"}`)
 }

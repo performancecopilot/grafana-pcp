@@ -1,5 +1,11 @@
 # Change Log
 
+## 6.2.3 (Unreleased)
+
+### Bug Fixes
+
+* **valkey**: Log pmproxy error response bodies at Debug level instead of Error level.
+
 ## 6.2.2 (2026-11-03)
 
 ### Enhancements

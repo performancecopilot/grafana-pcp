@@ -45,6 +45,7 @@ func NewPmseriesAPI(pmproxyUrl string, client *http.Client) (API, error) {
 	}, nil
 }
 
+// doRequest sends a context-bound pmproxy request and decodes its response.
 func (api *pmseriesAPI) doRequest(ctx context.Context, path string, params url.Values, response interface{}) error {
 	var req *http.Request
 	var err error
@@ -91,8 +92,8 @@ func (api *pmseriesAPI) doRequest(ctx context.Context, path string, params url.V
 		if err != nil {
 			return fmt.Errorf("cannot read HTTP response: %w", err)
 		}
-		bodyStr := string(bodyBytes)
-		log.DefaultLogger.Error("received a HTTP error response from pmproxy", "url", req.URL.String(), "code", resp.StatusCode, "params", paramsEncoded, "data", bodyStr)
+		log.DefaultLogger.Error("received a HTTP error response from pmproxy", "code", resp.StatusCode, "status", http.StatusText(resp.StatusCode))
+		log.DefaultLogger.Debug("pmproxy HTTP error response body", "code", resp.StatusCode, "data", string(bodyBytes))
 
 		var genericErrorResponse GenericErrorResponse
 		err = json.Unmarshal(bodyBytes, &genericErrorResponse)
