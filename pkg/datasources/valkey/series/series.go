@@ -124,6 +124,12 @@ func (s *Service) GetSeries(ctx context.Context, sids []string) (map[string]*Ser
 		seriesMap[sid] = series
 	}
 
+	for _, sid := range sids {
+		if seriesMap[sid] == nil {
+			return nil, fmt.Errorf("missing metadata for series '%s'", sid)
+		}
+	}
+
 	return seriesMap, nil
 }
 

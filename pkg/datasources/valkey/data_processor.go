@@ -212,6 +212,7 @@ func (ds *valkeyDatasourceInstance) maybeRefreshInstances(ctx context.Context, s
 
 }
 
+// createDataFrames converts values into frames, returning no frames if series metadata is missing.
 func (ds *valkeyDatasourceInstance) createDataFrames(ctx context.Context, valkeyQuery *Query, series map[string]*series.Series, values []pmseries.ValuesResponseItem) (data.Frames, error) {
 	frames := data.Frames{}
 
@@ -236,6 +237,9 @@ func (ds *valkeyDatasourceInstance) createDataFrames(ctx context.Context, valkey
 
 	for i := 0; i < len(values); {
 		curSeriesID := values[i].Series
+		if series[curSeriesID] == nil {
+			return nil, fmt.Errorf("missing metadata for series '%s'", curSeriesID)
+		}
 		curFrame := data.NewFrame("")
 		curTimeField := data.NewField("time", nil, []time.Time{})
 		curFrame.Fields = append(curFrame.Fields, curTimeField)

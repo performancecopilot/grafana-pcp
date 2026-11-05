@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * **valkey**: Log pmproxy error response bodies at Debug level instead of Error level.
+* **valkey**: Prevent a nil-pointer panic when pmproxy returns incomplete series metadata.
 
 ## 6.2.2 (2026-11-03)
 
