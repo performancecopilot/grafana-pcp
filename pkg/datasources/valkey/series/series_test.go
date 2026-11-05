@@ -145,3 +145,49 @@ func TestSeriesService(t *testing.T) {
 		require.Equal(t, uint32(30), atomic.LoadUint32(&api.metricsCalls))
 	})
 }
+
+type incompleteMetadataAPI struct {
+	pmseries.API
+	names []pmseries.MetricsResponseItem
+	descs []pmseries.DescsResponseItem
+}
+
+// Metrics returns the configured metric names, allowing incomplete responses in tests.
+func (api *incompleteMetadataAPI) Metrics(ctx context.Context, sids []string) ([]pmseries.MetricsResponseItem, error) {
+	return api.names, nil
+}
+
+// Descs returns the configured descriptors, allowing incomplete responses in tests.
+func (api *incompleteMetadataAPI) Descs(ctx context.Context, sids []string) ([]pmseries.DescsResponseItem, error) {
+	return api.descs, nil
+}
+
+// TestGetSeriesMissingMetadata verifies metric names alone cannot satisfy a series lookup.
+func TestGetSeriesMissingMetadata(t *testing.T) {
+	api := &incompleteMetadataAPI{
+		names: []pmseries.MetricsResponseItem{{Series: "missing", Name: "metric"}},
+	}
+	service, err := NewSeriesService(api, 10)
+	require.NoError(t, err)
+	result, err := service.GetSeries(context.Background(), []string{"missing"})
+	require.EqualError(t, err, "missing metadata for series 'missing'")
+	require.Nil(t, result)
+}
+
+// TestGetSeriesPartialMetadata verifies partial responses fail even after metadata is cached.
+func TestGetSeriesPartialMetadata(t *testing.T) {
+	api := &incompleteMetadataAPI{
+		names: []pmseries.MetricsResponseItem{{Series: "present", Name: "metric"}},
+		descs: []pmseries.DescsResponseItem{{Series: "present"}},
+	}
+	service, err := NewSeriesService(api, 10)
+	require.NoError(t, err)
+	// Missing series must be rejected even when some metadata can be cached.
+	result, err := service.GetSeries(context.Background(), []string{"present", "missing"})
+	require.EqualError(t, err, "missing metadata for series 'missing'")
+	require.Nil(t, result)
+	// Retrying must not treat the cached portion as a complete result.
+	result, err = service.GetSeries(context.Background(), []string{"present", "missing"})
+	require.EqualError(t, err, "missing metadata for series 'missing'")
+	require.Nil(t, result)
+}
