@@ -7,6 +7,10 @@
 * **valkey**: Log pmproxy error response bodies at Debug level instead of Error level.
 * **valkey**: Prevent a nil-pointer panic when pmproxy returns incomplete series metadata.
 
+### Build & Maintenance
+
+* **build**: Update Yarn to 4.12.0 to fix Git dependency cloning with Git 2.52.
+
 ## 6.2.2 (2026-11-03)
 
 ### Enhancements
