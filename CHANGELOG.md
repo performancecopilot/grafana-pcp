@@ -1,5 +1,11 @@
 # Change Log
 
+## 6.2.4 (Unreleased)
+
+### Build & Maintenance
+
+* **build**: Update Go dependencies.
+
 ## 6.2.3 (2026-11-10)
 
 ### Bug Fixes
