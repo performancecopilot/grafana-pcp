@@ -38,7 +38,7 @@ require (
 	github.com/hashicorp/yamux v0.1.2 // indirect
 	github.com/jaegertracing/jaeger-idl v0.13.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.20.1 // indirect
+	github.com/klauspost/compress v1.20.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/magefile/mage v1.17.2 // indirect
 	github.com/mattetti/filebuffer v1.0.1 // indirect
