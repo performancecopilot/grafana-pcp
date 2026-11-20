@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import { searchStorageKey } from '../../storage';
 import { bookmarksReducer } from './slices/bookmarks/reducer';
 import { entityReducer } from './slices/entity/reducer';
 import { historyReducer } from './slices/history/reducer';
@@ -9,7 +10,7 @@ import { resultReducer } from './slices/result/reducer';
 import { viewReducer } from './slices/view/reducer';
 
 const persistanceConfig = {
-    key: 'grafana-pcp-app:search',
+    key: searchStorageKey,
     storage: storage,
     whitelist: ['bookmarks', 'history'],
 };
