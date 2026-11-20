@@ -1,6 +1,6 @@
 module github.com/performancecopilot/grafana-pcp
 
-go 1.26.10
+go 1.26.11
 
 require (
 	github.com/grafana/grafana-plugin-sdk-go v0.297.0
