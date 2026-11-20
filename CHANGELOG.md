@@ -2,9 +2,19 @@
 
 ## 6.2.4 (Unreleased)
 
+### Bug Fixes
+
+* **valkey**: Return fixed health check failure messages and log diagnostic details instead.
+* **valkey**: Redact URL credentials in pmproxy request logs and errors.
+* **search**: Use a plugin-ID-prefixed storage key and migrate existing bookmarks and history.
+
 ### Build & Maintenance
 
 * **build**: Update Go dependencies.
+* **build**: Require Go 1.26.11 or later to address GO-2026-6859.
+* **build**: Run the latest Grafana plugin validator with Podman locally and in CI.
+* **build**: Match nested plugins' Grafana version requirements to the app.
+* **docs**: Start catalog getting-started instructions with enabling the app.
 
 ## 6.2.3 (2026-11-10)
 
