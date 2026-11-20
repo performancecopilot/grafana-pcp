@@ -10,6 +10,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
+	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/valkey/api/pmseries"
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/valkey/resource"
 	"github.com/performancecopilot/grafana-pcp/pkg/datasources/valkey/series"
@@ -129,9 +130,10 @@ func (ds *valkeyDatasource) CheckHealth(ctx context.Context, req *backend.CheckH
 		pingResponse, err := dsInst.pmseriesAPI.Ping(ctx)
 
 		if err != nil {
+			log.DefaultLogger.Error("pmproxy health check failed", "err", err)
 			result = &backend.CheckHealthResult{
 				Status:  backend.HealthStatusError,
-				Message: err.Error(),
+				Message: "Cannot connect to pmproxy. Check the URL and that pmproxy is running.",
 			}
 		} else if !pingResponse.Success {
 			result = &backend.CheckHealthResult{
@@ -148,9 +150,10 @@ func (ds *valkeyDatasource) CheckHealth(ctx context.Context, req *backend.CheckH
 	})
 
 	if err != nil {
+		log.DefaultLogger.Error("data source instance setup failed", "err", err)
 		result = &backend.CheckHealthResult{
 			Status:  backend.HealthStatusError,
-			Message: err.Error(),
+			Message: "Invalid data source configuration. Check the pmproxy URL.",
 		}
 	}
 	return result, nil

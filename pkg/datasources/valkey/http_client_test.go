@@ -71,7 +71,7 @@ func TestHandlerResponseLimit(t *testing.T) {
 				response, err := ds.CheckHealth(ctx, &backend.CheckHealthRequest{PluginContext: pluginCtx})
 				require.NoError(t, err)
 				require.Equal(t, backend.HealthStatusError, response.Status)
-				require.Contains(t, response.Message, "response body too large")
+				require.Equal(t, "Cannot connect to pmproxy. Check the URL and that pmproxy is running.", response.Message)
 			} else {
 				var response *backend.CallResourceResponse
 				err := ds.CallResource(ctx, &backend.CallResourceRequest{PluginContext: pluginCtx, URL: "metricFindQuery?query=metrics(*)"}, backend.CallResourceResponseSenderFunc(func(r *backend.CallResourceResponse) error { response = r; return nil }))
