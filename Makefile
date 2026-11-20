@@ -130,8 +130,11 @@ sign: ## Sign the plugin
 jsonnetfmt: ## Run jsonnetfmt on all jsonnet files
 	jsonnetfmt -i $$(find . -name '*.jsonnet')
 
-plugincheck: ## Run Grafana plugincheck on the plugin zip file
-	plugincheck2 build/*.zip
+plugincheck: ## Run the latest Grafana plugin validator with Podman
+	podman run --pull=always --rm \
+		-v "$(CURDIR)/build:/build:ro,z" -v "$(CURDIR):/source_code:ro,z" \
+		docker.io/grafana/plugin-validator-cli:latest -sourceCodeUri file:///source_code \
+		/build/$(GRAFANA_PLUGIN_ARTIFACT)
 
 clean: ## Clean all artifacts
 	rm -rf node_modules "$(JSONNET_VENDOR_DIR)" dist build
