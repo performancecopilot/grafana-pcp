@@ -27,21 +27,18 @@ This Grafana app plugin integrates PCP metrics into Grafana, bundling three data
 - **bpftrace** installed on the monitored host for the PCP bpftrace datasource
 - For **full-text metric search**: `pmproxy` with `[pmsearch] enabled = true` and a search index built by `pmsearch_daily(1)` (SQLite-backed; requires a PCP release that includes the reimplemented search backend)
 
+For GitHub readers, the setup steps below assume the plugin is already installed. See the [Grafana plugin catalog](https://grafana.com/grafana/plugins/performancecopilot-pcp-app/?tab=installation) for installation options.
+
 ## Getting Started
 
-1. **Install the plugin** from the [Grafana plugin catalog](https://grafana.com/grafana/plugins/performancecopilot-pcp-app/) or with the Grafana CLI:
-   ```bash
-   grafana cli plugins install performancecopilot-pcp-app
-   ```
+1. **Enable the app plugin** in Grafana under **Administration > Plugins > Performance Co-Pilot** and click **Enable**.
 
-2. **Enable the app plugin** in Grafana under **Administration > Plugins > Performance Co-Pilot** and click **Enable**.
-
-3. **Configure a datasource** under **Connections > Data sources > Add data source**:
+2. **Configure a datasource** under **Connections > Data sources > Add data source**:
    - **PCP Vector** — for real-time metrics from a single host. Set the URL to your `pmproxy` instance (default: `http://localhost:44322`).
    - **PCP Valkey** — for historical metrics stored in Valkey/Redis. Set the URL to your `pmproxy` instance.
    - **PCP bpftrace** — for eBPF tracing scripts. Set the URL to your `pmproxy` instance.
 
-4. **Import bundled dashboards** from each datasource's settings page under the **Dashboards** tab. The PCP Vector Checklist dashboards use the [USE method](http://www.brendangregg.com/usemethod.html) to detect potential performance issues.
+3. **Import bundled dashboards** from each datasource's settings page under the **Dashboards** tab. The PCP Vector Checklist dashboards use the [USE method](http://www.brendangregg.com/usemethod.html) to detect potential performance issues.
 
 ## Upgrading from PCP Redis to PCP Valkey
 
