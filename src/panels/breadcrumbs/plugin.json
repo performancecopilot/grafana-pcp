@@ -1,5 +1,9 @@
 {
     "type": "panel",
+    "dependencies": {
+        "grafanaDependency": ">=12.4.3",
+        "plugins": []
+    },
     "name": "PCP Breadcrumbs",
     "id": "performancecopilot-breadcrumbs-panel",
     "skipDataQuery": true,
