@@ -3,8 +3,10 @@ package pmseries
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -17,6 +19,63 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/config"
 	"github.com/stretchr/testify/require"
 )
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req)
+}
+
+func TestURLCredentials(t *testing.T) {
+	for _, expr := range []string{"metric", strings.Repeat("metric", 2000)} {
+		for _, scenario := range []string{"network", "timeout", "decode", "invalid URL", "invalid request"} {
+			t.Run(fmt.Sprintf("%s/length=%d", scenario, len(expr)), func(t *testing.T) {
+				logger := &errorLogRecorder{Logger: log.NewNullLogger()}
+				previousLogger := log.DefaultLogger
+				log.DefaultLogger = logger
+				t.Cleanup(func() { log.DefaultLogger = previousLogger })
+				requestURL := "http://user:secret-password@pmproxy.invalid"
+				cause := errors.New("connection failed")
+				if scenario == "timeout" {
+					cause = &net.DNSError{Err: "timed out", IsTimeout: true}
+				}
+				client := &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+					if scenario == "decode" {
+						return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader("not JSON")), Header: make(http.Header)}, nil
+					}
+					return nil, cause
+				})}
+				if scenario == "invalid URL" || scenario == "invalid request" {
+					requestURL += "/%zz"
+				}
+				api, err := NewPmseriesAPI(requestURL, client)
+				if scenario == "invalid request" {
+					// Exercise request creation independently of constructor validation.
+					api = &pmseriesAPI{url: requestURL, client: client}
+				} else if scenario != "invalid URL" {
+					require.NoError(t, err)
+				}
+				if scenario != "invalid URL" {
+					_, err = api.Query(context.Background(), expr)
+				}
+				require.Error(t, err)
+				require.NotContains(t, err.Error(), "secret-password")
+				require.NotContains(t, strings.Join(logger.entries, "\n"), "secret-password")
+				require.NotContains(t, strings.Join(logger.debugEntries, "\n"), "secret-password")
+				if scenario == "network" || scenario == "timeout" || scenario == "decode" {
+					require.Contains(t, strings.Join(logger.entries, "\n"), "http://user:xxxxx@pmproxy.invalid")
+					require.Contains(t, strings.Join(logger.debugEntries, "\n"), "http://user:xxxxx@pmproxy.invalid")
+				}
+				if scenario == "timeout" {
+					require.Contains(t, err.Error(), "timeout while connecting")
+					require.ErrorIs(t, err, cause)
+				} else if scenario == "network" {
+					require.ErrorIs(t, err, cause)
+				}
+			})
+		}
+	}
+}
 
 func TestQueryRequest(t *testing.T) {
 	for _, method := range []string{http.MethodGet, http.MethodPost} {

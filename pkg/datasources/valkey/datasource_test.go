@@ -15,6 +15,39 @@ import (
 )
 
 func TestDatasource(t *testing.T) {
+	t.Run("malformed credential-bearing URL", func(t *testing.T) {
+		datasource := NewDatasource()
+		response, err := datasource.CheckHealth(context.Background(), &backend.CheckHealthRequest{
+			PluginContext: backend.PluginContext{
+				OrgID: 1,
+				DataSourceInstanceSettings: &backend.DataSourceInstanceSettings{
+					URL: "http://user:secret-password@pmproxy.internal/%zz",
+				},
+			},
+		})
+		require.NoError(t, err)
+		require.Equal(t, backend.HealthStatusError, response.Status)
+		require.Equal(t, "Invalid data source configuration. Check the pmproxy URL.", response.Message)
+	})
+
+	t.Run("ping error details stay out of health result", func(t *testing.T) {
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusBadGateway)
+			_, _ = w.Write([]byte(`{"message":"cannot reach private.internal:6379"}`))
+		}))
+		defer srv.Close()
+		datasource := NewDatasource()
+		response, err := datasource.CheckHealth(context.Background(), &backend.CheckHealthRequest{
+			PluginContext: backend.PluginContext{
+				OrgID:                      1,
+				DataSourceInstanceSettings: &backend.DataSourceInstanceSettings{URL: srv.URL},
+			},
+		})
+		require.NoError(t, err)
+		require.Equal(t, backend.HealthStatusError, response.Status)
+		require.Equal(t, "Cannot connect to pmproxy. Check the URL and that pmproxy is running.", response.Message)
+	})
+
 	t.Run("empty URL", func(t *testing.T) {
 		datasource := NewDatasource()
 		pluginCtx := backend.PluginContext{
@@ -30,7 +63,8 @@ func TestDatasource(t *testing.T) {
 		})
 
 		require.NoError(t, err)
-		require.Equal(t, "invalid URL: parse \"\": empty url", response.Message)
+		require.Equal(t, backend.HealthStatusError, response.Status)
+		require.Equal(t, "Invalid data source configuration. Check the pmproxy URL.", response.Message)
 	})
 
 	t.Run("empty query", func(t *testing.T) {

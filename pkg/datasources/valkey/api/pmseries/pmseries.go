@@ -36,13 +36,23 @@ type pmseriesAPI struct {
 func NewPmseriesAPI(pmproxyUrl string, client *http.Client) (API, error) {
 	_, err := url.ParseRequestURI(pmproxyUrl)
 	if err != nil {
-		return nil, fmt.Errorf("invalid URL: %w", err)
+		return nil, fmt.Errorf("invalid URL: %w", withoutErrorURL(err))
 	}
 
 	return &pmseriesAPI{
 		url:    pmproxyUrl,
 		client: client,
 	}, nil
+}
+
+// withoutErrorURL retains the cause without the URL that url.Error includes in
+// its message. In particular, parse errors can contain unredacted credentials.
+func withoutErrorURL(err error) error {
+	var urlError *url.Error
+	if errors.As(err, &urlError) {
+		return withoutErrorURL(urlError.Err)
+	}
+	return err
 }
 
 // doRequest sends a context-bound pmproxy request and decodes its response.
@@ -56,8 +66,9 @@ func (api *pmseriesAPI) doRequest(ctx context.Context, path string, params url.V
 	if len(absURL)+1+len(paramsEncoded) < 8192 {
 		req, err = http.NewRequestWithContext(ctx, "GET", absURL, nil)
 		if err != nil {
-			log.DefaultLogger.Error("error creating a HTTP GET request", "url", absURL, "err", err)
-			return fmt.Errorf("error creating a HTTP GET request for '%s': %w", absURL, err)
+			err = withoutErrorURL(err)
+			log.DefaultLogger.Error("error creating a HTTP GET request", "err", err)
+			return fmt.Errorf("error creating a HTTP GET request: %w", err)
 		}
 		req.URL.RawQuery = paramsEncoded
 	} else {
@@ -65,22 +76,22 @@ func (api *pmseriesAPI) doRequest(ctx context.Context, path string, params url.V
 		// https://github.com/performancecopilot/pcp/commit/87564eb9907ba6ca517d18c31c32591b64659c10
 		req, err = http.NewRequestWithContext(ctx, "POST", absURL, strings.NewReader(paramsEncoded))
 		if err != nil {
-			log.DefaultLogger.Error("error creating a HTTP POST request", "url", absURL, "params", paramsEncoded, "err", err)
-			return fmt.Errorf("error creating a HTTP POST request for '%s': %w", absURL, err)
+			err = withoutErrorURL(err)
+			log.DefaultLogger.Error("error creating a HTTP POST request", "err", err)
+			return fmt.Errorf("error creating a HTTP POST request: %w", err)
 		}
 	}
 
 	// send HTTP request
-	log.DefaultLogger.Debug("sending pmproxy REST API request", "url", req.URL.String(), "method", req.Method, "params", paramsEncoded)
+	log.DefaultLogger.Debug("sending pmproxy REST API request", "url", req.URL.Redacted(), "method", req.Method, "params", paramsEncoded)
 	resp, err := api.client.Do(req)
 	if err != nil {
-		log.DefaultLogger.Error("error sending pmproxy REST API request", "url", req.URL.String(), "params", paramsEncoded, "err", err)
+		err = withoutErrorURL(err)
+		log.DefaultLogger.Error("error sending pmproxy REST API request", "url", req.URL.Redacted(), "params", paramsEncoded, "err", err)
 
-		var urlError *url.Error
-		if errors.As(err, &urlError) {
-			if urlError.Timeout() {
-				return fmt.Errorf("timeout while connecting to '%s': %w", req.URL.String(), err)
-			}
+		var timeoutError interface{ Timeout() bool }
+		if errors.As(err, &timeoutError) && timeoutError.Timeout() {
+			return fmt.Errorf("timeout while connecting to '%s': %w", req.URL.Redacted(), err)
 		}
 		return fmt.Errorf("network error: %w", err)
 	}
@@ -106,10 +117,9 @@ func (api *pmseriesAPI) doRequest(ctx context.Context, path string, params url.V
 	// HTTP request was successful, 200 status code
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
-		log.DefaultLogger.Error("cannot unmarshal response from pmproxy", "url", req.URL.String(), "code", resp.StatusCode, "params", paramsEncoded, "err", err)
+		log.DefaultLogger.Error("cannot unmarshal response from pmproxy", "url", req.URL.Redacted(), "code", resp.StatusCode, "params", paramsEncoded, "err", err)
 		return fmt.Errorf("cannot unmarshal response from pmproxy: %w", err)
 	}
-	//log.DefaultLogger.Debug("received a response from pmproxy", "url", req.URL.String(), "code", resp.StatusCode, "response", response)
 	return nil
 }
 
