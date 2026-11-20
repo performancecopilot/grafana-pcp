@@ -7,6 +7,10 @@
     "alerting": false,
     "annotations": false,
     "tables": true,
+    "dependencies": {
+        "grafanaDependency": ">=12.4.3",
+        "plugins": []
+    },
     "info": {
         "description": "system introspection using bpftrace scripts",
         "logos": {

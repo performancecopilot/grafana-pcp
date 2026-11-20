@@ -2,6 +2,10 @@
     "name": "PCP Valkey",
     "id": "performancecopilot-valkey-datasource",
     "type": "datasource",
+    "dependencies": {
+        "grafanaDependency": ">=12.4.3",
+        "plugins": []
+    },
     "category": "tsdb",
     "metrics": true,
     "alerting": true,
