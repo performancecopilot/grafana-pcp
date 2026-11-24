@@ -55,6 +55,15 @@ func withoutErrorURL(err error) error {
 	return err
 }
 
+// redactedEndpoint returns the URL without credentials and query parameters,
+// as GET requests carry the query expression in the URL.
+func redactedEndpoint(u *url.URL) string {
+	endpoint := *u
+	endpoint.RawQuery = ""
+	endpoint.ForceQuery = false
+	return endpoint.Redacted()
+}
+
 // doRequest sends a context-bound pmproxy request and decodes its response.
 func (api *pmseriesAPI) doRequest(ctx context.Context, path string, params url.Values, response interface{}) error {
 	var req *http.Request
@@ -87,7 +96,7 @@ func (api *pmseriesAPI) doRequest(ctx context.Context, path string, params url.V
 	resp, err := api.client.Do(req)
 	if err != nil {
 		err = withoutErrorURL(err)
-		log.DefaultLogger.Error("error sending pmproxy REST API request", "url", req.URL.Redacted(), "params", paramsEncoded, "err", err)
+		log.DefaultLogger.Error("error sending pmproxy REST API request", "url", redactedEndpoint(req.URL), "err", err)
 
 		var timeoutError interface{ Timeout() bool }
 		if errors.As(err, &timeoutError) && timeoutError.Timeout() {
@@ -117,7 +126,7 @@ func (api *pmseriesAPI) doRequest(ctx context.Context, path string, params url.V
 	// HTTP request was successful, 200 status code
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
-		log.DefaultLogger.Error("cannot unmarshal response from pmproxy", "url", req.URL.Redacted(), "code", resp.StatusCode, "params", paramsEncoded, "err", err)
+		log.DefaultLogger.Error("cannot unmarshal response from pmproxy", "url", redactedEndpoint(req.URL), "code", resp.StatusCode, "err", err)
 		return fmt.Errorf("cannot unmarshal response from pmproxy: %w", err)
 	}
 	return nil
