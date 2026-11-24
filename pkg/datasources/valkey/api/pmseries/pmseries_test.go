@@ -63,6 +63,9 @@ func TestURLCredentials(t *testing.T) {
 				require.NotContains(t, strings.Join(logger.entries, "\n"), "secret-password")
 				require.NotContains(t, strings.Join(logger.debugEntries, "\n"), "secret-password")
 				if scenario == "network" || scenario == "timeout" || scenario == "decode" {
+					// Request parameters (GET query or POST body) are logged at Debug level only.
+					require.NotContains(t, strings.Join(logger.entries, "\n"), "expr=")
+					require.Contains(t, strings.Join(logger.debugEntries, "\n"), "expr=")
 					require.Contains(t, strings.Join(logger.entries, "\n"), "http://user:xxxxx@pmproxy.invalid")
 					require.Contains(t, strings.Join(logger.debugEntries, "\n"), "http://user:xxxxx@pmproxy.invalid")
 				}

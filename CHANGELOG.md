@@ -1,5 +1,11 @@
 # Change Log
 
+## Next Release
+
+### Bug Fixes
+
+* **valkey**: Remove request parameters from pmproxy error logs; they are still logged at Debug level.
+
 ## 6.2.4 (2026-11-23)
 
 ### Bug Fixes
