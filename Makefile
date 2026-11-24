@@ -131,8 +131,13 @@ jsonnetfmt: ## Run jsonnetfmt on all jsonnet files
 	jsonnetfmt -i $$(find . -name '*.jsonnet')
 
 plugincheck: ## Run the latest Grafana plugin validator with Podman
+	# validate a copy of the git-tracked files, like a clean checkout
+	tmp=$$(mktemp -d) && trap 'rm -rf "$$tmp"' EXIT && mkdir "$$tmp/src" && \
+	git ls-files -z > "$$tmp/files" && \
+	tar --null -T "$$tmp/files" -cf "$$tmp/src.tar" && \
+	tar -xf "$$tmp/src.tar" -C "$$tmp/src" && \
 	podman run --pull=always --rm \
-		-v "$(CURDIR)/build:/build:ro,z" -v "$(CURDIR):/source_code:ro,z" \
+		-v "$(CURDIR)/build:/build:ro,z" -v "$$tmp/src:/source_code:ro,z" \
 		docker.io/grafana/plugin-validator-cli:latest -sourceCodeUri file:///source_code \
 		/build/$(GRAFANA_PLUGIN_ARTIFACT)
 
