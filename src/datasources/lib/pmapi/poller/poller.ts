@@ -91,7 +91,7 @@ export class Poller {
             endpoint.targets
                 .filter(target => target.metricNames.includes(missingMetric))
                 .forEach(target => {
-                    log.warn(`missing metric ${missingMetric} for target`, target);
+                    log.warn(`missing metric ${missingMetric} for target ${target.targetId}`);
                     target.state = TargetState.PENDING;
                     target.errors.push(new MetricNotFoundError(missingMetric));
                 });
