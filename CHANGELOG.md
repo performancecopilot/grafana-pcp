@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * **valkey**: Remove request parameters from pmproxy error logs; they are still logged at Debug level.
+* **vector, bpftrace**: Log only the metric name and target ID when a metric is missing.
 
 ## 6.2.4 (2026-11-23)
 
